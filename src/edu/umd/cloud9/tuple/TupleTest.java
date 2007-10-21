@@ -1,14 +1,9 @@
 package edu.umd.cloud9.tuple;
 
 import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-
 import junit.framework.JUnit4TestAdapter;
 
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.BytesWritable;
 import org.junit.Test;
 
 public class TupleTest {
@@ -47,9 +42,57 @@ public class TupleTest {
 				.instantiate("Hello world!", new Integer(5), new Long(2),
 						new Float(1.2), new Double(3.14), "another string");
 
+		assertEquals(tuple.toString(),
+				"(Hello world!, 5, 2, 1.2, 3.14, another string)");
+
 		byte[] bytes = tuple.pack();
 
 		Tuple unpacked = Tuple.unpack(bytes, SCHEMA1);
+
+		assertEquals(unpacked.get(0), "Hello world!");
+		assertEquals(unpacked.get(1), new Integer(5));
+		assertEquals(unpacked.get(2), new Long(2));
+		assertEquals(unpacked.get(3), new Float(1.2));
+		assertEquals(unpacked.get(4), new Double(3.14));
+		assertEquals(unpacked.get(5), "another string");
+	}
+
+	// packs into hadoop BytesWritable and gets it back
+	@Test
+	public void test3() {
+		Tuple tuple = SCHEMA1
+				.instantiate("Hello world!", new Integer(5), new Long(2),
+						new Float(1.2), new Double(3.14), "another string");
+
+		byte[] bytes = tuple.pack();
+
+		BytesWritable bw = new BytesWritable();
+		bw.set(bytes, 0, bytes.length);
+
+		Tuple unpacked = Tuple.unpack(bw.get(), SCHEMA1);
+
+		assertEquals(unpacked.get(0), "Hello world!");
+		assertEquals(unpacked.get(1), new Integer(5));
+		assertEquals(unpacked.get(2), new Long(2));
+		assertEquals(unpacked.get(3), new Float(1.2));
+		assertEquals(unpacked.get(4), new Double(3.14));
+		assertEquals(unpacked.get(5), "another string");
+	}
+
+	@Test
+	public void test4() {
+		Tuple tuple = SCHEMA1
+				.instantiate("Hello world!", new Integer(5), new Long(2),
+						new Float(1.2), new Double(3.14), "another string");
+
+		Tuple unpacked = SCHEMA1.instantiate();
+
+		byte[] bytes = tuple.pack();
+
+		BytesWritable bw = new BytesWritable();
+		bw.set(bytes, 0, bytes.length);
+
+		Tuple.unpackInto(unpacked, bw.get());
 
 		assertEquals(unpacked.get(0), "Hello world!");
 		assertEquals(unpacked.get(1), new Integer(5));
