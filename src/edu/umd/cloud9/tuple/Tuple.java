@@ -21,7 +21,11 @@ public class Tuple {
 		mSchema = schema;
 	}
 
-	public void Set(int i, Object o) {
+	public Schema getSchema() {
+		return mSchema;
+	}
+
+	public void set(int i, Object o) {
 		mObjects[i] = o;
 	}
 
@@ -38,7 +42,7 @@ public class Tuple {
 		DataOutputStream dataOutStream = new DataOutputStream(byteOutStream);
 
 		try {
-			for (int i = 0; i < mObjects.length; i++) {
+			for (int i = 0; i < mSchema.getFieldCount(); i++) {
 				if (mSchema.getFieldType(i) == Integer.class) {
 					dataOutStream.writeInt(INT);
 					dataOutStream.writeInt((Integer) mObjects[i]);
@@ -70,7 +74,8 @@ public class Tuple {
 
 		ArrayList<Object> objs = new ArrayList<Object>();
 		try {
-			while (dataInStream.available() != 0) {
+			int i = 0;
+			while (i < schema.getFieldCount()) {
 				int type = dataInStream.readInt();
 
 				if (type == INT) {
@@ -86,7 +91,7 @@ public class Tuple {
 					dataInStream.read(in);
 					objs.add(new String(in, "utf8"));
 				}
-
+				i++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,10 +100,45 @@ public class Tuple {
 		return schema.instantiate(objs.toArray());
 	}
 
+	static public void unpackInto(Tuple tuple, byte[] bytes) {
+		DataInputStream dataInStream = new DataInputStream(
+				new ByteArrayInputStream(bytes));
+
+		ArrayList<Object> objs = new ArrayList<Object>();
+		try {
+			int i = 0;
+			while (i < tuple.getSchema().getFieldCount()) {
+				int type = dataInStream.readInt();
+
+				if (type == INT) {
+					objs.add(dataInStream.readInt());
+				} else if (type == LONG) {
+					objs.add(dataInStream.readLong());
+				} else if (type == FLOAT) {
+					objs.add(dataInStream.readFloat());
+				} else if (type == DOUBLE) {
+					objs.add(dataInStream.readDouble());
+				} else {
+					byte[] in = new byte[type];
+					dataInStream.read(in);
+					objs.add(new String(in, "utf8"));
+				}
+				i++;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < objs.size(); i++) {
+			tuple.set(i, objs.get(i));
+		}
+
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 
-		for (int i = 0; i < mObjects.length; i++) {
+		for (int i = 0; i < mSchema.getFieldCount(); i++) {
 			if (i != 0)
 				sb.append(", ");
 			sb.append(mObjects[i]);
