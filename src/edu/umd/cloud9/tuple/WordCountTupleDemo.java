@@ -25,8 +25,6 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-import edu.umd.cloud9.tuple.UnpackKeysDemo.MapClass;
-
 public class WordCountTupleDemo {
 
 	public static final Schema KEY_SCHEMA = new Schema();
@@ -124,7 +122,7 @@ public class WordCountTupleDemo {
 
 		// the second MR is to convert byte representation of keys back into
 		// something human readable
-		JobConf conf2 = new JobConf(UnpackKeysDemo.class);
+		JobConf conf2 = new JobConf(WordCountTupleDemo.class);
 		conf2.setJobName("unpack");
 
 		conf2.setInputPath(new Path(output1Path));
