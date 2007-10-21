@@ -63,7 +63,7 @@ public class Schema implements Cloneable {
                 "Input arrays should be the same length");
         }
         for ( int i=0; i<names.length; ++i ) {
-            addColumn(names[i], types[i], null);
+            addField(names[i], types[i], null);
         }
     }
     
@@ -85,7 +85,7 @@ public class Schema implements Cloneable {
                 "Input arrays should be the same length");
         }
         for ( int i=0; i<names.length; ++i ) {
-            addColumn(names[i], types[i], defaults[i]);
+            addField(names[i], types[i], defaults[i]);
         }
     }
     
@@ -98,7 +98,7 @@ public class Schema implements Cloneable {
     public Object clone() {
         Schema s = new Schema(m_size);
         for ( int i=0; i<m_size; ++i ) {
-            s.addColumn(m_names[i], m_types[i], m_dflts[i]);
+            s.addField(m_names[i], m_types[i], m_dflts[i]);
         }
         return s;
     }
@@ -143,8 +143,8 @@ public class Schema implements Cloneable {
      * @throws IllegalArgumentException is either name or type are null or
      * the name already exists in this schema.
      */
-    public void addColumn(String name, Class type) {
-        addColumn(name, type, null);
+    public void addField(String name, Class type) {
+        addField(name, type, null);
     }
     
     /**
@@ -154,7 +154,7 @@ public class Schema implements Cloneable {
      * @throws IllegalArgumentException is either name or type are null or
      * the name already exists in this schema.
      */
-    public void addColumn(String name, Class type, Object defaultValue) {
+    public void addField(String name, Class type, Object defaultValue) {
         // check lock status
         if ( m_locked ) {
             throw new IllegalStateException(
@@ -205,7 +205,7 @@ public class Schema implements Cloneable {
      * Get the number of columns in this schema.
      * @return the number of columns
      */
-    public int getColumnCount() {
+    public int getFieldCount() {
         return m_size;
     }
     
@@ -214,7 +214,7 @@ public class Schema implements Cloneable {
      * @param col the column index
      * @return the column name
      */
-    public String getColumnName(int col) {
+    public String getFieldName(int col) {
         return m_names[col];
     }
     
@@ -223,7 +223,7 @@ public class Schema implements Cloneable {
      * @param field the column name
      * @return the column index
      */
-    public int getColumnIndex(String field) {
+    public int getFieldIndex(String field) {
         if ( m_lookup == null )
             initLookup();
         
@@ -236,7 +236,7 @@ public class Schema implements Cloneable {
      * @param col the column index
      * @return the column type
      */
-    public Class getColumnType(int col) {
+    public Class getFieldType(int col) {
         return m_types[col];
     }
 
@@ -245,8 +245,8 @@ public class Schema implements Cloneable {
      * @param field the column name
      * @return the column type
      */
-    public Class getColumnType(String field) {
-        int idx = getColumnIndex(field);
+    public Class getFieldType(String field) {
+        int idx = getFieldIndex(field);
         return ( idx<0 ? null : m_types[idx] );
     }
     
@@ -265,7 +265,7 @@ public class Schema implements Cloneable {
      * @return the column's default value
      */
     public Object getDefault(String field) {
-        int idx = getColumnIndex(field);
+        int idx = getFieldIndex(field);
         return ( idx<0 ? null : m_dflts[idx] );
     }
     
@@ -294,7 +294,7 @@ public class Schema implements Cloneable {
             throw new IllegalStateException(
                 "Can not update default values of a locked Schema.");
         }
-        int idx = getColumnIndex(field);
+        int idx = getFieldIndex(field);
         m_dflts[idx] = val;
     }
     
@@ -354,12 +354,12 @@ public class Schema implements Cloneable {
             return false;
         
         Schema s = (Schema)o;
-        if ( m_size != s.getColumnCount() )
+        if ( m_size != s.getFieldCount() )
             return false;
         
         for ( int i=0; i<m_size; ++i ) {
-            if ( !(m_names[i].equals(s.getColumnName(i)) &&
-                   m_types[i].equals(s.getColumnType(i)) &&
+            if ( !(m_names[i].equals(s.getFieldName(i)) &&
+                   m_types[i].equals(s.getFieldType(i)) &&
                    m_dflts[i].equals(s.getDefault(i))) )
             {
                 return false;
@@ -413,6 +413,11 @@ public class Schema implements Cloneable {
     	
     	return new Tuple(t, this);
     }
+    
+    public Tuple instantiate(Object... objects) {
+    	return new Tuple(objects, this);
+    }
+    
     
     
 } // end of class Schema
