@@ -27,6 +27,11 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 public class WordCountTupleDemo {
 
+	public static final Schema RECORD_SCHEMA = new Schema();
+	static {
+		RECORD_SCHEMA.addField("text", String.class, "");
+	}
+	
 	public static final Schema KEY_SCHEMA = new Schema();
 	static {
 		KEY_SCHEMA.addField("Token", String.class, "");
@@ -41,10 +46,13 @@ public class WordCountTupleDemo {
 
 		private BytesWritable bytekey = new BytesWritable();
 		private Tuple tuple = KEY_SCHEMA.instantiate();
+		private Tuple record = RECORD_SCHEMA.instantiate();
 
 		public void map(WritableComparable key, Writable value,
 				OutputCollector output, Reporter reporter) throws IOException {
-			String line = ((Text) value).toString();
+			Tuple.unpackInto(record, ((BytesWritable) value).get());
+			//String line = ((Text) value).toString();
+			String line = (String) record.get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
@@ -89,7 +97,7 @@ public class WordCountTupleDemo {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String inPath = "sample-input/bible+shakes.nopunc";
+		String inPath = "sample-input/bible+shakes.nopunc.packed";
 		String output1Path = "sample-counts-packed";
 		String output2Path = "sample-counts-unpacked";
 		int numMapTasks = 20;
@@ -106,6 +114,7 @@ public class WordCountTupleDemo {
 		conf1.setJobName("wordcount");
 
 		conf1.setInputPath(new Path(inPath));
+		conf1.setInputFormat(SequenceFileInputFormat.class);
 		conf1.setNumMapTasks(numMapTasks);
 		conf1.setNumReduceTasks(numReduceTasks);
 
