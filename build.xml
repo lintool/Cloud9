@@ -1,0 +1,142 @@
+<project name="umd-hadoop-core" default="scripts" basedir=".">
+	<description>Cloud9, University of Maryland's Hadoop Library</description>
+
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="lib" location="lib" />
+	<property name="regression_results" location="regression-results" />
+
+	<path id="classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="../umd-hadoop-dist/hadoop-0.14.1">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="../umd-hadoop-dist/jars">
+			<include name="**/*.jar" />
+		</fileset>
+
+	</path>
+
+	<target name="init">
+		<tstamp />
+		<condition property="platform" value="unix">
+			<os family="unix" />
+		</condition>
+		<condition property="platform" value="unix">
+			<os family="mac" />
+		</condition>
+		<condition property="platform" value="windows">
+			<os family="windows" />
+		</condition>
+		<mkdir dir="${build}" />
+		<mkdir dir="${lib}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<javac classpathref="classpath" srcdir="${src}" destdir="${build}" optimize="on" debug="on">
+			<!-- compilerarg value="-Xlint:unchecked"/ 
+        uncomment this to check for generics -->
+		</javac>
+		<copy todir="${build}">
+			<fileset dir="${src}" excludes="**/*.java" />
+		</copy>
+	</target>
+
+	<target name="lib" depends="compile" description="generate the distribution">
+		<jar jarfile="${lib}/ura.jar" basedir="${build}" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${regression_results}" />
+		<delete dir="${build}" />
+		<delete file="${lib}/ura.jar" />
+	</target>
+
+	<target name="test" depends="lib" description="Execute Unit Tests">
+		<mkdir dir="${regression_results}" />
+		<junit printsummary="yes" fork="yes" maxmemory="1024m">
+			<sysproperty key="java.library.path" path="${lib}" />
+			<sysproperty key="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser" />
+			<sysproperty key="ura.resource.base" value="../ura-resources/" />
+			<classpath refid="classpath" />
+
+			<formatter type="xml" />
+			<batchtest todir="${regression_results}">
+				<fileset dir="${build}">
+					<include name="**/*Test.class" />
+					<exclude name="**/regression/*Test.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${regression_results}">
+			<fileset dir="${regression_results}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" styledir="etc/" todir="${regression_results}" />
+		</junitreport>
+	</target>
+
+	<target name="javadoc">
+		<javadoc destdir="doc/javadoc/" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" sourcepath="src" classpathref="classpath">
+			<fileset dir="src">
+				<include name="**/*.java"/>
+				<exclude name="**/*Test.java" />
+			</fileset>
+			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+		</javadoc>
+	</target>
+
+	<target name="scripts" depends="lib">
+		<pathconvert property="classpath" refid="classpath" targetos="${platform}" />
+
+		<condition property="suffix" value="sh">
+			<equals arg1="${platform}" arg2="unix" />
+		</condition>
+		<condition property="suffix" value="bat">
+			<equals arg1="${platform}" arg2="windows" />
+		</condition>
+
+		<condition property="param_prefix" value="$">
+			<equals arg1="${platform}" arg2="unix" />
+		</condition>
+		<condition property="param_prefix" value="%">
+			<equals arg1="${platform}" arg2="windows" />
+		</condition>
+
+		<condition property="java" value="java">
+			<equals arg1="${platform}" arg2="unix" />
+		</condition>
+		<condition property="java" value="java">
+			<equals arg1="${platform}" arg2="windows" />
+		</condition>
+
+		<condition property="cp_sep" value=":">
+			<equals arg1="${platform}" arg2="unix" />
+		</condition>
+		<condition property="cp_sep" value=";">
+			<equals arg1="${platform}" arg2="windows" />
+		</condition>
+
+		<property name="java_command" value="${java} -Xmx1024m -classpath &quot;${classpath}&quot;" />
+
+		<condition property="script_prefix" value="#!/bin/sh${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
+			<equals arg1="${platform}" arg2="unix" />
+		</condition>
+		<condition property="script_prefix" value="">
+			<equals arg1="${platform}" arg2="windows" />
+		</condition>
+
+		<echo file="./etc/junit.${suffix}" message="${script_prefix}" />
+		<echo file="./etc/junit.${suffix}" message="${java_command} org.junit.runner.JUnitCore " append="true" />
+		<echo file="./etc/junit.${suffix}" message="${param_prefix}1" append="true" />
+
+		<echo file="./etc/run.${suffix}" message="${script_prefix}" />
+		<echo file="./etc/run.${suffix}" message="${java_command} " append="true" />
+		<echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
+
+	</target>
+
+</project>
