@@ -24,7 +24,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
 
-public class WordCountTupleDemo {
+public class DemoWordCountTuple {
 
 	public static final Schema RECORD_SCHEMA = new Schema();
 	static {
@@ -109,7 +109,7 @@ public class WordCountTupleDemo {
 		}
 
 		// the first MR is to do the actual word counting
-		JobConf conf1 = new JobConf(WordCountTupleDemo.class);
+		JobConf conf1 = new JobConf(DemoWordCountTuple.class);
 		conf1.setJobName("wordcount");
 
 		conf1.setInputPath(new Path(inPath));
@@ -130,7 +130,7 @@ public class WordCountTupleDemo {
 
 		// the second MR is to convert byte representation of keys back into
 		// something human readable
-		JobConf conf2 = new JobConf(WordCountTupleDemo.class);
+		JobConf conf2 = new JobConf(DemoWordCountTuple.class);
 		conf2.setJobName("unpack");
 
 		conf2.setInputPath(new Path(output1Path));

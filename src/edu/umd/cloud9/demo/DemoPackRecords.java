@@ -9,7 +9,7 @@ import edu.umd.cloud9.tuple.LocalTupleRecordWriter;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
 
-public class PackRecordsDemo {
+public class DemoPackRecords {
 
 	public static final Schema RECORD_SCHEMA = new Schema();
 	static {

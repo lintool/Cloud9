@@ -6,7 +6,7 @@ import edu.umd.cloud9.tuple.LocalTupleRecordReader;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
 
-public class PackRecordsReadDemo {
+public class DemoReadPackedRecords {
 	public static final Schema RECORD_SCHEMA = new Schema();
 	static {
 		RECORD_SCHEMA.addField("text", String.class, "");
