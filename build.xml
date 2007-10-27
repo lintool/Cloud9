@@ -3,8 +3,9 @@
 
 	<property name="src" location="src" />
 	<property name="build" location="build" />
-	<property name="lib" location="lib" />
-	<property name="regression_results" location="regression-results" />
+	<property name="lib" location="../umd-hadoop-dist/jars" />
+	<property name="regression_results" location="../umd-hadoop-dist/regression-results" />
+	<property name="javadoc" location="../umd-hadoop-dist/cloud9-docs/api/" />
 
 	<path id="classpath">
 		<fileset dir="${lib}">
@@ -45,7 +46,7 @@
 	</target>
 
 	<target name="lib" depends="compile" description="generate the distribution">
-		<jar jarfile="${lib}/ura.jar" basedir="${build}" />
+		<jar jarfile="${lib}/cloud9.jar" basedir="${build}" />
 	</target>
 
 	<target name="clean" description="clean up">
@@ -80,7 +81,7 @@
 	</target>
 
 	<target name="javadoc">
-		<javadoc destdir="doc/javadoc/" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" sourcepath="src" classpathref="classpath">
+		<javadoc destdir="${javadoc}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" sourcepath="src" classpathref="classpath">
 			<fileset dir="src">
 				<include name="**/*.java"/>
 				<exclude name="**/*Test.java" />
