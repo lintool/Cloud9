@@ -17,7 +17,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
-public class WordCount {
+public class DemoWordCount {
 
 	public static class MapClass extends MapReduceBase implements Mapper {
 		private final static IntWritable one = new IntWritable(1);
@@ -57,7 +57,7 @@ public class WordCount {
 			reduceTasks = 10;
 		}
 
-		JobConf conf = new JobConf(WordCount.class);
+		JobConf conf = new JobConf(DemoWordCount.class);
 		conf.setJobName("wordcount");
 
 		// the keys are words (strings)
