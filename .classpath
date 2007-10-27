@@ -14,5 +14,5 @@
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop-0.14.1/lib/commons-cli-2.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop-0.14.1/hadoop-0.14.1-core.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/junit-4.4.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="build"/>
 </classpath>
