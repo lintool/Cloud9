@@ -1,9 +1,13 @@
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.demo;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import edu.umd.cloud9.tuple.LocalTupleRecordWriter;
+import edu.umd.cloud9.tuple.Schema;
+import edu.umd.cloud9.tuple.Tuple;
 
 public class PackRecordsDemo {
 

@@ -1,4 +1,4 @@
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.demo;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -20,6 +20,9 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+
+import edu.umd.cloud9.tuple.Schema;
+import edu.umd.cloud9.tuple.Tuple;
 
 public class WordCountTupleDemo {
 

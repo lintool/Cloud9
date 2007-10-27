@@ -1,6 +1,10 @@
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.demo;
 
 import java.io.IOException;
+
+import edu.umd.cloud9.tuple.LocalTupleRecordReader;
+import edu.umd.cloud9.tuple.Schema;
+import edu.umd.cloud9.tuple.Tuple;
 
 public class PackRecordsReadDemo {
 	public static final Schema RECORD_SCHEMA = new Schema();
