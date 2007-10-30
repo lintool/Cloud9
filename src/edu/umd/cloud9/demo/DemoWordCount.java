@@ -49,7 +49,7 @@ public class DemoWordCount {
 		String filename = "sample-input/bible+shakes.nopunc";
 		String outputPath = "sample-counts";
 		int mapTasks = 20;
-		int reduceTasks = 60;
+		int reduceTasks = 20;
 		boolean local = false;
 
 		if (local) {
