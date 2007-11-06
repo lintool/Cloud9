@@ -482,10 +482,16 @@ public class Schema implements Cloneable {
 	public Tuple instantiate() {
 		lockSchema();
 
-		Object[] t = new Object[mFieldCount];
-		System.arraycopy(mDefaultValues, 0, t, 0, mFieldCount);
+		Object[] objs = new Object[mFieldCount];
+		System.arraycopy(mDefaultValues, 0, objs, 0, mFieldCount);
 
-		return new Tuple(t, this);
+		String[] fields = new String[mFieldCount];
+		System.arraycopy(mFieldNames, 0, fields, 0, mFieldCount);
+
+		Class[] types = new Class[mFieldCount];
+		System.arraycopy(mFieldTypes, 0, types, 0, mFieldCount);
+		
+		return new Tuple(objs, fields, types);
 	}
 
 	/**
@@ -498,7 +504,13 @@ public class Schema implements Cloneable {
 	public Tuple instantiate(Object... objects) {
 		lockSchema();
 
-		return new Tuple(objects, this);
+		String[] fields = new String[mFieldCount];
+		System.arraycopy(mFieldNames, 0, fields, 0, mFieldCount);
+
+		Class[] types = new Class[mFieldCount];
+		System.arraycopy(mFieldTypes, 0, types, 0, mFieldCount);
+		
+		return new Tuple(objects, fields, types);
 	}
 
 } // end of class Schema

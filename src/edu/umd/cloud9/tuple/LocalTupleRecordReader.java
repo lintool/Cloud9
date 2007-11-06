@@ -26,7 +26,7 @@ public class LocalTupleRecordReader {
 
 	public boolean read(Tuple tuple) throws IOException {
 		if (mReader.next(mKey, value) == true) {
-			Tuple.unpackInto(tuple, value.get());
+			//Tuple.unpackInto(tuple, value.get());
 			cnt++;
 		} else {
 			return false;

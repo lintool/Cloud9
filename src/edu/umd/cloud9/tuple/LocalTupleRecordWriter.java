@@ -26,12 +26,12 @@ public class LocalTupleRecordWriter {
 	}
 
 	public void add(Tuple tuple) throws IOException {
-		byte[] buf = tuple.pack();
+		/*byte[] buf = tuple.pack();
 
 		mLong.set(mCnt);
 		mBytes.set(buf, 0, buf.length);
 		writer.append(mLong, mBytes);
-		mCnt++;
+		mCnt++;*/
 	}
 
 	public long getRecordCount() {
