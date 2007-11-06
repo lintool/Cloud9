@@ -35,9 +35,10 @@ public class TupleTest {
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		tuple.write(dataOut);
-		
-		Tuple t = Tuple.createFrom(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
-		
+
+		Tuple t = Tuple.createFrom(new DataInputStream(
+				new ByteArrayInputStream(bytesOut.toByteArray())));
+
 		assertEquals(t.get(0), "default");
 		assertEquals(t.get(1), true);
 		assertEquals(t.get(2), new Integer(1));
@@ -45,7 +46,7 @@ public class TupleTest {
 		assertEquals(t.get(4), new Float(2.5));
 		assertEquals(t.get(5), new Double(3.14));
 		assertEquals(t.get(6), "test");
-		
+
 		assertEquals(t.get("field0"), "default");
 		assertEquals(t.get("field1"), true);
 		assertEquals(t.get("field2"), new Integer(1));
@@ -57,17 +58,18 @@ public class TupleTest {
 
 	@Test
 	public void testInstantiatedValues() throws IOException {
-		Tuple tuple = SCHEMA1
-				.instantiate("Hello world!", false, new Integer(5), new Long(3),
-						new Float(1.2), new Double(2.871), "another string");
+		Tuple tuple = SCHEMA1.instantiate("Hello world!", false,
+				new Integer(5), new Long(3), new Float(1.2), new Double(2.871),
+				"another string");
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		tuple.write(dataOut);
-		
-		Tuple t = Tuple.createFrom(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
-	
+
+		Tuple t = Tuple.createFrom(new DataInputStream(
+				new ByteArrayInputStream(bytesOut.toByteArray())));
+
 		assertEquals(t.get(0), "Hello world!");
 		assertEquals(t.get(1), false);
 		assertEquals(t.get(2), new Integer(5));
@@ -76,12 +78,11 @@ public class TupleTest {
 		assertEquals(t.get(5), new Double(2.871));
 		assertEquals(t.get(6), "another string");
 	}
-	
+
 	@Test
 	public void testSetValues() throws IOException {
-		Tuple tuple = SCHEMA1
-				.instantiate();
-		
+		Tuple tuple = SCHEMA1.instantiate();
+
 		tuple.set(0, "Hello world!");
 		tuple.set(1, false);
 		tuple.set(2, new Integer(5));
@@ -94,9 +95,10 @@ public class TupleTest {
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		tuple.write(dataOut);
-		
-		Tuple t = Tuple.createFrom(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
-	
+
+		Tuple t = Tuple.createFrom(new DataInputStream(
+				new ByteArrayInputStream(bytesOut.toByteArray())));
+
 		assertEquals(t.get(0), "Hello world!");
 		assertEquals(t.get(1), false);
 		assertEquals(t.get(2), new Integer(5));
@@ -105,82 +107,13 @@ public class TupleTest {
 		assertEquals(t.get(5), new Double(2.871));
 		assertEquals(t.get(6), "another string");
 	}
-	
+
 	@Test
 	public void testToString() throws IOException {
-		Tuple tuple = SCHEMA1
-				.instantiate();
-	
-		System.out.println(tuple.toString());
+		Tuple tuple = SCHEMA1.instantiate();
+
+		assertEquals(tuple.toString(), "(default, true, 1, 2, 2.5, 3.14, test)");
 	}
-	
-	/*
-	// tests unpacking of user-specified values
-	@Test
-	public void test2() {
-		Tuple tuple = SCHEMA1
-				.instantiate("Hello world!", new Integer(5), new Long(2),
-						new Float(1.2), new Double(3.14), "another string");
-
-		assertEquals(tuple.toString(),
-				"(Hello world!, 5, 2, 1.2, 3.14, another string)");
-
-		byte[] bytes = tuple.pack();
-
-		Tuple unpacked = Tuple.unpack(bytes, SCHEMA1);
-
-		assertEquals(unpacked.get(0), "Hello world!");
-		assertEquals(unpacked.get(1), new Integer(5));
-		assertEquals(unpacked.get(2), new Long(2));
-		assertEquals(unpacked.get(3), new Float(1.2));
-		assertEquals(unpacked.get(4), new Double(3.14));
-		assertEquals(unpacked.get(5), "another string");
-	}
-
-	// packs into hadoop BytesWritable and gets it back
-	@Test
-	public void test3() {
-		Tuple tuple = SCHEMA1
-				.instantiate("Hello world!", new Integer(5), new Long(2),
-						new Float(1.2), new Double(3.14), "another string");
-
-		byte[] bytes = tuple.pack();
-
-		BytesWritable bw = new BytesWritable();
-		bw.set(bytes, 0, bytes.length);
-
-		Tuple unpacked = Tuple.unpack(bw.get(), SCHEMA1);
-
-		assertEquals(unpacked.get(0), "Hello world!");
-		assertEquals(unpacked.get(1), new Integer(5));
-		assertEquals(unpacked.get(2), new Long(2));
-		assertEquals(unpacked.get(3), new Float(1.2));
-		assertEquals(unpacked.get(4), new Double(3.14));
-		assertEquals(unpacked.get(5), "another string");
-	}
-
-	@Test
-	public void test4() {
-		Tuple tuple = SCHEMA1
-				.instantiate("Hello world!", new Integer(5), new Long(2),
-						new Float(1.2), new Double(3.14), "another string");
-
-		Tuple unpacked = SCHEMA1.instantiate();
-
-		byte[] bytes = tuple.pack();
-
-		BytesWritable bw = new BytesWritable();
-		bw.set(bytes, 0, bytes.length);
-
-		Tuple.unpackInto(unpacked, bw.get());
-
-		assertEquals(unpacked.get(0), "Hello world!");
-		assertEquals(unpacked.get(1), new Integer(5));
-		assertEquals(unpacked.get(2), new Long(2));
-		assertEquals(unpacked.get(3), new Float(1.2));
-		assertEquals(unpacked.get(4), new Double(3.14));
-		assertEquals(unpacked.get(5), "another string");
-	}*/
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(TupleTest.class);

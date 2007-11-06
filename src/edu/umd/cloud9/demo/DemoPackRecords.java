@@ -16,7 +16,7 @@ public class DemoPackRecords {
 		RECORD_SCHEMA.addField("text", String.class, "");
 	}
 
-	public static Tuple tuple = RECORD_SCHEMA.instantiate();
+	private static Tuple tuple = RECORD_SCHEMA.instantiate();
 
 	public static void main(String[] args) throws IOException {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";

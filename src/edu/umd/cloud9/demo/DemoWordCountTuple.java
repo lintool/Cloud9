@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -19,7 +18,6 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 import edu.umd.cloud9.tuple.Schema;
@@ -30,7 +28,7 @@ public class DemoWordCountTuple {
 	public static final Schema KEY_SCHEMA = new Schema();
 	static {
 		KEY_SCHEMA.addField("Token", String.class, "");
-		KEY_SCHEMA.addField("OddOrEven", Integer.class, new Integer(1));
+		KEY_SCHEMA.addField("EvenOrOdd", Integer.class, new Integer(1));
 	}
 
 	// similar to WordCount, except that it keeps track of counts in lines that
@@ -44,17 +42,16 @@ public class DemoWordCountTuple {
 		public void map(WritableComparable key, Writable value,
 				OutputCollector output, Reporter reporter) throws IOException {
 			
-			String line = ((Text) value).toString();
+			String line = (String) ((Tuple) value).get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
 
-				tuple.set(0, token);
-				tuple.set(1, line.length() % 2);
+				tuple.set("Token", token);
+				tuple.set("EvenOrOdd", line.length() % 2);
 			
 				output.collect(tuple, one);
 			}
-			
 		}
 	}
 
@@ -85,7 +82,7 @@ public class DemoWordCountTuple {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String inPath = "sample-input/bible+shakes.nopunc";
+		String inPath = "sample-input/bible+shakes.nopunc.packed";
 		String output1Path = "word-counts-tuple";
 		String output2Path = "word-counts-txt";
 		int numMapTasks = 20;
@@ -95,43 +92,43 @@ public class DemoWordCountTuple {
 		JobConf conf1 = new JobConf(DemoWordCountTuple.class);
 		conf1.setJobName("wordcount");
 
-		conf1.setInputPath(new Path(inPath));
-		conf1.setInputFormat(TextInputFormat.class);
 		conf1.setNumMapTasks(numMapTasks);
 		conf1.setNumReduceTasks(numReduceTasks);
-
-		conf1.setMapperClass(MapClass.class);
-		conf1.setCombinerClass(ReduceClass.class);
-		conf1.setReducerClass(ReduceClass.class);
+		
+		conf1.setInputPath(new Path(inPath));
+		conf1.setInputFormat(SequenceFileInputFormat.class);
 
 		conf1.setOutputPath(new Path(output1Path));
 		conf1.setOutputKeyClass(Tuple.class);
 		conf1.setOutputValueClass(IntWritable.class);
 		conf1.setOutputFormat(SequenceFileOutputFormat.class);
 
+		conf1.setMapperClass(MapClass.class);
+		conf1.setCombinerClass(ReduceClass.class);
+		conf1.setReducerClass(ReduceClass.class);
+
 		JobClient.runJob(conf1);
 
 		// the second MR is to convert byte representation of keys back into
 		// something human readable
 		
-		/*
 		JobConf conf2 = new JobConf(DemoWordCountTuple.class);
 		conf2.setJobName("unpack");
 
-		conf2.setInputPath(new Path(output1Path));
-		conf2.setInputFormat(SequenceFileInputFormat.class);
 		conf2.setNumMapTasks(numMapTasks);
 		conf2.setNumReduceTasks(1);
 
-		conf2.setMapperClass(UnpackKeysClass.class);
-		conf2.setCombinerClass(IdentityReducer.class);
-		conf2.setReducerClass(IdentityReducer.class);
+		conf2.setInputPath(new Path(output1Path));
+		conf2.setInputFormat(SequenceFileInputFormat.class);
 
 		conf2.setOutputPath(new Path(output2Path));
 		conf2.setOutputKeyClass(Text.class);
 		conf2.setOutputValueClass(IntWritable.class);
 
+		conf2.setMapperClass(UnpackKeysClass.class);
+		conf2.setCombinerClass(IdentityReducer.class);
+		conf2.setReducerClass(IdentityReducer.class);
+
 		JobClient.runJob(conf2);
-		*/
 	}
 }
