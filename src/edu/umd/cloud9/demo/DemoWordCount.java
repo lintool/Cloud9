@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.demo;
 
 import java.io.IOException;
@@ -17,9 +33,16 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * Simple "Hello World" demo that counts words in the bible+Shakespeare sample
+ * collection.
+ */
 public class DemoWordCount {
 
-	public static class MapClass extends MapReduceBase implements Mapper {
+	// mapper: emits (token, 1) for every word occurrence
+	private static class MapClass extends MapReduceBase implements Mapper {
+
+		// reuse objects to save overhead of object creation
 		private final static IntWritable one = new IntWritable(1);
 		private Text word = new Text();
 
@@ -34,45 +57,50 @@ public class DemoWordCount {
 		}
 	}
 
-	public static class ReduceClass extends MapReduceBase implements Reducer {
+	// mapper: sums up all the counts
+	private static class ReduceClass extends MapReduceBase implements Reducer {
+
+		// reuse objects
+		private final static IntWritable SumValue = new IntWritable();
+
 		public void reduce(WritableComparable key, Iterator values,
 				OutputCollector output, Reporter reporter) throws IOException {
+			// sum up values
 			int sum = 0;
 			while (values.hasNext()) {
 				sum += ((IntWritable) values.next()).get();
 			}
-			output.collect(key, new IntWritable(sum));
+			SumValue.set(sum);
+			output.collect(key, SumValue);
 		}
 	}
 
+	private DemoWordCount() {
+	}
+
+	/**
+	 * Runs the demo.
+	 */
 	public static void main(String[] args) throws IOException {
 		String filename = "sample-input/bible+shakes.nopunc";
 		String outputPath = "sample-counts";
 		int mapTasks = 20;
-		int reduceTasks = 20;
-		boolean local = false;
-
-		if (local) {
-			mapTasks = 5;
-			reduceTasks = 10;
-		}
+		int reduceTasks = 1;
 
 		JobConf conf = new JobConf(DemoWordCount.class);
 		conf.setJobName("wordcount");
 
-		// the keys are words (strings)
+		conf.setNumMapTasks(mapTasks);
+		conf.setNumReduceTasks(reduceTasks);
+
+		conf.setInputPath(new Path(filename));
 		conf.setOutputKeyClass(Text.class);
-		// the values are counts (ints)
 		conf.setOutputValueClass(IntWritable.class);
+		conf.setOutputPath(new Path(outputPath));
 
 		conf.setMapperClass(MapClass.class);
 		conf.setCombinerClass(ReduceClass.class);
 		conf.setReducerClass(ReduceClass.class);
-
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(reduceTasks);
-		conf.setInputPath(new Path(filename));
-		conf.setOutputPath(new Path(outputPath));
 
 		JobClient.runJob(conf);
 	}
