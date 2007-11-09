@@ -140,7 +140,7 @@ public class DemoWordCountTuple {
 	}
 
 	/**
-	 * Run the actual demo.
+	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
 		String inPath = "sample-input/bible+shakes.nopunc.packed";
