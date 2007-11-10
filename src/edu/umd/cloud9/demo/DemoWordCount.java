@@ -34,7 +34,7 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 /**
- * Simple "Hello World" demo that counts words in the bible+Shakespeare sample
+ * Simple word count demo. Counts words in the Bible+Shakespeare sample
  * collection.
  */
 public class DemoWordCount {

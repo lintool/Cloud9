@@ -42,7 +42,7 @@ import edu.umd.cloud9.tuple.Tuple;
 /**
  * <p>
  * Demo that illustrates the use of the tuple library. Input comes from
- * bible+Shakespeare sample collection, encoded as single-field tuples; see
+ * Bible+Shakespeare sample collection, encoded as single-field tuples; see
  * {@link DemoPackRecords}. The demo executes two separate MapReduce cycles:
  * </p>
  * 
@@ -106,7 +106,7 @@ public class DemoWordCountTuple {
 
 	// reducer counts up tuple occurrences
 	private static class ReduceClass extends MapReduceBase implements Reducer {
-		private final static IntWritable sumValue = new IntWritable();
+		private final static IntWritable SumValue = new IntWritable();
 
 		public synchronized void reduce(WritableComparable key,
 				Iterator values, OutputCollector output, Reporter reporter)
@@ -118,8 +118,8 @@ public class DemoWordCountTuple {
 			}
 
 			// keep original tuple key, emit sum of counts as value
-			sumValue.set(sum);
-			output.collect(key, sumValue);
+			SumValue.set(sum);
+			output.collect(key, SumValue);
 		}
 	}
 
