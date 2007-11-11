@@ -1,35 +1,43 @@
 package edu.umd.cloud9.tuple;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 public class Tuple implements WritableComparable {
 
-	protected static final int INT = -1;
-	protected static final int BOOLEAN = -2;
-	protected static final int LONG = -3;
-	protected static final int FLOAT = -4;
-	protected static final int DOUBLE = -5;
-	protected static final int STRING = -6;
+	protected static final byte SYMBOL = 0;
+	protected static final byte INT = 1;
+	protected static final byte BOOLEAN = 2;
+	protected static final byte LONG = 3;
+	protected static final byte FLOAT = 4;
+	protected static final byte DOUBLE = 5;
+	protected static final byte STRING = 6;
+	protected static final byte WRITABLE = 7;
 
 	private Object[] mObjects;
+	private String[] mSymbols;
 	private String[] mFields;
-	private Class[] mTypes;
+	private Class<?>[] mTypes;
 
 	private byte[] mBytes = null;
 
 	private Map<String, Integer> mFieldLookup = null;
 
-	protected Tuple(Object[] objs, String[] fields, Class[] types) {
-		mObjects = objs;
+	protected Tuple(Object[] objects, String[] symbols, String[] fields,
+			Class<?>[] types) {
+		mObjects = objects;
+		mSymbols = symbols;
 		mFields = fields;
 		mTypes = types;
 	}
@@ -56,12 +64,24 @@ public class Tuple implements WritableComparable {
 		if (mFieldLookup == null)
 			initLookup();
 
-		mObjects[mFieldLookup.get(field)] = o;
+		set(mFieldLookup.get(field), o);
+	}
+
+	public void setSymbol(int i, String s) {
+		mObjects[i] = null;
+		mSymbols[i] = s;
 
 		// invalidate serialized representation
 		mBytes = null;
 	}
-	
+
+	public void setSymbol(String field, String s) {
+		if (mFieldLookup == null)
+			initLookup();
+
+		setSymbol(mFieldLookup.get(field), s);
+	}
+
 	public Object get(int i) {
 		return mObjects[i];
 	}
@@ -70,7 +90,43 @@ public class Tuple implements WritableComparable {
 		if (mFieldLookup == null)
 			initLookup();
 
-		return mObjects[mFieldLookup.get(field)];
+		return get(mFieldLookup.get(field));
+	}
+
+	public String getSymbol(int i) {
+		if (mObjects[i] != null)
+			return null;
+
+		return mSymbols[i];
+	}
+
+	public String getSymbol(String field) {
+		if (mFieldLookup == null)
+			initLookup();
+
+		return getSymbol(mFieldLookup.get(field));
+	}
+
+	public boolean containsSymbol(int i) {
+		return mObjects[i] == null;
+	}
+
+	public boolean containsSymbol(String field) {
+		if (mFieldLookup == null)
+			initLookup();
+
+		return containsSymbol(mFieldLookup.get(field));
+	}
+
+	public Class<?> getFieldType(int i) {
+		return mTypes[i];
+	}
+
+	public Class<?> getFieldType(String field) {
+		if (mFieldLookup == null)
+			initLookup();
+
+		return getFieldType(mFieldLookup.get(field));
 	}
 
 	/**
@@ -84,6 +140,12 @@ public class Tuple implements WritableComparable {
 		}
 	}
 
+	/**
+	 * Returns a byte array representation of this tuple. This is used to
+	 * determine the natural sort order of tuples, but useful for little else.
+	 * 
+	 * @return byte array representation of this tuple
+	 */
 	public byte[] getBytes() {
 		if (mBytes == null)
 			generateByteRepresentation();
@@ -96,7 +158,9 @@ public class Tuple implements WritableComparable {
 		DataOutputStream out = new DataOutputStream(byteStream);
 		try {
 			for (int i = 0; i < mFields.length; i++) {
-				if (mTypes[i] == Integer.class) {
+				if (mObjects[i] == null) {
+					out.writeUTF(mSymbols[i]);
+				} else if (mTypes[i] == Integer.class) {
 					out.writeInt((Integer) mObjects[i]);
 				} else if (mTypes[i] == Boolean.class) {
 					out.writeBoolean((Boolean) mObjects[i]);
@@ -106,8 +170,14 @@ public class Tuple implements WritableComparable {
 					out.writeFloat((Float) mObjects[i]);
 				} else if (mTypes[i] == Double.class) {
 					out.writeDouble((Double) mObjects[i]);
-				} else {
+				} else if (mTypes[i] == String.class) {
 					out.writeUTF(mObjects[i].toString());
+				} else {
+					ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+					DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+					((Writable) mObjects[i]).write(dataOut);
+					out.write(bytesOut.toByteArray());
 				}
 			}
 		} catch (IOException e) {
@@ -118,10 +188,10 @@ public class Tuple implements WritableComparable {
 	}
 
 	public void readFields(DataInput in) throws IOException {
-
 		int numFields = in.readInt();
 
 		mObjects = new Object[numFields];
+		mSymbols = new String[numFields];
 		mFields = new String[numFields];
 		mTypes = new Class[numFields];
 
@@ -130,9 +200,18 @@ public class Tuple implements WritableComparable {
 		}
 
 		for (int i = 0; i < numFields; i++) {
-			int type = in.readInt();
+			byte type = in.readByte();
 
-			if (type == INT) {
+			if (type == SYMBOL) {
+				String className = in.readUTF();
+				try {
+					mTypes[i] = Class.forName(className);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				mObjects[i] = null;
+				mSymbols[i] = in.readUTF();
+			} else if (type == INT) {
 				mTypes[i] = Integer.class;
 				mObjects[i] = in.readInt();
 			} else if (type == BOOLEAN) {
@@ -147,11 +226,26 @@ public class Tuple implements WritableComparable {
 			} else if (type == DOUBLE) {
 				mTypes[i] = Double.class;
 				mObjects[i] = in.readDouble();
-			} else {
+			} else if (type == STRING) {
 				mTypes[i] = String.class;
 				mObjects[i] = in.readUTF();
-			}
+			} else {
+				try {
+					String className = in.readUTF();
+					mTypes[i] = Class.forName(className);
 
+					int sz = in.readInt();
+					byte[] bytes = new byte[sz];
+					in.readFully(bytes);
+
+					Writable obj = (Writable) mTypes[i].newInstance();
+					obj.readFields(new DataInputStream(
+							new ByteArrayInputStream(bytes)));
+					mObjects[i] = obj;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -162,24 +256,42 @@ public class Tuple implements WritableComparable {
 		}
 
 		for (int i = 0; i < mFields.length; i++) {
-			if (mTypes[i] == Integer.class) {
-				out.writeInt(INT);
+			if (mObjects[i] == null && mSymbols[i] == null) {
+				throw new TupleException("Cannot serialize null fields!");
+			}
+
+			if (containsSymbol(i)) {
+				out.writeByte(SYMBOL);
+				out.writeUTF(mTypes[i].getCanonicalName());
+				out.writeUTF(mSymbols[i]);
+			} else if (mTypes[i] == Integer.class) {
+				out.writeByte(INT);
 				out.writeInt((Integer) mObjects[i]);
 			} else if (mTypes[i] == Boolean.class) {
-				out.writeInt(BOOLEAN);
+				out.writeByte(BOOLEAN);
 				out.writeBoolean((Boolean) mObjects[i]);
 			} else if (mTypes[i] == Long.class) {
-				out.writeInt(LONG);
+				out.writeByte(LONG);
 				out.writeLong((Long) mObjects[i]);
 			} else if (mTypes[i] == Float.class) {
-				out.writeInt(FLOAT);
+				out.writeByte(FLOAT);
 				out.writeFloat((Float) mObjects[i]);
 			} else if (mTypes[i] == Double.class) {
-				out.writeInt(DOUBLE);
+				out.writeByte(DOUBLE);
 				out.writeDouble((Double) mObjects[i]);
-			} else {
-				out.writeInt(STRING);
+			} else if (mTypes[i] == String.class) {
+				out.writeByte(STRING);
 				out.writeUTF(mObjects[i].toString());
+			} else {
+				out.writeByte(WRITABLE);
+
+				ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+				DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+				out.writeUTF(mTypes[i].getCanonicalName());
+				((Writable) mObjects[i]).write(dataOut);
+				out.writeInt(bytesOut.size());
+				out.write(bytesOut.toByteArray());
 			}
 		}
 	}
@@ -190,7 +302,11 @@ public class Tuple implements WritableComparable {
 		for (int i = 0; i < mFields.length; i++) {
 			if (i != 0)
 				sb.append(", ");
-			sb.append(mObjects[i]);
+			if (mSymbols[i] != null) {
+				sb.append(mSymbols[i]);
+			} else {
+				sb.append(mObjects[i]);
+			}
 		}
 
 		return "(" + sb.toString() + ")";
