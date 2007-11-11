@@ -66,8 +66,8 @@ import edu.umd.cloud9.tuple.Tuple;
  * (admire, 0)      0.625
  * (admire, 1)      0.375
  * (admired, *)     19.0
- * (admired, 0)	0.6315789
- * (admired, 1)	0.36842105
+ * (admired, 0)     0.6315789
+ * (admired, 1)     0.36842105
  * ...
  * </pre>
  * 
