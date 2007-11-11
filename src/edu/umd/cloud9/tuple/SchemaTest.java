@@ -1,8 +1,14 @@
 package edu.umd.cloud9.tuple;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+
 import junit.framework.JUnit4TestAdapter;
 
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.junit.Test;
 
 public class SchemaTest {
@@ -29,6 +35,34 @@ public class SchemaTest {
 		Tuple tuple = SCHEMA1.instantiate("Hello world!", new Integer(5));
 		assertEquals(tuple.get(0), "Hello world!");
 		assertEquals(tuple.get(1), new Integer(5));
+	}
+
+	@Test(expected = SchemaException.class)
+	public void testIllegalFieldsException1() {
+		Schema schema = new Schema();
+		schema.addField("field0", Integer.class, 0);
+		schema.addField("field1", HashMap.class, null);
+	}
+
+	@Test(expected = SchemaException.class)
+	public void testIllegalFieldsException2() {
+		Schema schema = new Schema();
+		schema.addField("field0", Integer.class, 0);
+		// throws exception because Writable isn't a concrete class
+		schema.addField("field1", Writable.class, null);
+	}
+
+	@Test
+	public void testWritableFields() {
+		Schema schema = new Schema();
+		schema.addField("field0", Integer.class, 0);
+		schema.addField("field1", IntWritable.class, new IntWritable(0));
+		schema.addField("field2", Text.class, new Text("default"));
+
+		Tuple t = schema.instantiate();
+		assertEquals(t.get(0), 0);
+		assertEquals(t.get(1), new IntWritable(0));
+		assertEquals(t.get(2), new Text("default"));
 	}
 
 	public static junit.framework.Test suite() {

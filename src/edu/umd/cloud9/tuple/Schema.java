@@ -3,6 +3,8 @@ package edu.umd.cloud9.tuple;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.io.Writable;
+
 /**
  * <p>
  * Description of a Tuple's structure. The Schema class keeps track of column
@@ -40,7 +42,7 @@ import java.util.Map;
 public class Schema implements Cloneable {
 
 	private String[] mFieldNames;
-	private Class[] mFieldTypes;
+	private Class<?>[] mFieldTypes;
 	private Object[] mDefaultValues;
 	private Map<String, Integer> mFieldLookup;
 	private int mFieldCount;
@@ -65,7 +67,7 @@ public class Schema implements Cloneable {
 	 */
 	public Schema(int n) {
 		mFieldNames = new String[n];
-		mFieldTypes = new Class[n];
+		mFieldTypes = new Class<?>[n];
 		mDefaultValues = new Object[n];
 		mFieldCount = 0;
 		mLocked = false;
@@ -79,7 +81,7 @@ public class Schema implements Cloneable {
 	 * @param types
 	 *            the field types (as Class instances)
 	 */
-	public Schema(String[] names, Class[] types) {
+	public Schema(String[] names, Class<?>[] types) {
 		this(names.length);
 
 		// check the schema validity
@@ -103,7 +105,7 @@ public class Schema implements Cloneable {
 	 * @param defaults
 	 *            the default values for each field
 	 */
-	public Schema(String[] names, Class[] types, Object[] defaults) {
+	public Schema(String[] names, Class<?>[] types, Object[] defaults) {
 		this(names.length);
 
 		// check the schema validity
@@ -176,7 +178,7 @@ public class Schema implements Cloneable {
 	 *             if either name or type are null or the name already exists in
 	 *             this schema.
 	 */
-	public void addField(String name, Class type) {
+	public void addField(String name, Class<?> type) {
 		addField(name, type, null);
 	}
 
@@ -191,7 +193,15 @@ public class Schema implements Cloneable {
 	 *             if either name or type are null or the name already exists in
 	 *             this schema.
 	 */
-	public void addField(String name, Class type, Object defaultValue) {
+	public void addField(String name, Class<?> type, Object defaultValue) {
+		if (!(type == Integer.class || type == Boolean.class
+				|| type == Long.class || type == Float.class
+				|| type == Double.class || type == String.class || (!type
+				.isInterface() && Writable.class.isAssignableFrom(type)))) {
+			throw new SchemaException("Illegal field type: "
+					+ type.getCanonicalName());
+		}
+
 		// check lock status
 		if (mLocked) {
 			throw new IllegalStateException(
@@ -209,7 +219,8 @@ public class Schema implements Cloneable {
 		for (int i = 0; i < mFieldCount; ++i) {
 			if (mFieldNames[i].equals(name)) {
 				throw new IllegalArgumentException(
-						"Duplicate column names are not allowed: " + mFieldNames[i]);
+						"Duplicate column names are not allowed: "
+								+ mFieldNames[i]);
 			}
 		}
 
@@ -217,7 +228,7 @@ public class Schema implements Cloneable {
 		if (mFieldNames.length == mFieldCount) {
 			int capacity = (3 * mFieldNames.length) / 2 + 1;
 			String[] names = new String[capacity];
-			Class[] types = new Class[capacity];
+			Class<?>[] types = new Class[capacity];
 			Object[] dflts = new Object[capacity];
 			System.arraycopy(mFieldNames, 0, names, 0, mFieldCount);
 			System.arraycopy(mFieldTypes, 0, types, 0, mFieldCount);
@@ -279,7 +290,7 @@ public class Schema implements Cloneable {
 	 *            the column index
 	 * @return the column type
 	 */
-	public Class getFieldType(int index) {
+	public Class<?> getFieldType(int index) {
 		return mFieldTypes[index];
 	}
 
@@ -290,7 +301,7 @@ public class Schema implements Cloneable {
 	 *            the field name
 	 * @return the field type
 	 */
-	public Class getFieldType(String field) {
+	public Class<?> getFieldType(String field) {
 		int idx = getFieldIndex(field);
 		return (idx < 0 ? null : mFieldTypes[idx]);
 	}
@@ -482,16 +493,18 @@ public class Schema implements Cloneable {
 	public Tuple instantiate() {
 		lockSchema();
 
-		Object[] objs = new Object[mFieldCount];
-		System.arraycopy(mDefaultValues, 0, objs, 0, mFieldCount);
+		Object[] objects = new Object[mFieldCount];
+		System.arraycopy(mDefaultValues, 0, objects, 0, mFieldCount);
+
+		String[] symbols = new String[mFieldCount];
 
 		String[] fields = new String[mFieldCount];
 		System.arraycopy(mFieldNames, 0, fields, 0, mFieldCount);
 
-		Class[] types = new Class[mFieldCount];
+		Class<?>[] types = new Class<?>[mFieldCount];
 		System.arraycopy(mFieldTypes, 0, types, 0, mFieldCount);
-		
-		return new Tuple(objs, fields, types);
+
+		return new Tuple(objects, symbols, fields, types);
 	}
 
 	/**
@@ -504,13 +517,15 @@ public class Schema implements Cloneable {
 	public Tuple instantiate(Object... objects) {
 		lockSchema();
 
+		String[] symbols = new String[mFieldCount];
+
 		String[] fields = new String[mFieldCount];
 		System.arraycopy(mFieldNames, 0, fields, 0, mFieldCount);
 
-		Class[] types = new Class[mFieldCount];
+		Class<?>[] types = new Class[mFieldCount];
 		System.arraycopy(mFieldTypes, 0, types, 0, mFieldCount);
-		
-		return new Tuple(objects, fields, types);
+
+		return new Tuple(objects, symbols, fields, types);
 	}
 
 } // end of class Schema
