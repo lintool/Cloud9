@@ -24,7 +24,6 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -46,26 +45,38 @@ import edu.umd.cloud9.tuple.Tuple;
 
 /**
  * <p>
- * Demo that illustrates the use of the tuple library. Input comes from
- * bible+Shakespeare sample collection, encoded as single-field tuples; see
- * {@link DemoPackRecords}. The demo executes two separate MapReduce cycles:
- * </p>
+ * Demo that illustrates the use of a Partitioner and special symbols in Tuple
+ * to compute conditional probabilities. Demo builds on
+ * {@link DemoWordCountTuple}, and has similar structure. Input comes from
+ * Bible+Shakespeare sample collection, encoded as single-field tuples; see
+ * {@link DemoPackRecords}. Sample of final output:
  * 
- * <ul>
- * 
- * <li>In the first MapReduce cycle, output keys consist of tuples (Token,
- * EvenOrOdd). The second field of the tuple indicates whether the token was
- * found on a line with an even or an odd number of characters. Values consist
- * of counts of tuple occurrences.</li>
- * 
- * <li>In the second MapReduce cycle, the tuple keys are decoded back into a
- * text representation.</li>
- * 
- * </ul>
+ * <pre>
+ * ...
+ * (admirable, *)   15.0
+ * (admirable, 0)   0.6
+ * (admirable, 1)   0.4
+ * (admiral, *)     6.0
+ * (admiral, 0)     0.33333334
+ * (admiral, 1)     0.6666667
+ * (admiration, *)  16.0
+ * (admiration, 0)  0.625
+ * (admiration, 1)  0.375
+ * (admire, *)      8.0
+ * (admire, 0)      0.625
+ * (admire, 1)      0.375
+ * (admired, *)     19.0
+ * (admired, 0)	0.6315789
+ * (admired, 1)	0.36842105
+ * ...
+ * </pre>
  * 
  * <p>
- * Obviously, this isn't a particularly meaningful program, but does illustrate
- * the use of the {@link Tuple} class.
+ * The first field of the key tuple contains a token. If the second field
+ * contains the special symbol '*', then the value indicates the count of the
+ * token in the collection. Otherwise, the value indicates p(EvenOrOdd|token),
+ * the probability that a line is odd-length or even-length, given the
+ * occurrence of a token.
  * </p>
  */
 public class DemoWordCondProb {
@@ -81,12 +92,7 @@ public class DemoWordCondProb {
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
 	private static class MapClass extends MapReduceBase implements Mapper {
-
-		// define value '1' statically so we can reuse the object, i.e., avoid
-		// unnecessary object creation
 		private final static FloatWritable one = new FloatWritable(1);
-
-		// once again, reuse tuples if possible
 		private Tuple tuple = KEY_SCHEMA.instantiate();
 
 		public void map(WritableComparable key, Writable value,
@@ -99,24 +105,23 @@ public class DemoWordCondProb {
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
 
-				// put new values into the tuple
+				// emit key-value pair for either even-length or odd-length line
 				tuple.set("Token", token);
 				tuple.set("EvenOrOdd", line.length() % 2);
-
-				// emit key-value pair
 				output.collect(tuple, one);
 
-				// put new values into the tuple
+				// emit key-value pair for the total count
 				tuple.set("Token", token);
-				tuple.set("EvenOrOdd", -1);
+				// use special symbol in field 2
+				tuple.setSymbol("EvenOrOdd", "*");
 				output.collect(tuple, one);
 			}
 		}
 	}
 
-	// reducer counts up tuple occurrences
+	// reducer computes conditional probabilities
 	private static class ReduceClass extends MapReduceBase implements Reducer {
-		private final static FloatWritable CondProb = new FloatWritable();
+		// HashMap keeps track of total counts
 		private final static HashMap<String, Integer> TotalCounts = new HashMap<String, Integer>();
 
 		public synchronized void reduce(WritableComparable key,
@@ -129,58 +134,72 @@ public class DemoWordCondProb {
 			}
 
 			String tok = (String) ((Tuple) key).get("Token");
-			int EvenOrOdd = (Integer) ((Tuple) key).get("EvenOrOdd");
 
-			if (EvenOrOdd == -1) {
+			// check if the second field is a special symbol
+			if (((Tuple) key).containsSymbol("EvenOrOdd")) {
+				// emit total count
 				output.collect(key, new FloatWritable(sum));
+				// record total count
 				TotalCounts.put(tok, sum);
 			} else {
 				if (!TotalCounts.containsKey(tok))
 					throw new UnexpectedException("Don't have total counts!");
 
-				CondProb.set((float) sum / (float) TotalCounts.get(tok));
-				//output.collect(key, CondProb);
+				// divide sum by total count to obtain conditional probability
 				float p = (float) sum / TotalCounts.get(tok);
-				
-				//if ( TotalCounts.containsKey(tok))
-					//throw new UnexpectedException("Token=" + tok + ", p=" + p);
-				
+
+				// emit P(EvenOrOdd|Token)
 				output.collect(key, new FloatWritable(p));
 			}
 		}
 	}
 
-	/** Partition keys by their {@link Object#hashCode()}. */
+	// partition by first field of the tuple, so that tuples corresponding
+	// to the same token will be sent to the same reducer
 	private static class MyPartitioner implements Partitioner {
-
 		public void configure(JobConf job) {
 		}
 
-		/** Use {@link Object#hashCode()} to partition. */
 		public int getPartition(WritableComparable key, Writable value,
 				int numReduceTasks) {
 			return (((Tuple) key).get("Token").hashCode() & Integer.MAX_VALUE)
 					% numReduceTasks;
-
 		}
-
 	}
 
-	/** A Comparator optimized for Tuple. */
+	// a Comparator that sorts the special symbol first
 	private static class MyTupleComparator extends WritableComparator {
 		public MyTupleComparator() {
 			super(Tuple.class);
 		}
 
 		public int compare(WritableComparable a, WritableComparable b) {
-			String tokenA = (String) ((Tuple) a).get("Token");
-			String tokenB = (String) ((Tuple) b).get("Token");
+			Tuple tA = (Tuple) a;
+			Tuple tB = (Tuple) b;
+			String tokenA = (String) tA.get("Token");
+			String tokenB = (String) tB.get("Token");
 
+			// if the tokens match, compare second field
 			if (tokenA.equals(tokenB)) {
-				return ((Integer) ((Tuple) a).get("EvenOrOdd"))
-						.compareTo((Integer) ((Tuple) b).get("EvenOrOdd"));
+				// both contain symbol, so tuples must be equal
+				if (tA.containsSymbol("EvenOrOdd")
+						&& tB.containsSymbol("EvenOrOdd"))
+					return 0;
+
+				// tuple with special symbol always goes first
+				if (tA.containsSymbol("EvenOrOdd"))
+					return -1;
+
+				// tuple with special symbol always goes first
+				if (tB.containsSymbol("EvenOrOdd"))
+					return 1;
+
+				// otherwise, compare EvenOrOdd field
+				return ((Integer) tA.get("EvenOrOdd")).compareTo((Integer) tB
+						.get("EvenOrOdd"));
 			}
 
+			// compare the tokens
 			return tokenA.compareTo(tokenB);
 		}
 	}
@@ -206,8 +225,8 @@ public class DemoWordCondProb {
 	 */
 	public static void main(String[] args) throws IOException {
 		String inPath = "sample-input/bible+shakes.nopunc.packed";
-		String output1Path = "word-counts-tuple";
-		String output2Path = "word-counts-txt";
+		String output1Path = "condprob-tuple";
+		String output2Path = "condprob-txt";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
 
@@ -227,6 +246,9 @@ public class DemoWordCondProb {
 		conf1.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf1.setMapperClass(MapClass.class);
+		// this is a potential gotcha! can't use ReduceClass for combine because
+		// we have not collected all the counts yet, so we can't divide through
+		// to compute the conditional probabilities
 		conf1.setCombinerClass(IdentityReducer.class);
 		conf1.setReducerClass(ReduceClass.class);
 		conf1.setPartitionerClass(MyPartitioner.class);

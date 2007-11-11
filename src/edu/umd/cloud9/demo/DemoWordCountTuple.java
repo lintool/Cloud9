@@ -43,21 +43,39 @@ import edu.umd.cloud9.tuple.Tuple;
  * <p>
  * Demo that illustrates the use of the tuple library. Input comes from
  * Bible+Shakespeare sample collection, encoded as single-field tuples; see
- * {@link DemoPackRecords}. The demo executes two separate MapReduce cycles:
+ * {@link DemoPackRecords}. Sample of final output:
+ * </p>
+ * 
+ * <pre>
+ * ...
+ * (admirable, 0)    9
+ * (admirable, 1)    6
+ * (admiral, 0)      2
+ * (admiral, 1)      4
+ * (admiration, 0)  10
+ * (admiration, 1)   6
+ * (admire, 0)       5
+ * (admire, 1)       3
+ * (admired, 0)     12
+ * (admired, 1)      7
+ * ...
+ * </pre>
+ * 
+ * <p>
+ * The first field of the key tuple contains a token, the second field indicates
+ * whether it was found on a even-length or odd-length line. The value is the
+ * count of the tuple occurrences in the collection. The demo executes two
+ * separate MapReduce cycles:
  * </p>
  * 
  * <ul>
- * 
- * <li>In the first MapReduce cycle, output keys consist of tuples (Token,
+ * <li> In the first MapReduce cycle, output keys consist of tuples (Token,
  * EvenOrOdd). The second field of the tuple indicates whether the token was
  * found on a line with an even or an odd number of characters. Values consist
- * of counts of tuple occurrences.</li>
- * 
- * <li>In the second MapReduce cycle, the tuple keys are decoded back into a
- * text representation.</li>
- * 
+ * of counts of tuple occurrences. </li>
+ * <li> In the second MapReduce cycle, the tuple keys are decoded back into a
+ * text representation. </li>
  * </ul>
- * 
  * <p>
  * Obviously, this isn't a particularly meaningful program, but does illustrate
  * the use of the {@link Tuple} class.
