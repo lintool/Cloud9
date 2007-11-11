@@ -1,6 +1,8 @@
 package edu.umd.cloud9.tuple;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +12,8 @@ import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
 
-import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
 public class TupleTest {
@@ -28,7 +31,7 @@ public class TupleTest {
 
 	// tests unpacking of default values
 	@Test
-	public void testDefaultValues() throws IOException {
+	public void testSerializeDefaultValues() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
@@ -54,10 +57,18 @@ public class TupleTest {
 		assertEquals(t.get("field4"), new Float(2.5));
 		assertEquals(t.get("field5"), new Double(3.14));
 		assertEquals(t.get("field6"), "test");
+
+		assertEquals(t.getFieldType(0), String.class);
+		assertEquals(t.getFieldType(1), Boolean.class);
+		assertEquals(t.getFieldType(2), Integer.class);
+		assertEquals(t.getFieldType(3), Long.class);
+		assertEquals(t.getFieldType(4), Float.class);
+		assertEquals(t.getFieldType(5), Double.class);
+		assertEquals(t.getFieldType(6), String.class);
 	}
 
 	@Test
-	public void testInstantiatedValues() throws IOException {
+	public void testSerializeInstantiatedValues() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate("Hello world!", false,
 				new Integer(5), new Long(3), new Float(1.2), new Double(2.871),
 				"another string");
@@ -80,7 +91,7 @@ public class TupleTest {
 	}
 
 	@Test
-	public void testSetValues() throws IOException {
+	public void testSerializeSetValues() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.set(0, "Hello world!");
@@ -113,6 +124,110 @@ public class TupleTest {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		assertEquals(tuple.toString(), "(default, true, 1, 2, 2.5, 3.14, test)");
+	}
+
+	@Test
+	public void testSymbols() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		assertFalse(tuple.containsSymbol(0));
+		assertFalse(tuple.containsSymbol(1));
+		assertFalse(tuple.containsSymbol(2));
+		assertFalse(tuple.containsSymbol(3));
+		assertFalse(tuple.containsSymbol(4));
+		assertFalse(tuple.containsSymbol(5));
+		assertFalse(tuple.containsSymbol(6));
+
+		assertFalse(tuple.containsSymbol("field0"));
+		assertFalse(tuple.containsSymbol("field1"));
+		assertFalse(tuple.containsSymbol("field2"));
+		assertFalse(tuple.containsSymbol("field3"));
+		assertFalse(tuple.containsSymbol("field4"));
+		assertFalse(tuple.containsSymbol("field5"));
+		assertFalse(tuple.containsSymbol("field6"));
+
+		tuple.setSymbol(0, "*");
+		tuple.setSymbol("field1", "*");
+
+		assertTrue(tuple.containsSymbol(0));
+		assertTrue(tuple.containsSymbol(1));
+		assertFalse(tuple.containsSymbol(2));
+		assertFalse(tuple.containsSymbol(3));
+		assertFalse(tuple.containsSymbol(4));
+		assertFalse(tuple.containsSymbol(5));
+		assertFalse(tuple.containsSymbol(6));
+
+		assertEquals(tuple.get(0), null);
+		assertEquals(tuple.getSymbol(0), "*");
+
+		assertEquals(tuple.get(1), null);
+		assertEquals(tuple.getSymbol(1), "*");
+		
+		assertEquals(tuple.getFieldType(0), String.class);
+		assertEquals(tuple.getFieldType(1), Boolean.class);
+		
+		assertEquals(tuple.toString(), "(*, *, 1, 2, 2.5, 3.14, test)");
+	}
+
+	@Test
+	public void testSerializeSymbols() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.setSymbol(0, "*");
+		tuple.setSymbol("field1", "*");
+
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+		tuple.write(dataOut);
+
+		Tuple t = Tuple.createFrom(new DataInputStream(
+				new ByteArrayInputStream(bytesOut.toByteArray())));
+		
+		assertTrue(t.containsSymbol(0));
+		assertTrue(t.containsSymbol(1));
+		assertFalse(t.containsSymbol(2));
+		assertFalse(t.containsSymbol(3));
+		assertFalse(t.containsSymbol(4));
+		assertFalse(t.containsSymbol(5));
+		assertFalse(t.containsSymbol(6));
+		
+		assertEquals(t.get(0), null);
+		assertEquals(t.getSymbol(0), "*");
+
+		assertEquals(t.get(1), null);
+		assertEquals(t.getSymbol(1), "*");
+		
+		assertEquals(tuple.getFieldType(0), String.class);
+		assertEquals(tuple.getFieldType(1), Boolean.class);
+	}
+
+	public static final Schema SCHEMA2 = new Schema();
+	static {
+		SCHEMA2.addField("field0", Integer.class, 0);
+		SCHEMA2.addField("field1", IntWritable.class, new IntWritable(0));
+		SCHEMA2.addField("field2", Text.class, new Text("default"));
+	}
+
+	@Test
+	public void testSerializeWritableFields() throws IOException {
+		Tuple tuple = SCHEMA2.instantiate();
+
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+		tuple.write(dataOut);
+
+		Tuple t = Tuple.createFrom(new DataInputStream(
+				new ByteArrayInputStream(bytesOut.toByteArray())));
+
+		assertEquals(t.get(0), 0);
+		assertEquals(t.get(1), new IntWritable(0));
+		assertEquals(t.get(2), new Text("default"));
+
+		assertEquals(t.getFieldType(0), Integer.class);
+		assertEquals(t.getFieldType(1), IntWritable.class);
+		assertEquals(t.getFieldType(2), Text.class);
 	}
 
 	public static junit.framework.Test suite() {
