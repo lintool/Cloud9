@@ -74,7 +74,7 @@ import edu.umd.cloud9.tuple.Tuple;
  * <p>
  * The first field of the key tuple contains a token. If the second field
  * contains the special symbol '*', then the value indicates the count of the
- * token in the collection. Otherwise, the value indicates p(EvenOrOdd|token),
+ * token in the collection. Otherwise, the value indicates p(EvenOrOdd|Token),
  * the probability that a line is odd-length or even-length, given the
  * occurrence of a token.
  * </p>
