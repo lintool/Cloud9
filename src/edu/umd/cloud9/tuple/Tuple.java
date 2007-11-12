@@ -45,7 +45,7 @@ import org.apache.hadoop.io.WritableComparator;
  * String. The method {@link #containsSymbol(int)} can be used to check if a
  * field contains a special symbol. If the field contains a special symbol,
  * {@link #get(int)} will return <code>null</code>. If the field does not
- * contain a special symbol, {@link #getSymbol(int)} will return a
+ * contain a special symbol, {@link #getSymbol(int)} will return
  * <code>null</code>.
  * </p>
  * 

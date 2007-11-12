@@ -41,13 +41,8 @@ import org.apache.hadoop.io.Writable;
  * </p>
  * 
  * <ul>
- * <li>Boolean</li>
- * <li>Integer</li>
- * <li>Long</li>
- * <li>Float</li>
- * <li>Double</li>
- * <li>String</li>
- * <li>concrete classes that implement Writable</li>
+ * <li>Basic Java primitives: Boolean, Integer, Long, Float, Double, String</li>
+ * <li>Classes that implement Writable</li>
  * </ul>
  * 
  * <p>
