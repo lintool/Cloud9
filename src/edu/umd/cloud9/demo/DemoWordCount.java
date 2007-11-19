@@ -57,7 +57,7 @@ public class DemoWordCount {
 		}
 	}
 
-	// mapper: sums up all the counts
+	// reducer: sums up all the counts
 	private static class ReduceClass extends MapReduceBase implements Reducer {
 
 		// reuse objects
