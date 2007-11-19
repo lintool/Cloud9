@@ -119,6 +119,16 @@ public class Tuple implements WritableComparable {
 	 *            object to set at the specified field
 	 */
 	public void set(int i, Object o) {
+		if (o == null) {
+			throw new TupleException(
+					"Null values are not allowed for tuple fields!");
+		}
+
+		if (!o.getClass().equals(mTypes[i])) {
+			throw new TupleException("Field value of wrong type, expected "
+					+ mTypes[i] + "!");
+		}
+
 		mObjects[i] = o;
 
 		// invalidate serialized representation
@@ -137,6 +147,10 @@ public class Tuple implements WritableComparable {
 		if (mFieldLookup == null)
 			initLookup();
 
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
+
 		set(mFieldLookup.get(field), o);
 	}
 
@@ -149,6 +163,10 @@ public class Tuple implements WritableComparable {
 	 *            special symbol to set at specified field
 	 */
 	public void setSymbol(int i, String s) {
+		if (s == null) {
+			throw new TupleException("Null is not a valid symbol!");
+		}
+
 		mObjects[i] = null;
 		mSymbols[i] = s;
 
@@ -167,6 +185,10 @@ public class Tuple implements WritableComparable {
 	public void setSymbol(String field, String s) {
 		if (mFieldLookup == null)
 			initLookup();
+
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
 
 		setSymbol(mFieldLookup.get(field), s);
 	}
@@ -196,6 +218,10 @@ public class Tuple implements WritableComparable {
 	public Object get(String field) {
 		if (mFieldLookup == null)
 			initLookup();
+
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
 
 		return get(mFieldLookup.get(field));
 	}
@@ -229,6 +255,10 @@ public class Tuple implements WritableComparable {
 		if (mFieldLookup == null)
 			initLookup();
 
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
+
 		return getSymbol(mFieldLookup.get(field));
 	}
 
@@ -256,6 +286,10 @@ public class Tuple implements WritableComparable {
 		if (mFieldLookup == null)
 			initLookup();
 
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
+
 		return containsSymbol(mFieldLookup.get(field));
 	}
 
@@ -280,6 +314,10 @@ public class Tuple implements WritableComparable {
 	public Class<?> getFieldType(String field) {
 		if (mFieldLookup == null)
 			initLookup();
+
+		if (!mFieldLookup.containsKey(field)) {
+			throw new TupleException("Field '" + field + "' does not exist!");
+		}
 
 		return getFieldType(mFieldLookup.get(field));
 	}

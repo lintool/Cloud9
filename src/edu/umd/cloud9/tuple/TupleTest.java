@@ -29,6 +29,73 @@ public class TupleTest {
 		SCHEMA1.addField("field6", String.class, "test");
 	}
 
+	// next few cases tests invalid field names: should throw exceptions
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField1() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.get("FIELD");
+	}
+	
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField2() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.getSymbol("FIELD");
+	}
+	
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField3() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.set("Field0", "test");
+	}
+	
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField4() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.setSymbol("Field0", "test");
+	}
+	
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField5() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.containsSymbol("Field0");
+	}
+	
+	@Test(expected = TupleException.class)
+	public void testAccessNonExistentField6() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.getFieldType("Field0");
+	}
+	
+	// can't set fields to null
+	@Test(expected = TupleException.class)
+	public void testSetNull1() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.set(0, null);
+	}
+
+	// can't set symbol as null
+	@Test(expected = TupleException.class)
+	public void testSetNull2() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.setSymbol(0, null);
+	}
+	
+	// mismatch in field type
+	@Test(expected = TupleException.class)
+	public void testSetWrongType() throws IOException {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.set(0, 1);
+	}
+	
 	// tests unpacking of default values
 	@Test
 	public void testSerializeDefaultValues() throws IOException {
