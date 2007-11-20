@@ -21,9 +21,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.umd.cloud9.tuple.LocalTupleRecordWriter;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
+import edu.umd.cloud9.util.LocalTupleRecordWriter;
 
 /**
  * Demo that packs the sample collection into records using the tuple library.

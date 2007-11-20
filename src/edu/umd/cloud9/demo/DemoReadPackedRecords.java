@@ -18,8 +18,8 @@ package edu.umd.cloud9.demo;
 
 import java.io.IOException;
 
-import edu.umd.cloud9.tuple.LocalTupleRecordReader;
 import edu.umd.cloud9.tuple.Tuple;
+import edu.umd.cloud9.util.LocalTupleRecordReader;
 
 /**
  * Demo that illustrates how to read records from a local SequenceFile.

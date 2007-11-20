@@ -1,4 +1,4 @@
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.util;
 
 import java.io.IOException;
 
@@ -7,6 +7,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapred.JobConf;
+
+import edu.umd.cloud9.tuple.Tuple;
 
 public class LocalTupleRecordWriter {
 
