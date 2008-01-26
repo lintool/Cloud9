@@ -22,9 +22,8 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -40,14 +39,16 @@ import org.apache.hadoop.mapred.Reporter;
 public class DemoWordCount {
 
 	// mapper: emits (token, 1) for every word occurrence
-	private static class MapClass extends MapReduceBase implements Mapper {
+	private static class MapClass extends MapReduceBase implements
+			Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// reuse objects to save overhead of object creation
 		private final static IntWritable one = new IntWritable(1);
 		private Text word = new Text();
 
-		public void map(WritableComparable key, Writable value,
-				OutputCollector output, Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value,
+				OutputCollector<Text, IntWritable> output, Reporter reporter)
+				throws IOException {
 			String line = ((Text) value).toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
@@ -58,17 +59,19 @@ public class DemoWordCount {
 	}
 
 	// reducer: sums up all the counts
-	private static class ReduceClass extends MapReduceBase implements Reducer {
+	private static class ReduceClass extends MapReduceBase implements
+			Reducer<Text, IntWritable, Text, IntWritable> {
 
 		// reuse objects
 		private final static IntWritable SumValue = new IntWritable();
 
-		public void reduce(WritableComparable key, Iterator values,
-				OutputCollector output, Reporter reporter) throws IOException {
+		public void reduce(Text key, Iterator<IntWritable> values,
+				OutputCollector<Text, IntWritable> output, Reporter reporter)
+				throws IOException {
 			// sum up values
 			int sum = 0;
 			while (values.hasNext()) {
-				sum += ((IntWritable) values.next()).get();
+				sum += values.next().get();
 			}
 			SumValue.set(sum);
 			output.collect(key, SumValue);
@@ -82,7 +85,7 @@ public class DemoWordCount {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String filename = "sample-input/bible+shakes.nopunc";
+		String filename = "/shared/sample-input/bible+shakes.nopunc";
 		String outputPath = "sample-counts";
 		int mapTasks = 20;
 		int reduceTasks = 1;
