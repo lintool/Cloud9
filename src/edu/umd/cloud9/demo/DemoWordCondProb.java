@@ -24,8 +24,8 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapred.JobClient;
@@ -91,54 +91,58 @@ public class DemoWordCondProb {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MapClass extends MapReduceBase implements Mapper {
+	private static class MapClass extends MapReduceBase implements
+			Mapper<LongWritable, Tuple, Tuple, FloatWritable> {
 		private final static FloatWritable one = new FloatWritable(1);
-		private Tuple tuple = KEY_SCHEMA.instantiate();
+		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
-		public void map(WritableComparable key, Writable value,
-				OutputCollector output, Reporter reporter) throws IOException {
+		public void map(LongWritable key, Tuple tupleIn,
+				OutputCollector<Tuple, FloatWritable> output, Reporter reporter)
+				throws IOException {
 
 			// the input value is a tuple; get field 0
 			// see DemoPackRecords of how input SequenceFile is generated
-			String line = (String) ((Tuple) value).get(0);
+			String line = (String) ((Tuple) tupleIn).get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
 
 				// emit key-value pair for either even-length or odd-length line
-				tuple.set("Token", token);
-				tuple.set("EvenOrOdd", line.length() % 2);
-				output.collect(tuple, one);
+				tupleOut.set("Token", token);
+				tupleOut.set("EvenOrOdd", line.length() % 2);
+				output.collect(tupleOut, one);
 
 				// emit key-value pair for the total count
-				tuple.set("Token", token);
+				tupleOut.set("Token", token);
 				// use special symbol in field 2
-				tuple.setSymbol("EvenOrOdd", "*");
-				output.collect(tuple, one);
+				tupleOut.setSymbol("EvenOrOdd", "*");
+				output.collect(tupleOut, one);
 			}
 		}
 	}
 
 	// reducer computes conditional probabilities
-	private static class ReduceClass extends MapReduceBase implements Reducer {
+	private static class ReduceClass extends MapReduceBase implements
+			Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
 		// HashMap keeps track of total counts
 		private final static HashMap<String, Integer> TotalCounts = new HashMap<String, Integer>();
 
-		public synchronized void reduce(WritableComparable key,
-				Iterator values, OutputCollector output, Reporter reporter)
+		public synchronized void reduce(Tuple tupleKey,
+				Iterator<FloatWritable> values,
+				OutputCollector<Tuple, FloatWritable> output, Reporter reporter)
 				throws IOException {
 			// sum values
 			int sum = 0;
 			while (values.hasNext()) {
-				sum += ((FloatWritable) values.next()).get();
+				sum += values.next().get();
 			}
 
-			String tok = (String) ((Tuple) key).get("Token");
+			String tok = (String) tupleKey.get("Token");
 
 			// check if the second field is a special symbol
-			if (((Tuple) key).containsSymbol("EvenOrOdd")) {
+			if (tupleKey.containsSymbol("EvenOrOdd")) {
 				// emit total count
-				output.collect(key, new FloatWritable(sum));
+				output.collect(tupleKey, new FloatWritable(sum));
 				// record total count
 				TotalCounts.put(tok, sum);
 			} else {
@@ -149,20 +153,21 @@ public class DemoWordCondProb {
 				float p = (float) sum / TotalCounts.get(tok);
 
 				// emit P(EvenOrOdd|Token)
-				output.collect(key, new FloatWritable(p));
+				output.collect(tupleKey, new FloatWritable(p));
 			}
 		}
 	}
 
 	// partition by first field of the tuple, so that tuples corresponding
 	// to the same token will be sent to the same reducer
-	private static class MyPartitioner implements Partitioner {
+	private static class MyPartitioner implements
+			Partitioner<Tuple, FloatWritable> {
 		public void configure(JobConf job) {
 		}
 
-		public int getPartition(WritableComparable key, Writable value,
+		public int getPartition(Tuple key, FloatWritable value,
 				int numReduceTasks) {
-			return (((Tuple) key).get("Token").hashCode() & Integer.MAX_VALUE)
+			return (key.get("Token").hashCode() & Integer.MAX_VALUE)
 					% numReduceTasks;
 		}
 	}
@@ -206,13 +211,14 @@ public class DemoWordCondProb {
 
 	// mapper that unpacks the serialized tuples back into human-readable text
 	private static class UnpackKeysClass extends MapReduceBase implements
-			Mapper {
-		private Text textkey = new Text();
+			Mapper<Tuple, FloatWritable, Text, FloatWritable> {
+		private Text text = new Text();
 
-		public void map(WritableComparable key, Writable value,
-				OutputCollector output, Reporter reporter) throws IOException {
-			textkey.set(key.toString());
-			output.collect(textkey, value);
+		public void map(Tuple key, FloatWritable value,
+				OutputCollector<Text, FloatWritable> output, Reporter reporter)
+				throws IOException {
+			text.set(key.toString());
+			output.collect(text, value);
 		}
 	}
 
@@ -224,7 +230,7 @@ public class DemoWordCondProb {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "sample-input/bible+shakes.nopunc.packed";
+		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
 		String output1Path = "condprob-tuple";
 		String output2Path = "condprob-txt";
 		int numMapTasks = 20;

@@ -22,9 +22,8 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -93,63 +92,68 @@ public class DemoWordCountTuple {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MapClass extends MapReduceBase implements Mapper {
+	private static class MapClass extends MapReduceBase implements
+			Mapper<LongWritable, Tuple, Tuple, IntWritable> {
 
 		// define value '1' statically so we can reuse the object, i.e., avoid
 		// unnecessary object creation
 		private final static IntWritable one = new IntWritable(1);
 
 		// once again, reuse tuples if possible
-		private Tuple tuple = KEY_SCHEMA.instantiate();
+		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
-		public void map(WritableComparable key, Writable value,
-				OutputCollector output, Reporter reporter) throws IOException {
+		public void map(LongWritable key, Tuple tupleIn,
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
+				throws IOException {
 
 			// the input value is a tuple; get field 0
 			// see DemoPackRecords of how input SequenceFile is generated
-			String line = (String) ((Tuple) value).get(0);
+			String line = (String) tupleIn.get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
 
 				// put new values into the tuple
-				tuple.set("Token", token);
-				tuple.set("EvenOrOdd", line.length() % 2);
+				tupleOut.set("Token", token);
+				tupleOut.set("EvenOrOdd", line.length() % 2);
 
 				// emit key-value pair
-				output.collect(tuple, one);
+				output.collect(tupleOut, one);
 			}
 		}
 	}
 
 	// reducer counts up tuple occurrences
-	private static class ReduceClass extends MapReduceBase implements Reducer {
+	private static class ReduceClass extends MapReduceBase implements
+			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
-		public synchronized void reduce(WritableComparable key,
-				Iterator values, OutputCollector output, Reporter reporter)
+		public synchronized void reduce(Tuple tupleKey,
+				Iterator<IntWritable> values,
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
 				throws IOException {
 			// sum values
 			int sum = 0;
 			while (values.hasNext()) {
-				sum += ((IntWritable) values.next()).get();
+				sum += values.next().get();
 			}
 
 			// keep original tuple key, emit sum of counts as value
 			SumValue.set(sum);
-			output.collect(key, SumValue);
+			output.collect(tupleKey, SumValue);
 		}
 	}
 
 	// mapper that unpacks the serialized tuples back into human-readable text
 	private static class UnpackKeysClass extends MapReduceBase implements
-			Mapper {
-		private Text textkey = new Text();
+			Mapper<Tuple, IntWritable, Text, IntWritable> {
+		private Text text = new Text();
 
-		public void map(WritableComparable key, Writable value,
-				OutputCollector output, Reporter reporter) throws IOException {
-			textkey.set(key.toString());
-			output.collect(textkey, value);
+		public void map(Tuple tupleIn, IntWritable sum,
+				OutputCollector<Text, IntWritable> output, Reporter reporter)
+				throws IOException {
+			text.set(tupleIn.toString());
+			output.collect(text, sum);
 		}
 	}
 
@@ -161,7 +165,7 @@ public class DemoWordCountTuple {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "sample-input/bible+shakes.nopunc.packed";
+		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
 		String output1Path = "word-counts-tuple";
 		String output2Path = "word-counts-txt";
 		int numMapTasks = 20;
