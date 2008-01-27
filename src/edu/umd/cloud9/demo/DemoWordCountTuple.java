@@ -75,6 +75,33 @@ import edu.umd.cloud9.tuple.Tuple;
  * <li> In the second MapReduce cycle, the tuple keys are decoded back into a
  * text representation. </li>
  * </ul>
+ *
+ * <p>Expected trace of first MapReduce cycle:</p>
+ *
+ * <pre>
+ * Map input records=156215
+ * Map output records=1734298
+ * Map input bytes=13118917
+ * Map output bytes=66214039
+ * Combine input records=1734298
+ * Combine output records=192045
+ * Reduce input groups=59225
+ * Reduce input records=192045
+ * Reduce output records=59225</pre>
+ *
+ * <p>Expected trace of second MapReduce cycle:</p>
+ *
+ * <pre>
+ * Map input records=59225
+ * Map output records=59225
+ * Map input bytes=2950314
+ * Map output bytes=1026174
+ * Combine input records=59225
+ * Combine output records=59225
+ * Reduce input groups=59225
+ * Reduce input records=59225
+ * Reduce output records=59225</pre>
+ *
  * <p>
  * Obviously, this isn't a particularly meaningful program, but does illustrate
  * the use of the {@link Tuple} class.

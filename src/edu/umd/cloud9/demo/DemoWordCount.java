@@ -33,8 +33,21 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 /**
- * Simple word count demo. Counts words in the Bible+Shakespeare sample
- * collection.
+ * <p>Simple word count demo. Counts words in the Bible+Shakespeare sample
+ * collection. Expected trace of MapReduce operation:</p>
+ * 
+ * <pre>
+ * Map input records=156215
+ * Map output records=1734298
+ * Map input bytes=9068074
+ * Map output bytes=15919397
+ * Combine input records=1734298
+ * Combine output records=135372
+ * Reduce input groups=41788
+ * Reduce input records=135372
+ * Reduce output records=41788
+ * </pre>
+ *
  */
 public class DemoWordCount {
 

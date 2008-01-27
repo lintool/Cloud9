@@ -78,6 +78,32 @@ import edu.umd.cloud9.tuple.Tuple;
  * the probability that a line is odd-length or even-length, given the
  * occurrence of a token.
  * </p>
+ *
+ * <p>Expected trace of first MapReduce cycle:</p>
+ * 
+ * <pre>
+ * Map input records=156215
+ * Map output records=3468596
+ * Map input bytes=13118917
+ * Map output bytes=163645442
+ * Combine input records=3468596
+ * Combine output records=330902
+ * Reduce input groups=101013
+ * Reduce input records=3468596
+ * Reduce output records=101013</pre>
+ *
+ * <p>Expected trace of second MapReduce cycle:</p>
+ *
+ * <pre>
+ * Map input records=101013
+ * Map output records=101013
+ * Map input bytes=5797766
+ * Map output bytes=1756166
+ * Combine input records=101013
+ * Combine output records=101013
+ * Reduce input groups=101013
+ * Reduce input records=101013
+ * Reduce output records=101013</pre>
  */
 public class DemoWordCondProb {
 
