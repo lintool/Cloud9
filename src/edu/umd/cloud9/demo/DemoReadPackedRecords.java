@@ -38,7 +38,7 @@ public class DemoReadPackedRecords {
 		// iterate over all tuples
 		while (reader.read(tuple)) {
 			// print out each tuple
-			System.out.println(tuple.get(0));
+			System.out.println(tuple);
 		}
 		reader.close();
 
