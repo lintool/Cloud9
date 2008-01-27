@@ -11,7 +11,7 @@
 		<fileset dir="${lib}">
 			<include name="**/*.jar" />
 		</fileset>
-		<fileset dir="../umd-hadoop-dist/hadoop-0.14.1">
+		<fileset dir="../umd-hadoop-dist/hadoop-0.15.3">
 			<include name="**/*.jar" />
 		</fileset>
 		<fileset dir="../umd-hadoop-dist/jars">
@@ -81,13 +81,13 @@
 	</target>
 
 	<target name="javadoc">
-		<javadoc destdir="${javadoc}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" sourcepath="src" classpathref="classpath">
+		<javadoc destdir="${javadoc}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" classpathref="classpath">
 			<fileset dir="src">
 				<include name="**/*.java"/>
 				<exclude name="**/*Test.java" />
 			</fileset>
-			<link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
-			<link href="../../hadoop-0.14.1/docs/api" />
+			<link href="http://java.sun.com/javase/6/docs/api/" />
+			<link href="../../hadoop-0.15.3/docs/api" />
 		</javadoc>
 	</target>
 
