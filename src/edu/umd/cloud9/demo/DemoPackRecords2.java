@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.demo;
 
 import java.io.BufferedReader;
@@ -13,6 +29,33 @@ import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
 import edu.umd.cloud9.util.LocalTupleRecordWriter;
 
+/**
+ * <p>
+ * Demo that packs the sample collection into records using the tuple library,
+ * illustrating the use of the {@link edu.umd.cloud9.tuple.Tuple} and
+ * {@link edu.umd.cloud9.tuple.ListWritable} classes. The records are stored in
+ * a local SequenceFile; this file can then be transfered over to HDFS to serve
+ * as the starting point for a MapReduce operation.
+ * </p>
+ * 
+ * <p>
+ * Each record is a tuple with two fields:
+ * </p>
+ * 
+ * <ul>
+ * 
+ * <li>the first field of the tuple is an Integer with the field name "length";
+ * its value is the length of the record in number of characters.</li>
+ * 
+ * <li>the second field of the tuple is a ListWritable<Text> with the field
+ * name "tokens"; its value is a list of tokens that comprise the text of the
+ * record.</li>
+ * 
+ * </ul>
+ * 
+ * @see DemoPackRecords
+ * @see DemoReadPackedRecords2
+ */
 public class DemoPackRecords2 {
 	private DemoPackRecords2() {
 	}
@@ -27,6 +70,9 @@ public class DemoPackRecords2 {
 	// instantiate a single tuple
 	private static Tuple tuple = RECORD_SCHEMA.instantiate();
 
+	/**
+	 * Runs the demo.
+	 */
 	public static void main(String[] args) throws IOException {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
 		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed2";
@@ -45,7 +91,7 @@ public class DemoPackRecords2 {
 			while (itr.hasMoreTokens()) {
 				tokens.add(new Text(itr.nextToken()));
 			}
-			
+
 			// write the record
 			tuple.set("length", line.length());
 			tuple.set("tokens", tokens);

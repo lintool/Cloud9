@@ -40,9 +40,9 @@ import edu.umd.cloud9.tuple.Tuple;
 
 /**
  * <p>
- * Demo that illustrates the use of the tuple library. Input comes from
- * Bible+Shakespeare sample collection, encoded as single-field tuples; see
- * {@link DemoPackRecords}. Sample of final output:
+ * Demo that illustrates the use of the tuple library ({@link Tuple} class).
+ * Input comes from Bible+Shakespeare sample collection, encoded as single-field
+ * tuples; see {@link DemoPackRecords}. Sample of final output:
  * </p>
  * 
  * <pre>
@@ -75,9 +75,11 @@ import edu.umd.cloud9.tuple.Tuple;
  * <li> In the second MapReduce cycle, the tuple keys are decoded back into a
  * text representation. </li>
  * </ul>
- *
- * <p>Expected trace of first MapReduce cycle:</p>
- *
+ * 
+ * <p>
+ * Expected trace of first MapReduce cycle:
+ * </p>
+ * 
  * <pre>
  * Map input records=156215
  * Map output records=1734298
@@ -87,10 +89,13 @@ import edu.umd.cloud9.tuple.Tuple;
  * Combine output records=192045
  * Reduce input groups=59225
  * Reduce input records=192045
- * Reduce output records=59225</pre>
- *
- * <p>Expected trace of second MapReduce cycle:</p>
- *
+ * Reduce output records=59225
+ * </pre>
+ * 
+ * <p>
+ * Expected trace of second MapReduce cycle:
+ * </p>
+ * 
  * <pre>
  * Map input records=59225
  * Map output records=59225
@@ -100,8 +105,9 @@ import edu.umd.cloud9.tuple.Tuple;
  * Combine output records=59225
  * Reduce input groups=59225
  * Reduce input records=59225
- * Reduce output records=59225</pre>
- *
+ * Reduce output records=59225
+ * </pre>
+ * 
  * <p>
  * Obviously, this isn't a particularly meaningful program, but does illustrate
  * the use of the {@link Tuple} class.

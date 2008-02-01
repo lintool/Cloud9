@@ -26,10 +26,20 @@ import edu.umd.cloud9.tuple.Tuple;
 import edu.umd.cloud9.util.LocalTupleRecordWriter;
 
 /**
- * Demo that packs the sample collection into records using the tuple library.
- * The records are stored in a local SequenceFile; this file can then be
- * transfered over to HDFS to serve as the starting point for a MapReduce
- * operation.
+ * <p>
+ * Demo that packs the sample collection into records using the tuple library,
+ * illustrating the use of the {@link edu.umd.cloud9.tuple.Tuple} class. The
+ * records are stored in a local SequenceFile; this file can then be transfered
+ * over to HDFS to serve as the starting point for a MapReduce operation.
+ * </p>
+ * 
+ * <p>
+ * Each record is a tuple; the first field of the tuple is a String with the
+ * field name "text", which consists of the raw text of the record.
+ * </p>
+ * 
+ * @see DemoPackRecords2
+ * @see DemoReadPackedRecords
  */
 public class DemoPackRecords {
 	private DemoPackRecords() {
@@ -44,6 +54,9 @@ public class DemoPackRecords {
 	// instantiate a single tuple
 	private static Tuple tuple = RECORD_SCHEMA.instantiate();
 
+	/**
+	 * Runs the demo.
+	 */
 	public static void main(String[] args) throws IOException {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
 		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed";
