@@ -15,5 +15,9 @@
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop-0.15.3/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop-0.15.3/lib/xmlenc-0.52.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop-0.15.3/hadoop-0.15.3-core.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-algorithms-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-graph-impl-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-api-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/collections-generic-4.01.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
