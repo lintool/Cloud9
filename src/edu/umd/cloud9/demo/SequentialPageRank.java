@@ -1,4 +1,4 @@
-package edu.umd.cloud9.exercise.pagerank;
+package edu.umd.cloud9.demo;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
