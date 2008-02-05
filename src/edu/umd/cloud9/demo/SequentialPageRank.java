@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.demo;
 
 import java.io.BufferedReader;
@@ -13,8 +29,32 @@ import edu.uci.ics.jung.algorithms.importance.Ranking;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 
+/**
+ * <p>
+ * Program that computes PageRank for a graph using the <a
+ * href="http://jung.sourceforge.net/">JUNG</a> package (2.0 alpha1). Program
+ * takes two command-line arguments: the first is a file containing the graph
+ * data, and the second is the damping factor (a typical setting is 0.15).
+ * </p>
+ * 
+ * <p>
+ * The graph should be represented as an adjacency list. Each line should have
+ * at least one token; tokens should be tab delimited. The first token
+ * represents the unique id of the source node; subsequent tokens represent its
+ * link targets (i.e., outlinks from the source node). For completeness, there
+ * should be a line representing all nodes, even nodes without outlinks (those
+ * lines will simply contain one token, the source node id).
+ * </p>
+ * 
+ */
 public class SequentialPageRank {
 
+	private SequentialPageRank() {
+	}
+
+	/**
+	 * Runs the program
+	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 2) {
 			System.err
@@ -27,7 +67,6 @@ public class SequentialPageRank {
 		int edgeCnt = 0;
 		DirectedSparseGraph<String, Integer> graph = new DirectedSparseGraph<String, Integer>();
 
-		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(
 				new FileInputStream(infile)));
 
@@ -36,12 +75,9 @@ public class SequentialPageRank {
 			line.trim();
 			String[] arr = line.split("\\t");
 
-			// System.out.print(arr[0] + " ->");
 			for (int i = 1; i < arr.length; i++) {
 				graph.addEdge(new Integer(edgeCnt++), arr[0], arr[i]);
-				// System.out.print(" " + arr[i]);
 			}
-			// System.out.print("\n");
 		}
 
 		data.close();
