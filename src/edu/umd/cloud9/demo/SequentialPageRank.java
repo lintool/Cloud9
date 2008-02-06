@@ -34,7 +34,7 @@ import edu.uci.ics.jung.graph.Graph;
  * Program that computes PageRank for a graph using the <a
  * href="http://jung.sourceforge.net/">JUNG</a> package (2.0 alpha1). Program
  * takes two command-line arguments: the first is a file containing the graph
- * data, and the second is the damping factor (a typical setting is 0.15).
+ * data, and the second is the random jump factor (a typical setting is 0.15).
  * </p>
  * 
  * <p>
@@ -58,7 +58,7 @@ public class SequentialPageRank {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 2) {
 			System.err
-					.println("usage: SequentialPageRage [graph-adjacency-list] [damping-factor]");
+					.println("usage: SequentialPageRage [graph-adjacency-list] [random-jump-factor]");
 			System.exit(-1);
 		}
 		String infile = args[0];
@@ -90,7 +90,7 @@ public class SequentialPageRank {
 		System.out.println("Number of components: " + numComponents);
 		System.out.println("Number of edges: " + graph.getEdgeCount());
 		System.out.println("Number of nodes: " + graph.getVertexCount());
-		System.out.println("Damping factor: " + alpha);
+		System.out.println("Random jump factor: " + alpha);
 
 		PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph,
 				alpha);
