@@ -328,6 +328,10 @@ public class Tuple implements WritableComparable {
 		return getFieldType(mFieldLookup.get(field));
 	}
 
+	public int getFieldCount() {
+		return mFields.length;
+	}
+
 	/**
 	 * Lazily construct the lookup table for this schema. Used to accelerate
 	 * name-based lookups of schema information.
@@ -337,19 +341,6 @@ public class Tuple implements WritableComparable {
 		for (int i = 0; i < mFields.length; ++i) {
 			mFieldLookup.put(mFields[i], new Integer(i));
 		}
-	}
-
-	/**
-	 * Returns a byte array representation of this tuple. This is used to
-	 * determine the natural sort order of tuples, but useful for little else.
-	 * 
-	 * @return byte array representation of this tuple
-	 */
-	private byte[] getBytes() {
-		if (mBytes == null)
-			generateByteRepresentation();
-
-		return mBytes;
 	}
 
 	private void generateByteRepresentation() {
@@ -531,20 +522,43 @@ public class Tuple implements WritableComparable {
 	/**
 	 * Compares this Tuple with the specified object for order. Returns
 	 * <code>-1</code>, <code>0</code>, or <code>1</code> as this Tuple
-	 * is "less than", "equal to", or "greater than" the specified object. Note
-	 * that a raw binary representation is used for sorting, and thus the sort
-	 * order does not correspond to the ordering of field values.
+	 * is "less than", "equal to", or "greater than" the specified object.
 	 * 
 	 * @return <code>-1</code>, <code>0</code>, or <code>1</code> as
 	 *         this Tuple is "less than", "equal to", or "greater than" the
 	 *         specified object
 	 */
 	public int compareTo(Object obj) {
-		byte[] thoseBytes = ((Tuple) obj).getBytes();
-		byte[] theseBytes = this.getBytes();
+		Tuple that = (Tuple) obj;
 
-		return WritableComparator.compareBytes(theseBytes, 0,
-				theseBytes.length, thoseBytes, 0, thoseBytes.length);
+		for (int i = 0; i < this.getFieldCount(); i++) {
+			if (this.containsSymbol(i) && that.containsSymbol(i)) {
+				String thisSymbol = this.getSymbol(i);
+				String thatSymbol = that.getSymbol(i);
+
+				if (!thisSymbol.equals(thatSymbol)) {
+					return thisSymbol.compareTo(thatSymbol);
+				}
+			} else {
+				if (this.containsSymbol(i))
+					return -1;
+
+				if (that.containsSymbol(i))
+					return 1;
+
+				@SuppressWarnings("unchecked")
+				Comparable<Object> thisField = (Comparable<Object>) this.get(i);
+
+				@SuppressWarnings("unchecked")
+				Comparable<Object> thatField = (Comparable<Object>) that.get(i);
+
+				if (!thisField.equals(thatField)) {
+					return thisField.compareTo(thatField);
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	/**
@@ -557,32 +571,6 @@ public class Tuple implements WritableComparable {
 			generateByteRepresentation();
 
 		return WritableComparator.hashBytes(mBytes, mBytes.length);
-	}
-
-	/**
-	 * A Comparator optimized for {@link Tuple}. Natural sort order is based on
-	 * a raw byte representation, and therefore does not correspond to the
-	 * natural ordering of field values.
-	 */
-	public static class Comparator extends WritableComparator {
-		/**
-		 * Constructs a Comparator for Tuple.
-		 */
-		public Comparator() {
-			super(Tuple.class);
-		}
-
-		/**
-		 * Compare the raw byte representations of the Tuples.
-		 */
-		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-			return compareBytes(b1, s1, l1, b2, s2, l2);
-		}
-	}
-
-	// register this comparator
-	static {
-		WritableComparator.define(Tuple.class, new Comparator());
 	}
 
 }
