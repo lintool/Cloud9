@@ -26,8 +26,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -37,7 +35,7 @@ import org.apache.hadoop.mapred.Partitioner;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 import edu.umd.cloud9.tuple.Schema;
@@ -78,32 +76,6 @@ import edu.umd.cloud9.tuple.Tuple;
  * the probability that a line is odd-length or even-length, given the
  * occurrence of a token.
  * </p>
- *
- * <p>Expected trace of first MapReduce cycle:</p>
- * 
- * <pre>
- * Map input records=156215
- * Map output records=3468596
- * Map input bytes=13118917
- * Map output bytes=163645442
- * Combine input records=3468596
- * Combine output records=330902
- * Reduce input groups=101013
- * Reduce input records=3468596
- * Reduce output records=101013</pre>
- *
- * <p>Expected trace of second MapReduce cycle:</p>
- *
- * <pre>
- * Map input records=101013
- * Map output records=101013
- * Map input bytes=5797766
- * Map output bytes=1756166
- * Combine input records=101013
- * Combine output records=101013
- * Reduce input groups=101013
- * Reduce input records=101013
- * Reduce output records=101013</pre>
  */
 public class DemoWordCondProb {
 
@@ -198,56 +170,6 @@ public class DemoWordCondProb {
 		}
 	}
 
-	// a Comparator that sorts the special symbol first
-	private static class MyTupleComparator extends WritableComparator {
-		public MyTupleComparator() {
-			super(Tuple.class);
-		}
-
-		public int compare(WritableComparable a, WritableComparable b) {
-			Tuple tA = (Tuple) a;
-			Tuple tB = (Tuple) b;
-			String tokenA = (String) tA.get("Token");
-			String tokenB = (String) tB.get("Token");
-
-			// if the tokens match, compare second field
-			if (tokenA.equals(tokenB)) {
-				// both contain symbol, so tuples must be equal
-				if (tA.containsSymbol("EvenOrOdd")
-						&& tB.containsSymbol("EvenOrOdd"))
-					return 0;
-
-				// tuple with special symbol always goes first
-				if (tA.containsSymbol("EvenOrOdd"))
-					return -1;
-
-				// tuple with special symbol always goes first
-				if (tB.containsSymbol("EvenOrOdd"))
-					return 1;
-
-				// otherwise, compare EvenOrOdd field
-				return ((Integer) tA.get("EvenOrOdd")).compareTo((Integer) tB
-						.get("EvenOrOdd"));
-			}
-
-			// compare the tokens
-			return tokenA.compareTo(tokenB);
-		}
-	}
-
-	// mapper that unpacks the serialized tuples back into human-readable text
-	private static class UnpackKeysClass extends MapReduceBase implements
-			Mapper<Tuple, FloatWritable, Text, FloatWritable> {
-		private Text text = new Text();
-
-		public void map(Tuple key, FloatWritable value,
-				OutputCollector<Text, FloatWritable> output, Reporter reporter)
-				throws IOException {
-			text.set(key.toString());
-			output.collect(text, value);
-		}
-	}
-
 	// dummy constructor
 	private DemoWordCondProb() {
 	}
@@ -257,10 +179,9 @@ public class DemoWordCondProb {
 	 */
 	public static void main(String[] args) throws IOException {
 		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
-		String output1Path = "condprob-tuple";
-		String output2Path = "condprob-txt";
+		String output1Path = "condprob";
 		int numMapTasks = 20;
-		int numReduceTasks = 20;
+		int numReduceTasks = 10;
 
 		// first MapReduce cycle is to do the tuple counting
 		JobConf conf1 = new JobConf(DemoWordCondProb.class);
@@ -275,7 +196,7 @@ public class DemoWordCondProb {
 		conf1.setOutputPath(new Path(output1Path));
 		conf1.setOutputKeyClass(Tuple.class);
 		conf1.setOutputValueClass(FloatWritable.class);
-		conf1.setOutputFormat(SequenceFileOutputFormat.class);
+		conf1.setOutputFormat(TextOutputFormat.class);
 
 		conf1.setMapperClass(MapClass.class);
 		// this is a potential gotcha! can't use ReduceClass for combine because
@@ -284,29 +205,7 @@ public class DemoWordCondProb {
 		conf1.setCombinerClass(IdentityReducer.class);
 		conf1.setReducerClass(ReduceClass.class);
 		conf1.setPartitionerClass(MyPartitioner.class);
-		conf1.setOutputKeyComparatorClass(MyTupleComparator.class);
 
 		JobClient.runJob(conf1);
-
-		// second MapReduce cycle is to unpack serialized tuples back into
-		// human-readable text
-		JobConf conf2 = new JobConf(DemoWordCondProb.class);
-		conf2.setJobName("DemoWordCondProb.MR2");
-
-		conf2.setNumMapTasks(numMapTasks);
-		conf2.setNumReduceTasks(1);
-
-		conf2.setInputPath(new Path(output1Path));
-		conf2.setInputFormat(SequenceFileInputFormat.class);
-
-		conf2.setOutputPath(new Path(output2Path));
-		conf2.setOutputKeyClass(Text.class);
-		conf2.setOutputValueClass(FloatWritable.class);
-
-		conf2.setMapperClass(UnpackKeysClass.class);
-		conf2.setCombinerClass(IdentityReducer.class);
-		conf2.setReducerClass(IdentityReducer.class);
-
-		JobClient.runJob(conf2);
 	}
 }
