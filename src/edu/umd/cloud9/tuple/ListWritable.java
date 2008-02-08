@@ -26,23 +26,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
  * Class that represents a list in Hadoop's data type system. Elements in the
- * list must implement Hadoop's Writable interface. This class, combined with
- * {@link Tuple}, allows the user to define arbitrarily complex data
- * structures. Note that ListWritable implements Writable only, not
- * WritableComparable, and hence cannot be directly used as keys in a MapReduce
- * task.
+ * list must implement Hadoop's WritableComparable interface. This class,
+ * combined with {@link Tuple}, allows the user to define arbitrarily complex
+ * data structures.
  * </p>
  * 
  * @see Tuple
  * @param <E>
  *            type of list element
  */
-public class ListWritable<E extends Writable> implements Writable {
+public class ListWritable<E extends WritableComparable> implements
+		WritableComparable {
 
 	private List<E> mList;
 
@@ -75,6 +75,7 @@ public class ListWritable<E extends Writable> implements Writable {
 	 *            element to be appended to this list
 	 */
 	public void add(E e) {
+		mBytes = null;
 		mList.add(e);
 	}
 
@@ -88,6 +89,7 @@ public class ListWritable<E extends Writable> implements Writable {
 	 *            element to be stored at the specified position
 	 */
 	public E set(int index, E element) {
+		mBytes = null;
 		return mList.set(index, element);
 	}
 
@@ -170,5 +172,33 @@ public class ListWritable<E extends Writable> implements Writable {
 		sb.append("]");
 
 		return sb.toString();
+	}
+
+	private byte[] mBytes = null;
+
+	private byte[] getBytes() {
+		if (mBytes == null)
+			generateByteRepresentation();
+
+		return mBytes;
+	}
+
+	private void generateByteRepresentation() {
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(byteStream);
+		try {
+			this.write(out);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		mBytes = byteStream.toByteArray();
+	}
+
+	public int compareTo(Object obj) {
+		byte[] thoseBytes = ((ListWritable<?>) obj).getBytes();
+		byte[] theseBytes = this.getBytes();
+
+		return WritableComparator.compareBytes(theseBytes, 0,
+				theseBytes.length, thoseBytes, 0, thoseBytes.length);
 	}
 }
