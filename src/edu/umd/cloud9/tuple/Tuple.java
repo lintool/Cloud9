@@ -61,6 +61,12 @@ import org.apache.hadoop.io.WritableComparator;
  * <code>*</code>, and distinguish it from the lexical token '<code>*</code>'.
  * </p>
  * 
+ * <p>
+ * The natural sort order of the Tuple is defined by {@link #compareTo(Object)}.
+ * Tuples are sorted by field, with special symbols always appearing first
+ * within each field.
+ * </p>
+ * 
  * @see ListWritable
  * @see Schema
  * 
@@ -520,26 +526,45 @@ public class Tuple implements WritableComparable {
 	}
 
 	/**
-	 * Compares this Tuple with the specified object for order. Returns
-	 * <code>-1</code>, <code>0</code>, or <code>1</code> as this Tuple
-	 * is "less than", "equal to", or "greater than" the specified object.
+	 * <p>
+	 * Defines a natural sort order for the Tuple class. Following standard
+	 * convention, this method returns <code>-1</code>, <code>1</code>, or
+	 * <code>0</code> if this Tuple should be sorted before, sorted after, or
+	 * is equal to <code>obj</code>. The sort order is defined as follows:
+	 * </p>
 	 * 
-	 * @return <code>-1</code>, <code>0</code>, or <code>1</code> as
-	 *         this Tuple is "less than", "equal to", or "greater than" the
-	 *         specified object
+	 * <ul>
+	 * <li>Each field in the Tuple is compared sequentially from first to last.</li>
+	 * <li>Within each field, all special symbols are sorted before actual
+	 * field tokens (i.e., the actual String, Integer, or whatever the field may
+	 * contain).</li>
+	 * <li>The special symbols are sorted lexicographically (being Strings).</li>
+	 * <li>The field tokens are sorted by their natural order.</li>
+	 * <li>If the field contents are identical (both contain same special
+	 * symbol or field token), the next field in the tuple is considered.</li>
+	 * <li>Two tuples are considered equal if all their fields are identical.</li>
+	 * </ul>
+	 * 
+	 * @return <code>-1</code>, <code>1</code>, <code>0</code> if this
+	 *         Tuple should be sorted before, sorted after, or is equal to
+	 *         <code>obj</code>.
 	 */
 	public int compareTo(Object obj) {
 		Tuple that = (Tuple) obj;
 
+		// iterate through the fields
 		for (int i = 0; i < this.getFieldCount(); i++) {
+			// if both contain special symbol, then sort special symbols
 			if (this.containsSymbol(i) && that.containsSymbol(i)) {
 				String thisSymbol = this.getSymbol(i);
 				String thatSymbol = that.getSymbol(i);
 
+				// special symbols identical; move to next field
 				if (!thisSymbol.equals(thatSymbol)) {
 					return thisSymbol.compareTo(thatSymbol);
 				}
 			} else {
+				// special symbols always come first
 				if (this.containsSymbol(i))
 					return -1;
 
@@ -552,6 +577,7 @@ public class Tuple implements WritableComparable {
 				@SuppressWarnings("unchecked")
 				Comparable<Object> thatField = (Comparable<Object>) that.get(i);
 
+				// if the field tokens are identical, move to next field
 				if (!thisField.equals(thatField)) {
 					return thisField.compareTo(thatField);
 				}
