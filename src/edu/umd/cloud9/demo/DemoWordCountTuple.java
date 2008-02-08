@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -33,7 +32,6 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
@@ -63,21 +61,11 @@ import edu.umd.cloud9.tuple.Tuple;
  * <p>
  * The first field of the key tuple contains a token, the second field indicates
  * whether it was found on a even-length or odd-length line. The value is the
- * count of the tuple occurrences in the collection. The demo executes two
- * separate MapReduce cycles:
- * </p>
- * 
- * <ul>
- * <li> In the first MapReduce cycle, output keys consist of tuples (Token,
- * EvenOrOdd). The second field of the tuple indicates whether the token was
- * found on a line with an even or an odd number of characters. Values consist
- * of counts of tuple occurrences. </li>
- * <li> In the second MapReduce cycle, the tuple keys are decoded back into a
- * text representation. </li>
- * </ul>
- * 
- * <p>
- * Expected trace of first MapReduce cycle:
+ * count of the tuple occurrences in the collection. In the MapReduce cycle,
+ * output keys consist of tuples (Token, EvenOrOdd). The second field of the
+ * tuple indicates whether the token was found on a line with an even or an odd
+ * number of characters. Values consist of counts of tuple occurrences. Expected
+ * trace of the demo:
  * </p>
  * 
  * <pre>
@@ -89,22 +77,6 @@ import edu.umd.cloud9.tuple.Tuple;
  * Combine output records=192045
  * Reduce input groups=59225
  * Reduce input records=192045
- * Reduce output records=59225
- * </pre>
- * 
- * <p>
- * Expected trace of second MapReduce cycle:
- * </p>
- * 
- * <pre>
- * Map input records=59225
- * Map output records=59225
- * Map input bytes=2950314
- * Map output bytes=1026174
- * Combine input records=59225
- * Combine output records=59225
- * Reduce input groups=59225
- * Reduce input records=59225
  * Reduce output records=59225
  * </pre>
  * 
@@ -177,19 +149,6 @@ public class DemoWordCountTuple {
 		}
 	}
 
-	// mapper that unpacks the serialized tuples back into human-readable text
-	private static class UnpackKeysClass extends MapReduceBase implements
-			Mapper<Tuple, IntWritable, Text, IntWritable> {
-		private Text text = new Text();
-
-		public void map(Tuple tupleIn, IntWritable sum,
-				OutputCollector<Text, IntWritable> output, Reporter reporter)
-				throws IOException {
-			text.set(tupleIn.toString());
-			output.collect(text, sum);
-		}
-	}
-
 	// dummy constructor
 	private DemoWordCountTuple() {
 	}
@@ -199,51 +158,28 @@ public class DemoWordCountTuple {
 	 */
 	public static void main(String[] args) throws IOException {
 		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
-		String output1Path = "word-counts-tuple";
-		String output2Path = "word-counts-txt";
+		String outputPath = "word-counts-tuple";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
 
-		// first MapReduce cycle is to do the tuple counting
-		JobConf conf1 = new JobConf(DemoWordCountTuple.class);
-		conf1.setJobName("wordcount");
+		JobConf conf = new JobConf(DemoWordCountTuple.class);
+		conf.setJobName("wordcount");
 
-		conf1.setNumMapTasks(numMapTasks);
-		conf1.setNumReduceTasks(numReduceTasks);
+		conf.setNumMapTasks(numMapTasks);
+		conf.setNumReduceTasks(numReduceTasks);
 
-		conf1.setInputPath(new Path(inPath));
-		conf1.setInputFormat(SequenceFileInputFormat.class);
+		conf.setInputPath(new Path(inPath));
+		conf.setInputFormat(SequenceFileInputFormat.class);
 
-		conf1.setOutputPath(new Path(output1Path));
-		conf1.setOutputKeyClass(Tuple.class);
-		conf1.setOutputValueClass(IntWritable.class);
-		conf1.setOutputFormat(SequenceFileOutputFormat.class);
+		conf.setOutputPath(new Path(outputPath));
+		conf.setOutputKeyClass(Tuple.class);
+		conf.setOutputValueClass(IntWritable.class);
+		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		conf1.setMapperClass(MapClass.class);
-		conf1.setCombinerClass(ReduceClass.class);
-		conf1.setReducerClass(ReduceClass.class);
+		conf.setMapperClass(MapClass.class);
+		conf.setCombinerClass(ReduceClass.class);
+		conf.setReducerClass(ReduceClass.class);
 
-		JobClient.runJob(conf1);
-
-		// second MapReduce cycle is to unpack serialized tuples back into
-		// human-readable text
-		JobConf conf2 = new JobConf(DemoWordCountTuple.class);
-		conf2.setJobName("unpack");
-
-		conf2.setNumMapTasks(numMapTasks);
-		conf2.setNumReduceTasks(1);
-
-		conf2.setInputPath(new Path(output1Path));
-		conf2.setInputFormat(SequenceFileInputFormat.class);
-
-		conf2.setOutputPath(new Path(output2Path));
-		conf2.setOutputKeyClass(Text.class);
-		conf2.setOutputValueClass(IntWritable.class);
-
-		conf2.setMapperClass(UnpackKeysClass.class);
-		conf2.setCombinerClass(IdentityReducer.class);
-		conf2.setReducerClass(IdentityReducer.class);
-
-		JobClient.runJob(conf2);
+		JobClient.runJob(conf);
 	}
 }
