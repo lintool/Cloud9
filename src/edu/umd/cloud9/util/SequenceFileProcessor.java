@@ -27,13 +27,13 @@ import org.apache.hadoop.mapred.JobConf;
 
 /**
  * <p>
- * Harness for processing {@link SequenceFile}s within a single process. This
- * class is useful when you want to iterate through all key-value pairs in a
- * SequenceFile outside the context of a MapReduce task (or where writing the
- * computation as a MapReduce would be overkill). One example usage case is to
- * sum up all the values in a SequenceFile &mdash; this may be useful if you
- * want to make sure probabilities sum to one. Here's the code fragment that
- * would accomplish this:
+ * Harness for processing one or more {@link SequenceFile}s within a single
+ * process. This class is useful when you want to iterate through all key-value
+ * pairs in a SequenceFile outside the context of a MapReduce task (or where
+ * writing the computation as a MapReduce would be overkill). One example usage
+ * case is to sum up all the values in a SequenceFile &mdash; this may be useful
+ * if you want to make sure probabilities sum to one. Here's the code fragment
+ * that would accomplish this:
  * </p>
  * 
  * <pre>
