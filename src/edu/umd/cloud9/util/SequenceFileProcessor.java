@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.util;
 
 import java.io.IOException;
@@ -37,6 +53,14 @@ import org.apache.hadoop.mapred.JobConf;
  * float sum = (Float) process.getProperty(&quot;sum&quot;);
  * </pre>
  * 
+ * <p>
+ * The static method takes a path and and a {@link KeyValueProcess}. The this
+ * example uses an anonymous inner class to make the code more concise; but the
+ * static method returns the <code>KeyValueProcess</code> so that you can
+ * retrieve results from it. The path can either be a file or a directory; if it
+ * is a directory, all files in that directory are process.
+ * </p>
+ * 
  * @param <K>
  *            type of key
  * @param <V>
@@ -51,6 +75,22 @@ public class SequenceFileProcessor<K extends WritableComparable, V extends Writa
 	private K mKey;
 	private V mValue;
 
+	/**
+	 * Processes one or more <code>SequenceFile</code>s. The
+	 * {@link KeyValueProcess} is applied to every key-value pair in the file if
+	 * <code>path</code> denotes a file, or all files in the directory if
+	 * <code>path</code> denotes a directory.
+	 * 
+	 * @param <K1>
+	 *            type of key
+	 * @param <V1>
+	 *            type of value
+	 * @param path
+	 *            either a file or a directory
+	 * @param p
+	 *            the KeyValueProcess to apply
+	 * @return the KeyValueProcess applied
+	 */
 	public static <K1 extends WritableComparable, V1 extends Writable> KeyValueProcess<K1, V1> process(
 			String path, KeyValueProcess<K1, V1> p) {
 
