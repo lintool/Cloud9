@@ -27,12 +27,13 @@ import org.apache.hadoop.mapred.JobConf;
 
 /**
  * <p>
- * Harness for processing {@link SequenceFile}s with in single process
- * sequentially. This class is useful when you need to iterate through all
- * key-value pairs in a SequenceFile outside the context of a MapReduce. One
- * example usage case is to sum up all the values in a SequenceFile &mdash; this
- * may be useful if you want to make sure probabilities sum to one. Here's the
- * code fragment that would accomplish this:
+ * Harness for processing {@link SequenceFile}s within a single process. This
+ * class is useful when you want to iterate through all key-value pairs in a
+ * SequenceFile outside the context of a MapReduce task (or where writing the
+ * computation as a MapReduce would be overkill). One example usage case is to
+ * sum up all the values in a SequenceFile &mdash; this may be useful if you
+ * want to make sure probabilities sum to one. Here's the code fragment that
+ * would accomplish this:
  * </p>
  * 
  * <pre>
@@ -54,11 +55,11 @@ import org.apache.hadoop.mapred.JobConf;
  * </pre>
  * 
  * <p>
- * The static method takes a path and and a {@link KeyValueProcess}. The this
- * example uses an anonymous inner class to make the code more concise; but the
+ * The static method takes a path and and a {@link KeyValueProcess}. This
+ * example uses an anonymous inner class to make the code more concise; the
  * static method returns the <code>KeyValueProcess</code> so that you can
  * retrieve results from it. The path can either be a file or a directory; if it
- * is a directory, all files in that directory are process.
+ * is a directory, all files in that directory are processed.
  * </p>
  * 
  * @param <K>
