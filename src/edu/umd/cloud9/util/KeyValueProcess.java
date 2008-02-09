@@ -23,4 +23,5 @@ public abstract class KeyValueProcess<K extends WritableComparable, V extends Wr
 	public Object getProperty(String property) {
 		return mHash.get(property);
 	}
+
 }
