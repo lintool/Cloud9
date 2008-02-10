@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
@@ -87,8 +86,6 @@ public class Tuple implements WritableComparable {
 	private String[] mFields;
 	private Class<?>[] mTypes;
 
-	private byte[] mBytes = null;
-
 	private Map<String, Integer> mFieldLookup = null;
 
 	protected Tuple(Object[] objects, String[] symbols, String[] fields,
@@ -142,9 +139,6 @@ public class Tuple implements WritableComparable {
 		}
 
 		mObjects[i] = o;
-
-		// invalidate serialized representation
-		mBytes = null;
 	}
 
 	/**
@@ -181,9 +175,6 @@ public class Tuple implements WritableComparable {
 
 		mObjects[i] = null;
 		mSymbols[i] = s;
-
-		// invalidate serialized representation
-		mBytes = null;
 	}
 
 	/**
@@ -349,40 +340,6 @@ public class Tuple implements WritableComparable {
 		}
 	}
 
-	private void generateByteRepresentation() {
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(byteStream);
-		try {
-			for (int i = 0; i < mFields.length; i++) {
-				if (mObjects[i] == null) {
-					out.writeUTF(mSymbols[i]);
-				} else if (mTypes[i] == Integer.class) {
-					out.writeInt((Integer) mObjects[i]);
-				} else if (mTypes[i] == Boolean.class) {
-					out.writeBoolean((Boolean) mObjects[i]);
-				} else if (mTypes[i] == Long.class) {
-					out.writeLong((Long) mObjects[i]);
-				} else if (mTypes[i] == Float.class) {
-					out.writeFloat((Float) mObjects[i]);
-				} else if (mTypes[i] == Double.class) {
-					out.writeDouble((Double) mObjects[i]);
-				} else if (mTypes[i] == String.class) {
-					out.writeUTF(mObjects[i].toString());
-				} else {
-					ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-					DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-					((Writable) mObjects[i]).write(dataOut);
-					out.write(bytesOut.toByteArray());
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		mBytes = byteStream.toByteArray();
-	}
-
 	/**
 	 * Deserializes the Tuple.
 	 * 
@@ -528,9 +485,9 @@ public class Tuple implements WritableComparable {
 	/**
 	 * <p>
 	 * Defines a natural sort order for the Tuple class. Following standard
-	 * convention, this method returns <code>-1</code>, <code>1</code>, or
-	 * <code>0</code> if this Tuple should be sorted before, sorted after, or
-	 * is equal to <code>obj</code>. The sort order is defined as follows:
+	 * convention, this method returns a value less than zero, a value greater
+	 * than zero, or zero if this Tuple should be sorted before, sorted after,
+	 * or is equal to <code>obj</code>. The sort order is defined as follows:
 	 * </p>
 	 * 
 	 * <ul>
@@ -545,8 +502,8 @@ public class Tuple implements WritableComparable {
 	 * <li>Two tuples are considered equal if all their fields are identical.</li>
 	 * </ul>
 	 * 
-	 * @return <code>-1</code>, <code>1</code>, <code>0</code> if this
-	 *         Tuple should be sorted before, sorted after, or is equal to
+	 * @return a value less than zero, a value greater than zero, or zero if
+	 *         this Tuple should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
 	public int compareTo(Object obj) {
@@ -593,10 +550,17 @@ public class Tuple implements WritableComparable {
 	 * @return hash code for this Tuple
 	 */
 	public int hashCode() {
-		if (mBytes == null)
-			generateByteRepresentation();
+		int hash = 0;
 
-		return WritableComparator.hashBytes(mBytes, mBytes.length);
+		for (int i = 0; i < mObjects.length; i++) {
+			if (mObjects[i] != null) {
+				hash += mObjects[i].hashCode();
+			} else {
+				hash += mSymbols[i].hashCode();
+			}
+		}
+
+		return hash;
 	}
 
 }
