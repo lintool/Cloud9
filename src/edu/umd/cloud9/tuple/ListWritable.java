@@ -27,14 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
  * Class that represents a list in Hadoop's data type system. Elements in the
- * list must implement Hadoop's WritableComparable interface. This class,
- * combined with {@link Tuple}, allows the user to define arbitrarily complex
- * data structures.
+ * list must be homogeneous and must implement Hadoop's WritableComparable
+ * interface. This class, combined with {@link Tuple}, allows the user to
+ * define arbitrarily complex data structures.
  * </p>
  * 
  * @see Tuple
@@ -54,6 +53,16 @@ public class ListWritable<E extends WritableComparable> implements
 	}
 
 	/**
+	 * Appends the specified element to the end of this list.
+	 * 
+	 * @param e
+	 *            element to be appended to this list
+	 */
+	public void add(E e) {
+		mList.add(e);
+	}
+
+	/**
 	 * Returns the element at the specified position in this list
 	 * 
 	 * @param index
@@ -69,14 +78,10 @@ public class ListWritable<E extends WritableComparable> implements
 	}
 
 	/**
-	 * Appends the specified element to the end of this list.
-	 * 
-	 * @param e
-	 *            element to be appended to this list
+	 * Removes all elements from this list.
 	 */
-	public void add(E e) {
-		mBytes = null;
-		mList.add(e);
+	public void clear() {
+		mList.clear();
 	}
 
 	/**
@@ -89,7 +94,6 @@ public class ListWritable<E extends WritableComparable> implements
 	 *            element to be stored at the specified position
 	 */
 	public E set(int index, E element) {
-		mBytes = null;
 		return mList.set(index, element);
 	}
 
@@ -127,7 +131,6 @@ public class ListWritable<E extends WritableComparable> implements
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -174,31 +177,62 @@ public class ListWritable<E extends WritableComparable> implements
 		return sb.toString();
 	}
 
-	private byte[] mBytes = null;
-
-	private byte[] getBytes() {
-		if (mBytes == null)
-			generateByteRepresentation();
-
-		return mBytes;
-	}
-
-	private void generateByteRepresentation() {
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(byteStream);
-		try {
-			this.write(out);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		mBytes = byteStream.toByteArray();
-	}
-
+	/**
+	 * <p>
+	 * Defines a natural sort order for the ListWritable class. Following
+	 * standard convention, this method returns a value less than zero, a value
+	 * greater than zero, or zero if this ListWritable should be sorted before,
+	 * sorted after, or is equal to <code>obj</code>. The sort order is
+	 * defined as follows:
+	 * </p>
+	 * 
+	 * <ul>
+	 * <li>Each element in the list is compared sequentially from first to
+	 * last.</li>
+	 * <li>Lists are sorted with respect to the natural order of the current
+	 * list element under consideration, by calling its <code>compareTo</code>
+	 * method.</li>
+	 * <li>If the current list elements are equal, the next set of elements are
+	 * considered.</li>
+	 * <li>If all compared elements are equal, but lists are different lengths,
+	 * the shorter list is sorted first.</li>
+	 * <li>If all list elements are equal and the lists are equal in length,
+	 * then the lists are considered equal</li>
+	 * </ul>
+	 * 
+	 * @return a value less than zero, a value greater than zero, or zero if
+	 *         this Tuple should be sorted before, sorted after, or is equal to
+	 *         <code>obj</code>.
+	 */
 	public int compareTo(Object obj) {
-		byte[] thoseBytes = ((ListWritable<?>) obj).getBytes();
-		byte[] theseBytes = this.getBytes();
+		ListWritable<?> that = (ListWritable<?>) obj;
 
-		return WritableComparator.compareBytes(theseBytes, 0,
-				theseBytes.length, thoseBytes, 0, thoseBytes.length);
+		// iterate through the fields
+		for (int i = 0; i < this.size(); i++) {
+			// sort shorter list first
+			if (i >= that.size())
+				return 1;
+
+			@SuppressWarnings("unchecked")
+			Comparable<Object> thisField = this.get(i);
+			@SuppressWarnings("unchecked")
+			Comparable<Object> thatField = that.get(i);
+
+			if (thisField.equals(thatField)) {
+				// if we're down to the last field, sort shorter list first
+				if (i == this.size() - 1) {
+					if (this.size() > that.size())
+						return 1;
+
+					if (this.size() < that.size())
+						return -1;
+				}
+				// otherwise, move to next field
+			} else {
+				return thisField.compareTo(thatField);
+			}
+		}
+
+		return 0;
 	}
 }

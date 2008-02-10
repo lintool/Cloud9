@@ -36,7 +36,7 @@ public class ListWritableTest {
 	@Test
 	public void testBasic() throws IOException {
 		ListWritable<Text> list = new ListWritable<Text>();
-		
+
 		list.add(new Text("hi"));
 		list.add(new Text("there"));
 
@@ -47,7 +47,7 @@ public class ListWritableTest {
 	@Test
 	public void testSerialize1() throws IOException {
 		ListWritable<Text> list = new ListWritable<Text>();
-		
+
 		list.add(new Text("hi"));
 		list.add(new Text("there"));
 
@@ -57,18 +57,17 @@ public class ListWritableTest {
 		list.write(dataOut);
 
 		ListWritable<Text> newList = new ListWritable<Text>();
-		newList.readFields(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
+		newList.readFields(new DataInputStream(new ByteArrayInputStream(
+				bytesOut.toByteArray())));
+
 		assertEquals(newList.get(0).toString(), "hi");
 		assertEquals(newList.get(1).toString(), "there");
 	}
 
-
 	@Test
 	public void testSerialize2() throws IOException {
 		ListWritable<FloatWritable> list = new ListWritable<FloatWritable>();
-		
+
 		list.add(new FloatWritable(0.3f));
 		list.add(new FloatWritable(3244.2f));
 
@@ -78,24 +77,104 @@ public class ListWritableTest {
 		list.write(dataOut);
 
 		ListWritable<FloatWritable> newList = new ListWritable<FloatWritable>();
-		newList.readFields(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
+		newList.readFields(new DataInputStream(new ByteArrayInputStream(
+				bytesOut.toByteArray())));
+
 		assertTrue(newList.get(0).get() == 0.3f);
 		assertTrue(newList.get(1).get() == 3244.2f);
 	}
 
-
 	@Test
-	public void testToString() throws IOException {
+	public void testToString() {
 		ListWritable<Text> list = new ListWritable<Text>();
-		
+
 		list.add(new Text("hi"));
 		list.add(new Text("there"));
 
 		assertEquals(list.toString(), "[hi, there]");
 	}
 
+	@Test
+	public void testClear() {
+		ListWritable<Text> list = new ListWritable<Text>();
+
+		list.add(new Text("hi"));
+		list.add(new Text("there"));
+		list.clear();
+		
+		assertEquals(list.size(), 0);
+	}
+
+	@Test
+	public void testSorting1() {
+		ListWritable<Text> list1 = new ListWritable<Text>();
+		ListWritable<Text> list2 = new ListWritable<Text>();
+
+		list1.add(new Text("a"));
+
+		assertTrue(list1.compareTo(list2) > 0);
+	}
+	
+	@Test
+	public void testSorting2() {
+		ListWritable<Text> list1 = new ListWritable<Text>();
+		ListWritable<Text> list2 = new ListWritable<Text>();
+
+		list1.add(new Text("a"));
+		list2.add(new Text("b"));
+
+		assertTrue(list1.compareTo(list2) < 0);
+		assertTrue(list2.compareTo(list1) > 0);
+		
+		list2.clear();
+		list2.add(new Text("a"));
+		
+		assertTrue(list1.compareTo(list2) == 0);
+		
+		list1.add(new Text("a"));
+		list2.add(new Text("b"));
+		
+		// list 1 is now [a, a]
+		// list 2 is now [a, b]
+		assertTrue(list1.compareTo(list2) < 0);
+		assertTrue(list2.compareTo(list1) > 0);
+
+		// list 1 is now [a, a, a]
+		list1.add(new Text("a"));
+		
+		assertTrue(list1.compareTo(list2) < 0);
+	}
+
+	@Test
+	public void testSorting3() {
+		ListWritable<Text> list1 = new ListWritable<Text>();
+		ListWritable<Text> list2 = new ListWritable<Text>();
+		ListWritable<Text> list3 = new ListWritable<Text>();
+
+		list1.add(new Text("a"));
+		
+		list2.add(new Text("a"));
+		list2.add(new Text("a"));
+		
+		list3.add(new Text("a"));
+		list3.add(new Text("a"));
+		
+		assertTrue(list2.compareTo(list3) == 0);
+
+		list3.add(new Text("a"));
+		
+		// list 1 is [a]
+		// list 2 is [a, a]
+		// list 3 is [a, a, a]
+		
+		assertTrue(list1.compareTo(list2) < 0);
+		assertTrue(list1.compareTo(list3) < 0);
+		assertTrue(list2.compareTo(list1) > 0);
+		assertTrue(list2.compareTo(list3) < 0);
+		assertTrue(list3.compareTo(list1) > 0);
+		assertTrue(list3.compareTo(list2) > 0);
+	}
+	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ListWritableTest.class);
 	}
