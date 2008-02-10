@@ -52,42 +52,42 @@ public class TupleTest {
 
 		tuple.get("FIELD");
 	}
-	
+
 	@Test(expected = TupleException.class)
 	public void testAccessNonExistentField2() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.getSymbol("FIELD");
 	}
-	
+
 	@Test(expected = TupleException.class)
 	public void testAccessNonExistentField3() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.set("Field0", "test");
 	}
-	
+
 	@Test(expected = TupleException.class)
 	public void testAccessNonExistentField4() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.setSymbol("Field0", "test");
 	}
-	
+
 	@Test(expected = TupleException.class)
 	public void testAccessNonExistentField5() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.containsSymbol("Field0");
 	}
-	
+
 	@Test(expected = TupleException.class)
 	public void testAccessNonExistentField6() throws IOException {
 		Tuple tuple = SCHEMA1.instantiate();
 
 		tuple.getFieldType("Field0");
 	}
-	
+
 	// can't set fields to null
 	@Test(expected = TupleException.class)
 	public void testSetNull1() throws IOException {
@@ -103,7 +103,7 @@ public class TupleTest {
 
 		tuple.setSymbol(0, null);
 	}
-	
+
 	// mismatch in field type
 	@Test(expected = TupleException.class)
 	public void testSetWrongType() throws IOException {
@@ -111,7 +111,65 @@ public class TupleTest {
 
 		tuple.set(0, 1);
 	}
+
+	@Test
+	public void testHashCode() {
+		Tuple tuple = SCHEMA1.instantiate();
+
+		tuple.setSymbol(0, "*");
+		int hash1 = tuple.hashCode();
+
+		tuple.set(0, "sample");
+		int hash2 = tuple.hashCode();
+
+		assertTrue(hash1 != hash2);
+	}
 	
+	@Test
+	public void testSorting() {
+		
+		Tuple tuple1 = SCHEMA1.instantiate();
+		Tuple tuple2 = SCHEMA1.instantiate();
+		
+		assertEquals(tuple1.compareTo(tuple2), 0);
+		
+		tuple1.set("field0", "a");
+		tuple1.set("field0", "b");
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+		
+		tuple1.set("field1", true);
+		tuple1.set("field1", false);
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+		
+		tuple1.set("field2", 1);
+		tuple1.set("field2", 2);
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+		
+		tuple1.set("field3", 1L);
+		tuple1.set("field3", 2L);
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+
+		tuple1.set("field4", 1.0f);
+		tuple1.set("field4", 2.0f);
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+
+		tuple1.set("field5", 1.0d);
+		tuple1.set("field5", 2.0d);
+		
+		assertTrue(tuple1.compareTo(tuple2) < 0);
+		assertTrue(tuple2.compareTo(tuple1) > 0);
+	}
+
 	// tests unpacking of default values
 	@Test
 	public void testSerializeDefaultValues() throws IOException {
@@ -245,10 +303,10 @@ public class TupleTest {
 
 		assertEquals(tuple.get(1), null);
 		assertEquals(tuple.getSymbol(1), "*");
-		
+
 		assertEquals(tuple.getFieldType(0), String.class);
 		assertEquals(tuple.getFieldType(1), Boolean.class);
-		
+
 		assertEquals(tuple.toString(), "(*, *, 1, 2, 2.5, 3.14, test)");
 	}
 
@@ -266,7 +324,7 @@ public class TupleTest {
 
 		Tuple t = Tuple.createFrom(new DataInputStream(
 				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
+
 		assertTrue(t.containsSymbol(0));
 		assertTrue(t.containsSymbol(1));
 		assertFalse(t.containsSymbol(2));
@@ -274,13 +332,13 @@ public class TupleTest {
 		assertFalse(t.containsSymbol(4));
 		assertFalse(t.containsSymbol(5));
 		assertFalse(t.containsSymbol(6));
-		
+
 		assertEquals(t.get(0), null);
 		assertEquals(t.getSymbol(0), "*");
 
 		assertEquals(t.get(1), null);
 		assertEquals(t.getSymbol(1), "*");
-		
+
 		assertEquals(tuple.getFieldType(0), String.class);
 		assertEquals(tuple.getFieldType(1), Boolean.class);
 	}
