@@ -24,6 +24,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hadoop.io.WritableComparable;
@@ -41,7 +42,8 @@ import org.apache.hadoop.io.WritableComparable;
  *            type of list element
  */
 public class ListWritable<E extends WritableComparable> implements
-		WritableComparable {
+		WritableComparable,
+		Iterable<E> {
 
 	private List<E> mList;
 
@@ -234,5 +236,12 @@ public class ListWritable<E extends WritableComparable> implements
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @return an iterator over the elements in this list in proper sequence.
+	 */
+	public Iterator<E> iterator() {
+		return this.mList.iterator();
 	}
 }
