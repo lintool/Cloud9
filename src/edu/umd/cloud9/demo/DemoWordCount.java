@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -93,7 +94,7 @@ public class DemoWordCount {
 
 	private DemoWordCount() {
 	}
-
+	
 	/**
 	 * Runs the demo.
 	 */
@@ -117,6 +118,10 @@ public class DemoWordCount {
 		conf.setMapperClass(MapClass.class);
 		conf.setCombinerClass(ReduceClass.class);
 		conf.setReducerClass(ReduceClass.class);
+		
+		// Delete the output directory if it exists already
+		Path outputDir = new Path(outputPath);
+		FileSystem.get(conf).delete(outputDir);
 
 		JobClient.runJob(conf);
 	}
