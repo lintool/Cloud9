@@ -116,6 +116,9 @@ public class ListWritable<E extends WritableComparable> implements
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
+		
+		mList.clear();
+		
 		int numFields = in.readInt();
 
 		for (int i = 0; i < numFields; i++) {
