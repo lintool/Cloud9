@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.demo;
 
 import java.io.IOException;
@@ -19,6 +35,16 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
+/**
+ * <p>
+ * Demo that illustrates HBase as a data source. This demo performs word
+ * counting on entries in HBase. Text is read from the "default:text" column.
+ * See {@link DemoHBaseSink} for an illustration of HBase as a data sink, which
+ * should be run first to populate HBase.
+ * </p>
+ * 
+ * @see DemoHBaseSink
+ */
 public class DemoHBaseSource {
 
 	// mapper: emits (token, 1) for every word occurrence
@@ -32,9 +58,10 @@ public class DemoHBaseSource {
 		public void map(HStoreKey key, MapWritable cols,
 				OutputCollector<Text, IntWritable> output, Reporter reporter)
 				throws IOException {
-			
-			String line = Text.decode(((ImmutableBytesWritable) cols.get(textcol)).get());
-			
+
+			String line = Text.decode(((ImmutableBytesWritable) cols
+					.get(textcol)).get());
+
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				word.set(itr.nextToken());
@@ -71,12 +98,12 @@ public class DemoHBaseSource {
 	 */
 	public static void main(String[] args) throws IOException {
 		String outputPath = "sample-counts2";
-		
+
 		int mapTasks = 1;
 		int reduceTasks = 1;
 
 		JobConf conf = new JobConf(DemoHBaseSource.class);
-		
+
 		TableMap.initJob("test", "default:text", MapClass.class, conf);
 
 		conf.setJobName("wordcount");
@@ -85,7 +112,7 @@ public class DemoHBaseSource {
 		conf.setNumReduceTasks(reduceTasks);
 
 		conf.setInputFormat(TableInputFormat.class);
-		
+
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
 		conf.setOutputPath(new Path(outputPath));
