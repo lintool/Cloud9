@@ -35,9 +35,9 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 /**
  * <p>
  * Demo that illustrates HBase as a data sink. This demo packs the sample
- * collection into HBase. Text is stored in the "default:text" column, with the
- * byte offset as the row key. See {@link DemoHBaseSource} for an illustration
- * of HBase as a data source.
+ * collection into HBase. Text is stored in the "default:text" column of the
+ * "test" table, with the byte offset as the row key. See
+ * {@link DemoHBaseSource} for an illustration of HBase as a data source.
  * </p>
  * 
  * @see DemoHBaseSource

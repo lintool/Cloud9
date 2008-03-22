@@ -38,9 +38,9 @@ import org.apache.hadoop.mapred.Reporter;
 /**
  * <p>
  * Demo that illustrates HBase as a data source. This demo performs word
- * counting on entries in HBase. Text is read from the "default:text" column.
- * See {@link DemoHBaseSink} for an illustration of HBase as a data sink, which
- * should be run first to populate HBase.
+ * counting on entries in HBase. Text is read from the "default:text" column in
+ * the "test" table. See {@link DemoHBaseSink} for an illustration of HBase as a
+ * data sink, which should be run first to populate HBase.
  * </p>
  * 
  * @see DemoHBaseSink
