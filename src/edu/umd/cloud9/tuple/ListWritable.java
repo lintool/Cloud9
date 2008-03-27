@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.tuple;
+package src.edu.umd.cloud9.tuple;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -120,10 +120,10 @@ public class ListWritable<E extends WritableComparable> implements
 		mList.clear();
 		
 		int numFields = in.readInt();
+		String className = in.readUTF();
 
 		for (int i = 0; i < numFields; i++) {
 			try {
-				String className = in.readUTF();
 
 				int sz = in.readInt();
 				byte[] bytes = new byte[sz];
@@ -147,6 +147,7 @@ public class ListWritable<E extends WritableComparable> implements
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(mList.size());
+		out.writeUTF(mList.get(0).getClass().getCanonicalName());
 
 		for (int i = 0; i < mList.size(); i++) {
 			if (mList.get(i) == null) {
@@ -158,7 +159,6 @@ public class ListWritable<E extends WritableComparable> implements
 
 			mList.get(i).write(dataOut);
 
-			out.writeUTF(mList.get(i).getClass().getCanonicalName());
 			out.writeInt(bytesOut.size());
 			out.write(bytesOut.toByteArray());
 		}
