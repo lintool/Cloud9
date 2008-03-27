@@ -41,9 +41,7 @@ import org.apache.hadoop.io.WritableComparable;
  * @param <E>
  *            type of list element
  */
-public class ListWritable<E extends WritableComparable> implements
-		WritableComparable,
-		Iterable<E> {
+public class ListWritable<E extends WritableComparable> implements WritableComparable, Iterable<E> {
 
 	private List<E> mList;
 
@@ -116,26 +114,27 @@ public class ListWritable<E extends WritableComparable> implements
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-		
+
 		mList.clear();
-		
+
 		int numFields = in.readInt();
 		String className = in.readUTF();
+		E obj;
+		try {
+			Class c = Class.forName(className);
 
-		for (int i = 0; i < numFields; i++) {
-			try {
-
+			for (int i = 0; i < numFields; i++) {
+				obj = (E) c.newInstance();
 				int sz = in.readInt();
 				byte[] bytes = new byte[sz];
 				in.readFully(bytes);
 
-				E obj = (E) Class.forName(className).newInstance();
-				obj.readFields(new DataInputStream(new ByteArrayInputStream(
-						bytes)));
+				obj.readFields(new DataInputStream(new ByteArrayInputStream(bytes)));
 				this.add(obj);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -147,7 +146,11 @@ public class ListWritable<E extends WritableComparable> implements
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(mList.size());
-		out.writeUTF(mList.get(0).getClass().getCanonicalName());
+		if (mList.size() > 0)
+			out.writeUTF(mList.get(0).getClass().getCanonicalName());
+		else
+			out.writeUTF(WritableComparable.class.getCanonicalName());
+		
 
 		for (int i = 0; i < mList.size(); i++) {
 			if (mList.get(i) == null) {
@@ -247,4 +250,6 @@ public class ListWritable<E extends WritableComparable> implements
 	public Iterator<E> iterator() {
 		return this.mList.iterator();
 	}
+	
+	 
 }

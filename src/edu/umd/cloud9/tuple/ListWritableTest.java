@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.tuple;
+package src.edu.umd.cloud9.tuple;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -173,6 +173,27 @@ public class ListWritableTest {
 		assertTrue(list2.compareTo(list3) < 0);
 		assertTrue(list3.compareTo(list1) > 0);
 		assertTrue(list3.compareTo(list2) > 0);
+	}
+	
+	@Test
+	public void testEmpty() throws IOException {
+		ListWritable<Text> list = new ListWritable<Text>();
+		
+		assertTrue(list.size() == 0);
+		
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+		list.write(dataOut);
+
+		ListWritable<Text> newList = new ListWritable<Text>();
+		newList.readFields(new DataInputStream(new ByteArrayInputStream(
+				bytesOut.toByteArray())));
+		assertTrue(newList.size() == 0);
+		
+		newList.add(new Text("Hey"));
+		assertEquals(newList.get(0),new Text("Hey"));
+
 	}
 	
 	public static junit.framework.Test suite() {
