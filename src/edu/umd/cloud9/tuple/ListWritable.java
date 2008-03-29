@@ -130,6 +130,7 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 		E obj;
 		try {
 			Class c = Class.forName(className);
+			listElementClass = c;
 
 			for (int i = 0; i < numFields; i++) {
 				obj = (E) c.newInstance();
@@ -159,7 +160,7 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(mList.size());
 		if (mList.size() > 0)
-			out.writeUTF(mList.get(0).getClass().getCanonicalName());
+			out.writeUTF(listElementClass.getCanonicalName());
 		else
 			out.writeUTF(WritableComparable.class.getCanonicalName());
 
