@@ -24,8 +24,10 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.hadoop.io.WritableComparable;
 
@@ -41,9 +43,11 @@ import org.apache.hadoop.io.WritableComparable;
  * @param <E>
  *            type of list element
  */
-public class ListWritable<E extends WritableComparable> implements WritableComparable, Iterable<E> {
+public class ListWritable<E extends WritableComparable> implements WritableComparable, Iterable<E>, List<E> {
 
 	private List<E> mList;
+
+	private Class<?> listElementClass;
 
 	/**
 	 * Creates a ListWritable object.
@@ -58,8 +62,12 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 	 * @param e
 	 *            element to be appended to this list
 	 */
-	public void add(E e) {
-		mList.add(e);
+	public boolean add(E e) {
+		if (mList.size() == 0) 
+			listElementClass = e.getClass();
+		else if (!e.getClass().equals(listElementClass))
+			throw new IllegalArgumentException("Cannot add element of type " + e.getClass().getCanonicalName() + " to list of type " + listElementClass.getCanonicalName());
+		return mList.add(e);
 	}
 
 	/**
@@ -133,7 +141,11 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 				this.add(obj);
 			}
 
-		} catch (Exception e) {
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -150,11 +162,10 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 			out.writeUTF(mList.get(0).getClass().getCanonicalName());
 		else
 			out.writeUTF(WritableComparable.class.getCanonicalName());
-		
 
 		for (int i = 0; i < mList.size(); i++) {
 			if (mList.get(i) == null) {
-				throw new TupleException("Cannot serialize null fields!");
+				throw new IOException("Cannot serialize null fields!");
 			}
 
 			ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
@@ -250,6 +261,155 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 	public Iterator<E> iterator() {
 		return this.mList.iterator();
 	}
-	
-	 
+
+	/* (non-Javadoc)
+	 * @see java.util.List#add(int, java.lang.Object)
+	 */
+	public void add(int pos, E element) {
+		
+		mList.add(pos, element);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#addAll(java.util.Collection)
+	 */
+	public boolean addAll(Collection<? extends E> elements) {
+		boolean failure = false;
+		Iterator<? extends E> it = elements.iterator();
+		while (it.hasNext()) {
+			E obj = it.next();
+			if (mList.size() == 0) 
+				listElementClass = obj.getClass();
+			else if (!obj.getClass().equals(listElementClass))
+				throw new IllegalArgumentException("Cannot add element of type " + obj.getClass().getCanonicalName() + " to list of type " + listElementClass.getCanonicalName());
+			
+			if (!mList.add(obj)) failure = true;
+		}
+		
+		
+		return !failure;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#addAll(int, java.util.Collection)
+	 */
+	public boolean addAll(int pos, Collection<? extends E> elements) {
+		// TODO: Check the return type of this method.
+		Iterator<? extends E> it = elements.iterator();
+		int curPos = pos;
+		while (it.hasNext()) {
+			E obj = it.next();
+			if (mList.size() == 0) 
+				listElementClass = obj.getClass();
+			else if (!obj.getClass().equals(listElementClass))
+				throw new IllegalArgumentException("Cannot add element of type " + obj.getClass().getCanonicalName() + " to list of type " + listElementClass.getCanonicalName());
+			
+			mList.add(curPos, obj);
+			++curPos;
+		}
+		
+		
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#contains(java.lang.Object)
+	 */
+	public boolean contains(Object element) {
+		return mList.contains(element);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#containsAll(java.util.Collection)
+	 */
+	public boolean containsAll(Collection<?> elements) {
+		return mList.containsAll(elements);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#indexOf(java.lang.Object)
+	 */
+	public int indexOf(Object element) {
+		return mList.indexOf(element);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#isEmpty()
+	 */
+	public boolean isEmpty() {
+		return mList.isEmpty();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#lastIndexOf(java.lang.Object)
+	 */
+	public int lastIndexOf(Object element) {
+		return mList.lastIndexOf(element);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#listIterator()
+	 */
+	public ListIterator<E> listIterator() {
+		return mList.listIterator();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#listIterator(int)
+	 */
+	public ListIterator<E> listIterator(int arg0) {
+		return mList.listIterator(arg0);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#remove(java.lang.Object)
+	 */
+	public boolean remove(Object element) {
+		return mList.remove(element);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#remove(int)
+	 */
+	public E remove(int pos) {
+		return mList.remove(pos);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#removeAll(java.util.Collection)
+	 */
+	public boolean removeAll(Collection<?> elements) {
+		return mList.removeAll(elements);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#retainAll(java.util.Collection)
+	 */
+	public boolean retainAll(Collection<?> elements) {
+		return mList.retainAll(elements);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#subList(int, int)
+	 */
+	public List<E> subList(int arg0, int arg1) {
+		// TODO Consider making this return a type of ListWritable rather than of ArrayList.
+		return mList.subList(arg0, arg1);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#toArray()
+	 */
+	public Object[] toArray() {
+		return mList.toArray();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.List#toArray(T[])
+	 */
+	public <T> T[] toArray(T[] arg0) {
+		return mList.toArray(arg0);
+	}
+
 }

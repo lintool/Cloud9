@@ -24,11 +24,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import junit.framework.JUnit4TestAdapter;
 
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
 public class ListWritableTest {
@@ -194,6 +197,80 @@ public class ListWritableTest {
 		newList.add(new Text("Hey"));
 		assertEquals(newList.get(0),new Text("Hey"));
 
+	}
+	
+	@Test
+	public void testTypeSafety() {
+		ListWritable<WritableComparable> list = new ListWritable<WritableComparable> ();
+		list.add(new Text("Hello"));
+		list.add(new Text("Are you there"));
+		
+		try {
+			list.add(new IntWritable(5));
+			assertTrue(false); // should throw an exception before reaching this line.
+		} catch (IllegalArgumentException e) {
+			assertTrue(true);
+		}
+		
+		ArrayList<WritableComparable> otherList = new ArrayList<WritableComparable>();
+		otherList.add(new Text("Test"));
+		otherList.add(new Text("Test 2"));
+		
+		assertTrue(list.addAll(otherList));
+		
+		otherList.add(new IntWritable(6));
+		try {
+			list.addAll(otherList);
+			assertTrue(false);
+		} catch (IllegalArgumentException e) {
+			assertTrue(true);
+		}
+	}
+	
+	@Test 
+	public void testListMethods() {
+		IntWritable a = new IntWritable(1);
+		IntWritable b = new IntWritable(2);
+		IntWritable c = new IntWritable(3);
+		IntWritable d = new IntWritable(4);
+		IntWritable e = new IntWritable(5);
+		
+		ListWritable<IntWritable> list = new ListWritable<IntWritable>();
+		assertTrue(list.isEmpty());
+		list.add(a);
+		list.add(b);
+		list.add(c);
+		list.add(d);
+		list.add(e);
+		
+		int pos = 0;
+		for (IntWritable i : list) {
+			assertEquals(i, list.get(pos));
+			++pos;
+		}
+		
+		assertTrue(list.indexOf(d) == 3);
+		list.add(2, a);
+		assertTrue(list.lastIndexOf(a) == 2);
+		assertEquals(list.get(2), list.get(0));
+		assertTrue(list.size() == 6);
+		
+		assertTrue(list.contains(c));
+		assertTrue(!list.contains(new IntWritable(123)));
+		
+		ArrayList<IntWritable> otherList = new ArrayList<IntWritable>();
+		otherList.add(a);
+		otherList.add(b);
+		otherList.add(c);
+		
+		assertTrue(list.containsAll(otherList));
+		
+		otherList.add(new IntWritable(200));
+		assertTrue(!list.containsAll(otherList));
+		
+		assertEquals(a, otherList.remove(0));
+		assertTrue(list.remove(d));
+		
 	}
 	
 	public static junit.framework.Test suite() {
