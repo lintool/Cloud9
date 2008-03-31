@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package src.edu.umd.cloud9.tuple;
+package edu.umd.cloud9.tuple;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -102,6 +102,9 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 	 *            element to be stored at the specified position
 	 */
 	public E set(int index, E element) {
+        if(mList.size() > 0 && !element.getClass().equals(listElementClass)) {
+			throw new IllegalArgumentException("Cannot add element of type " + element.getClass().getCanonicalName() + " to list of type " + listElementClass.getCanonicalName());
+        }
 		return mList.set(index, element);
 	}
 
@@ -268,8 +271,10 @@ public class ListWritable<E extends WritableComparable> implements WritableCompa
 	 */
 	public void add(int pos, E element) {
 		
+        if(mList.size() > 0 && !element.getClass().equals(listElementClass)) {
+			throw new IllegalArgumentException("Cannot add element of type " + element.getClass().getCanonicalName() + " to list of type " + listElementClass.getCanonicalName());
+        }
 		mList.add(pos, element);
-		
 	}
 
 	/* (non-Javadoc)
