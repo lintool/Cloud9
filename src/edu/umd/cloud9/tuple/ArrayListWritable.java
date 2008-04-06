@@ -46,6 +46,10 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 	public ArrayListWritable() {
 		super();
 	}
+	
+	public ArrayListWritable(ArrayList<E> array) {
+		super(array);
+	}
 
 	/**
 	 * Deserializes the array.
