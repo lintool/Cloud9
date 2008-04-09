@@ -47,10 +47,15 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 		super();
 	}
 	
+	/**
+	 * Creates an ArrayListWritableComparable object from a regular ArrayList.
+	 */
 	public ArrayListWritableComparable(ArrayList<E> array) {
 		super(array);
 	}
 
+	
+	
 	/**
 	 * Deserializes the array.
 	 * 

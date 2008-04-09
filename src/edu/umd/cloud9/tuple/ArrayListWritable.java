@@ -47,6 +47,9 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 		super();
 	}
 	
+	/**
+	 * Creates an ArrayListWritable object from a regular ArrayList.
+	 */
 	public ArrayListWritable(ArrayList<E> array) {
 		super(array);
 	}
@@ -82,9 +85,9 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
-	 * Serializes this Tuple.
+	 * Serializes this array.
 	 * 
 	 * @param out
 	 *            where to write the raw byte representation
