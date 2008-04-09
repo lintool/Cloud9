@@ -35,7 +35,7 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.junit.Test;
 
-public class ArrayListComparableWritableTest {
+public class ArrayListWritableComparableTest {
 
 	@Test
 	public void testBasic() throws IOException {
@@ -275,7 +275,7 @@ public class ArrayListComparableWritableTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(ArrayListComparableWritableTest.class);
+		return new JUnit4TestAdapter(ArrayListWritableComparableTest.class);
 	}
 
 }
