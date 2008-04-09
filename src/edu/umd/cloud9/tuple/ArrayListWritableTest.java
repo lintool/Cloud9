@@ -104,9 +104,13 @@ public class ArrayListWritableTest {
 		newList.readFields(new DataInputStream(new ByteArrayInputStream(
 				bytesOut.toByteArray())));
 
-		assertEquals(newList.get(0).toString(), "hi");
-		IntWritable i=(IntWritable)(newList.get(1));
-		assertEquals(i.get(), 1);
+		try {
+	        assertEquals(newList.get(0).toString(), "hi");
+			IntWritable i=(IntWritable)(newList.get(1));
+			assertEquals(i.get(), 1);
+	        assertTrue(false);
+        } catch (Exception e) {
+        }
 	}
 
 	@Test
