@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -32,12 +31,8 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.junit.Test;
-
-import java.util.Iterator;
-import java.util.Map;
 
 public class HashMapWritableTest {
 
@@ -52,18 +47,18 @@ public class HashMapWritableTest {
 		IntWritable value;
 
 		assertEquals(map.size(), 2);
-		
-		key=new Text("hi");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("hi");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 5);
-		
-		value=map.remove(key);
+
+		value = map.remove(key);
 		assertEquals(map.size(), 1);
-		
-		key=new Text("there");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("there");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 22);
 	}
 
@@ -73,7 +68,7 @@ public class HashMapWritableTest {
 
 		origMap.put(new Text("hi"), new IntWritable(5));
 		origMap.put(new Text("there"), new IntWritable(22));
-	
+
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
@@ -81,25 +76,25 @@ public class HashMapWritableTest {
 
 		HashMapWritable<Text, IntWritable> map = new HashMapWritable<Text, IntWritable>();
 
-		map.readFields(new DataInputStream(new ByteArrayInputStream(
-				bytesOut.toByteArray())));
+		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
+				.toByteArray())));
 
 		Text key;
 		IntWritable value;
 
 		assertEquals(map.size(), 2);
-		
-		key=new Text("hi");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("hi");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 5);
-		
-		value=map.remove(key);
+
+		value = map.remove(key);
 		assertEquals(map.size(), 1);
-		
-		key=new Text("there");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("there");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 22);
 	}
 
@@ -109,7 +104,7 @@ public class HashMapWritableTest {
 
 		origMap.put(new Text("hi"), new LongWritable(52));
 		origMap.put(new Text("there"), new LongWritable(77));
-	
+
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
@@ -117,36 +112,35 @@ public class HashMapWritableTest {
 
 		HashMapWritable<Text, LongWritable> map = new HashMapWritable<Text, LongWritable>();
 
-		map.readFields(new DataInputStream(new ByteArrayInputStream(
-				bytesOut.toByteArray())));
+		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
+				.toByteArray())));
 
 		Text key;
 		LongWritable value;
 
 		assertEquals(map.size(), 2);
-		
-		key=new Text("hi");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("hi");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 52);
-		
-		value=map.remove(key);
+
+		value = map.remove(key);
 		assertEquals(map.size(), 1);
-		
-		key=new Text("there");
-		value=map.get(key);
-		assertTrue(value!=null);
+
+		key = new Text("there");
+		value = map.get(key);
+		assertTrue(value != null);
 		assertEquals(value.get(), 77);
 	}
 
-
-	@Test
+	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
 		HashMapWritable<Writable, Writable> origMap = new HashMapWritable<Writable, Writable>();
 
 		origMap.put(new Text("hi"), new FloatWritable(5.3f));
 		origMap.put(new Text("there"), new Text("bbb"));
-	
+
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
@@ -154,22 +148,16 @@ public class HashMapWritableTest {
 
 		HashMapWritable<Writable, Writable> map = new HashMapWritable<Writable, Writable>();
 
-		try {
-	        map.readFields(new DataInputStream(new ByteArrayInputStream(
-	        		bytesOut.toByteArray())));
-	        assertTrue(false);
-        } catch (Exception e) {
-        }
+		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
+				.toByteArray())));
 	}
-
-
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
 		HashMapWritable<IntWritable, Text> map = new HashMapWritable<IntWritable, Text>();
-		
+
 		assertTrue(map.size() == 0);
-		
+
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
@@ -180,7 +168,7 @@ public class HashMapWritableTest {
 				bytesOut.toByteArray())));
 		assertTrue(newList.size() == 0);
 	}
-	
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HashMapWritableTest.class);
 	}
