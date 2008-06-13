@@ -163,7 +163,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * @return human-readable String representation of this pair
 	 */
 	public String toString() {
-		return "<" + leftElement + ", " + rightElement + ">";
+		return "(" + leftElement + ", " + rightElement + ")";
 	}
 
 }
