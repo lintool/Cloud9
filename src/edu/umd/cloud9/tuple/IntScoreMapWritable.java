@@ -3,13 +3,18 @@ package edu.umd.cloud9.tuple;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
-public class IntScoreMapWritable<K extends Writable> extends
+public class IntScoreMapWritable<K extends WritableComparable> extends
 		HashMap<K, Integer> implements Writable {
 
 	/**
@@ -85,8 +90,8 @@ public class IntScoreMapWritable<K extends Writable> extends
 			out.writeInt(e.getValue());
 		}
 	}
-	
-	public void merge(IntScoreMapWritable<K> map) {		
+
+	public void merge(IntScoreMapWritable<K> map) {
 		for (Map.Entry<K, Integer> e : map.entrySet()) {
 			K key = e.getKey();
 
@@ -96,6 +101,27 @@ public class IntScoreMapWritable<K extends Writable> extends
 				this.put(key, e.getValue());
 			}
 		}
+	}
+
+	public SortedSet<Map.Entry<K, Integer>> getSortedEntries() {
+		SortedSet<Map.Entry<K, Integer>> entries = new TreeSet<Map.Entry<K, Integer>>(
+				new Comparator<Map.Entry<K, Integer>>() {
+					public int compare(Map.Entry<K, Integer> e1,
+							Map.Entry<K, Integer> e2) {
+						if (e1.getValue() > e2.getValue()) {
+							return -1;
+						} else if (e1.getValue() < e2.getValue()) {
+							return 1;
+						}
+						return e1.getKey().compareTo(e2.getKey());
+					}
+				});
+
+		for (Map.Entry<K, Integer> entry : this.entrySet()) {
+			entries.add(entry);
+		}
+
+		return Collections.unmodifiableSortedSet(entries);
 	}
 
 }
