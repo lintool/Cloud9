@@ -30,6 +30,7 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
 public class IntScoreMapWritableTest {
@@ -94,7 +95,7 @@ public class IntScoreMapWritableTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		IntScoreMapWritable<Writable> origMap = new IntScoreMapWritable<Writable>();
+		IntScoreMapWritable<WritableComparable> origMap = new IntScoreMapWritable<WritableComparable>();
 
 		origMap.put(new Text("hi"), 4);
 		origMap.put(new IntWritable(0), 76);
@@ -104,16 +105,16 @@ public class IntScoreMapWritableTest {
 
 		origMap.write(dataOut);
 
-		IntScoreMapWritable<Writable> map = new IntScoreMapWritable<Writable>();
+		IntScoreMapWritable<WritableComparable> map = new IntScoreMapWritable<WritableComparable>();
 
-		map.readFields(new DataInputStream(new ByteArrayInputStream(
-				bytesOut.toByteArray())));
-		
+		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
+				.toByteArray())));
+
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		IntScoreMapWritable<Writable> map = new IntScoreMapWritable<Writable>();
+		IntScoreMapWritable<WritableComparable> map = new IntScoreMapWritable<WritableComparable>();
 
 		assertTrue(map.size() == 0);
 
@@ -122,13 +123,12 @@ public class IntScoreMapWritableTest {
 
 		map.write(dataOut);
 
-		IntScoreMapWritable<Writable> newList = new IntScoreMapWritable<Writable>();
+		IntScoreMapWritable<WritableComparable> newList = new IntScoreMapWritable<WritableComparable>();
 		newList.readFields(new DataInputStream(new ByteArrayInputStream(
 				bytesOut.toByteArray())));
 		assertTrue(newList.size() == 0);
 	}
 
-	
 	@Test
 	public void testMerge() throws IOException {
 		IntScoreMapWritable<Text> map1 = new IntScoreMapWritable<Text>();
@@ -142,13 +142,13 @@ public class IntScoreMapWritableTest {
 		map2.put(new Text("test"), 5);
 
 		map1.merge(map2);
-		
+
 		assertEquals(map1.size(), 3);
 		assertTrue(map1.get(new Text("hi")) == 9);
 		assertTrue(map1.get(new Text("there")) == 22);
 		assertTrue(map1.get(new Text("test")) == 5);
 	}
-	
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(IntScoreMapWritableTest.class);
 	}
