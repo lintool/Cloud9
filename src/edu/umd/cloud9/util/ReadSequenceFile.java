@@ -12,78 +12,76 @@ import org.apache.hadoop.conf.Configuration;
 public class ReadSequenceFile {
 
 	public static void main(String[] args) throws IOException {
-		if (args.length > 0)
-			readSequenceRecords(args[0]);
-		else
-			System.out.println("Usage: ReadSequenceFile filename");
-	}
-	
-	public static int readSequenceRecords(String in) throws IOException {
-		System.out.println("***** Reading Sequence Records from:\n"+in);
+		if (args.length < 1) {
+			System.out
+					.println("Usage: ReadSequenceFile [file] [max-num-of-records]");
+			System.exit(-1);
+		}
+
+		String f = args[0];
+		
+		int max = Integer.MAX_VALUE;
+		if (args.length >= 2) {
+			max = Integer.parseInt(args[1]);
+		}
+
 		Configuration config = new JobConf();
 		FileSystem fileSys = FileSystem.get(config);
-		Path p= new Path(in);
-		if(fileSys.isDirectory(p))
-				return readSequenceFilesInDir(p);
-		else return readSequenceFile(p);
+		Path p = new Path(f);
+		if (fileSys.isDirectory(p))
+			readSequenceFilesInDir(p, max);
+		else
+			readSequenceFile(p, max);
 	}
-	
-	public static int readSequenceFile(String filename) throws IOException {
-		return readSequenceFile(new Path(filename));
-	}
-	
-	
-	public static int readSequenceFile(Path filename) throws IOException {
+
+	private static int readSequenceFile(Path filename, int max) throws IOException {
 		JobConf config = new JobConf();
-		SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(config), filename , config);
-		
-		System.out.println("**Opened Sequence File");
-		System.out.println("Reading Sequence Records from:\n"+filename);
+		SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem
+				.get(config), filename, config);
+
+		System.out.println("Reading " + filename + "...\n");
 		System.out.println("Key type: " + reader.getKeyClass().toString());
-		System.out.println("Value type: " + reader.getValueClass().toString());
-		System.out.println("==================");
+		System.out.println("Value type: " + reader.getValueClass().toString() + "\n");
+
 		Writable key, value;
-		int n=0;
+		int n = 0;
 		try {
 			key = (Writable) reader.getKeyClass().newInstance();
 			value = (Writable) reader.getValueClass().newInstance();
-			
+
 			while (reader.next(key, value)) {
+				System.out.println("Record " + n);
 				System.out.println("Key: " + key + "\nValue: " + value);
-				System.out.println("------------");
+				System.out.println("----------------------------------------");
 				n++;
+				
+				if ( n >= max)
+					break;
 			}
 			reader.close();
-			System.out.println(n + " records read.");
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
+			System.out.println(n + " records read.\n");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return n;
 	}
-	
-	public static void readSequenceFilesInDir(String filename) throws IOException {
-		readSequenceFilesInDir(new Path(filename));
-	}
-	
-	public static int readSequenceFilesInDir(Path inPath){
+
+	private static int readSequenceFilesInDir(Path inPath, int max) {
 		JobConf config = new JobConf();
-		int n=0;
+		int n = 0;
 		try {
 			FileSystem fileSys = FileSystem.get(config);
-			Path[] files=fileSys.listPaths(inPath);
-			for(int i=0; i<files.length && i<1; i++){
-				n+=readSequenceFile(files[i]);
+			Path[] files = fileSys.listPaths(inPath);
+			for (int i = 0; i < files.length; i++) {
+				n += readSequenceFile(files[i], max);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		System.out.println(n + " records read.");
 		return n;
 	}
-	
+
 }
