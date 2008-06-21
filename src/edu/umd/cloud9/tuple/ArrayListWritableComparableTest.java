@@ -32,7 +32,6 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.Writable;
 import org.junit.Test;
 
 public class ArrayListWritableComparableTest {
