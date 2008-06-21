@@ -64,21 +64,8 @@ import edu.umd.cloud9.tuple.Tuple;
  * count of the tuple occurrences in the collection. In the MapReduce cycle,
  * output keys consist of tuples (Token, EvenOrOdd). The second field of the
  * tuple indicates whether the token was found on a line with an even or an odd
- * number of characters. Values consist of counts of tuple occurrences. Expected
- * trace of the demo:
+ * number of characters. Values consist of counts of tuple occurrences.
  * </p>
- * 
- * <pre>
- * Map input records=156215
- * Map output records=1734298
- * Map input bytes=13118917
- * Map output bytes=66214039
- * Combine input records=1734298
- * Combine output records=192045
- * Reduce input groups=59225
- * Reduce input records=192045
- * Reduce output records=59225
- * </pre>
  * 
  * <p>
  * Obviously, this isn't a particularly meaningful program, but does illustrate
@@ -108,8 +95,7 @@ public class DemoWordCountTuple {
 		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
 		public void map(LongWritable key, Tuple tupleIn,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
 
 			// the input value is a tuple; get field 0
 			// see DemoPackRecords of how input SequenceFile is generated
@@ -133,10 +119,8 @@ public class DemoWordCountTuple {
 			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
-		public synchronized void reduce(Tuple tupleKey,
-				Iterator<IntWritable> values,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
-				throws IOException {
+		public synchronized void reduce(Tuple tupleKey, Iterator<IntWritable> values,
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
 			// sum values
 			int sum = 0;
 			while (values.hasNext()) {

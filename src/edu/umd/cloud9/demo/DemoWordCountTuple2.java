@@ -33,7 +33,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 
-import edu.umd.cloud9.tuple.ListWritable;
+import edu.umd.cloud9.tuple.ArrayListWritable;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
 
@@ -68,11 +68,10 @@ public class DemoWordCountTuple2 {
 		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
 		public void map(LongWritable key, Tuple tupleIn,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
 
 			@SuppressWarnings("unchecked")
-			ListWritable<Text> list = (ListWritable<Text>) tupleIn.get(1);
+			ArrayListWritable<Text> list = (ArrayListWritable<Text>) tupleIn.get(1);
 
 			for (int i = 0; i < list.size(); i++) {
 				Text t = (Text) list.get(i);
@@ -94,10 +93,8 @@ public class DemoWordCountTuple2 {
 			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
-		public synchronized void reduce(Tuple tupleKey,
-				Iterator<IntWritable> values,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter)
-				throws IOException {
+		public synchronized void reduce(Tuple tupleKey, Iterator<IntWritable> values,
+				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
 			// sum values
 			int sum = 0;
 			while (values.hasNext()) {
