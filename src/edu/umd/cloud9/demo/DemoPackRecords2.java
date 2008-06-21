@@ -22,12 +22,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 
-import edu.umd.cloud9.tuple.ListWritable;
+import edu.umd.cloud9.tuple.ArrayListWritable;
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
-import edu.umd.cloud9.util.LocalTupleRecordWriter;
 
 /**
  * <p>
@@ -64,7 +68,7 @@ public class DemoPackRecords2 {
 	private static final Schema RECORD_SCHEMA = new Schema();
 	static {
 		RECORD_SCHEMA.addField("length", Integer.class);
-		RECORD_SCHEMA.addField("tokens", ListWritable.class, "");
+		RECORD_SCHEMA.addField("tokens", ArrayListWritable.class, "");
 	}
 
 	// instantiate a single tuple
@@ -77,16 +81,19 @@ public class DemoPackRecords2 {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
 		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed2";
 
-		// create LocalTupleRecordWriter to write tuples to a local SequenceFile
-		LocalTupleRecordWriter writer = new LocalTupleRecordWriter(outfile);
+		JobConf config = new JobConf();
+		SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.get(config), config,
+				new Path(outfile), LongWritable.class, Tuple.class);
 
 		// read in raw text records, line separated
-		BufferedReader data = new BufferedReader(new InputStreamReader(
-				new FileInputStream(infile)));
+		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
+
+		LongWritable l = new LongWritable();
+		long cnt = 0;
 
 		String line;
 		while ((line = data.readLine()) != null) {
-			ListWritable<Text> tokens = new ListWritable<Text>();
+			ArrayListWritable<Text> tokens = new ArrayListWritable<Text>();
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				tokens.add(new Text(itr.nextToken()));
@@ -95,12 +102,15 @@ public class DemoPackRecords2 {
 			// write the record
 			tuple.set("length", line.length());
 			tuple.set("tokens", tokens);
-			writer.add(tuple);
+			l.set(cnt);
+			writer.append(l, tuple);
+
+			cnt++;
 		}
 
 		data.close();
 		writer.close();
 
-		System.out.println("Wrote " + writer.getRecordCount() + " records.");
+		System.out.println("Wrote " + cnt + " records.");
 	}
 }

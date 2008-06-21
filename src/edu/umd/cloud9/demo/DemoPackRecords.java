@@ -21,9 +21,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.JobConf;
+
 import edu.umd.cloud9.tuple.Schema;
 import edu.umd.cloud9.tuple.Tuple;
-import edu.umd.cloud9.util.LocalTupleRecordWriter;
 
 /**
  * <p>
@@ -61,23 +66,29 @@ public class DemoPackRecords {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
 		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed";
 
-		// create LocalTupleRecordWriter to write tuples to a local SequenceFile
-		LocalTupleRecordWriter writer = new LocalTupleRecordWriter(outfile);
+		JobConf config = new JobConf();
+		SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.get(config), config,
+				new Path(outfile), LongWritable.class, Tuple.class);
 
 		// read in raw text records, line separated
-		BufferedReader data = new BufferedReader(new InputStreamReader(
-				new FileInputStream(infile)));
+		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
+
+		LongWritable l = new LongWritable();
+		long cnt = 0;
 
 		String line;
 		while ((line = data.readLine()) != null) {
 			// write the record
 			tuple.set(0, line);
-			writer.add(tuple);
+			l.set(cnt);
+			writer.append(l, tuple);
+
+			cnt++;
 		}
 
 		data.close();
 		writer.close();
 
-		System.out.println("Wrote " + writer.getRecordCount() + " records.");
+		System.out.println("Wrote " + cnt + " records.");
 	}
 }
