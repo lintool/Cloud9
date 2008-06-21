@@ -24,11 +24,10 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Class that represents an array list in Hadoop's data type system. It extends ArrayList class, 
- * hence supports all services provided by ArrayList.
- * Elements in the list must be homogeneous and must implement Hadoop's Writable interface. 
- * This class, combined with {@link Tuple}, allows the user to
- * define arbitrarily complex data structures.
+ * ArrayList that is serializable in Hadoop framework and defines a natural sort
+ * order. Elements in the list must be homogeneous and must implement Hadoop's
+ * Writable interface. This class, combined with {@link Tuple}, allows the user
+ * to define arbitrarily complex data structures.
  * </p>
  * 
  * @see Tuple
@@ -36,9 +35,10 @@ import org.apache.hadoop.io.WritableComparable;
  *            type of list element
  */
 
-public class ArrayListWritableComparable<E extends WritableComparable> extends ArrayList<E> implements WritableComparable{
+public class ArrayListWritableComparable<E extends WritableComparable> extends ArrayList<E>
+		implements WritableComparable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Creates an ArrayListWritable object.
@@ -46,7 +46,7 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 	public ArrayListWritableComparable() {
 		super();
 	}
-	
+
 	/**
 	 * Creates an ArrayListWritableComparable object from a regular ArrayList.
 	 */
@@ -54,8 +54,6 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 		super(array);
 	}
 
-	
-	
 	/**
 	 * Deserializes the array.
 	 * 
@@ -68,7 +66,8 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 		this.clear();
 
 		int numFields = in.readInt();
-		if(numFields==0) return;
+		if (numFields == 0)
+			return;
 		String className = in.readUTF();
 		E obj;
 		try {
@@ -79,11 +78,7 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 				this.add(obj);
 			}
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -96,9 +91,10 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(this.size());
-		if(size()==0) return;
-		E obj=get(0);
-		
+		if (size() == 0)
+			return;
+		E obj = get(0);
+
 		out.writeUTF(obj.getClass().getCanonicalName());
 
 		for (int i = 0; i < size(); i++) {
@@ -109,7 +105,7 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 			obj.write(out);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Defines a natural sort order for the ListWritable class. Following
@@ -169,7 +165,6 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 		return 0;
 	}
 
-
 	/**
 	 * Generates human-readable String representation of this ArrayList.
 	 * 
@@ -178,7 +173,7 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
-		for (int i = 0; i < this.size(); i++){
+		for (int i = 0; i < this.size(); i++) {
 			if (i != 0)
 				sb.append(", ");
 			sb.append(this.get(i));
@@ -187,5 +182,5 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 
 		return sb.toString();
 	}
-	
+
 }

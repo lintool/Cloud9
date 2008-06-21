@@ -24,11 +24,10 @@ import org.apache.hadoop.io.Writable;
 
 /**
  * <p>
- * Class that represents an array list in Hadoop's data type system. It extends ArrayList class, 
- * hence supports all services provided by ArrayList.
- * Elements in the list must be homogeneous and must implement Hadoop's Writable interface. 
- * This class, combined with {@link Tuple}, allows the user to
- * define arbitrarily complex data structures.
+ * ArrayList that is serializable in Hadoop framework. Elements in the list must
+ * be homogeneous and must implement Hadoop's Writable interface. This class,
+ * combined with {@link Tuple}, allows the user to define arbitrarily complex
+ * data structures.
  * </p>
  * 
  * @see Tuple
@@ -36,9 +35,9 @@ import org.apache.hadoop.io.Writable;
  *            type of list element
  */
 
-public class ArrayListWritable<E extends Writable> extends ArrayList<E> implements Writable{
+public class ArrayListWritable<E extends Writable> extends ArrayList<E> implements Writable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Creates an ArrayListWritable object.
@@ -46,9 +45,9 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 	public ArrayListWritable() {
 		super();
 	}
-	
+
 	/**
-	 * Creates an ArrayListWritable object from a regular ArrayList.
+	 * Creates an ArrayListWritable object from an ArrayList.
 	 */
 	public ArrayListWritable(ArrayList<E> array) {
 		super(array);
@@ -66,7 +65,8 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 		this.clear();
 
 		int numFields = in.readInt();
-		if(numFields==0) return;
+		if (numFields == 0)
+			return;
 		String className = in.readUTF();
 		E obj;
 		try {
@@ -77,15 +77,11 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 				this.add(obj);
 			}
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Serializes this array.
 	 * 
@@ -94,9 +90,10 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(this.size());
-		if(size()==0) return;
-		E obj=get(0);
-		
+		if (size() == 0)
+			return;
+		E obj = get(0);
+
 		out.writeUTF(obj.getClass().getCanonicalName());
 
 		for (int i = 0; i < size(); i++) {
@@ -125,5 +122,5 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 
 		return sb.toString();
 	}
-	
+
 }
