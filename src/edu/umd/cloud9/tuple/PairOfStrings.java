@@ -24,21 +24,21 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Class that represents a pair of integers in Hadoop's data type system. The
+ * Serializable object in Hadoop framework that represents a pair of string. The
  * elements in the pair are referred to as the left and right elements. This
  * class implements {@link WritableComparable}, and hence can be used as keys
  * to MapReduce jobs. The natural sort order is first by the left element, and
  * then by the right element.
  * </p>
  */
-public class PairOfIntsWritableComparable implements WritableComparable {
+public class PairOfStrings implements WritableComparable {
 
-	private int leftElement, rightElement;
+	private String leftElement, rightElement;
 
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfIntsWritableComparable() {
+	public PairOfStrings() {
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * @param right
 	 *            the right element
 	 */
-	public PairOfIntsWritableComparable(int left, int right) {
+	public PairOfStrings(String left, String right) {
 		set(left, right);
 	}
 
@@ -60,8 +60,8 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 *            source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readInt();
-		rightElement = in.readInt();
+		leftElement = in.readUTF();
+		rightElement = in.readUTF();
 	}
 
 	/**
@@ -71,8 +71,8 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 *            where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeInt(leftElement);
-		out.writeInt(rightElement);
+		out.writeUTF(leftElement);
+		out.writeUTF(rightElement);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * 
 	 * @return the left element
 	 */
-	public int getLeftElement() {
+	public String getLeftElement() {
 		return leftElement;
 	}
 
@@ -89,7 +89,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * 
 	 * @return the right element
 	 */
-	public int getRightElement() {
+	public String getRightElement() {
 		return rightElement;
 	}
 
@@ -101,7 +101,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * @param right
 	 *            the right element
 	 */
-	public void set(int left, int right) {
+	public void set(String left, String right) {
 		leftElement = left;
 		rightElement = right;
 	}
@@ -115,9 +115,9 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 *         object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
-		PairOfIntsWritableComparable pair = (PairOfIntsWritableComparable) obj;
-		return leftElement == pair.getLeftElement()
-				&& rightElement == pair.getRightElement();
+		PairOfStrings pair = (PairOfStrings) obj;
+		return leftElement.equals(pair.getLeftElement())
+				&& rightElement.equals(pair.getRightElement());
 	}
 
 	/**
@@ -129,23 +129,16 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 *         <code>obj</code>.
 	 */
 	public int compareTo(Object obj) {
-		PairOfIntsWritableComparable pair = (PairOfIntsWritableComparable) obj;
+		PairOfStrings pair = (PairOfStrings) obj;
 
-		int pl = pair.getLeftElement();
-		int pr = pair.getRightElement();
+		String pl = pair.getLeftElement();
+		String pr = pair.getRightElement();
 
-		if (leftElement == pl) {
-			if (rightElement < pr)
-				return -1;
-			if (rightElement > pr)
-				return 1;
-			return 0;
+		if (leftElement.equals(pl)) {
+			return rightElement.compareTo(pr);
 		}
 
-		if (leftElement < pl)
-			return -1;
-
-		return 1;
+		return leftElement.compareTo(pl);
 	}
 
 	/**
@@ -154,7 +147,7 @@ public class PairOfIntsWritableComparable implements WritableComparable {
 	 * @return hash code for the pair
 	 */
 	public int hashCode() {
-		return leftElement + rightElement;
+		return leftElement.hashCode() + rightElement.hashCode();
 	}
 
 	/**

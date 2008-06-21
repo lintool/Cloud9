@@ -24,21 +24,21 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Class that represents a pair of Strings in Hadoop's data type system. The
- * elements in the pair are referred to as the left and right elements. This
+ * Serializable object in Hadoop framework that represents a pair of integers.
+ * The elements in the pair are referred to as the left and right elements. This
  * class implements {@link WritableComparable}, and hence can be used as keys
  * to MapReduce jobs. The natural sort order is first by the left element, and
  * then by the right element.
  * </p>
  */
-public class PairOfStringsWritableComparable implements WritableComparable {
+public class PairOfInts implements WritableComparable {
 
-	private String leftElement, rightElement;
+	private int leftElement, rightElement;
 
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfStringsWritableComparable() {
+	public PairOfInts() {
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 * @param right
 	 *            the right element
 	 */
-	public PairOfStringsWritableComparable(String left, String right) {
+	public PairOfInts(int left, int right) {
 		set(left, right);
 	}
 
@@ -60,8 +60,8 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 *            source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readUTF();
-		rightElement = in.readUTF();
+		leftElement = in.readInt();
+		rightElement = in.readInt();
 	}
 
 	/**
@@ -71,8 +71,8 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 *            where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(leftElement);
-		out.writeUTF(rightElement);
+		out.writeInt(leftElement);
+		out.writeInt(rightElement);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 * 
 	 * @return the left element
 	 */
-	public String getLeftElement() {
+	public int getLeftElement() {
 		return leftElement;
 	}
 
@@ -89,7 +89,7 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 * 
 	 * @return the right element
 	 */
-	public String getRightElement() {
+	public int getRightElement() {
 		return rightElement;
 	}
 
@@ -101,11 +101,11 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 * @param right
 	 *            the right element
 	 */
-	public void set(String left, String right) {
+	public void set(int left, int right) {
 		leftElement = left;
 		rightElement = right;
 	}
-	
+
 	/**
 	 * Checks two pairs for equality.
 	 * 
@@ -115,11 +115,10 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 *         object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
-		PairOfStringsWritableComparable pair = (PairOfStringsWritableComparable) obj;
-		return leftElement.equals(pair.getLeftElement())
-				&& rightElement.equals(pair.getRightElement());
+		PairOfInts pair = (PairOfInts) obj;
+		return leftElement == pair.getLeftElement() && rightElement == pair.getRightElement();
 	}
-	
+
 	/**
 	 * Defines a natural sort order for pairs. Pairs are sorted first by the
 	 * left element, and then by the right element.
@@ -129,16 +128,23 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 *         <code>obj</code>.
 	 */
 	public int compareTo(Object obj) {
-		PairOfStringsWritableComparable pair = (PairOfStringsWritableComparable) obj;
+		PairOfInts pair = (PairOfInts) obj;
 
-		String pl = pair.getLeftElement();
-		String pr = pair.getRightElement();
+		int pl = pair.getLeftElement();
+		int pr = pair.getRightElement();
 
-		if (leftElement.equals(pl)) {
-			return rightElement.compareTo(pr);
+		if (leftElement == pl) {
+			if (rightElement < pr)
+				return -1;
+			if (rightElement > pr)
+				return 1;
+			return 0;
 		}
 
-		return leftElement.compareTo(pl);
+		if (leftElement < pl)
+			return -1;
+
+		return 1;
 	}
 
 	/**
@@ -147,7 +153,7 @@ public class PairOfStringsWritableComparable implements WritableComparable {
 	 * @return hash code for the pair
 	 */
 	public int hashCode() {
-		return leftElement.hashCode() + rightElement.hashCode();
+		return leftElement + rightElement;
 	}
 
 	/**

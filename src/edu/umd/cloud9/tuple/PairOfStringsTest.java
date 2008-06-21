@@ -30,54 +30,54 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class PairOfIntsWritableComparableTest {
+public class PairOfStringsTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfIntsWritableComparable pair = new PairOfIntsWritableComparable();
+		PairOfStrings pair = new PairOfStrings();
 
-		pair.set(1, 2);
+		pair.set("hi", "there");
 
-		assertEquals(pair.getLeftElement(), 1);
-		assertEquals(pair.getRightElement(), 2);
+		assertEquals(pair.getLeftElement(), "hi");
+		assertEquals(pair.getRightElement(), "there");
 	}
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfIntsWritableComparable origPair = new PairOfIntsWritableComparable();
+		PairOfStrings origPair = new PairOfStrings();
 
-		origPair.set(1, 2);
+		origPair.set("hi", "there");
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		origPair.write(dataOut);
 
-		PairOfIntsWritableComparable pair = new PairOfIntsWritableComparable();
+		PairOfStrings pair = new PairOfStrings();
 
 		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
 				.toByteArray())));
 
-		assertEquals(pair.getLeftElement(), 1);
-		assertEquals(pair.getRightElement(), 2);
+		assertEquals(pair.getLeftElement(), "hi");
+		assertEquals(pair.getRightElement(), "there");
 	}
 
 	@Test
 	public void testComparison() throws IOException {
-		PairOfIntsWritableComparable pair1 = new PairOfIntsWritableComparable();
-		pair1.set(1, 2);
+		PairOfStrings pair1 = new PairOfStrings();
+		pair1.set("hi", "there");
 
-		PairOfIntsWritableComparable pair2 = new PairOfIntsWritableComparable();
-		pair2.set(1, 2);
+		PairOfStrings pair2 = new PairOfStrings();
+		pair2.set("hi", "there");
 
-		PairOfIntsWritableComparable pair3 = new PairOfIntsWritableComparable();
-		pair3.set(1, 1);
+		PairOfStrings pair3 = new PairOfStrings();
+		pair3.set("hi", "howdy");
 
-		PairOfIntsWritableComparable pair4 = new PairOfIntsWritableComparable();
-		pair4.set(0, 9);
+		PairOfStrings pair4 = new PairOfStrings();
+		pair4.set("a", "howdy");
 
-		PairOfIntsWritableComparable pair5 = new PairOfIntsWritableComparable();
-		pair5.set(9, 0);
+		PairOfStrings pair5 = new PairOfStrings();
+		pair5.set("hi", "z");
 		
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -91,7 +91,7 @@ public class PairOfIntsWritableComparableTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(PairOfIntsWritableComparableTest.class);
+		return new JUnit4TestAdapter(PairOfStringsTest.class);
 	}
 
 }
