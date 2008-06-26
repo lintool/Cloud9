@@ -14,8 +14,14 @@ import java.util.TreeSet;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-public class IntScoreMapWritable<K extends WritableComparable> extends
-		HashMap<K, Integer> implements Writable {
+/**
+ * <p>
+ * Serializable object in Hadoop framework that represents a vector of integer
+ * values.
+ * </p>
+ */
+public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer> implements
+		Writable {
 
 	/**
 	 * 
@@ -25,7 +31,7 @@ public class IntScoreMapWritable<K extends WritableComparable> extends
 	/**
 	 * Creates a HashMapWritable object.
 	 */
-	public IntScoreMapWritable() {
+	public VectorInt() {
 		super();
 	}
 
@@ -35,6 +41,7 @@ public class IntScoreMapWritable<K extends WritableComparable> extends
 	 * @param in
 	 *            source for raw byte representation
 	 */
+	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
 
 		this.clear();
@@ -46,6 +53,7 @@ public class IntScoreMapWritable<K extends WritableComparable> extends
 		String keyClassName = in.readUTF();
 
 		K objK;
+
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
@@ -91,7 +99,7 @@ public class IntScoreMapWritable<K extends WritableComparable> extends
 		}
 	}
 
-	public void merge(IntScoreMapWritable<K> map) {
+	public void plus(VectorInt<K> map) {
 		for (Map.Entry<K, Integer> e : map.entrySet()) {
 			K key = e.getKey();
 
@@ -106,8 +114,7 @@ public class IntScoreMapWritable<K extends WritableComparable> extends
 	public SortedSet<Map.Entry<K, Integer>> getSortedEntries() {
 		SortedSet<Map.Entry<K, Integer>> entries = new TreeSet<Map.Entry<K, Integer>>(
 				new Comparator<Map.Entry<K, Integer>>() {
-					public int compare(Map.Entry<K, Integer> e1,
-							Map.Entry<K, Integer> e2) {
+					public int compare(Map.Entry<K, Integer> e1, Map.Entry<K, Integer> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {

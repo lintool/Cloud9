@@ -33,11 +33,11 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class IntScoreMapWritableTest {
+public class VectorIntTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		IntScoreMapWritable<Text> map = new IntScoreMapWritable<Text>();
+		VectorInt<Text> map = new VectorInt<Text>();
 
 		map.put(new Text("hi"), 5);
 		map.put(new Text("there"), 22);
@@ -61,7 +61,7 @@ public class IntScoreMapWritableTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		IntScoreMapWritable<Text> origMap = new IntScoreMapWritable<Text>();
+		VectorInt<Text> origMap = new VectorInt<Text>();
 
 		origMap.put(new Text("hi"), 5);
 		origMap.put(new Text("there"), 22);
@@ -71,7 +71,7 @@ public class IntScoreMapWritableTest {
 
 		origMap.write(dataOut);
 
-		IntScoreMapWritable<Text> map = new IntScoreMapWritable<Text>();
+		VectorInt<Text> map = new VectorInt<Text>();
 
 		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
 				.toByteArray())));
@@ -95,7 +95,7 @@ public class IntScoreMapWritableTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		IntScoreMapWritable<WritableComparable> origMap = new IntScoreMapWritable<WritableComparable>();
+		VectorInt<WritableComparable> origMap = new VectorInt<WritableComparable>();
 
 		origMap.put(new Text("hi"), 4);
 		origMap.put(new IntWritable(0), 76);
@@ -105,7 +105,7 @@ public class IntScoreMapWritableTest {
 
 		origMap.write(dataOut);
 
-		IntScoreMapWritable<WritableComparable> map = new IntScoreMapWritable<WritableComparable>();
+		VectorInt<WritableComparable> map = new VectorInt<WritableComparable>();
 
 		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
 				.toByteArray())));
@@ -114,7 +114,7 @@ public class IntScoreMapWritableTest {
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		IntScoreMapWritable<WritableComparable> map = new IntScoreMapWritable<WritableComparable>();
+		VectorInt<WritableComparable> map = new VectorInt<WritableComparable>();
 
 		assertTrue(map.size() == 0);
 
@@ -123,7 +123,7 @@ public class IntScoreMapWritableTest {
 
 		map.write(dataOut);
 
-		IntScoreMapWritable<WritableComparable> newList = new IntScoreMapWritable<WritableComparable>();
+		VectorInt<WritableComparable> newList = new VectorInt<WritableComparable>();
 		newList.readFields(new DataInputStream(new ByteArrayInputStream(
 				bytesOut.toByteArray())));
 		assertTrue(newList.size() == 0);
@@ -131,17 +131,17 @@ public class IntScoreMapWritableTest {
 
 	@Test
 	public void testMerge() throws IOException {
-		IntScoreMapWritable<Text> map1 = new IntScoreMapWritable<Text>();
+		VectorInt<Text> map1 = new VectorInt<Text>();
 
 		map1.put(new Text("hi"), 5);
 		map1.put(new Text("there"), 22);
 
-		IntScoreMapWritable<Text> map2 = new IntScoreMapWritable<Text>();
+		VectorInt<Text> map2 = new VectorInt<Text>();
 
 		map2.put(new Text("hi"), 4);
 		map2.put(new Text("test"), 5);
 
-		map1.merge(map2);
+		map1.plus(map2);
 
 		assertEquals(map1.size(), 3);
 		assertTrue(map1.get(new Text("hi")) == 9);
@@ -150,7 +150,7 @@ public class IntScoreMapWritableTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(IntScoreMapWritableTest.class);
+		return new JUnit4TestAdapter(VectorIntTest.class);
 	}
 
 }
