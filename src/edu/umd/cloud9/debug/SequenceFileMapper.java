@@ -10,31 +10,19 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-public class SequenceFileMapper {
+public class SequenceFileMapper<K1 extends WritableComparable, V1 extends Writable, K2 extends WritableComparable, V2 extends Writable> {
 
-	public void run(
-			String path,
-			Class<? extends Mapper<? extends WritableComparable, ? extends Writable, ? extends WritableComparable, ? extends Writable>> theClass) {
+	public void run(String path, Mapper<K1, V1, K2, V2> mapper) {
 		DummyCollector collector = new DummyCollector();
-
-		Mapper mapper = null;
-
-		try {
-			mapper = theClass.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		try {
 			JobConf config = new JobConf();
 
 			FileSystem fileSys = FileSystem.get(config);
-			SequenceFile.Reader reader = new SequenceFile.Reader(fileSys,
-					new Path(path), config);
+			SequenceFile.Reader reader = new SequenceFile.Reader(fileSys, new Path(path), config);
 
-			WritableComparable key = (WritableComparable) reader.getKeyClass()
-					.newInstance();
-			Writable value = (Writable) reader.getValueClass().newInstance();
+			K1 key = (K1) reader.getKeyClass().newInstance();
+			V1 value = (V1) reader.getValueClass().newInstance();
 
 			while (reader.next(key, value)) {
 				mapper.map(key, value, collector, Reporter.NULL);
@@ -46,14 +34,13 @@ public class SequenceFileMapper {
 		}
 	}
 
-	private class DummyCollector implements
-			OutputCollector<WritableComparable, Writable> {
+	private class DummyCollector implements OutputCollector<K2, V2> {
 
 		public DummyCollector() {
 
 		}
 
-		public void collect(WritableComparable key, Writable value) {
+		public void collect(K2 key, V2 value) {
 
 		}
 	}
