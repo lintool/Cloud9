@@ -37,8 +37,8 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-import edu.umd.cloud9.tuple.Schema;
-import edu.umd.cloud9.tuple.Tuple;
+import edu.umd.cloud9.io.Schema;
+import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>

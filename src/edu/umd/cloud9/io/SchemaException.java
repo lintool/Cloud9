@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.io;
 
 public class SchemaException extends RuntimeException {
 	public static final long serialVersionUID = 2673497691l;

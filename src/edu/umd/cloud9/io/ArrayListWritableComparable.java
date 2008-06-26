@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.tuple;
+package edu.umd.cloud9.io;
 
 import java.io.DataInput;
 import java.io.DataOutput;

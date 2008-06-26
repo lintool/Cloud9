@@ -27,13 +27,13 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapred.JobConf;
 
-import edu.umd.cloud9.tuple.Schema;
-import edu.umd.cloud9.tuple.Tuple;
+import edu.umd.cloud9.io.Schema;
+import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
  * Demo that packs the sample collection into records using the tuple library,
- * illustrating the use of the {@link edu.umd.cloud9.tuple.Tuple} class. The
+ * illustrating the use of the {@link edu.umd.cloud9.io.Tuple} class. The
  * records are stored in a local SequenceFile; this file can then be transfered
  * over to HDFS to serve as the starting point for a MapReduce operation.
  * </p>

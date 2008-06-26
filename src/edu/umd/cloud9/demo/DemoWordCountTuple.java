@@ -33,8 +33,8 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 
-import edu.umd.cloud9.tuple.Schema;
-import edu.umd.cloud9.tuple.Tuple;
+import edu.umd.cloud9.io.Schema;
+import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
