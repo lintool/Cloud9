@@ -17,26 +17,28 @@ import org.apache.hadoop.io.WritableComparable;
 /**
  * <p>
  * Serializable object in Hadoop framework that represents a vector of integer
- * values.
+ * values. This generic class, based on the Java {@link HashMap}, supports the
+ * use of any class for the features (i.e., component of the vector), but all
+ * values are floats.
  * </p>
+ * 
+ * @param <F>
+ *            type of feature
  */
-public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer> implements
+public class VectorInt<F extends WritableComparable> extends HashMap<F, Integer> implements
 		Writable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a HashMapWritable object.
+	 * Creates a VectorInt object.
 	 */
 	public VectorInt() {
 		super();
 	}
 
 	/**
-	 * Deserializes the array.
+	 * Deserializes the vector.
 	 * 
 	 * @param in
 	 *            source for raw byte representation
@@ -52,12 +54,12 @@ public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer>
 
 		String keyClassName = in.readUTF();
 
-		K objK;
+		F objK;
 
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
-				objK = (K) keyClass.newInstance();
+				objK = (F) keyClass.newInstance();
 				objK.readFields(in);
 				Integer s = in.readInt();
 				put(objK, s);
@@ -74,7 +76,7 @@ public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer>
 	}
 
 	/**
-	 * Serializes this array.
+	 * Serializes the vector.
 	 * 
 	 * @param out
 	 *            where to write the raw byte representation
@@ -86,22 +88,51 @@ public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer>
 			return;
 
 		// Write out the class names for keys and values
-		// assuming that data is homogeneuos (i.e., all entries have same types)
-		Set<Map.Entry<K, Integer>> entries = entrySet();
-		Map.Entry<K, Integer> first = entries.iterator().next();
-		K objK = first.getKey();
+		// assuming that data is homogeneous (i.e., all entries have same types)
+		Set<Map.Entry<F, Integer>> entries = entrySet();
+		Map.Entry<F, Integer> first = entries.iterator().next();
+		F objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (Map.Entry<K, Integer> e : entrySet()) {
+		for (Map.Entry<F, Integer> e : entrySet()) {
 			e.getKey().write(out);
 			out.writeInt(e.getValue());
 		}
 	}
 
-	public void plus(VectorInt<K> map) {
-		for (Map.Entry<K, Integer> e : map.entrySet()) {
-			K key = e.getKey();
+	/**
+	 * Sets the value of a feature.
+	 * 
+	 * @param f
+	 *            the feature
+	 * @param v
+	 *            the value
+	 */
+	public void set(F f, int v) {
+		super.put(f, v);
+	}
+
+	/**
+	 * Returns the value of a feature.
+	 * 
+	 * @param f
+	 *            the feature
+	 * @return the value of the feature
+	 */
+	public int get(F f) {
+		return super.get(f);
+	}
+
+	/**
+	 * Adds another vector to this vector, based on feature-wise addition.
+	 * 
+	 * @param v
+	 *            vector to add
+	 */
+	public void plus(VectorInt<F> v) {
+		for (Map.Entry<F, Integer> e : v.entrySet()) {
+			F key = e.getKey();
 
 			if (this.containsKey(key)) {
 				this.put(key, this.get(key) + e.getValue());
@@ -111,10 +142,17 @@ public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer>
 		}
 	}
 
-	public SortedSet<Map.Entry<K, Integer>> getSortedEntries() {
-		SortedSet<Map.Entry<K, Integer>> entries = new TreeSet<Map.Entry<K, Integer>>(
-				new Comparator<Map.Entry<K, Integer>>() {
-					public int compare(Map.Entry<K, Integer> e1, Map.Entry<K, Integer> e2) {
+	/**
+	 * Returns feature-value entries sorted by descending value. Ties broken by
+	 * the natural sort order of the feature.
+	 * 
+	 * @return feature-value entries sorted by descending value
+	 */
+	public SortedSet<Map.Entry<F, Integer>> getSortedEntries() {
+		SortedSet<Map.Entry<F, Integer>> entries = new TreeSet<Map.Entry<F, Integer>>(
+				new Comparator<Map.Entry<F, Integer>>() {
+					@SuppressWarnings("unchecked")
+					public int compare(Map.Entry<F, Integer> e1, Map.Entry<F, Integer> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -124,7 +162,7 @@ public class VectorInt<K extends WritableComparable> extends HashMap<K, Integer>
 					}
 				});
 
-		for (Map.Entry<K, Integer> entry : this.entrySet()) {
+		for (Map.Entry<F, Integer> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 

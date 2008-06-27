@@ -34,8 +34,15 @@ import org.apache.hadoop.io.Writable;
 
 /**
  * <p>
- * HashMap that is serializable in Hadoop framework. There are a number of key
- * differences between this class and Hadoop's {@link MapWritable}:
+ * Serializable extension of a Java {@link HashMap}. This generic class
+ * supports the use of any type as either key or value. For a feature vector,
+ * use either {@link VectorInt} or {@link VectorFloat} for a more efficient
+ * implementation.
+ * </p>
+ * 
+ * <p>
+ * There are a number of key differences between this class and Hadoop's
+ * {@link MapWritable}:
  * </p>
  * 
  * <ul>

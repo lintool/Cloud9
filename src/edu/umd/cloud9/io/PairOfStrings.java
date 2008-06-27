@@ -24,11 +24,11 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Serializable object in Hadoop framework that represents a pair of string. The
- * elements in the pair are referred to as the left and right elements. This
- * class implements {@link WritableComparable}, and hence can be used as keys
- * to MapReduce jobs. The natural sort order is first by the left element, and
- * then by the right element.
+ * Serializable object that represents a pair of string. The elements in the
+ * pair are referred to as the left and right elements. This class implements
+ * {@link WritableComparable}, and hence can be used as keys to MapReduce jobs.
+ * The natural sort order is first by the left element, and then by the right
+ * element.
  * </p>
  */
 public class PairOfStrings implements WritableComparable {

@@ -16,27 +16,28 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Serializable object in Hadoop framework that represents a vector of float
- * values.
+ * Serializable object representing a vector of float values. This generic
+ * class, based on the Java {@link HashMap}, supports the use of any class for
+ * the features (i.e., component of the vector), but all values are floats.
  * </p>
+ * 
+ * @param <F>
+ *            type of feature
  */
-public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float> implements
+public class VectorFloat<F extends WritableComparable> extends HashMap<F, Float> implements
 		Writable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a HashMapWritable object.
+	 * Creates a VectorFloat object.
 	 */
 	public VectorFloat() {
 		super();
 	}
 
 	/**
-	 * Deserializes the array.
+	 * Deserializes the vector.
 	 * 
 	 * @param in
 	 *            source for raw byte representation
@@ -52,11 +53,11 @@ public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float>
 
 		String keyClassName = in.readUTF();
 
-		K objK;
+		F objK;
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
-				objK = (K) keyClass.newInstance();
+				objK = (F) keyClass.newInstance();
 				objK.readFields(in);
 				float s = in.readFloat();
 				put(objK, s);
@@ -73,7 +74,7 @@ public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float>
 	}
 
 	/**
-	 * Serializes this array.
+	 * Serializes the vector.
 	 * 
 	 * @param out
 	 *            where to write the raw byte representation
@@ -85,31 +86,51 @@ public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float>
 			return;
 
 		// Write out the class names for keys and values
-		// assuming that data is homogeneuos (i.e., all entries have same types)
-		Set<Map.Entry<K, Float>> entries = entrySet();
-		Map.Entry<K, Float> first = entries.iterator().next();
-		K objK = first.getKey();
+		// assuming that data is homogeneous (i.e., all entries have same types)
+		Set<Map.Entry<F, Float>> entries = entrySet();
+		Map.Entry<F, Float> first = entries.iterator().next();
+		F objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (Map.Entry<K, Float> e : entrySet()) {
+		for (Map.Entry<F, Float> e : entrySet()) {
 			e.getKey().write(out);
 			out.writeFloat(e.getValue());
 		}
 	}
 
+	/**
+	 * Sets the value of a feature.
+	 * 
+	 * @param f
+	 *            the feature
+	 * @param v
+	 *            the value
+	 */
+	public void set(F f, float v) {
+		super.put(f, v);
+	}
 
-	public void set(K k, float v) {
-		super.put(k, v);
+	/**
+	 * Returns the value of a feature.
+	 * 
+	 * @param f
+	 *            the feature
+	 * @return the value of the feature
+	 */
+	public float get(F f) {
+		return super.get(f);
 	}
-	
-	public float get(K v) {
-		return super.get(v);
-	}
-	
-	public void plus(VectorFloat<K> map) {
-		for (Map.Entry<K, Float> e : map.entrySet()) {
-			K key = e.getKey();
+
+	/**
+	 * Adds another vector to this vector, based on feature-wise addition.
+	 * 
+	 * @param v
+	 *            vector to add
+	 */
+	public void plus(VectorFloat<F> v) {
+		for (Map.Entry<F, Float> e : v.entrySet()) {
+			F key = e.getKey();
 
 			if (this.containsKey(key)) {
 				this.put(key, this.get(key) + e.getValue());
@@ -119,11 +140,17 @@ public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float>
 		}
 	}
 
-	public SortedSet<Map.Entry<K, Float>> getSortedEntries() {
-		SortedSet<Map.Entry<K, Float>> entries = new TreeSet<Map.Entry<K, Float>>(
-				new Comparator<Map.Entry<K, Float>>() {
+	/**
+	 * Returns feature-value entries sorted by descending value. Ties broken by
+	 * the natural sort order of the feature.
+	 * 
+	 * @return feature-value entries sorted by descending value
+	 */
+	public SortedSet<Map.Entry<F, Float>> getSortedEntries() {
+		SortedSet<Map.Entry<F, Float>> entries = new TreeSet<Map.Entry<F, Float>>(
+				new Comparator<Map.Entry<F, Float>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(Map.Entry<K, Float> e1, Map.Entry<K, Float> e2) {
+					public int compare(Map.Entry<F, Float> e1, Map.Entry<F, Float> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -133,31 +160,11 @@ public class VectorFloat<K extends WritableComparable> extends HashMap<K, Float>
 					}
 				});
 
-		for (Map.Entry<K, Float> entry : this.entrySet()) {
+		for (Map.Entry<F, Float> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
 		return Collections.unmodifiableSortedSet(entries);
 	}
 
-	public SortedSet<Map.Entry<K, Float>> getSortedEntries(int n) {
-		SortedSet<Map.Entry<K, Float>> entries = new TreeSet<Map.Entry<K, Float>>(
-				new Comparator<Map.Entry<K, Float>>() {
-					@SuppressWarnings("unchecked")
-					public int compare(Map.Entry<K, Float> e1, Map.Entry<K, Float> e2) {
-						if (e1.getValue() > e2.getValue()) {
-							return -1;
-						} else if (e1.getValue() < e2.getValue()) {
-							return 1;
-						}
-						return e1.getKey().compareTo(e2.getKey());
-					}
-				});
-
-		for (Map.Entry<K, Float> entry : this.entrySet()) {
-			entries.add(entry);
-		}
-
-		return Collections.unmodifiableSortedSet(entries);
-	}
 }
