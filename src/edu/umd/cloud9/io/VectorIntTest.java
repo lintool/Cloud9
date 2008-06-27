@@ -29,7 +29,6 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
@@ -39,8 +38,8 @@ public class VectorIntTest {
 	public void testBasic() throws IOException {
 		VectorInt<Text> map = new VectorInt<Text>();
 
-		map.put(new Text("hi"), 5);
-		map.put(new Text("there"), 22);
+		map.set(new Text("hi"), 5);
+		map.set(new Text("there"), 22);
 
 		Text key;
 		int value;
@@ -63,8 +62,8 @@ public class VectorIntTest {
 	public void testSerialize1() throws IOException {
 		VectorInt<Text> origMap = new VectorInt<Text>();
 
-		origMap.put(new Text("hi"), 5);
-		origMap.put(new Text("there"), 22);
+		origMap.set(new Text("hi"), 5);
+		origMap.set(new Text("there"), 22);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -97,8 +96,8 @@ public class VectorIntTest {
 	public void testTypeSafety() throws IOException {
 		VectorInt<WritableComparable> origMap = new VectorInt<WritableComparable>();
 
-		origMap.put(new Text("hi"), 4);
-		origMap.put(new IntWritable(0), 76);
+		origMap.set(new Text("hi"), 4);
+		origMap.set(new IntWritable(0), 76);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -133,13 +132,13 @@ public class VectorIntTest {
 	public void testMerge() throws IOException {
 		VectorInt<Text> map1 = new VectorInt<Text>();
 
-		map1.put(new Text("hi"), 5);
-		map1.put(new Text("there"), 22);
+		map1.set(new Text("hi"), 5);
+		map1.set(new Text("there"), 22);
 
 		VectorInt<Text> map2 = new VectorInt<Text>();
 
-		map2.put(new Text("hi"), 4);
-		map2.put(new Text("test"), 5);
+		map2.set(new Text("hi"), 4);
+		map2.set(new Text("test"), 5);
 
 		map1.plus(map2);
 
