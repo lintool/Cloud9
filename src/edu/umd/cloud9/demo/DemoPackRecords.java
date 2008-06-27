@@ -44,7 +44,6 @@ import edu.umd.cloud9.io.Tuple;
  * </p>
  * 
  * @see DemoPackRecords2
- * @see DemoReadPackedRecords
  */
 public class DemoPackRecords {
 	private DemoPackRecords() {

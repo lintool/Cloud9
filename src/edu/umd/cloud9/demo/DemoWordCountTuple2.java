@@ -40,7 +40,7 @@ import edu.umd.cloud9.io.Tuple;
 /**
  * <p>
  * Demo that illustrates the use of the tuple library ({@link Tuple} and
- * {@link ListWritable} class). Input comes from Bible+Shakespeare sample
+ * {@link ArrayListWritable} class). Input comes from Bible+Shakespeare sample
  * collection, encoded with {@link DemoPackRecords2}. Otherwise, this demo is
  * exactly the same as {@link DemoWordCountTuple}.
  * </p>

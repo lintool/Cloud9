@@ -37,9 +37,9 @@ import edu.umd.cloud9.io.Tuple;
  * <p>
  * Demo that packs the sample collection into records using the tuple library,
  * illustrating the use of the {@link edu.umd.cloud9.io.Tuple} and
- * {@link edu.umd.cloud9.io.ListWritable} classes. The records are stored in
- * a local SequenceFile; this file can then be transfered over to HDFS to serve
- * as the starting point for a MapReduce operation.
+ * {@link edu.umd.cloud9.io.ArrayListWritable} classes. The records are stored
+ * in a local SequenceFile; this file can then be transfered over to HDFS to
+ * serve as the starting point for a MapReduce operation.
  * </p>
  * 
  * <p>
@@ -58,7 +58,6 @@ import edu.umd.cloud9.io.Tuple;
  * </ul>
  * 
  * @see DemoPackRecords
- * @see DemoReadPackedRecords2
  */
 public class DemoPackRecords2 {
 	private DemoPackRecords2() {
