@@ -11,7 +11,7 @@
 		<fileset dir="${lib}">
 			<include name="**/*.jar" />
 		</fileset>
-		<fileset dir="../umd-hadoop-dist/hadoop-0.16.0">
+		<fileset dir="../umd-hadoop-dist/hadoop/hadoop-0.16.0">
 			<include name="**/*.jar" />
 		</fileset>
 		<fileset dir="../umd-hadoop-dist/jars">
@@ -87,7 +87,7 @@
 				<exclude name="**/*Test.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
-			<link href="../../hadoop-0.15.3/docs/api" />
+			<link href="../../hadoop/hadoop-0.16.0/docs/api" />
 		</javadoc>
 	</target>
 
