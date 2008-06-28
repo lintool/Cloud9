@@ -141,6 +141,45 @@ public class VectorFloat<F extends WritableComparable> extends HashMap<F, Float>
 	}
 
 	/**
+	 * Computes the dot product between this vector and another vector.
+	 * 
+	 * @param v
+	 *            the other vector
+	 */
+	public float dot(VectorFloat<F> v) {
+		float s = 0.0f;
+
+		for (Map.Entry<F, Float> e : v.entrySet()) {
+			F key = e.getKey();
+
+			if (this.containsKey(key)) {
+				s += this.get(key) * e.getValue();
+			}
+		}
+
+		return s;
+	}
+
+	public float length() {
+		float s = 0.0f;
+
+		for (Map.Entry<F, Float> e : this.entrySet()) {
+			s += e.getValue() * e.getValue();
+		}
+
+		return (float) Math.sqrt(s);
+	}
+
+	public void normalize() {
+		float l = this.length();
+
+		for (F f : this.keySet()) {
+			this.set(f, this.get(f) / l);
+		}
+
+	}
+
+	/**
 	 * Returns feature-value entries sorted by descending value. Ties broken by
 	 * the natural sort order of the feature.
 	 * 
