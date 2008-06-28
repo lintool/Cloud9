@@ -36,137 +36,134 @@ public class VectorIntTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		VectorInt<Text> map = new VectorInt<Text>();
+		VectorInt<Text> v = new VectorInt<Text>();
 
-		map.set(new Text("hi"), 5);
-		map.set(new Text("there"), 22);
+		v.set(new Text("hi"), 5);
+		v.set(new Text("there"), 22);
 
 		Text key;
 		int value;
 
-		assertEquals(map.size(), 2);
+		assertEquals(v.size(), 2);
 
 		key = new Text("hi");
-		value = map.get(key);
+		value = v.get(key);
 		assertEquals(value, 5);
 
-		value = map.remove(key);
-		assertEquals(map.size(), 1);
+		value = v.remove(key);
+		assertEquals(v.size(), 1);
 
 		key = new Text("there");
-		value = map.get(key);
+		value = v.get(key);
 		assertEquals(value, 22);
 	}
 
 	@Test
 	public void testSerialize1() throws IOException {
-		VectorInt<Text> origMap = new VectorInt<Text>();
+		VectorInt<Text> v1 = new VectorInt<Text>();
 
-		origMap.set(new Text("hi"), 5);
-		origMap.set(new Text("there"), 22);
+		v1.set(new Text("hi"), 5);
+		v1.set(new Text("there"), 22);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
-		origMap.write(dataOut);
+		v1.write(dataOut);
 
-		VectorInt<Text> map = new VectorInt<Text>();
+		VectorInt<Text> v2 = new VectorInt<Text>();
 
-		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
 		Text key;
 		int value;
 
-		assertEquals(map.size(), 2);
+		assertEquals(v2.size(), 2);
 
 		key = new Text("hi");
-		value = map.get(key);
+		value = v2.get(key);
 		assertEquals(value, 5);
 
-		value = map.remove(key);
-		assertEquals(map.size(), 1);
+		value = v2.remove(key);
+		assertEquals(v2.size(), 1);
 
 		key = new Text("there");
-		value = map.get(key);
+		value = v2.get(key);
 		assertEquals(value, 22);
 	}
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		VectorInt<WritableComparable> origMap = new VectorInt<WritableComparable>();
+		VectorInt<WritableComparable> v1 = new VectorInt<WritableComparable>();
 
-		origMap.set(new Text("hi"), 4);
-		origMap.set(new IntWritable(0), 76);
+		v1.set(new Text("hi"), 4);
+		v1.set(new IntWritable(0), 76);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
-		origMap.write(dataOut);
+		v1.write(dataOut);
 
-		VectorInt<WritableComparable> map = new VectorInt<WritableComparable>();
+		VectorInt<WritableComparable> v2 = new VectorInt<WritableComparable>();
 
-		map.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		VectorInt<WritableComparable> map = new VectorInt<WritableComparable>();
+		VectorInt<WritableComparable> v1 = new VectorInt<WritableComparable>();
 
-		assertTrue(map.size() == 0);
+		assertTrue(v1.size() == 0);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
-		map.write(dataOut);
+		v1.write(dataOut);
 
-		VectorInt<WritableComparable> newList = new VectorInt<WritableComparable>();
-		newList.readFields(new DataInputStream(new ByteArrayInputStream(
-				bytesOut.toByteArray())));
-		assertTrue(newList.size() == 0);
+		VectorInt<WritableComparable> v2 = new VectorInt<WritableComparable>();
+		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
+		assertTrue(v2.size() == 0);
 	}
 
 	@Test
 	public void testPlus() throws IOException {
-		VectorInt<Text> map1 = new VectorInt<Text>();
+		VectorInt<Text> v1 = new VectorInt<Text>();
 
-		map1.set(new Text("hi"), 5);
-		map1.set(new Text("there"), 22);
+		v1.set(new Text("hi"), 5);
+		v1.set(new Text("there"), 22);
 
-		VectorInt<Text> map2 = new VectorInt<Text>();
+		VectorInt<Text> v2 = new VectorInt<Text>();
 
-		map2.set(new Text("hi"), 4);
-		map2.set(new Text("test"), 5);
+		v2.set(new Text("hi"), 4);
+		v2.set(new Text("test"), 5);
 
-		map1.plus(map2);
+		v1.plus(v2);
 
-		assertEquals(map1.size(), 3);
-		assertTrue(map1.get(new Text("hi")) == 9);
-		assertTrue(map1.get(new Text("there")) == 22);
-		assertTrue(map1.get(new Text("test")) == 5);
+		assertEquals(v1.size(), 3);
+		assertTrue(v1.get(new Text("hi")) == 9);
+		assertTrue(v1.get(new Text("there")) == 22);
+		assertTrue(v1.get(new Text("test")) == 5);
 	}
 
 	@Test
 	public void testDot() throws IOException {
-		VectorInt<Text> map1 = new VectorInt<Text>();
+		VectorInt<Text> v1 = new VectorInt<Text>();
 
-		map1.set(new Text("hi"), 5);
-		map1.set(new Text("there"), 2);
-		map1.set(new Text("empty"), 3);
+		v1.set(new Text("hi"), 5);
+		v1.set(new Text("there"), 2);
+		v1.set(new Text("empty"), 3);
 
-		VectorInt<Text> map2 = new VectorInt<Text>();
+		VectorInt<Text> v2 = new VectorInt<Text>();
 
-		map2.set(new Text("hi"), 4);
-		map2.set(new Text("there"), 4);
-		map2.set(new Text("test"), 5);
+		v2.set(new Text("hi"), 4);
+		v2.set(new Text("there"), 4);
+		v2.set(new Text("test"), 5);
 
-		int s = map1.dot(map2);
+		int s = v1.dot(v2);
 
 		assertEquals(s, 28);
 	}
-	
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(VectorIntTest.class);
 	}
