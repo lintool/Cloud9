@@ -160,6 +160,11 @@ public class VectorFloat<F extends WritableComparable> extends HashMap<F, Float>
 		return s;
 	}
 
+	/**
+	 * Computes the length of this vector.
+	 * 
+	 * @return length of tis vector
+	 */
 	public float length() {
 		float s = 0.0f;
 
@@ -170,6 +175,9 @@ public class VectorFloat<F extends WritableComparable> extends HashMap<F, Float>
 		return (float) Math.sqrt(s);
 	}
 
+	/**
+	 * Normalizes this vector to a unit-length vector.
+	 */
 	public void normalize() {
 		float l = this.length();
 
