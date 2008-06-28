@@ -143,6 +143,26 @@ public class VectorInt<F extends WritableComparable> extends HashMap<F, Integer>
 	}
 
 	/**
+	 * Computes the dot product between this vector and another vector.
+	 * 
+	 * @param v
+	 *            the other vector
+	 */
+	public int dot(VectorInt<F> v) {
+		int s = 0;
+
+		for (Map.Entry<F, Integer> e : v.entrySet()) {
+			F key = e.getKey();
+
+			if (this.containsKey(key)) {
+				s += this.get(key) * e.getValue();
+			}
+		}
+
+		return s;
+	}
+
+	/**
 	 * Returns feature-value entries sorted by descending value. Ties broken by
 	 * the natural sort order of the feature.
 	 * 

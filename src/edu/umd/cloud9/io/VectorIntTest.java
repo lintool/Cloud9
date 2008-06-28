@@ -129,7 +129,7 @@ public class VectorIntTest {
 	}
 
 	@Test
-	public void testMerge() throws IOException {
+	public void testPlus() throws IOException {
 		VectorInt<Text> map1 = new VectorInt<Text>();
 
 		map1.set(new Text("hi"), 5);
@@ -148,6 +148,25 @@ public class VectorIntTest {
 		assertTrue(map1.get(new Text("test")) == 5);
 	}
 
+	@Test
+	public void testDot() throws IOException {
+		VectorInt<Text> map1 = new VectorInt<Text>();
+
+		map1.set(new Text("hi"), 5);
+		map1.set(new Text("there"), 2);
+		map1.set(new Text("empty"), 3);
+
+		VectorInt<Text> map2 = new VectorInt<Text>();
+
+		map2.set(new Text("hi"), 4);
+		map2.set(new Text("there"), 4);
+		map2.set(new Text("test"), 5);
+
+		int s = map1.dot(map2);
+
+		assertEquals(s, 28);
+	}
+	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(VectorIntTest.class);
 	}
