@@ -14,39 +14,6 @@ import edu.umd.cloud9.util.KeyValuePair;
 
 public class SequenceFileUtils {
 
-	public static void readDirectory(String inPath, int max) {
-		try {
-			JobConf config = new JobConf();
-			Writable key, value;
-			FileSystem fileSys = FileSystem.get(config);
-			Path p = new Path(inPath);
-			Path[] files = fileSys.listPaths(p);
-			int k = 0;
-
-			for (int i = 0; i < files.length; i++) {
-				SequenceFile.Reader reader = new SequenceFile.Reader(fileSys, files[i], config);
-				System.out.println("reading " + files[i]);
-
-				key = (Writable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
-
-				while (reader.next(key, value)) {
-					System.out.println(key + " -> " + value);
-					k++;
-
-					if (k > max)
-						break;
-				}
-				reader.close();
-				System.out.println("records read: " + k);
-			}
-
-			System.out.println("total records read: " + k);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static List<KeyValuePair<? extends WritableComparable, ? extends Writable>> readFile(
 			String path, int max) {
 
