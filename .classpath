@@ -9,5 +9,7 @@
 	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop/hadoop-0.16.0/hadoop-0.16.0-core.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop/hadoop-0.16.0/contrib/hbase/hadoop-0.16.0-hbase.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/log4j-1.2.13.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
