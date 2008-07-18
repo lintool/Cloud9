@@ -53,7 +53,7 @@ import org.apache.hadoop.mapred.Reporter;
 public class DemoWordCount {
 
 	// mapper: emits (token, 1) for every word occurrence
-	private static class MapClass extends MapReduceBase implements
+	public static class MapClass extends MapReduceBase implements
 			Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// reuse objects to save overhead of object creation
@@ -73,7 +73,7 @@ public class DemoWordCount {
 	}
 
 	// reducer: sums up all the counts
-	private static class ReduceClass extends MapReduceBase implements
+	public static class ReduceClass extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
 		// reuse objects
