@@ -40,8 +40,12 @@ public class ReadSequenceFile {
 		SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(config), path, config);
 
 		System.out.println("Reading " + path + "...\n");
-		System.out.println("Key type: " + reader.getKeyClass().toString());
-		System.out.println("Value type: " + reader.getValueClass().toString() + "\n");
+		try {
+			System.out.println("Key type: " + reader.getKeyClass().toString());
+			System.out.println("Value type: " + reader.getValueClass().toString() + "\n");
+		} catch (Exception e) {
+			throw new RuntimeException("Error: loading key/value class");
+		}
 
 		Writable key, value;
 		int n = 0;
