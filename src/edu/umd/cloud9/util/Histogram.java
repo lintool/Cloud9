@@ -28,19 +28,19 @@ import java.util.TreeSet;
  * encountered. This is useful for counting things in a stream, e.g., POS tags,
  * terms, etc.
  */
-public class InstanceCounter<T extends Comparable<T>> {
+public class Histogram<T extends Comparable<T>> {
 
 	// internal representation---although the scores are doubles, counts are
 	// obviously integers
-	private ScoreSortedMap<T> mMap;
-
+	private Scorekeeper<T, Integer> mMap;
+	
 	private int mTotalCount = 0;
 
 	/**
 	 * Constructs an <code>InstanceCounter</code>.
 	 */
-	public InstanceCounter() {
-		mMap = new ScoreSortedMap<T>();
+	public Histogram() {
+		mMap = new Scorekeeper<T, Integer>();
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class InstanceCounter<T extends Comparable<T>> {
 		if (mMap.containsKey(instance)) {
 			mMap.put(instance, mMap.get(instance) + 1);
 		} else {
-			mMap.put(instance, 1.0);
+			mMap.put(instance, 1);
 		}
 		mTotalCount++;
 	}
@@ -63,7 +63,7 @@ public class InstanceCounter<T extends Comparable<T>> {
 	 * counts.
 	 */
 	public void printCounts() {
-		for (Map.Entry<T, Double> map : mMap.getSortedEntries()) {
+		for (Map.Entry<T, Integer> map : mMap.getSortedEntries()) {
 			System.out.println(map.getValue().intValue() + "\t" + map.getKey());
 		}
 	}
@@ -74,7 +74,7 @@ public class InstanceCounter<T extends Comparable<T>> {
 	public List<InstanceCount> getCounts() {
 		List<InstanceCount> l = new ArrayList<InstanceCount>();
 
-		for (Map.Entry<T, Double> map : mMap.getSortedEntries()) {
+		for (Map.Entry<T, Integer> map : mMap.getSortedEntries()) {
 			l.add(new InstanceCount(map.getKey(), map.getValue().intValue(),
 					map.getValue() / (double) mTotalCount));
 		}
