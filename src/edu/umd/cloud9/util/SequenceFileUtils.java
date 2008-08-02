@@ -74,6 +74,10 @@ public class SequenceFileUtils {
 			FileStatus[] stat = fileSys.listStatus(path);
 			for (int i = 0; i < stat.length; ++i) {
 
+				// skip '_log' directory
+				if ( stat[i].getPath().getName().startsWith("_"))
+					continue;
+
 				List<KeyValuePair<? extends WritableComparable, ? extends Writable>> pairs = readFile(
 						stat[i].getPath(), max);
 
