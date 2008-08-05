@@ -92,72 +92,7 @@ public class ScorekeeperTest {
 		assertEquals(e.getKey(), "d");
 		assertTrue(e.getValue() == -5.0d);
 	}
-
-	@Test
-	public void testNormalize1() {
-		Scorekeeper<String, Double> map = new Scorekeeper<String, Double>();
-
-		map.put("a", 1.0d);
-		map.put("b", 3.0d);
-		map.put("c", 2.5d);
-		map.put("d", 5.0d);
-
-		map.normalizeScores();
-		
-		Map.Entry<String, Double> e;
-		Iterator<Map.Entry<String, Double>> iter = map.getSortedEntries()
-				.iterator();
-
-		e = iter.next();
-		assertEquals(e.getKey(), "d");
-		assertTrue(e.getValue()== 1.0d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "b");
-		assertTrue(e.getValue()==0.5d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "c");
-		assertTrue(e.getValue()==0.375d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "a");
-		assertTrue(e.getValue()==0.0d);
-	}
-
-	@Test
-	public void testNormalize2() {
-		Scorekeeper<String, Double> map = new Scorekeeper<String, Double>();
-
-		map.put("a", -1.0d);
-		map.put("b", -3.0d);
-		map.put("c", -2.5d);
-		map.put("d", -5.0d);
-
-		map.normalizeScores();
-
-		Map.Entry<String, Double> e;
-		Iterator<Map.Entry<String, Double>> iter = map.getSortedEntries()
-				.iterator();
-
-		e = iter.next();
-		assertEquals(e.getKey(), "a");
-		assertTrue(e.getValue()==1.0d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "c");
-		assertTrue(e.getValue()== 0.625d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "b");
-		assertTrue(e.getValue()==0.5d);
-
-		e = iter.next();
-		assertEquals(e.getKey(), "d");
-		assertTrue(e.getValue()==0.0d);
-	}
 	
-
 	@Test(expected = NoSuchElementException.class)
 	public void testNthEntry() {
 		Scorekeeper<String, Double> map = new Scorekeeper<String, Double>();
