@@ -11,7 +11,7 @@
 		<fileset dir="${lib}">
 			<include name="**/*.jar" />
 		</fileset>
-		<fileset dir="../umd-hadoop-dist/hadoop/hadoop-0.16.0">
+		<fileset dir="../umd-hadoop-dist/hadoop/hadoop-0.17.0">
 			<include name="**/*.jar" />
 		</fileset>
 		<fileset dir="../umd-hadoop-dist/jars">
