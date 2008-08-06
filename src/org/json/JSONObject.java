@@ -130,7 +130,7 @@ public class JSONObject {
     /**
      * The map where the JSONObject's properties are kept.
      */
-    private Map map;
+    protected Map map;
 
 
     /**
