@@ -88,6 +88,31 @@ public class JSONObjectWritableTest {
 		assertEquals(obj2.getJSONArray("phoneNumbers").getString(0), "212 555-1234");
 	}
 
+	@Test
+	public void testRewrite() throws Exception {
+		String s1 = "{\"JSON\":\"Hello, World!\"}";
+		String s2 = "{\"JSON\":\"Hello!\"}";
+
+		JSONObjectWritable obj = new JSONObjectWritable();
+		obj.readFields(new DataInputStream(new ByteArrayInputStream(s1.getBytes())));
+
+		assertEquals(obj.toString(), s1);
+
+		obj.readFields(new DataInputStream(new ByteArrayInputStream(s2.getBytes())));
+		assertEquals(obj.toString(), s2);
+
+	}
+	
+	@Test
+	public void testOverwrite() throws Exception {
+		JSONObjectWritable obj = new JSONObjectWritable();
+		obj.put("field", "longer string");
+		assertEquals(obj.toString(), "{\"field\":\"longer string\"}");
+		
+		obj.put("field", "a");
+		assertEquals(obj.toString(), "{\"field\":\"a\"}");
+	}
+	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(JSONObjectWritableTest.class);
 	}
