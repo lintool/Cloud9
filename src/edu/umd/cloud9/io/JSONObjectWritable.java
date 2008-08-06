@@ -3,6 +3,7 @@ package edu.umd.cloud9.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.hadoop.io.Writable;
 import org.json.JSONException;
@@ -10,6 +11,14 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class JSONObjectWritable extends JSONObject implements Writable {
+
+	public JSONObjectWritable() {
+		super();
+	}
+
+	public JSONObjectWritable(String s) throws JSONException {
+		super(s);
+	}
 
 	/**
 	 * Deserializes the JSON object.
@@ -19,6 +28,8 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
+		super.map.clear();
+
 		String s = in.readLine();
 
 		// following block of code copied from JSONObject
@@ -77,7 +88,7 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 				}
 			}
 		} catch (JSONException e) {
-			throw new IOException();
+			throw new IOException("Error: invalid JSON!");
 		}
 	}
 
@@ -92,4 +103,12 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 		out.writeBytes(this.toString());
 	}
 
+	public int getIntUnchecked(String key) throws JSONException {
+		return (Integer) super.map.get(key);
+	}
+
+	public void clear() {
+		super.map.clear();
+	}
+	
 }
