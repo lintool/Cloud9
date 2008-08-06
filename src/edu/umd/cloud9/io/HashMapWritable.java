@@ -16,19 +16,13 @@
 
 package edu.umd.cloud9.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 
@@ -56,6 +50,8 @@ import org.apache.hadoop.io.Writable;
  * <li>This class is generic, whereas <code>MapWritable</code> isn't.</li>
  * 
  * </ul>
+ * 
+ * <p>Benchmarks show that 
  * 
  * @param <K>
  *            type of the key
@@ -154,87 +150,4 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		long startTime = System.currentTimeMillis();
-		int numTrials = 100000;
-
-		Random rand = new Random();
-
-		ByteArrayOutputStream[] storageHashMapWritable = new ByteArrayOutputStream[numTrials];
-		for (int i = 0; i < numTrials; i++) {
-			HashMapWritable<IntWritable, IntWritable> map = new HashMapWritable<IntWritable, IntWritable>();
-
-			int size = rand.nextInt(50) + 50;
-
-			for (int j = 0; j < size; j++) {
-				map.put(new IntWritable(rand.nextInt(10000)), new IntWritable(rand.nextInt(10)));
-			}
-
-			ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-			DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-			map.write(dataOut);
-			storageHashMapWritable[i] = bytesOut;
-		}
-
-		System.out.println("Generating and serializing " + numTrials + " random HashMapWritables: "
-				+ (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-
-		startTime = System.currentTimeMillis();
-
-		ByteArrayOutputStream[] storageMapWritable = new ByteArrayOutputStream[numTrials];
-		for (int i = 0; i < numTrials; i++) {
-			MapWritable map = new MapWritable();
-
-			int size = rand.nextInt(50) + 50;
-
-			for (int j = 0; j < size; j++) {
-				map.put(new IntWritable(rand.nextInt(10000)), new IntWritable(rand.nextInt(10)));
-			}
-
-			ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-			DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-			map.write(dataOut);
-			storageMapWritable[i] = bytesOut;
-		}
-
-		System.out.println("Generating and serializing " + numTrials + " random MapWritables: "
-				+ (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-
-		float cntA = 0.0f;
-		float cntB = 0.0f;
-		for (int i = 0; i < numTrials; i++) {
-			cntA += storageHashMapWritable[i].size();
-			cntB += storageMapWritable[i].size();
-		}
-
-		System.out.println("Average size of each HashMapWritable: " + cntA / numTrials);
-		System.out.println("Average size of each MapWritable: " + cntB / numTrials);
-
-		startTime = System.currentTimeMillis();
-
-		for (int i = 0; i < numTrials; i++) {
-			HashMapWritable<IntWritable, IntWritable> map = new HashMapWritable<IntWritable, IntWritable>();
-
-			map.readFields(new DataInputStream(new ByteArrayInputStream(storageHashMapWritable[i]
-					.toByteArray())));
-		}
-
-		System.out.println("Deserializing " + numTrials + " random MapWritables: "
-				+ (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-
-		startTime = System.currentTimeMillis();
-
-		for (int i = 0; i < numTrials; i++) {
-			MapWritable map = new MapWritable();
-
-			map.readFields(new DataInputStream(new ByteArrayInputStream(storageMapWritable[i]
-					.toByteArray())));
-		}
-
-		System.out.println("Deserializing " + numTrials + " random MapWritables: "
-				+ (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-
-	}
 }
