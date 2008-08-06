@@ -76,6 +76,22 @@ import edu.umd.cloud9.io.Tuple;
  * the probability that a line is odd-length or even-length, given the
  * occurrence of a token.
  * </p>
+ * 
+ * <p>
+ * Expected output:
+ * </p>
+ * 
+ * <pre>
+ * Map input records=156215
+ * Map output records=3468596
+ * Map input bytes=9068074
+ * Map output bytes=163645442
+ * Combine input records=3468596
+ * Combine output records=324085
+ * Reduce input groups=101013
+ * Reduce input records=3468596
+ * Reduce output records=101013
+ * </pre>
  */
 public class DemoWordCondProbTuple {
 
