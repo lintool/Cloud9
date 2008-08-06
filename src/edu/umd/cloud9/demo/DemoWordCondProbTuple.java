@@ -45,9 +45,9 @@ import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
- * Demo that illustrates the use of a Partitioner and special symbols in Tuple
- * to compute conditional probabilities. Input comes from Bible+Shakespeare
- * sample collection. Sample of final output:
+ * Demo of how to compute conditional probabilities using Tuples as intermediate
+ * keys. Input comes from Bible+Shakespeare sample collection. See also
+ * {@link DemoWordCondProbJSON}. Sample of final output:
  * 
  * <pre>
  * ...
