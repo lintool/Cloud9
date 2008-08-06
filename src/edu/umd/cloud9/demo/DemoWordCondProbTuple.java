@@ -27,6 +27,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -35,7 +37,6 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Partitioner;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
@@ -45,10 +46,8 @@ import edu.umd.cloud9.io.Tuple;
 /**
  * <p>
  * Demo that illustrates the use of a Partitioner and special symbols in Tuple
- * to compute conditional probabilities. Demo builds on
- * {@link DemoWordCountTuple}, and has similar structure. Input comes from
- * Bible+Shakespeare sample collection, encoded as single-field tuples; see
- * {@link DemoPackRecords}. Sample of final output:
+ * to compute conditional probabilities. Input comes from Bible+Shakespeare
+ * sample collection. Sample of final output:
  * 
  * <pre>
  * ...
@@ -97,9 +96,6 @@ public class DemoWordCondProbTuple {
 
 		public void map(LongWritable key, Text text, OutputCollector<Tuple, FloatWritable> output,
 				Reporter reporter) throws IOException {
-
-			// the input value is a tuple; get field 0
-			// see DemoPackRecords of how input SequenceFile is generated
 			String line = text.toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
@@ -182,19 +178,12 @@ public class DemoWordCondProbTuple {
 		JobConf conf = new JobConf(DemoWordCondProbTuple.class);
 		conf.setJobName("DemoWordCondProbTuple");
 
-		FileSystem fileSys = FileSystem.get(conf);
-		Path outPath = new Path(outputPath);
-		if (fileSys.exists(outPath)) {
-			fileSys.delete(outPath);
-		}
-
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);
 
-		conf.setInputPath(new Path(inPath));
-		conf.setInputFormat(TextInputFormat.class);
+		FileInputFormat.setInputPaths(conf, new Path(inPath));
+		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		conf.setOutputPath(new Path(outputPath));
 		conf.setOutputKeyClass(Tuple.class);
 		conf.setOutputValueClass(FloatWritable.class);
 		conf.setOutputFormat(TextOutputFormat.class);
@@ -206,6 +195,10 @@ public class DemoWordCondProbTuple {
 		conf.setCombinerClass(IdentityReducer.class);
 		conf.setReducerClass(MyReducer.class);
 		conf.setPartitionerClass(MyPartitioner.class);
+
+		// Delete the output directory if it exists already
+		Path outputDir = new Path(outputPath);
+		FileSystem.get(conf).delete(outputDir, true);
 
 		JobClient.runJob(conf);
 	}
