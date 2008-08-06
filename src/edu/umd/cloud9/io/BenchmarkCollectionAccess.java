@@ -1,9 +1,11 @@
 package edu.umd.cloud9.io;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class BenchmarkHashMap {
+public class BenchmarkCollectionAccess {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
@@ -25,6 +27,18 @@ public class BenchmarkHashMap {
 		duration = (System.currentTimeMillis() - startTime) / 1000.0;
 		System.out.println(" for HashMap: " + duration + " seconds");
 
+		List<Integer> arrayList = new ArrayList<Integer>();
+		arrayList.add(1);
+		arrayList.add(2);
+		arrayList.add(2);
+		
+		startTime = System.currentTimeMillis();
+		for (int i = 0; i < trials; i++) {
+			int tmp = arrayList.get(1);
+		}
+		duration = (System.currentTimeMillis() - startTime) / 1000.0;
+		System.out.println(" for ArrayList: " + duration + " seconds");
+
 		int[] array = { 1, 2, 3 };
 
 		startTime = System.currentTimeMillis();
@@ -33,6 +47,5 @@ public class BenchmarkHashMap {
 		}
 		duration = (System.currentTimeMillis() - startTime) / 1000.0;
 		System.out.println(" for array: " + duration + " seconds");
-
 	}
 }
