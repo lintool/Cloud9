@@ -25,6 +25,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -34,8 +36,10 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
 /**
- * <p>Simple word count demo. Counts words in the Bible+Shakespeare sample
- * collection. Expected trace of MapReduce operation:</p>
+ * <p>
+ * Simple word count demo. Counts words in the Bible+Shakespeare sample
+ * collection. Expected trace of MapReduce operation:
+ * </p>
  * 
  * <pre>
  * Map input records=156215
@@ -48,21 +52,20 @@ import org.apache.hadoop.mapred.Reporter;
  * Reduce input records=135372
  * Reduce output records=41788
  * </pre>
- *
+ * 
  */
 public class DemoWordCount {
 
 	// mapper: emits (token, 1) for every word occurrence
-	public static class MapClass extends MapReduceBase implements
+	public static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// reuse objects to save overhead of object creation
 		private final static IntWritable one = new IntWritable(1);
 		private Text word = new Text();
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<Text, IntWritable> output, Reporter reporter)
-				throws IOException {
+		public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
+				Reporter reporter) throws IOException {
 			String line = ((Text) value).toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
@@ -73,15 +76,14 @@ public class DemoWordCount {
 	}
 
 	// reducer: sums up all the counts
-	public static class ReduceClass extends MapReduceBase implements
+	public static class MyReducer extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
 		// reuse objects
 		private final static IntWritable SumValue = new IntWritable();
 
 		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			// sum up values
 			int sum = 0;
 			while (values.hasNext()) {
@@ -94,34 +96,36 @@ public class DemoWordCount {
 
 	private DemoWordCount() {
 	}
-	
+
 	/**
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
 		String filename = "/shared/sample-input/bible+shakes.nopunc";
 		String outputPath = "sample-counts";
+
 		int mapTasks = 20;
 		int reduceTasks = 1;
 
 		JobConf conf = new JobConf(DemoWordCount.class);
-		conf.setJobName("wordcount");
+		conf.setJobName("DemoWordCount");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
-		conf.setInputPath(new Path(filename));
+		FileInputFormat.setInputPaths(conf, new Path(filename));
+		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputPath(new Path(outputPath));
 
-		conf.setMapperClass(MapClass.class);
-		conf.setCombinerClass(ReduceClass.class);
-		conf.setReducerClass(ReduceClass.class);
-		
+		conf.setMapperClass(MyMapper.class);
+		conf.setCombinerClass(MyReducer.class);
+		conf.setReducerClass(MyReducer.class);
+
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir);
+		FileSystem.get(conf).delete(outputDir, true);
 
 		JobClient.runJob(conf);
 	}
