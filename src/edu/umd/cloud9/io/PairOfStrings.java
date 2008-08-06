@@ -158,5 +158,9 @@ public class PairOfStrings implements WritableComparable {
 	public String toString() {
 		return "(" + leftElement + ", " + rightElement + ")";
 	}
+	
+	public PairOfStrings clone() {
+		return new PairOfStrings(this.leftElement, this.rightElement);
+	}
 
 }

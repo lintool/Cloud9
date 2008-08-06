@@ -164,5 +164,9 @@ public class PairOfInts implements WritableComparable {
 	public String toString() {
 		return "(" + leftElement + ", " + rightElement + ")";
 	}
+	
+	public PairOfInts clone() {
+		return new PairOfInts(this.leftElement, this.rightElement);
+	}
 
 }
