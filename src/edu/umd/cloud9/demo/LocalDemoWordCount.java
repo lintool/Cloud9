@@ -29,9 +29,9 @@ public class LocalDemoWordCount {
 		conf.setOutputValueClass(IntWritable.class);
 		conf.setOutputPath(new Path(outputPath));
 
-		conf.setMapperClass(DemoWordCount.MapClass.class);
-		conf.setCombinerClass(DemoWordCount.ReduceClass.class);
-		conf.setReducerClass(DemoWordCount.ReduceClass.class);
+		conf.setMapperClass(DemoWordCount.MyMapper.class);
+		conf.setCombinerClass(DemoWordCount.MyReducer.class);
+		conf.setReducerClass(DemoWordCount.MyReducer.class);
 
 		InMemoryOutputCollector collector = MapredHarness.run(conf);
 		collector.printAll();
