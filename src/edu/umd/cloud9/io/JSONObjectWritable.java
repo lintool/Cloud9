@@ -3,7 +3,6 @@ package edu.umd.cloud9.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashMap;
 
 import org.apache.hadoop.io.Writable;
 import org.json.JSONException;
@@ -103,12 +102,28 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 		out.writeBytes(this.toString());
 	}
 
+	public boolean getBooleanUnchecked(String key) throws JSONException {
+		return (Boolean) super.map.get(key);
+	}
+
+	public double getDoubleUnchecked(String key) throws JSONException {
+		return (Double) super.map.get(key);
+	}
+
 	public int getIntUnchecked(String key) throws JSONException {
 		return (Integer) super.map.get(key);
+	}
+
+	public long getLongUnchecked(String key) throws JSONException {
+		return (Long) super.map.get(key);
+	}
+
+	public String getStringUnchecked(String key) throws JSONException {
+		return (String) super.map.get(key);
 	}
 
 	public void clear() {
 		super.map.clear();
 	}
-	
+
 }
