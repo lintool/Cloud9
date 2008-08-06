@@ -22,9 +22,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -33,7 +35,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Partitioner;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
@@ -76,7 +78,7 @@ import edu.umd.cloud9.io.Tuple;
  * occurrence of a token.
  * </p>
  */
-public class DemoWordCondProb {
+public class DemoWordCondProbTuple {
 
 	// create the schema for the tuple that will serve as the key
 	private static final Schema KEY_SCHEMA = new Schema();
@@ -88,18 +90,17 @@ public class DemoWordCondProb {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MapClass extends MapReduceBase implements
-			Mapper<LongWritable, Tuple, Tuple, FloatWritable> {
+	private static class MyMapper extends MapReduceBase implements
+			Mapper<LongWritable, Text, Tuple, FloatWritable> {
 		private final static FloatWritable one = new FloatWritable(1);
 		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
-		public void map(LongWritable key, Tuple tupleIn,
-				OutputCollector<Tuple, FloatWritable> output, Reporter reporter)
-				throws IOException {
+		public void map(LongWritable key, Text text, OutputCollector<Tuple, FloatWritable> output,
+				Reporter reporter) throws IOException {
 
 			// the input value is a tuple; get field 0
 			// see DemoPackRecords of how input SequenceFile is generated
-			String line = (String) ((Tuple) tupleIn).get(0);
+			String line = text.toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
@@ -119,15 +120,13 @@ public class DemoWordCondProb {
 	}
 
 	// reducer computes conditional probabilities
-	private static class ReduceClass extends MapReduceBase implements
+	private static class MyReducer extends MapReduceBase implements
 			Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
 		// HashMap keeps track of total counts
 		private final static HashMap<String, Integer> TotalCounts = new HashMap<String, Integer>();
 
-		public synchronized void reduce(Tuple tupleKey,
-				Iterator<FloatWritable> values,
-				OutputCollector<Tuple, FloatWritable> output, Reporter reporter)
-				throws IOException {
+		public synchronized void reduce(Tuple tupleKey, Iterator<FloatWritable> values,
+				OutputCollector<Tuple, FloatWritable> output, Reporter reporter) throws IOException {
 			// sum values
 			int sum = 0;
 			while (values.hasNext()) {
@@ -157,54 +156,57 @@ public class DemoWordCondProb {
 
 	// partition by first field of the tuple, so that tuples corresponding
 	// to the same token will be sent to the same reducer
-	private static class MyPartitioner implements
-			Partitioner<Tuple, FloatWritable> {
+	private static class MyPartitioner implements Partitioner<Tuple, FloatWritable> {
 		public void configure(JobConf job) {
 		}
 
-		public int getPartition(Tuple key, FloatWritable value,
-				int numReduceTasks) {
-			return (key.get("Token").hashCode() & Integer.MAX_VALUE)
-					% numReduceTasks;
+		public int getPartition(Tuple key, FloatWritable value, int numReduceTasks) {
+			return (key.get("Token").hashCode() & Integer.MAX_VALUE) % numReduceTasks;
 		}
 	}
 
 	// dummy constructor
-	private DemoWordCondProb() {
+	private DemoWordCondProbTuple() {
 	}
 
 	/**
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
-		String output1Path = "condprob";
+		String inPath = "/shared/sample-input/bible+shakes.nopunc";
+		String outputPath = "condprob";
 		int numMapTasks = 20;
 		int numReduceTasks = 10;
 
 		// first MapReduce cycle is to do the tuple counting
-		JobConf conf1 = new JobConf(DemoWordCondProb.class);
-		conf1.setJobName("DemoWordCondProb.MR1");
+		JobConf conf = new JobConf(DemoWordCondProbTuple.class);
+		conf.setJobName("DemoWordCondProbTuple");
 
-		conf1.setNumMapTasks(numMapTasks);
-		conf1.setNumReduceTasks(numReduceTasks);
+		FileSystem fileSys = FileSystem.get(conf);
+		Path outPath = new Path(outputPath);
+		if (fileSys.exists(outPath)) {
+			fileSys.delete(outPath);
+		}
 
-		conf1.setInputPath(new Path(inPath));
-		conf1.setInputFormat(SequenceFileInputFormat.class);
+		conf.setNumMapTasks(numMapTasks);
+		conf.setNumReduceTasks(numReduceTasks);
 
-		conf1.setOutputPath(new Path(output1Path));
-		conf1.setOutputKeyClass(Tuple.class);
-		conf1.setOutputValueClass(FloatWritable.class);
-		conf1.setOutputFormat(TextOutputFormat.class);
+		conf.setInputPath(new Path(inPath));
+		conf.setInputFormat(TextInputFormat.class);
 
-		conf1.setMapperClass(MapClass.class);
+		conf.setOutputPath(new Path(outputPath));
+		conf.setOutputKeyClass(Tuple.class);
+		conf.setOutputValueClass(FloatWritable.class);
+		conf.setOutputFormat(TextOutputFormat.class);
+
+		conf.setMapperClass(MyMapper.class);
 		// this is a potential gotcha! can't use ReduceClass for combine because
 		// we have not collected all the counts yet, so we can't divide through
 		// to compute the conditional probabilities
-		conf1.setCombinerClass(IdentityReducer.class);
-		conf1.setReducerClass(ReduceClass.class);
-		conf1.setPartitionerClass(MyPartitioner.class);
+		conf.setCombinerClass(IdentityReducer.class);
+		conf.setReducerClass(MyReducer.class);
+		conf.setPartitionerClass(MyPartitioner.class);
 
-		JobClient.runJob(conf1);
+		JobClient.runJob(conf);
 	}
 }
