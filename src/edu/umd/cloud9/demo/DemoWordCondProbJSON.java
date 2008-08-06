@@ -47,8 +47,9 @@ import edu.umd.cloud9.io.JSONObjectWritable;
 
 /**
  * <p>
- * Computes the same thing as {@link DemoWordCondProbTuple}, except uses JSON
- * objects as intermediate keys. Expected output:
+ * Demo of how to compute conditional probabilities using JSON objects as
+ * intermediate keys. Input comes from Bible+Shakespeare sample collection. See
+ * also {@link DemoWordCondProbTuple}. Expected output:
  * </p>
  * 
  * <pre>
@@ -65,33 +66,29 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  */
 public class DemoWordCondProbJSON {
 
-	// must be public
+	// define custom intermediate key; must specify sort order
 	public static class MyTuple extends JSONObjectWritable implements WritableComparable {
-		public MyTuple() {
-			super();
-		}
-
-		public MyTuple(String s) throws JSONException {
-			super(s);
-		}
-
 		public int compareTo(Object obj) {
 			try {
 				MyTuple that = (MyTuple) obj;
 
-				String thisToken = this.getString("Token");
-				String thatToken = that.getString("Token");
+				String thisToken = this.getStringUnchecked("Token");
+				String thatToken = that.getStringUnchecked("Token");
 
+				// if tokens are equal, must check "EvenOrOdd" field
 				if (thisToken.equals(thatToken)) {
+					// if both fields are null, then tuples are equal
 					if (this.isNull("EvenOrOdd") && that.isNull("EvenOrOdd"))
 						return 0;
 
+					// null field should always come first
 					if (this.isNull("EvenOrOdd"))
 						return -1;
 
 					if (that.isNull("EvenOrOdd"))
 						return 1;
 
+					// otherwise, sort by "EvenOrOdd" field
 					int thisEO = this.getIntUnchecked("EvenOrOdd");
 					int thatEO = that.getIntUnchecked("EvenOrOdd");
 
@@ -101,25 +98,16 @@ public class DemoWordCondProbJSON {
 					if (thisEO > thatEO)
 						return 1;
 
+					// if we get here, it means the tuples are equal
 					return 0;
 				}
 
+				// determine sort order based on token
 				return thisToken.compareTo(thatToken);
 			} catch (JSONException e) {
 				e.printStackTrace();
 				throw new RuntimeException("Unexpected error comparing JSON objects!");
 			}
-		}
-
-		public MyTuple clone() {
-			MyTuple j = null;
-			try {
-				j = new MyTuple(this.toString());
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			return j;
 		}
 	}
 
