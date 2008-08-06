@@ -1,12 +1,9 @@
 package edu.umd.cloud9.demo;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
@@ -15,7 +12,7 @@ import edu.umd.cloud9.debug.InMemoryOutputCollector;
 import edu.umd.cloud9.debug.MapredHarness;
 import edu.umd.cloud9.io.Tuple;
 
-public class DemoWordCountTupleLocal {
+public class LocalDemoWordCountTuple {
 
 	public static void main(String[] args) throws IOException {
 		String inPath = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed";
