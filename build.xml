@@ -14,6 +14,9 @@
 		<fileset dir="../umd-hadoop-dist/hadoop/hadoop-0.17.0">
 			<include name="**/*.jar" />
 		</fileset>
+		<fileset dir="../umd-hadoop-dist/hadoop/hadoop-0.16.0/contrib/hbase">
+			<include name="**/*.jar" />
+		</fileset>
 		<fileset dir="../umd-hadoop-dist/jars">
 			<include name="**/*.jar" />
 		</fileset>
@@ -87,7 +90,7 @@
 				<exclude name="**/*Test.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
-			<link href="../../hadoop/hadoop-0.16.0/docs/api" />
+			<link href="../../hadoop/hadoop-0.17.0/docs/api" />
 		</javadoc>
 	</target>
 
