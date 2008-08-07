@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class BenchmarkPairOfInt {
+public class BenchmarkPairOfInts {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
