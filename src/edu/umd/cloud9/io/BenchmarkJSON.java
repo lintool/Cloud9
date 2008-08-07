@@ -10,11 +10,7 @@ import org.json.JSONException;
 
 public class BenchmarkJSON {
 
-	public static class MyJSONTuple extends JSONObjectWritable implements WritableComparable {
-		public MyJSONTuple() {
-			super();
-		}
-
+	private static class MyJSONTuple extends JSONObjectWritable implements WritableComparable {
 		public int compareTo(Object obj) {
 			try {
 				MyJSONTuple that = (MyJSONTuple) obj;
