@@ -43,7 +43,7 @@ import edu.umd.cloud9.io.Tuple;
  * <p>
  * Demo that illustrates the use of the tuple library ({@link Tuple} class).
  * Input comes from Bible+Shakespeare sample collection, encoded as single-field
- * tuples; see {@link DemoPackRecords}. Sample of final output:
+ * tuples; see {@link DemoPackTuples1}. Sample of final output:
  * </p>
  * 
  * <pre>
@@ -75,7 +75,7 @@ import edu.umd.cloud9.io.Tuple;
  * the use of the {@link Tuple} class.
  * </p>
  */
-public class DemoWordCountTuple {
+public class DemoWordCountTuple1 {
 
 	// create the schema for the tuple that will serve as the key
 	private static final Schema KEY_SCHEMA = new Schema();
@@ -137,19 +137,19 @@ public class DemoWordCountTuple {
 	}
 
 	// dummy constructor
-	private DemoWordCountTuple() {
+	private DemoWordCountTuple1() {
 	}
 
 	/**
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc.packed";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc.tuple1.packed";
 		String outputPath = "word-counts-tuple";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
 
-		JobConf conf = new JobConf(DemoWordCountTuple.class);
+		JobConf conf = new JobConf(DemoWordCountTuple1.class);
 		conf.setJobName("wordcount");
 
 		conf.setNumMapTasks(numMapTasks);
