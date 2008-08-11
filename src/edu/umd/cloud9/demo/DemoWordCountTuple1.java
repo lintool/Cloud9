@@ -83,7 +83,6 @@ public class DemoWordCountTuple1 {
 				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
 
 			// the input value is a tuple; get field 0
-			// see DemoPackRecords of how input SequenceFile is generated
 			String line = (String) tupleIn.get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
