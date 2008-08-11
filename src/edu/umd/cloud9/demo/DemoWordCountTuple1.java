@@ -49,9 +49,9 @@ import edu.umd.cloud9.io.Tuple;
  * 
  * <p>
  * Format of the output SequenceFile: The key is a Tuple. The first field of the
- * tuple contains the term and the second field indicates whether the term was
- * found on a even-length or odd-length line. The value is the count of the
- * tuple occurrences in the collection.
+ * tuple contains a word and the second field indicates whether the word was
+ * found on a even-length or odd-length line. The value is the count of the word
+ * on either even- or odd-length lines.
  * </p>
  * 
  * @see DemoWordCountTuple2
