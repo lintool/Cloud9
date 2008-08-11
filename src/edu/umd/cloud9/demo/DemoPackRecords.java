@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -65,13 +66,15 @@ public class DemoPackRecords {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
 		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed";
 
-		JobConf config = new JobConf();
-		SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.get(config), config,
-				new Path(outfile), LongWritable.class, Tuple.class);
+		Configuration conf = new JobConf();
+		FileSystem fs = FileSystem.get(conf);
+		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
+				LongWritable.class, Tuple.class);
 
 		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
+		// the key
 		LongWritable l = new LongWritable();
 		long cnt = 0;
 
