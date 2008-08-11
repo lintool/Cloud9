@@ -20,9 +20,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -84,7 +87,7 @@ public class DemoWordCountTuple {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	public static class MapClass extends MapReduceBase implements
+	protected static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Tuple, Tuple, IntWritable> {
 
 		// define value '1' statically so we can reuse the object, i.e., avoid
@@ -115,7 +118,7 @@ public class DemoWordCountTuple {
 	}
 
 	// reducer counts up tuple occurrences
-	public static class ReduceClass extends MapReduceBase implements
+	protected static class MyReducer extends MapReduceBase implements
 			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
@@ -141,7 +144,7 @@ public class DemoWordCountTuple {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc.packed";
 		String outputPath = "word-counts-tuple";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
@@ -152,17 +155,21 @@ public class DemoWordCountTuple {
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);
 
-		conf.setInputPath(new Path(inPath));
-		conf.setInputFormat(SequenceFileInputFormat.class);
+		FileInputFormat.setInputPaths(conf, new Path(inputPath));
+		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		conf.setOutputPath(new Path(outputPath));
+		conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(Tuple.class);
 		conf.setOutputValueClass(IntWritable.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		conf.setMapperClass(MapClass.class);
-		conf.setCombinerClass(ReduceClass.class);
-		conf.setReducerClass(ReduceClass.class);
+		conf.setMapperClass(MyMapper.class);
+		conf.setCombinerClass(MyReducer.class);
+		conf.setReducerClass(MyReducer.class);
+
+		// Delete the output directory if it exists already
+		Path outputDir = new Path(outputPath);
+		FileSystem.get(conf).delete(outputDir, true);
 
 		JobClient.runJob(conf);
 	}

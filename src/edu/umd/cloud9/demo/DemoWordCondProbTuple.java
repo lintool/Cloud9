@@ -105,7 +105,7 @@ public class DemoWordCondProbTuple {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MyMapper extends MapReduceBase implements
+	protected static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, Tuple, FloatWritable> {
 		private final static FloatWritable one = new FloatWritable(1);
 		private Tuple tupleOut = KEY_SCHEMA.instantiate();
@@ -132,7 +132,7 @@ public class DemoWordCondProbTuple {
 	}
 
 	// reducer computes conditional probabilities
-	private static class MyReducer extends MapReduceBase implements
+	protected static class MyReducer extends MapReduceBase implements
 			Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
 		// HashMap keeps track of total counts
 		private final static HashMap<String, Integer> TotalCounts = new HashMap<String, Integer>();
@@ -168,7 +168,7 @@ public class DemoWordCondProbTuple {
 
 	// partition by first field of the tuple, so that tuples corresponding
 	// to the same token will be sent to the same reducer
-	private static class MyPartitioner implements Partitioner<Tuple, FloatWritable> {
+	protected static class MyPartitioner implements Partitioner<Tuple, FloatWritable> {
 		public void configure(JobConf job) {
 		}
 
@@ -185,7 +185,7 @@ public class DemoWordCondProbTuple {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "/shared/sample-input/bible+shakes.nopunc";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc";
 		String outputPath = "condprob";
 		int numMapTasks = 20;
 		int numReduceTasks = 10;
@@ -197,7 +197,7 @@ public class DemoWordCondProbTuple {
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inPath));
+		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
 		conf.setOutputKeyClass(Tuple.class);

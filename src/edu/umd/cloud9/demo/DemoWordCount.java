@@ -57,7 +57,7 @@ import org.apache.hadoop.mapred.Reporter;
 public class DemoWordCount {
 
 	// mapper: emits (token, 1) for every word occurrence
-	public static class MyMapper extends MapReduceBase implements
+	protected static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// reuse objects to save overhead of object creation
@@ -76,7 +76,7 @@ public class DemoWordCount {
 	}
 
 	// reducer: sums up all the counts
-	public static class MyReducer extends MapReduceBase implements
+	protected static class MyReducer extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
 		// reuse objects
@@ -101,7 +101,7 @@ public class DemoWordCount {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String filename = "/shared/sample-input/bible+shakes.nopunc";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc";
 		String outputPath = "sample-counts";
 
 		int mapTasks = 20;
@@ -113,7 +113,7 @@ public class DemoWordCount {
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(filename));
+		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
 		conf.setOutputKeyClass(Text.class);

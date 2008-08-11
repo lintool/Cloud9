@@ -19,10 +19,13 @@ package edu.umd.cloud9.demo;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -115,7 +118,7 @@ public class DemoWordCountTuple2 {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inPath = "/shared/sample-input/bible+shakes.nopunc.packed2";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc.packed2";
 		String outputPath = "word-counts2-tuple";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
@@ -126,10 +129,10 @@ public class DemoWordCountTuple2 {
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);
 
-		conf.setInputPath(new Path(inPath));
+		FileInputFormat.setInputPaths(conf, new Path(inputPath));
+		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		
 		conf.setInputFormat(SequenceFileInputFormat.class);
-
-		conf.setOutputPath(new Path(outputPath));
 		conf.setOutputKeyClass(Tuple.class);
 		conf.setOutputValueClass(IntWritable.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
@@ -138,6 +141,10 @@ public class DemoWordCountTuple2 {
 		conf.setCombinerClass(ReduceClass.class);
 		conf.setReducerClass(ReduceClass.class);
 
+		// Delete the output directory if it exists already
+		Path outputDir = new Path(outputPath);
+		FileSystem.get(conf).delete(outputDir, true);
+		
 		JobClient.runJob(conf);
 	}
 }
