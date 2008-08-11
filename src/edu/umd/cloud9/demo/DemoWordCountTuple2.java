@@ -44,8 +44,8 @@ import edu.umd.cloud9.io.Tuple;
  * <p>
  * Demo that illustrates the use of the tuple library ({@link Tuple} and
  * {@link ArrayListWritable} class). Input comes from Bible+Shakespeare sample
- * collection, encoded with {@link DemoPackRecords2}. Otherwise, this demo is
- * exactly the same as {@link DemoWordCountTuple}.
+ * collection, encoded with {@link DemoPackTuples2}. Otherwise, this demo is
+ * exactly the same as {@link DemoWordCountTuple1}.
  * </p>
  */
 public class DemoWordCountTuple2 {
@@ -118,7 +118,7 @@ public class DemoWordCountTuple2 {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc.packed2";
+		String inputPath = "/shared/sample-input/bible+shakes.nopunc.tuple2.packed";
 		String outputPath = "word-counts2-tuple";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
