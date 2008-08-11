@@ -94,7 +94,7 @@ public class DemoWordCount {
 		}
 	}
 
-	private DemoWordCount() {
+	protected DemoWordCount() {
 	}
 
 	/**
