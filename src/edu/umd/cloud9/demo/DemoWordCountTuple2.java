@@ -42,10 +42,12 @@ import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
- * Demo that illustrates the use of the tuple library ({@link Tuple} and
- * {@link ArrayListWritable} class). Input comes from Bible+Shakespeare sample
- * collection, encoded with {@link DemoPackTuples2}. Otherwise, this demo is
- * exactly the same as {@link DemoWordCountTuple1}.
+ * Another demo that illustrates use of {@link Tuple} objects as intermediate
+ * keys in a MapReduce job. Input comes from the Bible+Shakespeare sample
+ * collection, packed into a SequenceFile with {@link DemoPackTuples2}; the
+ * tuples have complex internal structure. Output shows the count of words on
+ * even- and odd-length lines. This demo does exactly the same thing as
+ * {@link DemoWordCountTuple1}.
  * </p>
  */
 public class DemoWordCountTuple2 {
@@ -119,19 +121,19 @@ public class DemoWordCountTuple2 {
 	 */
 	public static void main(String[] args) throws IOException {
 		String inputPath = "/shared/sample-input/bible+shakes.nopunc.tuple2.packed";
-		String outputPath = "word-counts2-tuple";
+		String outputPath = "DemoWordCountTuple2";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
 
 		JobConf conf = new JobConf(DemoWordCountTuple2.class);
-		conf.setJobName("wordcount");
+		conf.setJobName("DemoWordCountTuple2");
 
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		
+
 		conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(Tuple.class);
 		conf.setOutputValueClass(IntWritable.class);
@@ -144,7 +146,7 @@ public class DemoWordCountTuple2 {
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		
+
 		JobClient.runJob(conf);
 	}
 }

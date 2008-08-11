@@ -41,39 +41,21 @@ import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
- * Demo that illustrates the use of the tuple library ({@link Tuple} class).
- * Input comes from Bible+Shakespeare sample collection, encoded as single-field
- * tuples; see {@link DemoPackTuples1}. Sample of final output:
- * </p>
- * 
- * <pre>
- * ...
- * (admirable, 0)    9
- * (admirable, 1)    6
- * (admiral, 0)      2
- * (admiral, 1)      4
- * (admiration, 0)  10
- * (admiration, 1)   6
- * (admire, 0)       5
- * (admire, 1)       3
- * (admired, 0)     12
- * (admired, 1)      7
- * ...
- * </pre>
- * 
- * <p>
- * The first field of the key tuple contains a token, the second field indicates
- * whether it was found on a even-length or odd-length line. The value is the
- * count of the tuple occurrences in the collection. In the MapReduce cycle,
- * output keys consist of tuples (Token, EvenOrOdd). The second field of the
- * tuple indicates whether the token was found on a line with an even or an odd
- * number of characters. Values consist of counts of tuple occurrences.
+ * Demo that illustrates use of {@link Tuple} objects as intermediate keys in a
+ * MapReduce job. Input comes from the Bible+Shakespeare sample collection,
+ * packed into a SequenceFile with {@link DemoPackTuples1}. Output shows the
+ * count of words on even- and odd-length lines.
  * </p>
  * 
  * <p>
- * Obviously, this isn't a particularly meaningful program, but does illustrate
- * the use of the {@link Tuple} class.
+ * Format of the output SequenceFile: The key is a Tuple. The first field of the
+ * tuple contains the term and the second field indicates whether the term was
+ * found on a even-length or odd-length line. The value is the count of the
+ * tuple occurrences in the collection.
  * </p>
+ * 
+ * @see DemoWordCountTuple2
+ * @see DemoWordCountJSON
  */
 public class DemoWordCountTuple1 {
 
@@ -145,12 +127,12 @@ public class DemoWordCountTuple1 {
 	 */
 	public static void main(String[] args) throws IOException {
 		String inputPath = "/shared/sample-input/bible+shakes.nopunc.tuple1.packed";
-		String outputPath = "word-counts-tuple";
+		String outputPath = "DemoWordCountTuple1";
 		int numMapTasks = 20;
 		int numReduceTasks = 20;
 
 		JobConf conf = new JobConf(DemoWordCountTuple1.class);
-		conf.setJobName("wordcount");
+		conf.setJobName("DemoWordCountTuple1");
 
 		conf.setNumMapTasks(numMapTasks);
 		conf.setNumReduceTasks(numReduceTasks);

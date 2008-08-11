@@ -36,15 +36,14 @@ import edu.umd.cloud9.io.Tuple;
 
 /**
  * <p>
- * Demo that packs the sample collection into records using the tuple library,
- * illustrating the use of the {@link edu.umd.cloud9.io.Tuple} and
- * {@link edu.umd.cloud9.io.ArrayListWritable} classes. The records are stored
- * in a local SequenceFile; this file can then be transfered over to HDFS to
- * serve as the starting point for a MapReduce operation.
+ * Demo that packs the sample collection into a SequenceFile as {@link Tuple}
+ * objects with complex internal structure. The records are stored in a local
+ * SequenceFile; this file can then be transfered over to HDFS to serve as the
+ * the input to {@link DemoWordCountTuple2}.
  * </p>
  * 
  * <p>
- * Each record is a tuple with two fields:
+ * Each value in the SequenceFile is a tuple with two fields:
  * </p>
  * 
  * <ul>
@@ -59,6 +58,7 @@ import edu.umd.cloud9.io.Tuple;
  * </ul>
  * 
  * @see DemoPackTuples1
+ * @see DemoPackJSON
  */
 public class DemoPackTuples2 {
 	private DemoPackTuples2() {
