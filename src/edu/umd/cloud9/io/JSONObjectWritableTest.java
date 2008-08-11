@@ -48,6 +48,24 @@ public class JSONObjectWritableTest {
 
 		assertEquals(obj2.toString(), s);
 	}
+	
+	@Test
+	public void testSerialize2() throws Exception {
+		JSONObjectWritable obj1 = new JSONObjectWritable();
+		obj1.put("JSON", "'tis");
+
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+		obj1.write(dataOut);
+
+		JSONObjectWritable obj2 = new JSONObjectWritable();
+		obj2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
+
+		String s = "{\"JSON\":\"'tis\"}";
+
+		assertEquals(obj2.toString(), s);
+	}
 
 	@Test
 	public void testSerialize() throws Exception {
@@ -94,11 +112,11 @@ public class JSONObjectWritableTest {
 		String s2 = "{\"JSON\":\"Hello!\"}";
 
 		JSONObjectWritable obj = new JSONObjectWritable();
-		obj.readFields(new DataInputStream(new ByteArrayInputStream(s1.getBytes())));
-
+		obj.readJSONObject(s1);
+		
 		assertEquals(obj.toString(), s1);
 
-		obj.readFields(new DataInputStream(new ByteArrayInputStream(s2.getBytes())));
+		obj.readJSONObject(s2);
 		assertEquals(obj.toString(), s2);
 
 	}

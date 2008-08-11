@@ -29,8 +29,21 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 	public void readFields(DataInput in) throws IOException {
 		super.map.clear();
 
-		String s = in.readLine();
+		int cnt = in.readInt();
+		byte[] buf = new byte[cnt];
+		in.readFully(buf);
+		String s = new String(buf);
 
+		readJSONObject(s);
+	}
+
+	/**
+	 * Deserializes a JSON object from a string representation.
+	 * 
+	 * @param s
+	 *            string representation of the JSON object
+	 */
+	public void readJSONObject(String s) {
 		// following block of code copied from JSONObject
 		try {
 			JSONTokener x = new JSONTokener(s);
@@ -87,7 +100,7 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 				}
 			}
 		} catch (JSONException e) {
-			throw new IOException("Error: invalid JSON!");
+			throw new RuntimeException("Error: invalid JSON!");
 		}
 	}
 
@@ -99,7 +112,9 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 	 */
 	@SuppressWarnings("unchecked")
 	public void write(DataOutput out) throws IOException {
-		out.writeBytes(this.toString());
+		byte[] buf = this.toString().getBytes();
+		out.writeInt(buf.length);
+		out.write(buf);
 	}
 
 	public boolean getBooleanUnchecked(String key) throws JSONException {
