@@ -44,10 +44,10 @@ import edu.umd.cloud9.io.Tuple;
  * field name "text", which consists of the raw text of the record.
  * </p>
  * 
- * @see DemoPackRecords2
+ * @see DemoPackTuples2
  */
-public class DemoPackRecords {
-	private DemoPackRecords() {
+public class DemoPackTuples1 {
+	private DemoPackTuples1() {
 	}
 
 	// define the tuple schema for the input record
@@ -64,7 +64,7 @@ public class DemoPackRecords {
 	 */
 	public static void main(String[] args) throws IOException {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
-		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed";
+		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.tuple1.packed";
 
 		Configuration conf = new JobConf();
 		FileSystem fs = FileSystem.get(conf);

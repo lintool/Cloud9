@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -57,10 +58,10 @@ import edu.umd.cloud9.io.Tuple;
  * 
  * </ul>
  * 
- * @see DemoPackRecords
+ * @see DemoPackTuples1
  */
-public class DemoPackRecords2 {
-	private DemoPackRecords2() {
+public class DemoPackTuples2 {
+	private DemoPackTuples2() {
 	}
 
 	// define the tuple schema for the input record
@@ -78,11 +79,12 @@ public class DemoPackRecords2 {
 	 */
 	public static void main(String[] args) throws IOException {
 		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
-		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.packed2";
+		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.tuple2.packed";
 
-		JobConf config = new JobConf();
-		SequenceFile.Writer writer = SequenceFile.createWriter(FileSystem.get(config), config,
-				new Path(outfile), LongWritable.class, Tuple.class);
+		Configuration conf = new JobConf();
+		FileSystem fs = FileSystem.get(conf);
+		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
+				LongWritable.class, Tuple.class);
 
 		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
