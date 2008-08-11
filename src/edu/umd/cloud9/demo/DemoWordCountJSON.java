@@ -52,7 +52,7 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * Format of the output SequenceFile: The key is a JSON object. The field named
  * "Token" contains a word and the field named "EvenOrOdd" indicates whether the
  * word was found on a even-length or odd-length line. The value is the count of
- * words on either even- and odd-length lines.
+ * the word on either even- or odd-length lines.
  * </p>
  * 
  * @see DemoWordCountTuple1
@@ -121,7 +121,7 @@ public class DemoWordCountJSON {
 
 			try {
 				// the input value is a JSON object
-				String line = (String) jsonIn.get("Text");
+				String line = (String) jsonIn.get("text");
 				StringTokenizer itr = new StringTokenizer(line);
 				while (itr.hasMoreTokens()) {
 					String token = itr.nextToken();

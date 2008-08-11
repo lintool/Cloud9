@@ -37,7 +37,7 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * The key in each record is a {@link LongWritable} indicating the record count
  * (sequential numbering). The value in each record is a
  * {@link JSONObjectWritable}, where the raw text is stored under the field
- * name "Text".
+ * name "text".
  * </p>
  * 
  * @see DemoPackTuples1
@@ -71,7 +71,7 @@ public class DemoPackJSON {
 		while ((line = data.readLine()) != null) {
 			// write the record
 			json.clear();
-			json.put("Text", line);
+			json.put("text", line);
 			l.set(cnt);
 			writer.append(l, json);
 
