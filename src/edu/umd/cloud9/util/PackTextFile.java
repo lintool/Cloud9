@@ -47,6 +47,8 @@ public class PackTextFile {
 
 		reader.close();
 		writer.close();
+		
+		System.out.println("Wrote a total of " + l + " records");
 	}
 
 }
