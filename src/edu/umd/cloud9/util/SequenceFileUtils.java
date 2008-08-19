@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,16 +27,14 @@ public class SequenceFileUtils {
 		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
 
 		try {
-			JobConf config = new JobConf();
-			WritableComparable key;
-			Writable value;
-			FileSystem fileSys = FileSystem.get(config);
 			int k = 0;
 
-			SequenceFile.Reader reader = new SequenceFile.Reader(fileSys, path, config);
+			Configuration config = new Configuration();
+			FileSystem fs = FileSystem.get(config);
+			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
 
-			key = (WritableComparable) reader.getKeyClass().newInstance();
-			value = (Writable) reader.getValueClass().newInstance();
+			WritableComparable key = (WritableComparable) reader.getKeyClass().newInstance();
+			Writable value = (Writable) reader.getValueClass().newInstance();
 
 			while (reader.next(key, value)) {
 				k++;

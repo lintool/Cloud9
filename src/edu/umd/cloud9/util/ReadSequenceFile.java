@@ -36,7 +36,7 @@ public class ReadSequenceFile {
 	}
 
 	private static int readSequenceFile(Path path, int max) throws IOException {
-		JobConf config = new JobConf();
+		Configuration config = new Configuration();
 		SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(config), path, config);
 
 		System.out.println("Reading " + path + "...\n");
