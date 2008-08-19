@@ -16,16 +16,14 @@ import org.apache.hadoop.mapred.JobConf;
 
 public class SequenceFileUtils {
 
-	public static List<KeyValuePair<? extends WritableComparable, ? extends Writable>> readFile(
-			String path, int max) {
+	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path, int max) {
 
 		return readFile(new Path(path), max);
 	}
 
-	public static List<KeyValuePair<? extends WritableComparable, ? extends Writable>> readFile(
-			Path path, int max) {
+	public static List<KeyValuePair<WritableComparable, Writable>> readFile(Path path, int max) {
 
-		List<KeyValuePair<? extends WritableComparable, ? extends Writable>> list = new ArrayList<KeyValuePair<? extends WritableComparable, ? extends Writable>>();
+		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
 
 		try {
 			JobConf config = new JobConf();
@@ -57,16 +55,15 @@ public class SequenceFileUtils {
 		return list;
 	}
 
-	public static List<KeyValuePair<? extends WritableComparable, ? extends Writable>> readDirectory(
-			String path, int max) {
+	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(String path,
+			int max) {
 
 		return readDirectory(new Path(path), max);
 	}
 
-	public static List<KeyValuePair<? extends WritableComparable, ? extends Writable>> readDirectory(
-			Path path, int max) {
+	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(Path path, int max) {
 
-		List<KeyValuePair<? extends WritableComparable, ? extends Writable>> list = new ArrayList<KeyValuePair<? extends WritableComparable, ? extends Writable>>();
+		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
 
 		JobConf config = new JobConf();
 		try {
@@ -75,10 +72,10 @@ public class SequenceFileUtils {
 			for (int i = 0; i < stat.length; ++i) {
 
 				// skip '_log' directory
-				if ( stat[i].getPath().getName().startsWith("_"))
+				if (stat[i].getPath().getName().startsWith("_"))
 					continue;
 
-				List<KeyValuePair<? extends WritableComparable, ? extends Writable>> pairs = readFile(
+				List<KeyValuePair<WritableComparable, Writable>> pairs = readFile(
 						stat[i].getPath(), max);
 
 				list.addAll(pairs);
@@ -88,15 +85,13 @@ public class SequenceFileUtils {
 			e.printStackTrace();
 		}
 
-		Collections.sort(list,
-				new Comparator<KeyValuePair<? extends WritableComparable, ? extends Writable>>() {
-					@SuppressWarnings("unchecked")
-					public int compare(
-							KeyValuePair<? extends WritableComparable, ? extends Writable> e1,
-							KeyValuePair<? extends WritableComparable, ? extends Writable> e2) {
-						return e1.getKey().compareTo(e2.getKey());
-					}
-				});
+		Collections.sort(list, new Comparator<KeyValuePair<WritableComparable, Writable>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(KeyValuePair<WritableComparable, Writable> e1,
+					KeyValuePair<WritableComparable, Writable> e2) {
+				return e1.getKey().compareTo(e2.getKey());
+			}
+		});
 
 		return list;
 	}
