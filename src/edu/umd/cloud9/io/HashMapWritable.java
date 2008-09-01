@@ -51,8 +51,6 @@ import org.apache.hadoop.io.Writable;
  * 
  * </ul>
  * 
- * <p>Benchmarks show that 
- * 
  * @param <K>
  *            type of the key
  * @param <V>
@@ -61,9 +59,6 @@ import org.apache.hadoop.io.Writable;
 public class HashMapWritable<K extends Writable, V extends Writable> extends HashMap<K, V>
 		implements Writable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -135,7 +130,7 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 			return;
 
 		// Write out the class names for keys and values
-		// assuming that data is homogeneuos (i.e., all entries have same types)
+		// assuming that data is homogeneous (i.e., all entries have same types)
 		Set<Map.Entry<K, V>> entries = entrySet();
 		Map.Entry<K, V> first = entries.iterator().next();
 		K objK = first.getKey();
