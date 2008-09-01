@@ -41,6 +41,9 @@ import org.apache.hadoop.mapred.JobConf;
  */
 public class PackTextFile {
 
+	private PackTextFile() {		
+	}
+	
 	public static void main(String[] args) throws IOException {
 
 		if (args.length < 2) {

@@ -40,6 +40,9 @@ import org.apache.hadoop.mapred.JobConf;
  */
 public class ReadSequenceFile {
 
+	private ReadSequenceFile() {
+	}
+	
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
 			System.out.println("args: [path] [max-num-of-records]");
