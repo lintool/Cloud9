@@ -21,7 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * <p>
- * An abstract class representing a generic Hadoop task. This class is provides
+ * An abstract class representing a generic Hadoop task. This class provides
  * a way to package together one or more MapReduce job in a common
  * parameter-passing interface. The standard way to invoke a HadoopTask is:
  * </p>
@@ -115,7 +115,7 @@ public abstract class HadoopTask implements Configurable {
 	}
 
 	/**
-	 * Called by <code>run()</code> after verifying that required parameters a
+	 * Called by <code>run()</code> after verifying that required parameters are
 	 * present. This is an abstract method that must be implemented by the
 	 * concrete class.
 	 * 

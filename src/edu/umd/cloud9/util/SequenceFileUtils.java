@@ -36,6 +36,36 @@ import org.apache.hadoop.mapred.JobConf;
  */
 public class SequenceFileUtils {
 
+//<<<<<<< .mine
+	public static void readDirectory(String inPath) {
+		readDirectory(inPath, Integer.MAX_VALUE);
+	}
+	/*public static void readDirectory(String inPath, int max) {
+		try {
+			JobConf config = new JobConf();
+			Writable key, value;
+			FileSystem fileSys = FileSystem.get(config);
+			Path p = new Path(inPath);
+			Path[] files = fileSys.listPaths(p);
+			int k = 0;
+
+			for (int i = 0; i < files.length; i++) {
+				SequenceFile.Reader reader = new SequenceFile.Reader(fileSys, files[i], config);
+				System.out.println("reading " + files[i]);
+
+				key = (Writable) reader.getKeyClass().newInstance();
+				value = (Writable) reader.getValueClass().newInstance();
+
+				while (reader.next(key, value)) {
+					System.out.println(key + " -> " + value);
+					k++;
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}*/
+//=======
 	private SequenceFileUtils() {
 	}
 	
@@ -49,6 +79,7 @@ public class SequenceFileUtils {
 	 * @return list of key-value pairs
 	 */
 	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path, int max) {
+//>>>>>>> .r226
 
 		return readFile(new Path(path), max);
 	}
