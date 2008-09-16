@@ -36,6 +36,10 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 
 			for (int i = 0; i < terms.length; i++) {
 				String term = terms[i];
+				
+				// skip empty tokens
+				if ( term.length() == 0)
+					continue;
 
 				VectorInt<Text> map = new VectorInt<Text>();
 
@@ -46,6 +50,10 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 					if (j >= terms.length)
 						break;
 
+					// skip empty tokens
+					if (terms[j].length() == 0)
+						continue;
+					
 					Text t = new Text(terms[j]);
 					if (map.containsKey(t)) {
 						map.put(t, map.get(t) + 1);

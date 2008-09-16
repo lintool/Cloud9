@@ -42,12 +42,20 @@ public class ComputeCooccurrenceMatrixPairs extends HadoopTask {
 			for (int i = 0; i < terms.length; i++) {
 				String term = terms[i];
 
+				// skip empty tokens
+				if (term.length() == 0)
+					continue;
+
 				for (int j = i - mWindow; j < i + mWindow + 1; j++) {
 					if (j == i || j < 0)
 						continue;
 
 					if (j >= terms.length)
 						break;
+
+					// skip empty tokens
+					if (terms[j].length() == 0)
+						continue;
 
 					pair.set(term, terms[j]);
 					output.collect(pair, one);
