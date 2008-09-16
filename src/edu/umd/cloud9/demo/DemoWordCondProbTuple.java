@@ -199,6 +199,7 @@ public class DemoWordCondProbTuple {
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileOutputFormat.setCompressOutput(conf, false);
 
 		conf.setOutputKeyClass(Tuple.class);
 		conf.setOutputValueClass(FloatWritable.class);

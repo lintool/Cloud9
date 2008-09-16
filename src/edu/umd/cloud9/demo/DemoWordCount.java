@@ -115,7 +115,8 @@ public class DemoWordCount {
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-
+		FileOutputFormat.setCompressOutput(conf, false);
+		
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
 

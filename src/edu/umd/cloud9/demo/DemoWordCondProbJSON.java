@@ -233,6 +233,7 @@ public class DemoWordCondProbJSON {
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileOutputFormat.setCompressOutput(conf, false);
 
 		conf.setOutputKeyClass(MyTuple.class);
 		conf.setOutputValueClass(FloatWritable.class);

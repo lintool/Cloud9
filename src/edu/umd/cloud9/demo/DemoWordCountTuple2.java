@@ -133,6 +133,7 @@ public class DemoWordCountTuple2 {
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileOutputFormat.setCompressOutput(conf, false);
 
 		conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(Tuple.class);
