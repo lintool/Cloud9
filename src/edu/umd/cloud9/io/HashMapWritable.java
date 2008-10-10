@@ -51,6 +51,10 @@ import org.apache.hadoop.io.Writable;
  * 
  * </ul>
  * 
+ * <p>
+ * For a comparison of efficiency, see {@link BenchmarkHashMapWritable}.
+ * </p>
+ * 
  * @param <K>
  *            type of the key
  * @param <V>
