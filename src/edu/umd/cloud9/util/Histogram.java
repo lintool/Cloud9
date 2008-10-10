@@ -16,31 +16,55 @@
 
 package edu.umd.cloud9.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
+ * <p>
  * A class for keeping track of the number of times an object has been
  * encountered. This is useful for counting things in a stream, e.g., POS tags,
- * terms, etc.
+ * terms, etc. This object extends {@link Scorekeeper}.
+ * </p>
+ * 
+ * <p>
+ * Example usage:
+ * </p>
+ * 
+ * <pre>
+ * Histogram&lt;String&gt; h = new Histogram&lt;String&gt;();
+ * String[] terms = myString.split(&quot;\\s+&quot;);
+ * 
+ * for (String term : terms) {
+ * 	h.count(term);
+ * }
+ * 
+ * for (Map.Entry&lt;String, Integer&gt; e : h.entrySet()) {
+ * 	// do something with e.getKey()
+ * 	// do something with e.getValue()
+ * }
+ * </pre>
+ * 
+ * @param <T>
+ *            type of object
  */
-public class Histogram<T extends Comparable<T>> {
+public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> {
 
-	// internal representation---although the scores are doubles, counts are
-	// obviously integers
-	private Scorekeeper<T, Integer> mMap;
-	
+	private static final long serialVersionUID = 9190462865L;
+
 	private int mTotalCount = 0;
 
 	/**
-	 * Constructs an <code>InstanceCounter</code>.
+	 * Constructs an <code>Histogram</code>.
 	 */
 	public Histogram() {
-		mMap = new Scorekeeper<T, Integer>();
+		super();
+	}
+
+	/**
+	 * Resets this histogram, purging all observations and counts.
+	 */
+	public void clear() {
+		this.clear();
+		mTotalCount = 0;
 	}
 
 	/**
@@ -50,36 +74,27 @@ public class Histogram<T extends Comparable<T>> {
 	 *            the instance observed
 	 */
 	public void count(T instance) {
-		if (mMap.containsKey(instance)) {
-			mMap.put(instance, mMap.get(instance) + 1);
+		if (this.containsKey(instance)) {
+			this.put(instance, this.get(instance) + 1);
 		} else {
-			mMap.put(instance, 1);
+			this.put(instance, 1);
 		}
 		mTotalCount++;
 	}
 
 	/**
-	 * Prints each instance and how many times its been observed, sorted by the
-	 * counts.
+	 * Returns the number of times a particular instance has been observed.
+	 * 
+	 * @param inst
+	 *            the instance
+	 * @return the count of the instance
 	 */
-	public void printCounts() {
-		for (Map.Entry<T, Integer> map : mMap.getSortedEntries()) {
-			System.out.println(map.getValue().intValue() + "\t" + map.getKey());
-		}
-	}
-
-	/**
-	 * Returns a list of <code>InstanceCount</code> objects, sorted by count.
-	 */
-	public List<InstanceCount> getCounts() {
-		List<InstanceCount> l = new ArrayList<InstanceCount>();
-
-		for (Map.Entry<T, Integer> map : mMap.getSortedEntries()) {
-			l.add(new InstanceCount(map.getKey(), map.getValue().intValue(),
-					map.getValue() / (double) mTotalCount));
+	public int getCount(T inst) {
+		if (this.containsKey(inst)) {
+			return this.get(inst).intValue();
 		}
 
-		return Collections.unmodifiableList(l);
+		return 0;
 	}
 
 	/**
@@ -92,78 +107,13 @@ public class Histogram<T extends Comparable<T>> {
 	}
 
 	/**
-	 * Returns the number of times a particular instance has been observed.
-	 * 
-	 * @param inst
-	 *            the instance
-	 * @return the count of the instance
+	 * Prints each instance and how many times its been observed, sorted by the
+	 * counts.
 	 */
-	public int getCount(T inst) {
-		if (mMap.containsKey(inst)) {
-			return mMap.get(inst).intValue();
+	public void printCounts() {
+		for (Map.Entry<T, Integer> map : this.getSortedEntries()) {
+			System.out.println(map.getValue().intValue() + "\t" + map.getKey());
 		}
-
-		return 0;
-	}
-
-	/**
-	 * Returns a collection of all objects observed, sorted by their natural
-	 * order.
-	 * 
-	 * @return a collection of all objects observed, sorted by their natural
-	 *         order.
-	 */
-	public SortedSet<T> getObservedObjects() {
-		SortedSet<T> t = new TreeSet<T>();
-
-		for (T obj : mMap.keySet()) {
-			t.add(obj);
-		}
-
-		return t;
-	}
-
-	/**
-	 * A class that holds an instance, its count, and its frequency.
-	 */
-	public class InstanceCount {
-		private T mInstance;
-
-		private int mCount;
-
-		private double mFreq;
-
-		private InstanceCount(T instance, int cnt, double freq) {
-			mInstance = instance;
-			mCount = cnt;
-			mFreq = freq;
-		}
-
-		/**
-		 * Returns the instance.
-		 */
-		public T getInstance() {
-			return mInstance;
-		}
-
-		/**
-		 * Returns the number of times the instance has been observed.
-		 */
-		public int getCount() {
-			return mCount;
-		}
-
-		/**
-		 * Returns the frequency that this instance has been observed. Frequency
-		 * is the count divided by the total number of observed instances.
-		 */
-		public double getFrequency() {
-			return mFreq;
-		}
-	}
-
-	public void clear() {
-		mMap.clear();
 	}
 
 }
