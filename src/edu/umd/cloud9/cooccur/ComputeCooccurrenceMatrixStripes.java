@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.cooccur;
 
 import java.io.IOException;
@@ -21,11 +37,22 @@ import org.apache.hadoop.mapred.Reporter;
 import edu.umd.cloud9.io.VectorInt;
 import edu.umd.cloud9.util.HadoopTask;
 
+/**
+ * <p>
+ * Implementation of the "stripes" algorithm for computing co-occurrence
+ * matrices from corpora. Algorithm is described in:
+ * </p>
+ * 
+ * <blockquote>Jimmy Lin. <b>Scalable Language Processing Algorithms for the
+ * Masses: A Case Study in Computing Word Co-occurrence Matrices with MapReduce.</b>
+ * <i>Proceedings of the 2008 Conference on Empirical Methods in Natural
+ * Language Processing (EMNLP 2008).</i></blockquote>
+ */
 public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 
 	private static int mWindow = 2;
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, Text, VectorInt<Text>> {
 
 		public void map(LongWritable key, Text line, OutputCollector<Text, VectorInt<Text>> output,
@@ -36,9 +63,9 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 
 			for (int i = 0; i < terms.length; i++) {
 				String term = terms[i];
-				
+
 				// skip empty tokens
-				if ( term.length() == 0)
+				if (term.length() == 0)
 					continue;
 
 				VectorInt<Text> map = new VectorInt<Text>();
@@ -53,7 +80,7 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 					// skip empty tokens
 					if (terms[j].length() == 0)
 						continue;
-					
+
 					Text t = new Text(terms[j]);
 					if (map.containsKey(t)) {
 						map.put(t, map.get(t) + 1);
