@@ -63,7 +63,7 @@ public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> 
 	 * Resets this histogram, purging all observations and counts.
 	 */
 	public void clear() {
-		this.clear();
+		super.clear();
 		mTotalCount = 0;
 	}
 
