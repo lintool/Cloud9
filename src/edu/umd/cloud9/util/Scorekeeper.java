@@ -49,7 +49,8 @@ public class Scorekeeper<K extends Comparable<K>, V extends Number & Comparable<
 	}
 
 	/**
-	 * Returns the all entries sorted by scores.
+	 * Returns the all entries sorted by scores. Score ties are broken by the
+	 * sort order of the key.
 	 * 
 	 * @return a sorted set view of the entries sorted by scores
 	 */
@@ -59,7 +60,7 @@ public class Scorekeeper<K extends Comparable<K>, V extends Number & Comparable<
 					public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 
 						if (e2.getValue().compareTo(e1.getValue()) == 0) {
-							return e2.getKey().compareTo(e1.getKey());
+							return e1.getKey().compareTo(e2.getKey());
 						}
 
 						return e2.getValue().compareTo(e1.getValue());
@@ -74,7 +75,8 @@ public class Scorekeeper<K extends Comparable<K>, V extends Number & Comparable<
 	}
 
 	/**
-	 * Returns the <i>n</i> top entries sorted by scores.
+	 * Returns the <i>n</i> top entries sorted by scores. Score ties are broken
+	 * by the sort order of the key.
 	 * 
 	 * @param n
 	 *            number of entries to retrieve
@@ -86,7 +88,7 @@ public class Scorekeeper<K extends Comparable<K>, V extends Number & Comparable<
 					public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 
 						if (e2.getValue().compareTo(e1.getValue()) == 0) {
-							return e2.getKey().compareTo(e1.getKey());
+							return e1.getKey().compareTo(e2.getKey());
 						}
 
 						return e2.getValue().compareTo(e1.getValue());
