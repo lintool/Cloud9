@@ -9,6 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+/**
+ * Writable representing a JSON Object.
+ */
 public class JSONObjectWritable extends JSONObject implements Writable {
 
 	public JSONObjectWritable() {

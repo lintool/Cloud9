@@ -25,11 +25,9 @@ import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
- * Serializable object that represents a pair of integers. The elements in the
- * pair are referred to as the left and right elements. This class implements
- * {@link WritableComparable}, and hence can be used as keys to MapReduce jobs.
- * The natural sort order is first by the left element, and then by the right
- * element.
+ * WritableComparable representing a pair of integers. The elements in the pair
+ * are referred to as the left and right elements. The natural sort order is:
+ * first by the left element, and then by the right element.
  * </p>
  */
 public class PairOfInts implements WritableComparable {
@@ -55,7 +53,7 @@ public class PairOfInts implements WritableComparable {
 	}
 
 	/**
-	 * Deserializes the Tuple.
+	 * Deserializes this pair.
 	 * 
 	 * @param in
 	 *            source for raw byte representation
@@ -166,15 +164,28 @@ public class PairOfInts implements WritableComparable {
 		return "(" + leftElement + ", " + rightElement + ")";
 	}
 
+	/**
+	 * Clones this object.
+	 * 
+	 * @return clone of this object
+	 */
 	public PairOfInts clone() {
 		return new PairOfInts(this.leftElement, this.rightElement);
 	}
 
+	/** Comparator optimized for PairOfInts. */
 	public static class Comparator extends WritableComparator {
+
+		/**
+		 * Creates a new Comparator optimized for PairOfInts.
+		 */
 		public Comparator() {
 			super(PairOfInts.class);
 		}
 
+		/**
+		 * Optimization hook.
+		 */
 		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
 			int thisLeftValue = readInt(b1, s1);
 			int thatLeftValue = readInt(b2, s2);
