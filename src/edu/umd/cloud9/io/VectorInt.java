@@ -18,7 +18,7 @@ import org.apache.hadoop.io.WritableComparable;
  * <p>
  * Writable representing a vector of integer values. This generic class, based
  * on the Java {@link HashMap}, supports the use of any class for the features
- * (i.e., component of the vector), but all values are floats.
+ * (i.e., component of the vector), but all values are integers.
  * </p>
  * 
  * @param <F>

@@ -14,10 +14,16 @@ import org.json.JSONTokener;
  */
 public class JSONObjectWritable extends JSONObject implements Writable {
 
+	/**
+	 * Creates an empty JSONWritableObject.
+	 */
 	public JSONObjectWritable() {
 		super();
 	}
 
+	/**
+	 * Creates a JSONWritableObject with an initial value.
+	 */
 	public JSONObjectWritable(String s) throws JSONException {
 		super(s);
 	}
