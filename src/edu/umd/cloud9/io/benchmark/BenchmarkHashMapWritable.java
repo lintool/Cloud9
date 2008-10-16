@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.io;
+package edu.umd.cloud9.io.benchmark;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +24,8 @@ import java.util.Random;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
+
+import edu.umd.cloud9.io.HashMapWritable;
 
 /**
  * <p>

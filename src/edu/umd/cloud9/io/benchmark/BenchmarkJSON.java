@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.io;
+package edu.umd.cloud9.io.benchmark;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +23,8 @@ import java.util.Random;
 
 import org.apache.hadoop.io.WritableComparable;
 import org.json.JSONException;
+
+import edu.umd.cloud9.io.JSONObjectWritable;
 
 /**
  * Benchmark for {@link JSONObjectWritable}. See {@link BenchmarkPairOfInts}

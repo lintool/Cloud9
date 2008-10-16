@@ -14,12 +14,14 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.io;
+package edu.umd.cloud9.io.benchmark;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import edu.umd.cloud9.io.PairOfInts;
 
 /**
  * <p>

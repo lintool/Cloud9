@@ -26,6 +26,8 @@ import java.util.Set;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 
+import edu.umd.cloud9.io.benchmark.BenchmarkHashMapWritable;
+
 /**
  * <p>
  * Serializable extension of a Java {@link HashMap}. This generic class
