@@ -16,9 +16,12 @@
 
 package edu.umd.cloud9.io;
 
+/**
+ * Exception for Tuple-related errors.
+ */
 public class SchemaException extends RuntimeException {
 	public static final long serialVersionUID = 2673497691l;
-	
+
 	public SchemaException(String message) {
 		super(message);
 	}

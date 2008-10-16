@@ -17,7 +17,7 @@
 package edu.umd.cloud9.io;
 
 /**
- * Exception for all Tuple-related errors.
+ * Exception for Tuple-related errors.
  */
 public class TupleException extends RuntimeException {
 	public static final long serialVersionUID = 640927654842l;
