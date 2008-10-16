@@ -36,39 +36,17 @@ import org.apache.hadoop.mapred.JobConf;
  */
 public class SequenceFileUtils {
 
-//<<<<<<< .mine
-	public static void readDirectory(String inPath) {
-		readDirectory(inPath, Integer.MAX_VALUE);
-	}
-	/*public static void readDirectory(String inPath, int max) {
-		try {
-			JobConf config = new JobConf();
-			Writable key, value;
-			FileSystem fileSys = FileSystem.get(config);
-			Path p = new Path(inPath);
-			Path[] files = fileSys.listPaths(p);
-			int k = 0;
-
-			for (int i = 0; i < files.length; i++) {
-				SequenceFile.Reader reader = new SequenceFile.Reader(fileSys, files[i], config);
-				System.out.println("reading " + files[i]);
-
-				key = (Writable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
-
-				while (reader.next(key, value)) {
-					System.out.println(key + " -> " + value);
-					k++;
-				}
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}*/
-//=======
 	private SequenceFileUtils() {
 	}
-	
+
+	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path) {
+		return readFile(new Path(path), Integer.MAX_VALUE);
+	}
+
+	public static List<KeyValuePair<WritableComparable, Writable>> readFile(Path path) {
+		return readFile(path, Integer.MAX_VALUE);
+	}
+
 	/**
 	 * Reads key-value pairs from a SequenceFile, up to a maximum number.
 	 * 
@@ -79,8 +57,6 @@ public class SequenceFileUtils {
 	 * @return list of key-value pairs
 	 */
 	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path, int max) {
-//>>>>>>> .r226
-
 		return readFile(new Path(path), max);
 	}
 
@@ -122,7 +98,23 @@ public class SequenceFileUtils {
 			e.printStackTrace();
 		}
 
+		Collections.sort(list, new Comparator<KeyValuePair<WritableComparable, Writable>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(KeyValuePair<WritableComparable, Writable> e1,
+					KeyValuePair<WritableComparable, Writable> e2) {
+				return e1.getKey().compareTo(e2.getKey());
+			}
+		});
+
 		return list;
+	}
+
+	public static void readDirectory(String path) {
+		readDirectory(path, Integer.MAX_VALUE);
+	}
+
+	public static void readDirectory(Path path) {
+		readDirectory(path, Integer.MAX_VALUE);
 	}
 
 	/**
