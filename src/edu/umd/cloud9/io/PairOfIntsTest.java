@@ -31,6 +31,8 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.WritableComparator;
 import org.junit.Test;
 
+import edu.umd.cloud9.debug.WritableComparatorTest;
+
 public class PairOfIntsTest {
 
 	@Test
@@ -97,52 +99,24 @@ public class PairOfIntsTest {
 		PairOfInts pair1 = new PairOfInts();
 		pair1.set(1, 2);
 
-		ByteArrayOutputStream bytesOut1 = new ByteArrayOutputStream();
-		DataOutputStream dataOut1 = new DataOutputStream(bytesOut1);
-		pair1.write(dataOut1);
-		byte[] bytes1 = bytesOut1.toByteArray();
-
 		PairOfInts pair2 = new PairOfInts();
 		pair2.set(1, 2);
-
-		ByteArrayOutputStream bytesOut2 = new ByteArrayOutputStream();
-		DataOutputStream dataOut2 = new DataOutputStream(bytesOut2);
-		pair2.write(dataOut2);
-		byte[] bytes2 = bytesOut2.toByteArray();
 
 		PairOfInts pair3 = new PairOfInts();
 		pair3.set(1, 1);
 
-		ByteArrayOutputStream bytesOut3 = new ByteArrayOutputStream();
-		DataOutputStream dataOut3 = new DataOutputStream(bytesOut3);
-		pair3.write(dataOut3);
-		byte[] bytes3 = bytesOut3.toByteArray();
-
 		PairOfInts pair4 = new PairOfInts();
 		pair4.set(0, 9);
-
-		ByteArrayOutputStream bytesOut4 = new ByteArrayOutputStream();
-		DataOutputStream dataOut4 = new DataOutputStream(bytesOut4);
-		pair4.write(dataOut4);
-		byte[] bytes4 = bytesOut4.toByteArray();
 
 		PairOfInts pair5 = new PairOfInts();
 		pair5.set(9, 0);
 
-		ByteArrayOutputStream bytesOut5 = new ByteArrayOutputStream();
-		DataOutputStream dataOut5 = new DataOutputStream(bytesOut5);
-		pair5.write(dataOut5);
-		byte[] bytes5 = bytesOut5.toByteArray();
-
-		assertTrue(pair1.equals(pair2));
-		assertFalse(pair1.equals(pair3));
-
-		assertTrue(comparator.compare(bytes1, 0, bytes1.length, bytes2, 0, bytes2.length) == 0);
-		assertTrue(comparator.compare(bytes1, 0, bytes1.length, bytes3, 0, bytes3.length) > 0);
-		assertTrue(comparator.compare(bytes1, 0, bytes1.length, bytes4, 0, bytes4.length) > 0);
-		assertTrue(comparator.compare(bytes1, 0, bytes1.length, bytes5, 0, bytes5.length) < 0);
-		assertTrue(comparator.compare(bytes3, 0, bytes3.length, bytes4, 0, bytes4.length) > 0);
-		assertTrue(comparator.compare(bytes4, 0, bytes4.length, bytes5, 0, bytes5.length) < 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair2) == 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair3) > 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair4) > 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair5) < 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair3, pair4) > 0);
+		assertTrue(WritableComparatorTest.compare(comparator, pair4, pair5) < 0);
 	}
 
 	public static junit.framework.Test suite() {
