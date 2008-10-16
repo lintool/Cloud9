@@ -16,9 +16,9 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Serializable object representing a vector of float values. This generic
- * class, based on the Java {@link HashMap}, supports the use of any class for
- * the features (i.e., component of the vector), but all values are floats.
+ * Writable representing a vector of float values. This generic class, based on
+ * the Java {@link HashMap}, supports the use of any class for the features
+ * (i.e., component of the vector), but all values are floats.
  * </p>
  * 
  * @param <F>
