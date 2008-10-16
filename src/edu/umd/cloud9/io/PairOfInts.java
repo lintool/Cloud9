@@ -21,6 +21,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
@@ -164,9 +165,34 @@ public class PairOfInts implements WritableComparable {
 	public String toString() {
 		return "(" + leftElement + ", " + rightElement + ")";
 	}
-	
+
 	public PairOfInts clone() {
 		return new PairOfInts(this.leftElement, this.rightElement);
 	}
 
+	public static class Comparator extends WritableComparator {
+		public Comparator() {
+			super(PairOfInts.class);
+		}
+
+		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+			int thisLeftValue = readInt(b1, s1);
+			int thatLeftValue = readInt(b2, s2);
+
+			if (thisLeftValue == thatLeftValue) {
+				int thisRightValue = readInt(b1, s1 + 4);
+				int thatRightValue = readInt(b2, s2 + 4);
+
+				return (thisRightValue < thatRightValue ? -1
+						: (thisRightValue == thatRightValue ? 0 : 1));
+
+			}
+
+			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));
+		}
+	}
+
+	static { // register this comparator
+		WritableComparator.define(PairOfInts.class, new Comparator());
+	}
 }
