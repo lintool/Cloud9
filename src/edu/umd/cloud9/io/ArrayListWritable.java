@@ -24,10 +24,10 @@ import org.apache.hadoop.io.Writable;
 
 /**
  * <p>
- * Serializable extension of a Java {@link ArrayList}. Elements in the list
- * must be homogeneous and must implement Hadoop's Writable interface. This
- * class, combined with {@link Tuple}, allows the user to define arbitrarily
- * complex data structures.
+ * Writable extension of a Java ArrayList. Elements in the list must be
+ * homogeneous and must implement Hadoop's Writable interface. This class,
+ * combined with {@link Tuple}, allows the user to define arbitrarily complex
+ * data structures.
  * </p>
  * 
  * @see Tuple

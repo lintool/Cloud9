@@ -30,10 +30,9 @@ import edu.umd.cloud9.io.benchmark.BenchmarkHashMapWritable;
 
 /**
  * <p>
- * Serializable extension of a Java {@link HashMap}. This generic class
- * supports the use of any type as either key or value. For a feature vector,
- * use either {@link VectorInt} or {@link VectorFloat} for a more efficient
- * implementation.
+ * Writable extension of a Java HashMap. This generic class supports the use of
+ * any type as either key or value. For a feature vector, use either
+ * {@link VectorInt} or {@link VectorFloat} for a more efficient implementation.
  * </p>
  * 
  * <p>

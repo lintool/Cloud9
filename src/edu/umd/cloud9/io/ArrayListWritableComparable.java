@@ -24,10 +24,10 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * Serializable extension of a Java {@link ArrayList} that defines a natural
- * sort order. Elements in the list must be homogeneous and must implement
- * Hadoop's Writable interface. This class, combined with {@link Tuple}, allows
- * the user to define arbitrarily complex data structures.
+ * WritableComparable extension of a Java ArrayList. Elements in the list must
+ * be homogeneous and must implement Hadoop's WritableComparable interface. This
+ * class, combined with {@link Tuple}, allows the user to define arbitrarily
+ * complex data structures.
  * </p>
  * 
  * @see Tuple
@@ -41,7 +41,7 @@ public class ArrayListWritableComparable<E extends WritableComparable> extends A
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates an ArrayListWritable object.
+	 * Creates an ArrayListWritableComparable object.
 	 */
 	public ArrayListWritableComparable() {
 		super();
