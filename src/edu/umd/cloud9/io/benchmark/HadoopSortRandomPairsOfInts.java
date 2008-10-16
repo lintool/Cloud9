@@ -16,8 +16,96 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 import edu.umd.cloud9.io.PairOfInts;
 
+/**
+ * <p>
+ * Benchmark for comparing Hadoop sorting with and without the
+ * WritableComparator optimization. Task is sorting the one million PairOfInts
+ * created by {@link GenerateRandomPairsOfInts}.
+ * </p>
+ * 
+ * <p>
+ * Comparison of sort speed with and without WritableComparator optimization, on
+ * Hadoop 0.17.2 in local mode, Java 1.5, MacBookPro (2.6 GHz, 2GB RAM) running
+ * Windows XP/Cygwin. Benchmark conducted 10/16/2008. Running times reported in
+ * seconds.
+ * </p>
+ * 
+ * <table border="1" cellpadding="5">
+ * <tr>
+ * <td><b>Trial</b></td>
+ * <td><b>Without Optimization</b></td>
+ * <td><b>With Optimization</b></td>
+ * </tr>
+ * <tr>
+ * <td>1</td>
+ * <td>36.406</td>
+ * <td>21.344</td>
+ * </tr>
+ * <tr>
+ * <td>2</td>
+ * <td>35.562</td>
+ * <td>21.407</td>
+ * </tr>
+ * <tr>
+ * <td>3</td>
+ * <td>36.532</td>
+ * <td>22.453</td>
+ * </tr>
+ * <tr>
+ * <td>4</td>
+ * <td>36.39</td>
+ * <td>22.484</td>
+ * </tr>
+ * <tr>
+ * <td>5</td>
+ * <td>36.453</td>
+ * <td>21.375</td>
+ * </tr>
+ * <tr>
+ * <td>6</td>
+ * <td>35.5</td>
+ * <td>22.484</td>
+ * </tr>
+ * <tr>
+ * <td>7</td>
+ * <td>36.391</td>
+ * <td>22.562</td>
+ * </tr>
+ * <tr>
+ * <td>8</td>
+ * <td>36.323</td>
+ * <td>22.484</td>
+ * </tr>
+ * <tr>
+ * <td>9</td>
+ * <td>35.906</td>
+ * <td>22.422</td>
+ * </tr>
+ * <tr>
+ * <td>10</td>
+ * <td>36.453</td>
+ * <td>22.344</td>
+ * </tr>
+ * <tr>
+ * <td><b>mean</b></td>
+ * <td>36.19 [35.95, 36.43]</td>
+ * <td>22.14 [21.81, 22.46]</td>
+ * </tr>
+ * </table>
+ * 
+ * <p>
+ * Numbers in square brackets denote 95% confidence intervals.
+ * </p>
+ * 
+ */
 public class HadoopSortRandomPairsOfInts {
 
+	private HadoopSortRandomPairsOfInts() {
+	}
+
+	/**
+	 * Runs this benchmark.
+	 */
 	public static void main(String[] args) throws IOException {
 		String inputPath = "random-pairs.seq";
 		String outputPath = "random-pairs.sorted";

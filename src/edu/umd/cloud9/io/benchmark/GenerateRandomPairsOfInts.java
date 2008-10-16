@@ -10,8 +10,18 @@ import org.apache.hadoop.io.SequenceFile;
 
 import edu.umd.cloud9.io.PairOfInts;
 
+/**
+ * Generates one million random PairOfInts. Each is populated with two
+ * randomly-generated integers between 0 and 1000.
+ */
 public class GenerateRandomPairsOfInts {
 
+	private GenerateRandomPairsOfInts() {
+	}
+
+	/**
+	 * Runs this program.
+	 */
 	public static void main(String[] args) throws Exception {
 		Random r = new Random();
 

@@ -29,8 +29,8 @@ import edu.umd.cloud9.io.HashMapWritable;
 
 /**
  * <p>
- * Benchmark comparing <code>HashMapWritable</code> to Hadoop's native
- * <code>MapWritable</code>. Sample output:
+ * Benchmark comparing HashMapWritable to Hadoop's native MapWritable. Sample
+ * output:
  * </p>
  * 
  * <pre>

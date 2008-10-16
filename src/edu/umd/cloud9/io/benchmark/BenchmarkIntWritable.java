@@ -9,6 +9,22 @@ import org.apache.hadoop.io.IntWritable;
 
 import edu.umd.cloud9.io.Int3Writable;
 
+/**
+ * <p>
+ * Benchmark comparing IntWritable to Int3Writable. Sample output:
+ * </p>
+ * 
+ * <pre>
+ * Generated 2m Int3Writables in 0.531 seconds
+ * Cloned 2m Int3Writables in 0.547 seconds
+ * Sorted 2m Int3Writables in 1.734 seconds
+ *  
+ * Generated 2m IntWritables in 0.672 seconds
+ * Cloned 2m IntWritables in 0.61 seconds
+ * Sorted 2m IntWritables in 2.187 seconds
+ * </pre>
+ * 
+ */
 public class BenchmarkIntWritable {
 
 	private BenchmarkIntWritable() {
