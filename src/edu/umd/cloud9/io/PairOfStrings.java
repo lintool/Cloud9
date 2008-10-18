@@ -123,7 +123,7 @@ public class PairOfStrings implements WritableComparable {
 	 * left element, and then by the right element.
 	 * 
 	 * @return a value less than zero, a value greater than zero, or zero if
-	 *         this Tuple should be sorted before, sorted after, or is equal to
+	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
 	public int compareTo(Object obj) {
