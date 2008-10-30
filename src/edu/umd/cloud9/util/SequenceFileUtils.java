@@ -109,12 +109,12 @@ public class SequenceFileUtils {
 		return list;
 	}
 
-	public static void readDirectory(String path) {
-		readDirectory(path, Integer.MAX_VALUE);
+	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(String path) {
+		return readDirectory(path, Integer.MAX_VALUE);
 	}
 
-	public static void readDirectory(Path path) {
-		readDirectory(path, Integer.MAX_VALUE);
+	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(Path path) {
+		return readDirectory(path, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -129,7 +129,6 @@ public class SequenceFileUtils {
 	 */
 	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(String path,
 			int max) {
-
 		return readDirectory(new Path(path), max);
 	}
 
@@ -144,12 +143,10 @@ public class SequenceFileUtils {
 	 * @return list of key-value pairs
 	 */
 	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(Path path, int max) {
-
 		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
 
-		JobConf config = new JobConf();
 		try {
-			FileSystem fileSys = FileSystem.get(config);
+			FileSystem fileSys = FileSystem.get(new Configuration());
 			FileStatus[] stat = fileSys.listStatus(path);
 			for (int i = 0; i < stat.length; ++i) {
 
@@ -157,6 +154,7 @@ public class SequenceFileUtils {
 				if (stat[i].getPath().getName().startsWith("_"))
 					continue;
 
+				System.out.println("Reading " + stat[i].getPath().getName() + "...");
 				List<KeyValuePair<WritableComparable, Writable>> pairs = readFile(
 						stat[i].getPath(), max);
 
