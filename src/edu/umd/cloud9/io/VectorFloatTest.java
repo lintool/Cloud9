@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -195,6 +197,66 @@ public class VectorFloatTest {
 		assertEquals(v2.get(new Text("there")), 0.64150536, 10E-6);
 		assertEquals(v2.get(new Text("test")), 0.7459364, 10E-6);
 		assertEquals(v2.length(), 1, 10E-6);
+	}
+
+	@Test
+	public void testSortedEntries1() {
+
+		VectorFloat<Text> v = new VectorFloat<Text>();
+
+		v.set(new Text("a"), 5.0f);
+		v.set(new Text("b"), 2.0f);
+		v.set(new Text("c"), 3.0f);
+		v.set(new Text("d"), 3.0f);
+		v.set(new Text("e"), 1.0f);
+
+		Iterator<Map.Entry<Text, Float>> iter = v.getSortedEntries().iterator();
+
+		Map.Entry<Text, Float> m = iter.next();
+		assertEquals(new Text("a"), m.getKey());
+		assertEquals(5.0f, (float) m.getValue(), 10E-6);
+
+		m = iter.next();
+		assertEquals(new Text("c"), m.getKey());
+		assertEquals(3.0f, (float) m.getValue(), 10E-6);
+
+		m = iter.next();
+		assertEquals(new Text("d"), m.getKey());
+		assertEquals(3.0f, (float) m.getValue(), 10E-6);
+
+		m = iter.next();
+		assertEquals(new Text("b"), m.getKey());
+		assertEquals(2.0f, (float) m.getValue(), 10E-6);
+
+		m = iter.next();
+		assertEquals(new Text("e"), m.getKey());
+		assertEquals(1.0f, (float) m.getValue(), 10E-6);
+
+		assertEquals(false, iter.hasNext());
+	}
+
+	@Test
+	public void testSortedEntries2() {
+
+		VectorFloat<Text> v = new VectorFloat<Text>();
+
+		v.set(new Text("a"), 5.0f);
+		v.set(new Text("b"), 2.0f);
+		v.set(new Text("c"), 3.0f);
+		v.set(new Text("d"), 3.0f);
+		v.set(new Text("e"), 1.0f);
+
+		Iterator<Map.Entry<Text, Float>> iter = v.getSortedEntries(2).iterator();
+
+		Map.Entry<Text, Float> m = iter.next();
+		assertEquals(new Text("a"), m.getKey());
+		assertEquals(5.0f, (float) m.getValue(), 10E-6);
+
+		m = iter.next();
+		assertEquals(new Text("c"), m.getKey());
+		assertEquals(3.0f, (float) m.getValue(), 10E-6);
+
+		assertEquals(false, iter.hasNext());
 	}
 
 	public static junit.framework.Test suite() {
