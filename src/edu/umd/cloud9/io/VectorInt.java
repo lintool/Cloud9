@@ -188,4 +188,36 @@ public class VectorInt<F extends WritableComparable> extends HashMap<F, Integer>
 		return Collections.unmodifiableSortedSet(entries);
 	}
 
+	/**
+	 * Returns top <i>n</i> feature-value entries sorted by descending value.
+	 * Ties broken by the natural sort order of the feature.
+	 * 
+	 * @param n
+	 *            number of entries to return
+	 * @return top <i>n</i> feature-value entries sorted by descending value
+	 */
+	public SortedSet<Map.Entry<F, Integer>> getSortedEntries(int n) {
+		SortedSet<Map.Entry<F, Integer>> entries = new TreeSet<Map.Entry<F, Integer>>(
+				new Comparator<Map.Entry<F, Integer>>() {
+					@SuppressWarnings("unchecked")
+					public int compare(Map.Entry<F, Integer> e1, Map.Entry<F, Integer> e2) {
+						if (e1.getValue() > e2.getValue()) {
+							return -1;
+						} else if (e1.getValue() < e2.getValue()) {
+							return 1;
+						}
+						return e1.getKey().compareTo(e2.getKey());
+					}
+				});
+
+		int cnt = 0;
+		for (Map.Entry<F, Integer> entry : getSortedEntries()) {
+			entries.add(entry);
+			cnt++;
+			if (cnt >= n)
+				break;
+		}
+
+		return Collections.unmodifiableSortedSet(entries);
+	}
 }

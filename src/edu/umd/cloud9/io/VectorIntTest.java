@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -164,6 +166,66 @@ public class VectorIntTest {
 		assertEquals(s, 28);
 	}
 
+	@Test
+	public void testSortedEntries1() {
+
+		VectorInt<Text> v = new VectorInt<Text>();
+
+		v.set(new Text("a"), 5);
+		v.set(new Text("b"), 2);
+		v.set(new Text("c"), 3);
+		v.set(new Text("d"), 3);
+		v.set(new Text("e"), 1);
+
+		Iterator<Map.Entry<Text, Integer>> iter = v.getSortedEntries().iterator();
+
+		Map.Entry<Text, Integer> m = iter.next();
+		assertEquals(new Text("a"), m.getKey());
+		assertEquals(5, (int) m.getValue());
+
+		m = iter.next();
+		assertEquals(new Text("c"), m.getKey());
+		assertEquals(3, (int) m.getValue());
+
+		m = iter.next();
+		assertEquals(new Text("d"), m.getKey());
+		assertEquals(3, (int) m.getValue());
+
+		m = iter.next();
+		assertEquals(new Text("b"), m.getKey());
+		assertEquals(2, (int) m.getValue());
+
+		m = iter.next();
+		assertEquals(new Text("e"), m.getKey());
+		assertEquals(1, (int) m.getValue());
+
+		assertEquals(false, iter.hasNext());		
+	}
+
+	@Test
+	public void testSortedEntries2() {
+
+		VectorInt<Text> v = new VectorInt<Text>();
+
+		v.set(new Text("a"), 5);
+		v.set(new Text("b"), 2);
+		v.set(new Text("c"), 3);
+		v.set(new Text("d"), 3);
+		v.set(new Text("e"), 1);
+
+		Iterator<Map.Entry<Text, Integer>> iter = v.getSortedEntries(2).iterator();
+
+		Map.Entry<Text, Integer> m = iter.next();
+		assertEquals(new Text("a"), m.getKey());
+		assertEquals(5, (int) m.getValue());
+
+		m = iter.next();
+		assertEquals(new Text("c"), m.getKey());
+		assertEquals(3, (int) m.getValue());
+
+		assertEquals(false, iter.hasNext());		
+	}
+	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(VectorIntTest.class);
 	}
