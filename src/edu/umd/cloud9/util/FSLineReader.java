@@ -36,6 +36,14 @@ public class FSLineReader {
 		this.buffer = new byte[this.bufferSize];
 	}
 
+	public FSLineReader(Path path) throws IOException {
+		Configuration config = new Configuration();
+		FileSystem fileSys = FileSystem.get(config);
+
+		this.in = fileSys.open(path);
+		this.buffer = new byte[this.bufferSize];
+	}
+
 	public FSLineReader(String file) throws IOException {
 		Configuration config = new Configuration();
 		FileSystem fileSys = FileSystem.get(config);
