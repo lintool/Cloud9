@@ -24,7 +24,7 @@ import edu.umd.cloud9.io.Tuple;
 /**
  * This class is used to get log probabilities from HDFS on map reduce framework.
  * It opens a map file on HDFS in the map cycle to get the log probability of the words in the line passed in as a key to map cycle
- * @author Shravya
+ * @author Shravya Konda
  *
  */
 public class GetLogProbFromHDFS {
@@ -104,7 +104,7 @@ public class GetLogProbFromHDFS {
 	public static void main(String[] args) throws IOException {
 
 		if (args.length != 3) {
-			System.out.println(" usage : [path of sequence file on hdfs] [path of Map File] [num of MapTasks]");
+			System.out.println(" usage : [path of sequence file on hdfs] [path of Map File on hdfs] [num of MapTasks]");
 			System.exit(1);
 		}
 		
