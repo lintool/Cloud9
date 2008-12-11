@@ -27,8 +27,15 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 import edu.umd.cloud9.io.Tuple;
 
+/**
+ * This class uses map reduce framework to access log probability of word from memcache. 
+ * @author Anand
+ *
+ */
 public class GetLogProbFromMemCache {
-
+	/*
+	 * This is used to add up total time for access to HDFS in map cycle	 
+	 */
 	static enum MyCounters {
 		TIME;
 	};
@@ -39,11 +46,13 @@ public class GetLogProbFromMemCache {
 
 		Long keyTemp = new Long(0);
 		Object obj ;
-		MemcachedClient m;
+		MemcachedClient memcachedClient;
 
+		// Method to set up memcache connection from client to all servers. The list of servers is obtained 
+		// from the JobConf variable set up in the main.
 		public void configure(JobConf conf) {
 			try {
-				m = new MemcachedClient(AddrUtil.getAddresses(conf.get("ADDRESSES")));
+				memcachedClient = new MemcachedClient(AddrUtil.getAddresses(conf.get("ADDRESSES")));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -51,27 +60,39 @@ public class GetLogProbFromMemCache {
 		
 		public void map(LongWritable key, Tuple value, OutputCollector<Text, FloatWritable> output,
 				Reporter reporter) throws IOException {
-			FloatWritable lw=new FloatWritable();
+			FloatWritable totalProb=new FloatWritable();
 			String line = (String) value.get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			float sum=0;
 			while (itr.hasMoreTokens()) {
 				String temp=itr.nextToken();
+				// timer starts
 				long startTime = System.currentTimeMillis();
-				Object obj = m.get(temp);
+				// access the memcached servers to get log prob of the word
+				Object obj = memcachedClient.get(temp);
+				// end timer
 				long endTime = System.currentTimeMillis();
 				long diff = (endTime-startTime);
+				
+				// incrementing the counter
 				reporter.incrCounter(MyCounters.TIME, diff);
 				if ( obj == null)
 					throw new RuntimeException("Error getting from memcache");
+				// adding the log prob
 				sum=sum+Float.parseFloat(obj.toString());
 			}
-			lw.set(sum);
-			output.collect(new Text(line), lw);
+			totalProb.set(sum);
+			output.collect(new Text(line), totalProb);
 
 		}	
 	}
-
+	
+	/**
+	 * This method takes in a text file which contains list of Ip Address, one per line and forms a single String variable
+	 * 
+	 * @param inputFile
+	 * @return List of IP Addresses as a single string with default port appended to each server ip address
+	 */
 	private static String getListOfIpAddresses(String inputFile){
 		String ipAddresses="";
 		// default port
@@ -98,9 +119,15 @@ public class GetLogProbFromMemCache {
 	}
 
 	/**
-	 * Runs the demo.
+	 * The main method takes three arguments from the command line
+	 * 1. Path of the file containing ip addresses on local file system 
+	 * 2. Path of the sequence file on HDFS. This is the file which will be read by mappers and base on the words in the line read, there will
+	 * be a probe to MemCache to find the log probability
+	 * 3. Number of Map tast you want to generate in the map reduce cycle.
+	 * 
 	 */
 	public static void main(String[] args) throws IOException {
+		
 		
 		if(args.length != 3){
 			System.out.println(" usage : [path of ip address file] [path of sequence file on hdfs] [no of Map Tasks]");
@@ -120,10 +147,12 @@ public class GetLogProbFromMemCache {
 		String extraPath = "/shared/extraInfo"; 
 
 		int mapTasks = Integer.parseInt(args[2]);
+		// No need of reducer
 		int reduceTasks = 0;
 
 		JobConf conf = new JobConf(GetLogProbFromMemCache.class);
-		conf.setJobName("GetFromMemCache");
+		conf.setJobName("GetLogProbFromMemCache");
+		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress); 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
@@ -139,11 +168,6 @@ public class GetLogProbFromMemCache {
 		FileSystem.get(conf).delete(outputDir, true);
 		FileOutputFormat.setOutputPath(conf, outputDir);
 		
-		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		long endTime = System.currentTimeMillis();
-		float diff = (float)((endTime-startTime));///1000.0f);
-		System.out.println("\n Starttime " + startTime + " end time = " + endTime);
-		System.out.println("\n Total time taken is : " + diff);
 	}
 }
