@@ -27,6 +27,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
  * This is a general file to read key - value pair from Memcache servers.
  * They program is a map-reduce cycle where they keys are passed into the Mapper through the general framework
  * The value for these keys are fetched from Memcache 
+ * The map-reduce framework is used to get task done in parallel
  * @author Anand Bahety
  */
 public class GetFromMemCache {
