@@ -128,7 +128,8 @@ public class SetLogProbInMemCache {
 		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
 		myMCC.flush();
 		
-		// Number of Map Task has to be one. Otherwise 
+		// Number of maptask has to be one else some values get converted to null in memcache.
+		// TODO : Check why this happens
 		int mapTasks = 1;
 		int reduceTasks = 0;
 
