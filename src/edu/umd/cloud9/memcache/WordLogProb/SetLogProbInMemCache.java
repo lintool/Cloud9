@@ -123,7 +123,7 @@ public class SetLogProbInMemCache {
 		
 		// Path for output of reducer. 
 		String extraPath = "/shared/extraInfo";
-		
+		// Flush the memcache servers before setting the values
 		MemcachedClient myMCC;
 		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
 		myMCC.flush();
