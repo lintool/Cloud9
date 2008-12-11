@@ -16,7 +16,6 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -24,6 +23,11 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
+/**
+ * This class uses map reduce framework to set log probability of in from memcache. 
+ * @author Anand
+ *
+ */
 public class SetLogProbInMemCache {
 
 	
@@ -32,11 +36,13 @@ public class SetLogProbInMemCache {
 
 		Float keyTemp = new Float(0);
 		Object obj ;
-		MemcachedClient m;
-
+		MemcachedClient memcachedClient;
+		
+		// Method to set up memcache connection from client to all servers. The list of servers is obtained 
+		// from the JobConf variable set up in the main.
 		public void configure(JobConf conf) {
 			try {
-				m = new MemcachedClient(AddrUtil.getAddresses(conf.get("ADDRESSES")));
+				memcachedClient = new MemcachedClient(AddrUtil.getAddresses(conf.get("ADDRESSES")));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -45,25 +51,28 @@ public class SetLogProbInMemCache {
 
 		public void map(Text text, FloatWritable value, OutputCollector<Text, FloatWritable> output,
 				Reporter reporter) throws IOException {
-
-
 			// writing key value pair to cache	
-			
 			obj = ((Float)(value.get())).toString();
-			
-			m.set(text.toString(),60*60*20,obj);
+			memcachedClient.set(text.toString(),60*60*20,obj);
 			// to fulfill the mapper configuration
 			output.collect(text, value);
 		}	
 	}
 
 
-
+	/*
+	 * default constructor
+	 */
 	public SetLogProbInMemCache() {
 	
 	}
 	
-	
+	/**
+	 * This method takes in a text file which contains list of Ip Address, one per line and forms a single String variable
+	 * 
+	 * @param inputFile
+	 * @return List of IP Addresses as a single string with default port appended to each server ip address
+	 */
 	private static String getListOfIpAddresses(String inputFile){
 		String ipAddresses="";
 		// default port
@@ -87,13 +96,13 @@ public class SetLogProbInMemCache {
 		return ipAddresses;
 	}
 	/**
-	 * Runs the demo.
+	 * First argument - path of file on local file system on master node containing list of memcache servers
+     * Second argument - path of file on dfs on master node to be converted into sequence file and put in memcache 
 	 */
 	public static void main(String[] args) throws IOException {
 
 		/* 
-		 * First argument - path of file on local file system on master node containing list of memcache servers
-		 * Second argument - path of file on dfs on master node to be converted into sequence file and put in memcache 
+		 * 
 		 */
 
 		if(args.length != 2){
@@ -110,19 +119,22 @@ public class SetLogProbInMemCache {
 			System.exit(1);
 		}else{
 			System.out.println("List of IP addresses : "+ ipAddress);
-		}
+		}		
 		
-		
+		// Path for output of reducer. 
 		String extraPath = "/shared/extraInfo";
+		
 		MemcachedClient myMCC;
 		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
 		myMCC.flush();
+		
+		// Number of Map Task has to be one. Otherwise 
 		int mapTasks = 1;
 		int reduceTasks = 0;
 
 		JobConf conf = new JobConf(SetLogProbInMemCache.class);
-		conf.setJobName("SetInMemCache");
-
+		conf.setJobName("SetLogProbInMemCache");
+		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress);
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
