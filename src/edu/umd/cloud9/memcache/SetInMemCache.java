@@ -23,7 +23,13 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-
+/**
+ * This class is used to set values in memcache servers using map reduce framework.
+ * They key-values are obtained from the mapper framework. The mapper just sets the key-value pair in memcache.
+ * The map-reduce framework is used to get task done in parallel
+ * @author Anand Bahety
+ *
+ */
 public class SetInMemCache {
 
 	/** 
@@ -99,15 +105,14 @@ public class SetInMemCache {
 		}
 		return ipAddresses;
 	}
-	/**
-	 * Runs in
+	
+	/* 
+	 * First argument - path of file on local file system on master node containing list of memcache servers
+	 * Second argument - path of file on dfs on master node to be converted into sequence file and put in memcache 
 	 */
 	public static void main(String[] args) throws IOException {
 
-		/* 
-		 * First argument - path of file on local file system on master node containing list of memcache servers
-		 * Second argument - path of file on dfs on master node to be converted into sequence file and put in memcache 
-		 */
+		
 
 		if(args.length != 2){
 			System.out.println(" usage : [path of ip address file] [path of sequence file on dfs ]");
@@ -127,9 +132,13 @@ public class SetInMemCache {
 		
 		
 		String extraPath = "/shared/extraInfo";
+		// Flush the memcache servers before setting the values
 		MemcachedClient myMCC;
 		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
 		myMCC.flush();
+		
+		// Number of maptask has to be one else some values get converted to null in memcache.
+		// TODO : Check why this happens
 		int mapTasks = 1;
 		int reduceTasks = 0;
 
