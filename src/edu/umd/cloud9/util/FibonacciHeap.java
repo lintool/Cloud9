@@ -131,7 +131,7 @@ public class FibonacciHeap {
      * @exception  IllegalArgumentException
      *             if k is larger than x.key value.
      */
-    public void decreaseKey(Node x, double k) {
+    public void decreaseKey(Node x, float k) {
         decreaseKey(x, k, false);
     }
 
@@ -143,7 +143,7 @@ public class FibonacciHeap {
      * @param  k       new key value for node x.
      * @param  delete  true if deleting node (in which case, k is ignored).
      */
-    private void decreaseKey(Node x, double k, boolean delete) {
+    private void decreaseKey(Node x, float k, boolean delete) {
         if (!delete && k > x.key) {
             throw new IllegalArgumentException("cannot increase key value");
         }
@@ -196,7 +196,7 @@ public class FibonacciHeap {
      * @param  key  key value associated with data object.
      * @return newly created heap node.
      */
-    public Node insert(Object x, double key) {
+    public Node insert(Object x, float key) {
         Node node = new Node(x, key);
         // concatenate node into min list
         if (min != null) {
@@ -324,7 +324,7 @@ public class FibonacciHeap {
         /** Data object for this node, holds the key value. */
         private Object data;
         /** Key value for this node. */
-        private double key;
+        private float key;
         /** Parent node. */
         private Node parent;
         /** First child node. */
@@ -347,7 +347,7 @@ public class FibonacciHeap {
          * @param  data  data object to associate with this node
          * @param  key   key value for this data object
          */
-        public Node(Object data, double key) {
+        public Node(Object data, float key) {
             this.data = data;
             this.key = key;
             right = this;
