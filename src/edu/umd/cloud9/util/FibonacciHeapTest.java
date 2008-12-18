@@ -25,6 +25,8 @@ package edu.umd.cloud9.util;
 
 import java.util.Hashtable;
 import java.util.Random;
+
+import edu.umd.cloud9.util.FibonacciHeap.Node;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -53,17 +55,17 @@ public class FibonacciHeapTest extends TestCase {
 	 * them by key order and ensures everything comes out in the order expected.
 	 */
 	public void test_Correctness() {
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Integer> heap = new FibonacciHeap<Integer>();
 		assertTrue(heap.isEmpty());
 		assertEquals(0, heap.size());
-		Hashtable<Integer, FibonacciHeap.Node> entries = new Hashtable<Integer, FibonacciHeap.Node>();
+		Hashtable<Integer, FibonacciHeap.Node<Integer>> entries = new Hashtable<Integer, FibonacciHeap.Node<Integer>>();
 		for (int ii = 100; ii < 200; ii++) {
 			Integer it = new Integer(ii);
 			entries.put(it, heap.insert(it, ii));
 		}
 		assertFalse(heap.isEmpty());
 		assertEquals(100, heap.size());
-		FibonacciHeap.Node entry = entries.get(new Integer(110));
+		FibonacciHeap.Node<Integer> entry = entries.get(new Integer(110));
 		heap.decreaseKey(entry, 50);
 		entry = entries.get(new Integer(140));
 		heap.decreaseKey(entry, 25);
@@ -71,8 +73,8 @@ public class FibonacciHeapTest extends TestCase {
 		heap.decreaseKey(entry, 15);
 		// Last one should be the min value.
 		assertEquals(entry, heap.min());
-		Object o = heap.removeMin();
-		assertEquals(new Integer(160), o);
+		Node<Integer> o = heap.removeMin();
+		assertEquals(160, o.getDatum());
 		// Second last should now be the min value.
 		entry = entries.get(new Integer(140));
 		assertEquals(entry, heap.min());
@@ -92,7 +94,7 @@ public class FibonacciHeapTest extends TestCase {
 	 * Test a heap consisting of all duplicate keys.
 	 */
 	public void test_Duplicates() {
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Integer> heap = new FibonacciHeap<Integer>();
 		assertTrue(heap.isEmpty());
 		assertEquals(0, heap.size());
 		// Insert entries with duplicate keys.
@@ -103,8 +105,8 @@ public class FibonacciHeapTest extends TestCase {
 		}
 		assertFalse(heap.isEmpty());
 		assertEquals(1000, heap.size());
-		Object o = heap.removeMin();
-		assertTrue(o instanceof Integer);
+		Node<Integer> o = heap.removeMin();
+		assertTrue(o instanceof Node);
 		assertFalse(heap.isEmpty());
 		assertEquals(999, heap.size());
 		heap.clear();
@@ -117,7 +119,7 @@ public class FibonacciHeapTest extends TestCase {
 	 * is greater than the others.
 	 */
 	public void test_Duplicates_Larger() {
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Integer> heap = new FibonacciHeap<Integer>();
 		assertTrue(heap.isEmpty());
 		assertEquals(0, heap.size());
 		// Insert entries with duplicate keys.
@@ -129,9 +131,9 @@ public class FibonacciHeapTest extends TestCase {
 		heap.insert(new Integer(1001), Float.MIN_NORMAL);
 		assertFalse(heap.isEmpty());
 		assertEquals(1000, heap.size());
-		Object o = heap.removeMin();
-		assertTrue(o instanceof Integer);
-		assertTrue(((Integer) o).intValue() < 1001);
+		Node<Integer> o = heap.removeMin();
+		assertTrue(o instanceof Node);
+		assertTrue((Integer) o.getDatum() < 1001);
 		assertFalse(heap.isEmpty());
 		assertEquals(999, heap.size());
 		heap.clear();
@@ -144,7 +146,7 @@ public class FibonacciHeapTest extends TestCase {
 	 * is less than the others.
 	 */
 	public void test_Duplicates_Smaller() {
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Integer> heap = new FibonacciHeap<Integer>();
 		assertTrue(heap.isEmpty());
 		assertEquals(0, heap.size());
 		// Insert entries with duplicate keys.
@@ -156,9 +158,9 @@ public class FibonacciHeapTest extends TestCase {
 		heap.insert(new Integer(1001), 0.0f);
 		assertFalse(heap.isEmpty());
 		assertEquals(1000, heap.size());
-		Object o = heap.removeMin();
-		assertTrue(o instanceof Integer);
-		assertTrue(o.equals(new Integer(1001)));
+		Node<Integer> o = heap.removeMin();
+		assertTrue(o instanceof Node);
+		assertTrue((Integer) o.getDatum() == 1001);
 		assertFalse(heap.isEmpty());
 		assertEquals(999, heap.size());
 		heap.clear();
@@ -173,7 +175,7 @@ public class FibonacciHeapTest extends TestCase {
 	 * fibonacci heap.
 	 */
 	public void test_InsertRemoveMin() {
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Float> heap = new FibonacciHeap<Float>();
 		assertTrue(heap.isEmpty());
 		assertEquals(0, heap.size());
 
@@ -197,7 +199,7 @@ public class FibonacciHeapTest extends TestCase {
 		float ii = 0.0f;
 		int count = 0;
 		while (!heap.isEmpty()) {
-			float v = (Float) heap.removeMin();
+			float v = (Float) heap.removeMin().getKey();
 			count++;
 			assertTrue(v >= ii);
 			ii = v;
@@ -209,7 +211,7 @@ public class FibonacciHeapTest extends TestCase {
 	}
 
 	public void test_Union() {
-		FibonacciHeap heap1 = new FibonacciHeap();
+		FibonacciHeap<Integer> heap1 = new FibonacciHeap<Integer>();
 		assertTrue(heap1.isEmpty());
 		assertEquals(0, heap1.size());
 		heap1.insert(new Integer(1), 1);
@@ -219,7 +221,7 @@ public class FibonacciHeapTest extends TestCase {
 		heap1.insert(new Integer(5), 5);
 		assertFalse(heap1.isEmpty());
 		assertEquals(5, heap1.size());
-		FibonacciHeap heap2 = new FibonacciHeap();
+		FibonacciHeap<Integer> heap2 = new FibonacciHeap<Integer>();
 		assertTrue(heap2.isEmpty());
 		assertEquals(0, heap2.size());
 		heap2.insert(new Integer(6), 6);
@@ -229,15 +231,15 @@ public class FibonacciHeapTest extends TestCase {
 		heap2.insert(new Integer(10), 10);
 		assertFalse(heap2.isEmpty());
 		assertEquals(5, heap2.size());
-		FibonacciHeap joined = FibonacciHeap.union(heap1, heap2);
+		FibonacciHeap<Integer> joined = FibonacciHeap.union(heap1, heap2);
 		assertFalse(joined.isEmpty());
 		assertEquals(10, joined.size());
-		Integer v = (Integer) joined.removeMin();
+		Integer v = (Integer) joined.removeMin().getDatum();
 		int vi = v.intValue();
 		int ii = 1;
 		assertTrue(vi == ii);
 		while (!joined.isEmpty()) {
-			v = (Integer) joined.removeMin();
+			v = (Integer) joined.removeMin().getDatum();
 			vi = v.intValue();
 			assertTrue(vi > ii);
 			ii = vi;
@@ -306,14 +308,14 @@ public class FibonacciHeapTest extends TestCase {
 				0.11847, 0.11572, 0.14614, 0.13348, 0.12449, 0.12358, 0.12792, 0.12525, 0.12265,
 				0.1305, 0.13037, 0.12684, 0.12374, 0.12907, 0.12858, 0.1285, 0.12857, 0.15825,
 				0.15937, 0.1467, 0.128305, 0.118165, 0.119619995, 0.117565, 0.12769, 0.11013 };
-		FibonacciHeap heap = new FibonacciHeap();
+		FibonacciHeap<Double> heap = new FibonacciHeap<Double>();
 		for (double d : vals) {
 			heap.insert(new Double(d), (float) d);
 		}
 		java.util.Arrays.sort(vals);
 		int i = 0;
 		while (!heap.isEmpty()) {
-			Double d = (Double) heap.removeMin();
+			Double d = (Double) heap.removeMin().getDatum();
 			assertEquals(vals[i++], d.doubleValue());
 		}
 	}
