@@ -22,10 +22,8 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
-
-import edu.umd.cloud9.io.Tuple;
 
 /**
  * This class uses map reduce framework to access log probability of word from memcache. 
@@ -42,10 +40,10 @@ public class GetLogProbFromMemCache {
 
 
 	public static class MyMapper extends MapReduceBase implements
-	Mapper<LongWritable, Tuple, Text, FloatWritable> {
+	Mapper<LongWritable, Text, LongWritable, FloatWritable> {
 
-		Long keyTemp = new Long(0);
-		Object obj ;
+		//Long keyTemp = new Long(0);
+		//Object obj ;
 		MemcachedClient memcachedClient;
 
 		// Method to set up memcache connection from client to all servers. The list of servers is obtained 
@@ -58,10 +56,10 @@ public class GetLogProbFromMemCache {
 			}
 		} 
 		
-		public void map(LongWritable key, Tuple value, OutputCollector<Text, FloatWritable> output,
+		public void map(LongWritable key, Text value, OutputCollector<LongWritable, FloatWritable> output,
 				Reporter reporter) throws IOException {
 			FloatWritable totalProb=new FloatWritable();
-			String line = (String) value.get(0);
+			String line = value.toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			float sum=0;
 			while (itr.hasMoreTokens()) {
@@ -82,7 +80,7 @@ public class GetLogProbFromMemCache {
 				sum=sum+Float.parseFloat(obj.toString());
 			}
 			totalProb.set(sum);
-			output.collect(new Text(line), totalProb);
+			output.collect(key, totalProb);
 
 		}	
 	}
@@ -144,7 +142,7 @@ public class GetLogProbFromMemCache {
 		}else{
 			System.out.println("List of IP addresses : "+ ipAddress);
 		}
-		String extraPath = "/shared/extraInfo"; 
+		String extraPath = "/results"; 
 
 		int mapTasks = Integer.parseInt(args[2]);
 		// No need of reducer
@@ -158,8 +156,8 @@ public class GetLogProbFromMemCache {
 		conf.setNumReduceTasks(reduceTasks);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setMapOutputKeyClass(Text.class);
+		conf.setInputFormat(TextInputFormat.class);
+		conf.setMapOutputKeyClass(LongWritable.class);
 		conf.setMapOutputValueClass(FloatWritable.class);
 		conf.setMapperClass(MyMapper.class);
 		conf.setReducerClass(IdentityReducer.class);
@@ -168,6 +166,11 @@ public class GetLogProbFromMemCache {
 		FileSystem.get(conf).delete(outputDir, true);
 		FileOutputFormat.setOutputPath(conf, outputDir);
 		
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
+		long endTime = System.currentTimeMillis();
+		long diff = (endTime-startTime);
+		
+		System.out.println("Total job completion time (ms): " + diff);
 	}
 }
