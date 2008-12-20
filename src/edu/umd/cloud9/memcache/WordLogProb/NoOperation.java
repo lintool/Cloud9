@@ -16,41 +16,38 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
-
-import edu.umd.cloud9.io.Tuple;
 
 /**
  * @author Anand Bahety
- * @code - this code is only used to test the minimum time to communicate 
- * between two mappers. This does not do a HDFS set or a get.
+ * @code - this code is only used to test the minimum time to communicate
+ *       between two mappers. This does not do a HDFS set or a get.
  */
 
 public class NoOperation {
-	static enum MyCounters {
-		TIME;
-	};
 
 	public static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Tuple, LongWritable, FloatWritable> {
-	
+			Mapper<LongWritable, Text, LongWritable, FloatWritable> {
+
 		/**
-		 * @param key - line number of the sentence 
-		 *              whose log probability needs to be calculated
-		 * @param value - the actual sentence 
+		 * @param key -
+		 *            line number of the sentence whose log probability needs to
+		 *            be calculated
+		 * @param value -
+		 *            the actual sentence
 		 * @return
 		 */
-		
-		public void map(LongWritable key, Tuple value,
+
+		public void map(LongWritable key, Text value,
 				OutputCollector<LongWritable, FloatWritable> output, Reporter reporter)
 				throws IOException {
 			FloatWritable tempFloat = new FloatWritable();
 			FloatWritable finalValue = new FloatWritable();
-			
+
 			// get the actual sentence from the Tuple field
-			String line = (String) value.get(0);
-			
+			String line = value.toString();
+
 			StringTokenizer itr = new StringTokenizer(line);
 			float sum = 0;
 			Text tempKey = new Text();
@@ -60,7 +57,7 @@ public class NoOperation {
 				String temp = itr.nextToken();
 				tempKey.set(temp);
 				tempFloat.set(0);
-				sum += (float)tempFloat.get();
+				sum += (float) tempFloat.get();
 			}
 
 			finalValue.set(sum);
@@ -74,12 +71,12 @@ public class NoOperation {
 			System.out.println(" usage : [path of sequence file on hdfs] [num of MapTasks]");
 			System.exit(1);
 		}
-		
+
 		String inputPath = args[0];
 		int mapTasks = Integer.parseInt(args[1]);
 		int reduceTasks = 0;
-		
-		String extraPath = "/shared/extraInfo";
+
+		String extraPath = "/tmp";
 
 		JobConf conf = new JobConf(NoOperation.class);
 		conf.setJobName("NoOperation");
@@ -88,16 +85,20 @@ public class NoOperation {
 		conf.setNumReduceTasks(reduceTasks);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		conf.setInputFormat(SequenceFileInputFormat.class);
+		conf.setInputFormat(TextInputFormat.class);
 
 		conf.setMapOutputValueClass(FloatWritable.class);
 		conf.setMapperClass(MyMapper.class);
 		conf.setReducerClass(IdentityReducer.class);
-		
+
 		Path outputDir = new Path(extraPath);
 		FileSystem.get(conf).delete(outputDir, true);
 		FileOutputFormat.setOutputPath(conf, outputDir);
 
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-	}
+		long endTime = System.currentTimeMillis();
+		long diff = (endTime-startTime);
+		
+		System.out.println("Total job completion time (ms): " + diff);	}
 }
