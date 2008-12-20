@@ -134,7 +134,7 @@ public class SetLogProbInMemcached {
 		int reduceTasks = 0;
 
 		JobConf conf = new JobConf(SetLogProbInMemcached.class);
-		conf.setJobName("SetLogProbInMemCache");
+		conf.setJobName("SetLogProbInMemcached");
 		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress);
 		conf.setNumMapTasks(mapTasks);

@@ -79,7 +79,7 @@ public class DemoNoOp {
 		String extraPath = "/tmp";
 
 		JobConf conf = new JobConf(DemoNoOp.class);
-		conf.setJobName("NoOperation");
+		conf.setJobName("DemoNoOp");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);

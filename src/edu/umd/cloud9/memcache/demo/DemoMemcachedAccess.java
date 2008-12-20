@@ -149,7 +149,7 @@ public class DemoMemcachedAccess {
 		int reduceTasks = 0;
 
 		JobConf conf = new JobConf(DemoMemcachedAccess.class);
-		conf.setJobName("GetLogProbFromMemCache");
+		conf.setJobName("DemoMemcachedAccess");
 		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress); 
 		conf.setNumMapTasks(mapTasks);
