@@ -25,7 +25,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
  *       between two mappers. This does not do a HDFS set or a get.
  */
 
-public class NoOperation {
+public class DemoNoOp {
 
 	public static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, FloatWritable> {
@@ -78,7 +78,7 @@ public class NoOperation {
 
 		String extraPath = "/tmp";
 
-		JobConf conf = new JobConf(NoOperation.class);
+		JobConf conf = new JobConf(DemoNoOp.class);
 		conf.setJobName("NoOperation");
 
 		conf.setNumMapTasks(mapTasks);

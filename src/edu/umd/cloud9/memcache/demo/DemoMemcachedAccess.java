@@ -30,7 +30,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
  * @author Anand
  *
  */
-public class GetLogProbFromMemCache {
+public class DemoMemcachedAccess {
 	/*
 	 * This is used to add up total time for access to HDFS in map cycle	 
 	 */
@@ -113,7 +113,7 @@ public class GetLogProbFromMemCache {
 		}
 		return ipAddresses;
 	} 
-	protected GetLogProbFromMemCache() {
+	protected DemoMemcachedAccess() {
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class GetLogProbFromMemCache {
 		// No need of reducer
 		int reduceTasks = 0;
 
-		JobConf conf = new JobConf(GetLogProbFromMemCache.class);
+		JobConf conf = new JobConf(DemoMemcachedAccess.class);
 		conf.setJobName("GetLogProbFromMemCache");
 		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress); 
