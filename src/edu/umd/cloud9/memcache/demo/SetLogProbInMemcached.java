@@ -28,7 +28,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
  * @author Anand
  *
  */
-public class SetLogProbInMemCache {
+public class SetLogProbInMemcached {
 
 	
 	public static class MyMapper extends MapReduceBase implements
@@ -63,7 +63,7 @@ public class SetLogProbInMemCache {
 	/*
 	 * default constructor
 	 */
-	public SetLogProbInMemCache() {
+	public SetLogProbInMemcached() {
 	
 	}
 	
@@ -133,7 +133,7 @@ public class SetLogProbInMemCache {
 		int mapTasks = 1;
 		int reduceTasks = 0;
 
-		JobConf conf = new JobConf(SetLogProbInMemCache.class);
+		JobConf conf = new JobConf(SetLogProbInMemcached.class);
 		conf.setJobName("SetLogProbInMemCache");
 		// setting the variable to hold ip addresses so that it can be available in the mapper
 		conf.set("ADDRESSES", ipAddress);
