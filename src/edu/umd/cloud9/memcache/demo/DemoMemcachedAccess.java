@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import net.spy.memcached.AddrUtil;
@@ -49,8 +50,9 @@ public class DemoMemcachedAccess {
 		// Method to set up memcache connection from client to all servers. The list of servers is obtained 
 		// from the JobConf variable set up in the main.
 		public void configure(JobConf conf) {
-			try {
+			try {		
 				memcachedClient = new MemcachedClient(AddrUtil.getAddresses(conf.get("ADDRESSES")));
+				Thread.sleep(500);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -64,6 +66,11 @@ public class DemoMemcachedAccess {
 			float sum=0;
 			while (itr.hasMoreTokens()) {
 				String temp=itr.nextToken();
+				
+				// Ignore words that are too long...
+				if (temp.toString().length() > 100)
+					continue;
+
 				// timer starts
 				long startTime = System.currentTimeMillis();
 				// access the memcached servers to get log prob of the word
@@ -75,14 +82,18 @@ public class DemoMemcachedAccess {
 				// incrementing the counter
 				reporter.incrCounter(MyCounters.TIME, diff);
 				if ( obj == null)
-					throw new RuntimeException("Error getting from memcache");
+					throw new RuntimeException("Error getting from memcache: key = " + temp);
 				// adding the log prob
 				sum=sum+Float.parseFloat(obj.toString());
 			}
 			totalProb.set(sum);
 			output.collect(key, totalProb);
 
-		}	
+		}
+		
+		public void close() {
+			memcachedClient.shutdown();
+		}
 	}
 	
 	/**
