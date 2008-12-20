@@ -1,4 +1,4 @@
-package edu.umd.cloud9.memcache.WordLogProb;
+package edu.umd.cloud9.memcache.demo;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
