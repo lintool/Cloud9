@@ -71,8 +71,7 @@ public class GetStatus {
 			System.out.println("List of IP addresses : " + ipAddress);
 		}
 
-		// Path for output of reducer.
-		String extraPath = "/shared/extraInfo";
+		long total_items = 0;
 		// Flush the memcache servers before setting the values
 		MemcachedClient myMCC;
 		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
@@ -85,8 +84,13 @@ public class GetStatus {
 			for (Map.Entry<String, String> s : e.getValue().entrySet()) {
 				System.out.println(" - " + s.getKey() + ": " + s.getValue());
 				
+				if ( s.getKey().equals("curr_items"))
+					total_items += Long.parseLong(s.getValue());
+				
 			}
 		}
 		
+		
+		System.out.println("Total number items in memcache: " + total_items);
 	}
 }
