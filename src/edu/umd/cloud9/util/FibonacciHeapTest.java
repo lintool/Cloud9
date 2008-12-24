@@ -74,7 +74,7 @@ public class FibonacciHeapTest extends TestCase {
 		// Last one should be the min value.
 		assertEquals(entry, heap.min());
 		Node<Integer> o = heap.removeMin();
-		assertEquals(160, o.getDatum());
+		assertEquals(160, o.getDatum().intValue());
 		// Second last should now be the min value.
 		entry = entries.get(new Integer(140));
 		assertEquals(entry, heap.min());

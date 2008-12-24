@@ -442,7 +442,7 @@ public class FibonacciHeap<T> {
             mark = false;
         }
         
-        public Object getDatum() {
+        public T getDatum() {
         	return this.datum;
         }
 
