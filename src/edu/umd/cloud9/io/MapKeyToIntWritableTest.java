@@ -34,11 +34,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class KeyToIntMapTest {
+import edu.umd.cloud9.util.MapInt;
+
+public class MapKeyToIntWritableTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		KeyToIntMap<Text> v = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
 		v.set(new Text("hi"), 5);
 		v.set(new Text("there"), 22);
@@ -62,7 +64,7 @@ public class KeyToIntMapTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		KeyToIntMap<Text> v1 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
 		v1.set(new Text("hi"), 5);
 		v1.set(new Text("there"), 22);
@@ -72,7 +74,7 @@ public class KeyToIntMapTest {
 
 		v1.write(dataOut);
 
-		KeyToIntMap<Text> v2 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v2 = new MapKeyToIntWritable<Text>();
 
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
@@ -95,7 +97,7 @@ public class KeyToIntMapTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		KeyToIntMap<WritableComparable> v1 = new KeyToIntMap<WritableComparable>();
+		MapKeyToIntWritable<WritableComparable> v1 = new MapKeyToIntWritable<WritableComparable>();
 
 		v1.set(new Text("hi"), 4);
 		v1.set(new IntWritable(0), 76);
@@ -105,7 +107,7 @@ public class KeyToIntMapTest {
 
 		v1.write(dataOut);
 
-		KeyToIntMap<WritableComparable> v2 = new KeyToIntMap<WritableComparable>();
+		MapKeyToIntWritable<WritableComparable> v2 = new MapKeyToIntWritable<WritableComparable>();
 
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
@@ -113,7 +115,7 @@ public class KeyToIntMapTest {
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		KeyToIntMap<WritableComparable> v1 = new KeyToIntMap<WritableComparable>();
+		MapKeyToIntWritable<WritableComparable> v1 = new MapKeyToIntWritable<WritableComparable>();
 
 		assertTrue(v1.size() == 0);
 
@@ -122,26 +124,26 @@ public class KeyToIntMapTest {
 
 		v1.write(dataOut);
 
-		KeyToIntMap<WritableComparable> v2 = new KeyToIntMap<WritableComparable>();
+		MapKeyToIntWritable<WritableComparable> v2 = new MapKeyToIntWritable<WritableComparable>();
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 		assertTrue(v2.size() == 0);
 	}
 
 	@Test
 	public void testPlus() throws IOException {
-		KeyToIntMap<Text> v1 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
 		v1.set(new Text("hi"), 5);
 		v1.set(new Text("there"), 22);
 
-		KeyToIntMap<Text> v2 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v2 = new MapKeyToIntWritable<Text>();
 
 		v2.set(new Text("hi"), 4);
 		v2.set(new Text("test"), 5);
 
 		v1.plus(v2);
 
-		assertEquals(v1.size(), 3);
+		assertEquals(3, v1.size());
 		assertTrue(v1.get(new Text("hi")) == 9);
 		assertTrue(v1.get(new Text("there")) == 22);
 		assertTrue(v1.get(new Text("test")) == 5);
@@ -149,13 +151,13 @@ public class KeyToIntMapTest {
 
 	@Test
 	public void testDot() throws IOException {
-		KeyToIntMap<Text> v1 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
 		v1.set(new Text("hi"), 5);
 		v1.set(new Text("there"), 2);
 		v1.set(new Text("empty"), 3);
 
-		KeyToIntMap<Text> v2 = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v2 = new MapKeyToIntWritable<Text>();
 
 		v2.set(new Text("hi"), 4);
 		v2.set(new Text("there"), 4);
@@ -169,7 +171,7 @@ public class KeyToIntMapTest {
 	@Test
 	public void testSortedEntries1() {
 
-		KeyToIntMap<Text> v = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
 		v.set(new Text("a"), 5);
 		v.set(new Text("b"), 2);
@@ -177,9 +179,9 @@ public class KeyToIntMapTest {
 		v.set(new Text("d"), 3);
 		v.set(new Text("e"), 1);
 
-		Iterator<Map.Entry<Text, Integer>> iter = v.getSortedEntries().iterator();
+		Iterator<MapInt.Entry<Text>> iter = v.getEntriesSortedByValue().iterator();
 
-		Map.Entry<Text, Integer> m = iter.next();
+		MapInt.Entry<Text> m = iter.next();
 		assertEquals(new Text("a"), m.getKey());
 		assertEquals(5, (int) m.getValue());
 
@@ -199,13 +201,13 @@ public class KeyToIntMapTest {
 		assertEquals(new Text("e"), m.getKey());
 		assertEquals(1, (int) m.getValue());
 
-		assertEquals(false, iter.hasNext());		
+		assertEquals(false, iter.hasNext());
 	}
 
 	@Test
 	public void testSortedEntries2() {
 
-		KeyToIntMap<Text> v = new KeyToIntMap<Text>();
+		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
 		v.set(new Text("a"), 5);
 		v.set(new Text("b"), 2);
@@ -213,9 +215,9 @@ public class KeyToIntMapTest {
 		v.set(new Text("d"), 3);
 		v.set(new Text("e"), 1);
 
-		Iterator<Map.Entry<Text, Integer>> iter = v.getSortedEntries(2).iterator();
+		Iterator<MapInt.Entry<Text>> iter = v.getEntriesSortedByValue(2).iterator();
 
-		Map.Entry<Text, Integer> m = iter.next();
+		MapInt.Entry<Text> m = iter.next();
 		assertEquals(new Text("a"), m.getKey());
 		assertEquals(5, (int) m.getValue());
 
@@ -223,11 +225,11 @@ public class KeyToIntMapTest {
 		assertEquals(new Text("c"), m.getKey());
 		assertEquals(3, (int) m.getValue());
 
-		assertEquals(false, iter.hasNext());		
+		assertEquals(false, iter.hasNext());
 	}
-	
+
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(KeyToIntMapTest.class);
+		return new JUnit4TestAdapter(MapKeyToIntWritableTest.class);
 	}
 
 }
