@@ -393,7 +393,7 @@ public class HashMapInt<K>
                 int oldValue = e.value;
                 e.value = value;
                 e.recordAccess(this);
-                //return oldValue;
+                return; // oldValue;
             }
         }
 
