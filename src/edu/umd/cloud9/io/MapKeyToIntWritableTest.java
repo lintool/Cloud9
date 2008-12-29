@@ -25,7 +25,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -42,8 +41,8 @@ public class MapKeyToIntWritableTest {
 	public void testBasic() throws IOException {
 		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
-		v.set(new Text("hi"), 5);
-		v.set(new Text("there"), 22);
+		v.put(new Text("hi"), 5);
+		v.put(new Text("there"), 22);
 
 		Text key;
 		int value;
@@ -66,8 +65,8 @@ public class MapKeyToIntWritableTest {
 	public void testSerialize1() throws IOException {
 		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
-		v1.set(new Text("hi"), 5);
-		v1.set(new Text("there"), 22);
+		v1.put(new Text("hi"), 5);
+		v1.put(new Text("there"), 22);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -99,8 +98,8 @@ public class MapKeyToIntWritableTest {
 	public void testTypeSafety() throws IOException {
 		MapKeyToIntWritable<WritableComparable> v1 = new MapKeyToIntWritable<WritableComparable>();
 
-		v1.set(new Text("hi"), 4);
-		v1.set(new IntWritable(0), 76);
+		v1.put(new Text("hi"), 4);
+		v1.put(new IntWritable(0), 76);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -133,13 +132,13 @@ public class MapKeyToIntWritableTest {
 	public void testPlus() throws IOException {
 		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
-		v1.set(new Text("hi"), 5);
-		v1.set(new Text("there"), 22);
+		v1.put(new Text("hi"), 5);
+		v1.put(new Text("there"), 22);
 
 		MapKeyToIntWritable<Text> v2 = new MapKeyToIntWritable<Text>();
 
-		v2.set(new Text("hi"), 4);
-		v2.set(new Text("test"), 5);
+		v2.put(new Text("hi"), 4);
+		v2.put(new Text("test"), 5);
 
 		v1.plus(v2);
 
@@ -153,15 +152,15 @@ public class MapKeyToIntWritableTest {
 	public void testDot() throws IOException {
 		MapKeyToIntWritable<Text> v1 = new MapKeyToIntWritable<Text>();
 
-		v1.set(new Text("hi"), 5);
-		v1.set(new Text("there"), 2);
-		v1.set(new Text("empty"), 3);
+		v1.put(new Text("hi"), 5);
+		v1.put(new Text("there"), 2);
+		v1.put(new Text("empty"), 3);
 
 		MapKeyToIntWritable<Text> v2 = new MapKeyToIntWritable<Text>();
 
-		v2.set(new Text("hi"), 4);
-		v2.set(new Text("there"), 4);
-		v2.set(new Text("test"), 5);
+		v2.put(new Text("hi"), 4);
+		v2.put(new Text("there"), 4);
+		v2.put(new Text("test"), 5);
 
 		int s = v1.dot(v2);
 
@@ -173,11 +172,11 @@ public class MapKeyToIntWritableTest {
 
 		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
-		v.set(new Text("a"), 5);
-		v.set(new Text("b"), 2);
-		v.set(new Text("c"), 3);
-		v.set(new Text("d"), 3);
-		v.set(new Text("e"), 1);
+		v.put(new Text("a"), 5);
+		v.put(new Text("b"), 2);
+		v.put(new Text("c"), 3);
+		v.put(new Text("d"), 3);
+		v.put(new Text("e"), 1);
 
 		Iterator<MapInt.Entry<Text>> iter = v.getEntriesSortedByValue().iterator();
 
@@ -209,11 +208,11 @@ public class MapKeyToIntWritableTest {
 
 		MapKeyToIntWritable<Text> v = new MapKeyToIntWritable<Text>();
 
-		v.set(new Text("a"), 5);
-		v.set(new Text("b"), 2);
-		v.set(new Text("c"), 3);
-		v.set(new Text("d"), 3);
-		v.set(new Text("e"), 1);
+		v.put(new Text("a"), 5);
+		v.put(new Text("b"), 2);
+		v.put(new Text("c"), 3);
+		v.put(new Text("d"), 3);
+		v.put(new Text("e"), 1);
 
 		Iterator<MapInt.Entry<Text>> iter = v.getEntriesSortedByValue(2).iterator();
 

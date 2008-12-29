@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -27,9 +26,9 @@ import edu.umd.cloud9.util.MapInt;
  * @param <F>
  *            type of feature
  */
-public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapInt<F> implements Writable {
+public class MapKeyToIntWritable<K extends WritableComparable> extends HashMapInt<K> implements Writable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 295863243L;
 
 	/**
 	 * Creates a KeyToIntMap object.
@@ -55,12 +54,12 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 
 		String keyClassName = in.readUTF();
 
-		F objK;
+		K objK;
 
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
-				objK = (F) keyClass.newInstance();
+				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
 				Integer s = in.readInt();
 				put(objK, s);
@@ -90,39 +89,16 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<MapInt.Entry<F>> entries = entrySet();
-		MapInt.Entry<F> first = entries.iterator().next();
-		F objK = first.getKey();
+		Set<MapInt.Entry<K>> entries = entrySet();
+		MapInt.Entry<K> first = entries.iterator().next();
+		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (MapInt.Entry<F> e : entrySet()) {
+		for (MapInt.Entry<K> e : entrySet()) {
 			e.getKey().write(out);
 			out.writeInt(e.getValue());
 		}
-	}
-
-	/**
-	 * Sets the value of a feature.
-	 * 
-	 * @param f
-	 *            the feature
-	 * @param v
-	 *            the value
-	 */
-	public void set(F f, int v) {
-		super.put(f, v);
-	}
-
-	/**
-	 * Returns the value of a feature.
-	 * 
-	 * @param f
-	 *            the feature
-	 * @return the value of the feature
-	 */
-	public int get(F f) {
-		return super.get(f);
 	}
 
 	/**
@@ -131,9 +107,9 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 	 * @param v
 	 *            vector to add
 	 */
-	public void plus(MapKeyToIntWritable<F> v) {
-		for (MapInt.Entry<F> e : v.entrySet()) {
-			F key = e.getKey();
+	public void plus(MapKeyToIntWritable<K> v) {
+		for (MapInt.Entry<K> e : v.entrySet()) {
+			K key = e.getKey();
 			
 			if (this.containsKey(key)) {
 				this.put(key, this.get(key) + e.getValue());
@@ -149,11 +125,11 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 	 * @param v
 	 *            the other vector
 	 */
-	public int dot(MapKeyToIntWritable<F> v) {
+	public int dot(MapKeyToIntWritable<K> v) {
 		int s = 0;
 
-		for (MapInt.Entry<F> e : v.entrySet()) {
-			F key = e.getKey();
+		for (MapInt.Entry<K> e : v.entrySet()) {
+			K key = e.getKey();
 
 			if (this.containsKey(key)) {
 				s += this.get(key) * e.getValue();
@@ -169,11 +145,11 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 	 * 
 	 * @return feature-value entries sorted by descending value
 	 */
-	public SortedSet<MapInt.Entry<F>> getEntriesSortedByValue() {
-		SortedSet<MapInt.Entry<F>> entries = new TreeSet<MapInt.Entry<F>>(
-				new Comparator<MapInt.Entry<F>>() {
+	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue() {
+		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
+				new Comparator<MapInt.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapInt.Entry<F> e1, MapInt.Entry<F> e2) {
+					public int compare(MapInt.Entry<K> e1, MapInt.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -183,7 +159,7 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 					}
 				});
 
-		for (MapInt.Entry<F> entry : this.entrySet()) {
+		for (MapInt.Entry<K> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
@@ -198,11 +174,11 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 	 *            number of entries to return
 	 * @return top <i>n</i> feature-value entries sorted by descending value
 	 */
-	public SortedSet<MapInt.Entry<F>> getEntriesSortedByValue(int n) {
-		SortedSet<MapInt.Entry<F>> entries = new TreeSet<MapInt.Entry<F>>(
-				new Comparator<MapInt.Entry<F>>() {
+	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue(int n) {
+		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
+				new Comparator<MapInt.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapInt.Entry<F> e1, MapInt.Entry<F> e2) {
+					public int compare(MapInt.Entry<K> e1, MapInt.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -213,7 +189,7 @@ public class MapKeyToIntWritable<F extends WritableComparable> extends HashMapIn
 				});
 
 		int cnt = 0;
-		for (MapInt.Entry<F> entry : getEntriesSortedByValue()) {
+		for (MapInt.Entry<K> entry : getEntriesSortedByValue()) {
 			entries.add(entry);
 			cnt++;
 			if (cnt >= n)
