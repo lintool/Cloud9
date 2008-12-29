@@ -39,7 +39,7 @@ package edu.umd.cloud9.util;
  *
  * @author  Nathan Fiedler
  */
-public class FibonacciHeap<T> {
+public class FibonacciHeap<T extends Comparable> {
     /** Points to the minimum node in the heap. */
     private Node<T> min;
     /** Number of nodes in the heap. If the type is ever widened,
@@ -82,7 +82,7 @@ public class FibonacciHeap<T> {
             while (A[d] != null) {
                 // Make one of the nodes a child of the other.
                 Node<T> y = A[d];
-                if (x.key > y.key) {
+                if (x.isGreaterThan(y)) {
                     Node<T> temp = y;
                     y = x;
                     x = temp;
@@ -114,7 +114,7 @@ public class FibonacciHeap<T> {
         min = start;
         // Find the minimum key again.
         for (Node<T> a : A) {
-            if (a != null && a.key < min.key) {
+            if (a != null && a.isLessThan(min) ) {
                 min = a;
             }
         }
@@ -150,11 +150,11 @@ public class FibonacciHeap<T> {
         }
         x.key = k;
         Node<T> y = x.parent;
-        if (y != null && (delete || k < y.key)) {
+        if (y != null && (delete || x.isLessThan(y))) {
             y.cut(x, min);
             y.cascadingCut(min);
         }
-        if (delete || k < min.key) {
+        if (delete || x.isLessThan(min)) {
             min = x;
         }
     }
@@ -205,7 +205,7 @@ public class FibonacciHeap<T> {
             node.left = min.left;
             min.left = node;
             node.left.right = node;
-            if (key < min.key) {
+            if (node.isLessThan(min)) {
                 min = node;
             }
         } else {
@@ -291,7 +291,7 @@ public class FibonacciHeap<T> {
      * @param  H2  second heap
      * @return  new heap containing H1 and H2
      */
-    public static <T> FibonacciHeap<T> union(FibonacciHeap<T> H1, FibonacciHeap<T> H2) {
+    public static <T extends Comparable<T>> FibonacciHeap<T> union(FibonacciHeap<T> H1, FibonacciHeap<T> H2) {
         FibonacciHeap<T> H = new FibonacciHeap<T>();
         if (H1 != null && H2 != null) {
             H.min = H1.min;
@@ -301,7 +301,7 @@ public class FibonacciHeap<T> {
                     H2.min.left.right = H.min.right;
                     H.min.right = H2.min;
                     H2.min.left = H.min;
-                    if (H2.min.key < H1.min.key) {
+                    if (H2.min.isLessThan(H1.min)) {
                         H.min = H2.min;
                     }
                 }
@@ -321,7 +321,7 @@ public class FibonacciHeap<T> {
      *
      * @author  Nathan Fiedler
      */
-    public static class Node<T> {
+    public static class Node<T extends Comparable> {
         /** Data object for this node, holds the key value. */
         private T datum;
         /** Key value for this node. */
@@ -450,5 +450,18 @@ public class FibonacciHeap<T> {
         	return this.key;
         }
 
+        private boolean isGreaterThan(Node n) {
+        	if ( this.key > n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) > 0))
+        		return true;
+        	
+        	return false;
+        }
+
+        private boolean isLessThan(Node n) {
+        	if ( this.key < n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) < 0))
+        		return true;
+        	
+        	return false;
+        }
     }
 }

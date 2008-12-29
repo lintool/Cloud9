@@ -319,4 +319,23 @@ public class FibonacciHeapTest extends TestCase {
 			assertEquals(vals[i++], d.doubleValue());
 		}
 	}
+	
+	// test ties
+	public void testTies() {
+		FibonacciHeap<String> heap = new FibonacciHeap<String>();
+		
+		heap.insert("a", 3.1f);
+		heap.insert("b", 3.1f);
+		heap.insert("c", 2.0f);
+		heap.insert("d", 4.5f);
+		heap.insert("e", 3.1f);
+		heap.insert("f", 2.0f);
+
+		assertEquals("c", heap.removeMin().getDatum());
+		assertEquals("f", heap.removeMin().getDatum());
+		assertEquals("a", heap.removeMin().getDatum());
+		assertEquals("b", heap.removeMin().getDatum());
+		assertEquals("e", heap.removeMin().getDatum());
+		assertEquals("d", heap.removeMin().getDatum());
+	}
 }
