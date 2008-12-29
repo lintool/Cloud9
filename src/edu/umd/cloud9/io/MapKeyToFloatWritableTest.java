@@ -25,7 +25,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -34,14 +33,16 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class KeyToFloatMapTest {
+import edu.umd.cloud9.util.MapFloat;
+
+public class MapKeyToFloatWritableTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		KeyToFloatMap<Text> v = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v = new MapKeyToFloatWritable<Text>();
 
-		v.set(new Text("hi"), 5.0f);
-		v.set(new Text("there"), 22.0f);
+		v.put(new Text("hi"), 5.0f);
+		v.put(new Text("there"), 22.0f);
 
 		Text key;
 		float value;
@@ -62,17 +63,17 @@ public class KeyToFloatMapTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		KeyToFloatMap<Text> v1 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v1 = new MapKeyToFloatWritable<Text>();
 
-		v1.set(new Text("hi"), 5.0f);
-		v1.set(new Text("there"), 22.0f);
+		v1.put(new Text("hi"), 5.0f);
+		v1.put(new Text("there"), 22.0f);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		v1.write(dataOut);
 
-		KeyToFloatMap<Text> v2 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v2 = new MapKeyToFloatWritable<Text>();
 
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
@@ -95,17 +96,17 @@ public class KeyToFloatMapTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		KeyToFloatMap<WritableComparable> v1 = new KeyToFloatMap<WritableComparable>();
+		MapKeyToFloatWritable<WritableComparable> v1 = new MapKeyToFloatWritable<WritableComparable>();
 
-		v1.set(new Text("hi"), 4.0f);
-		v1.set(new IntWritable(0), 76.0f);
+		v1.put(new Text("hi"), 4.0f);
+		v1.put(new IntWritable(0), 76.0f);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		v1.write(dataOut);
 
-		KeyToFloatMap<WritableComparable> v2 = new KeyToFloatMap<WritableComparable>();
+		MapKeyToFloatWritable<WritableComparable> v2 = new MapKeyToFloatWritable<WritableComparable>();
 
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
@@ -113,7 +114,7 @@ public class KeyToFloatMapTest {
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		KeyToFloatMap<WritableComparable> v1 = new KeyToFloatMap<WritableComparable>();
+		MapKeyToFloatWritable<WritableComparable> v1 = new MapKeyToFloatWritable<WritableComparable>();
 
 		assertTrue(v1.size() == 0);
 
@@ -122,22 +123,22 @@ public class KeyToFloatMapTest {
 
 		v1.write(dataOut);
 
-		KeyToFloatMap<WritableComparable> v2 = new KeyToFloatMap<WritableComparable>();
+		MapKeyToFloatWritable<WritableComparable> v2 = new MapKeyToFloatWritable<WritableComparable>();
 		v2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 		assertTrue(v2.size() == 0);
 	}
 
 	@Test
 	public void testPlus() throws IOException {
-		KeyToFloatMap<Text> v1 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v1 = new MapKeyToFloatWritable<Text>();
 
-		v1.set(new Text("hi"), 5.0f);
-		v1.set(new Text("there"), 22.0f);
+		v1.put(new Text("hi"), 5.0f);
+		v1.put(new Text("there"), 22.0f);
 
-		KeyToFloatMap<Text> v2 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v2 = new MapKeyToFloatWritable<Text>();
 
-		v2.set(new Text("hi"), 4.0f);
-		v2.set(new Text("test"), 5.0f);
+		v2.put(new Text("hi"), 4.0f);
+		v2.put(new Text("test"), 5.0f);
 
 		v1.plus(v2);
 
@@ -149,17 +150,17 @@ public class KeyToFloatMapTest {
 
 	@Test
 	public void testDot() throws IOException {
-		KeyToFloatMap<Text> v1 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v1 = new MapKeyToFloatWritable<Text>();
 
-		v1.set(new Text("hi"), 2.3f);
-		v1.set(new Text("there"), 1.9f);
-		v1.set(new Text("empty"), 3.0f);
+		v1.put(new Text("hi"), 2.3f);
+		v1.put(new Text("there"), 1.9f);
+		v1.put(new Text("empty"), 3.0f);
 
-		KeyToFloatMap<Text> v2 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v2 = new MapKeyToFloatWritable<Text>();
 
-		v2.set(new Text("hi"), 1.2f);
-		v2.set(new Text("there"), 4.3f);
-		v2.set(new Text("test"), 5.0f);
+		v2.put(new Text("hi"), 1.2f);
+		v2.put(new Text("there"), 4.3f);
+		v2.put(new Text("test"), 5.0f);
 
 		float s = v1.dot(v2);
 
@@ -168,11 +169,11 @@ public class KeyToFloatMapTest {
 
 	@Test
 	public void testLengthAndNormalize() throws IOException {
-		KeyToFloatMap<Text> v1 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v1 = new MapKeyToFloatWritable<Text>();
 
-		v1.set(new Text("hi"), 2.3f);
-		v1.set(new Text("there"), 1.9f);
-		v1.set(new Text("empty"), 3.0f);
+		v1.put(new Text("hi"), 2.3f);
+		v1.put(new Text("there"), 1.9f);
+		v1.put(new Text("empty"), 3.0f);
 
 		assertEquals(v1.length(), 4.2308393, 10E-6);
 
@@ -183,11 +184,11 @@ public class KeyToFloatMapTest {
 		assertEquals(v1.get(new Text("empty")), 0.70907915, 10E-6);
 		assertEquals(v1.length(), 1, 10E-6);
 
-		KeyToFloatMap<Text> v2 = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v2 = new MapKeyToFloatWritable<Text>();
 
-		v2.set(new Text("hi"), 1.2f);
-		v2.set(new Text("there"), 4.3f);
-		v2.set(new Text("test"), 5.0f);
+		v2.put(new Text("hi"), 1.2f);
+		v2.put(new Text("there"), 4.3f);
+		v2.put(new Text("test"), 5.0f);
 
 		assertEquals(v2.length(), 6.7029843, 10E-6);
 
@@ -202,17 +203,17 @@ public class KeyToFloatMapTest {
 	@Test
 	public void testSortedEntries1() {
 
-		KeyToFloatMap<Text> v = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v = new MapKeyToFloatWritable<Text>();
 
-		v.set(new Text("a"), 5.0f);
-		v.set(new Text("b"), 2.0f);
-		v.set(new Text("c"), 3.0f);
-		v.set(new Text("d"), 3.0f);
-		v.set(new Text("e"), 1.0f);
+		v.put(new Text("a"), 5.0f);
+		v.put(new Text("b"), 2.0f);
+		v.put(new Text("c"), 3.0f);
+		v.put(new Text("d"), 3.0f);
+		v.put(new Text("e"), 1.0f);
 
-		Iterator<Map.Entry<Text, Float>> iter = v.getSortedEntries().iterator();
+		Iterator<MapFloat.Entry<Text>> iter = v.getEntriesSortedByValue().iterator();
 
-		Map.Entry<Text, Float> m = iter.next();
+		MapFloat.Entry<Text> m = iter.next();
 		assertEquals(new Text("a"), m.getKey());
 		assertEquals(5.0f, (float) m.getValue(), 10E-6);
 
@@ -238,17 +239,17 @@ public class KeyToFloatMapTest {
 	@Test
 	public void testSortedEntries2() {
 
-		KeyToFloatMap<Text> v = new KeyToFloatMap<Text>();
+		MapKeyToFloatWritable<Text> v = new MapKeyToFloatWritable<Text>();
 
-		v.set(new Text("a"), 5.0f);
-		v.set(new Text("b"), 2.0f);
-		v.set(new Text("c"), 3.0f);
-		v.set(new Text("d"), 3.0f);
-		v.set(new Text("e"), 1.0f);
+		v.put(new Text("a"), 5.0f);
+		v.put(new Text("b"), 2.0f);
+		v.put(new Text("c"), 3.0f);
+		v.put(new Text("d"), 3.0f);
+		v.put(new Text("e"), 1.0f);
 
-		Iterator<Map.Entry<Text, Float>> iter = v.getSortedEntries(2).iterator();
+		Iterator<MapFloat.Entry<Text>> iter = v.getEntriesSortedByValue(2).iterator();
 
-		Map.Entry<Text, Float> m = iter.next();
+		MapFloat.Entry<Text> m = iter.next();
 		assertEquals(new Text("a"), m.getKey());
 		assertEquals(5.0f, (float) m.getValue(), 10E-6);
 
@@ -260,7 +261,7 @@ public class KeyToFloatMapTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(KeyToFloatMapTest.class);
+		return new JUnit4TestAdapter(MapKeyToFloatWritableTest.class);
 	}
 
 }

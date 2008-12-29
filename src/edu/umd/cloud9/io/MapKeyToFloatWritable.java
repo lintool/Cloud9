@@ -6,13 +6,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+
+import edu.umd.cloud9.util.HashMapFloat;
+import edu.umd.cloud9.util.MapFloat;
 
 /**
  * <p>
@@ -21,10 +23,10 @@ import org.apache.hadoop.io.WritableComparable;
  * features (i.e., component of the vector), but all values are floats.
  * </p>
  * 
- * @param <F>
+ * @param <K>
  *            type of feature
  */
-public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Float> implements
+public class MapKeyToFloatWritable<K extends WritableComparable> extends HashMapFloat<K> implements
 		Writable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,7 +34,7 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	/**
 	 * Creates a VectorFloat object.
 	 */
-	public KeyToFloatMap() {
+	public MapKeyToFloatWritable() {
 		super();
 	}
 
@@ -53,11 +55,11 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 
 		String keyClassName = in.readUTF();
 
-		F objK;
+		K objK;
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
-				objK = (F) keyClass.newInstance();
+				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
 				float s = in.readFloat();
 				put(objK, s);
@@ -87,39 +89,16 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<Map.Entry<F, Float>> entries = entrySet();
-		Map.Entry<F, Float> first = entries.iterator().next();
-		F objK = first.getKey();
+		Set<MapFloat.Entry<K>> entries = entrySet();
+		MapFloat.Entry<K> first = entries.iterator().next();
+		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (Map.Entry<F, Float> e : entrySet()) {
+		for (MapFloat.Entry<K> e : entrySet()) {
 			e.getKey().write(out);
 			out.writeFloat(e.getValue());
 		}
-	}
-
-	/**
-	 * Sets the value of a feature.
-	 * 
-	 * @param f
-	 *            the feature
-	 * @param v
-	 *            the value
-	 */
-	public void set(F f, float v) {
-		super.put(f, v);
-	}
-
-	/**
-	 * Returns the value of a feature.
-	 * 
-	 * @param f
-	 *            the feature
-	 * @return the value of the feature
-	 */
-	public float get(F f) {
-		return super.get(f);
 	}
 
 	/**
@@ -128,9 +107,9 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	 * @param v
 	 *            vector to add
 	 */
-	public void plus(KeyToFloatMap<F> v) {
-		for (Map.Entry<F, Float> e : v.entrySet()) {
-			F key = e.getKey();
+	public void plus(MapKeyToFloatWritable<K> v) {
+		for (MapFloat.Entry<K> e : v.entrySet()) {
+			K key = e.getKey();
 
 			if (this.containsKey(key)) {
 				this.put(key, this.get(key) + e.getValue());
@@ -146,11 +125,11 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	 * @param v
 	 *            the other vector
 	 */
-	public float dot(KeyToFloatMap<F> v) {
+	public float dot(MapKeyToFloatWritable<K> v) {
 		float s = 0.0f;
 
-		for (Map.Entry<F, Float> e : v.entrySet()) {
-			F key = e.getKey();
+		for (MapFloat.Entry<K> e : v.entrySet()) {
+			K key = e.getKey();
 
 			if (this.containsKey(key)) {
 				s += this.get(key) * e.getValue();
@@ -163,12 +142,12 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	/**
 	 * Computes the length of this vector.
 	 * 
-	 * @return length of tis vector
+	 * @return length of this vector
 	 */
 	public float length() {
 		float s = 0.0f;
 
-		for (Map.Entry<F, Float> e : this.entrySet()) {
+		for (MapFloat.Entry<K> e : this.entrySet()) {
 			s += e.getValue() * e.getValue();
 		}
 
@@ -181,8 +160,8 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	public void normalize() {
 		float l = this.length();
 
-		for (F f : this.keySet()) {
-			this.set(f, this.get(f) / l);
+		for (K f : this.keySet()) {
+			this.put(f, this.get(f) / l);
 		}
 
 	}
@@ -193,11 +172,11 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	 * 
 	 * @return feature-value entries sorted by descending value
 	 */
-	public SortedSet<Map.Entry<F, Float>> getSortedEntries() {
-		SortedSet<Map.Entry<F, Float>> entries = new TreeSet<Map.Entry<F, Float>>(
-				new Comparator<Map.Entry<F, Float>>() {
+	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue() {
+		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
+				new Comparator<MapFloat.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(Map.Entry<F, Float> e1, Map.Entry<F, Float> e2) {
+					public int compare(MapFloat.Entry<K> e1, MapFloat.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -207,7 +186,7 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 					}
 				});
 
-		for (Map.Entry<F, Float> entry : this.entrySet()) {
+		for (MapFloat.Entry<K> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
@@ -222,11 +201,11 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 	 *            number of entries to return
 	 * @return top <i>n</i> feature-value entries sorted by descending value
 	 */
-	public SortedSet<Map.Entry<F, Float>> getSortedEntries(int n) {
-		SortedSet<Map.Entry<F, Float>> entries = new TreeSet<Map.Entry<F, Float>>(
-				new Comparator<Map.Entry<F, Float>>() {
+	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue(int n) {
+		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
+				new Comparator<MapFloat.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(Map.Entry<F, Float> e1, Map.Entry<F, Float> e2) {
+					public int compare(MapFloat.Entry<K> e1, MapFloat.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -237,7 +216,7 @@ public class KeyToFloatMap<F extends WritableComparable> extends HashMap<F, Floa
 				});
 
 		int cnt = 0;
-		for (Map.Entry<F, Float> entry : getSortedEntries()) {
+		for (MapFloat.Entry<K> entry : getEntriesSortedByValue()) {
 			entries.add(entry);
 			cnt++;
 			if (cnt >= n)
