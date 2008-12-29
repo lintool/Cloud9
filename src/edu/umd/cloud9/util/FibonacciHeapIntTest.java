@@ -243,7 +243,7 @@ public class FibonacciHeapIntTest extends TestCase {
 		assertEquals(0, joined.size());
 	}
 
-	public void test1() {
+	public void testBasic() {
 		FibonacciHeapInt heap = new FibonacciHeapInt();
 		
 		heap.insert(1, 3.1f);
@@ -257,7 +257,8 @@ public class FibonacciHeapIntTest extends TestCase {
 		assertEquals(2, heap.removeMin().getDatum());
 	}
 
-	public void test2() {
+	// test ties
+	public void testTies() {
 		FibonacciHeapInt heap = new FibonacciHeapInt();
 		
 		heap.insert(1, 3.1f);
