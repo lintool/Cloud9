@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop/hadoop-0.17.0/hadoop-0.17.0-core.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/memcached-2.2.jar"/>
+	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/spy-2.4.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
