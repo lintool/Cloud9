@@ -10,10 +10,10 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	private static final long serialVersionUID = 8726031451L;
 
 	/**
-	 * Adds another vector to this vector, based on feature-wise addition.
+	 * Treats maps as if they were vectors and performs vector addition.
 	 * 
 	 * @param m
-	 *            vector to add
+	 *            the other vector
 	 */
 	public void plus(OrderedHashMapInt<K> m) {
 		for (MapInt.Entry<K> e : m.entrySet()) {
@@ -28,7 +28,7 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	}
 
 	/**
-	 * Computes the dot product between this vector and another vector.
+	 * Treats maps as if they were vectors and computes the dot product.
 	 * 
 	 * @param m
 	 *            the other vector
@@ -48,10 +48,10 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	}
 
 	/**
-	 * Returns feature-value entries sorted by descending value. Ties broken by
-	 * the natural sort order of the feature.
+	 * Returns entries sorted by descending value. Ties broken by the natural
+	 * sort order of the feature.
 	 * 
-	 * @return feature-value entries sorted by descending value
+	 * @return entries sorted by descending value
 	 */
 	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue() {
 		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
@@ -75,14 +75,16 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	}
 
 	/**
-	 * Returns top <i>n</i> feature-value entries sorted by descending value.
-	 * Ties broken by the natural sort order of the feature.
+	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * the natural sort order of the feature.
 	 * 
 	 * @param n
 	 *            number of entries to return
-	 * @return top <i>n</i> feature-value entries sorted by descending value
+	 * @return top <i>n</i> entries sorted by descending value
 	 */
 	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue(int n) {
+		// TODO: this should be rewritten to use a Fibonacci heap
+
 		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
 				new Comparator<MapInt.Entry<K>>() {
 					@SuppressWarnings("unchecked")
@@ -106,5 +108,5 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 
 		return Collections.unmodifiableSortedSet(entries);
 	}
-	
+
 }

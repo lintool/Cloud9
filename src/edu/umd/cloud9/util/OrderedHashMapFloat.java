@@ -9,12 +9,11 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 
 	private static final long serialVersionUID = 6590482318L;
 
-
 	/**
-	 * Adds another vector to this vector, based on feature-wise addition.
+	 * Treats maps as if they were vectors and performs vector addition.
 	 * 
 	 * @param m
-	 *            vector to add
+	 *            the other vector
 	 */
 	public void plus(OrderedHashMapFloat<K> m) {
 		for (MapFloat.Entry<K> e : m.entrySet()) {
@@ -29,7 +28,7 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	}
 
 	/**
-	 * Computes the dot product between this vector and another vector.
+	 * Treats maps as if they were vectors and computes the dot product.
 	 * 
 	 * @param m
 	 *            the other vector
@@ -49,7 +48,7 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	}
 
 	/**
-	 * Computes the length of this vector.
+	 * Treats this map as if it were a vector and returns its length.
 	 * 
 	 * @return length of this vector
 	 */
@@ -64,7 +63,8 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	}
 
 	/**
-	 * Normalizes this vector to a unit-length vector.
+	 * Treats this map as if it were a vector and normalizes it to a unit-length
+	 * vector.
 	 */
 	public void normalize() {
 		float l = this.length();
@@ -76,10 +76,10 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	}
 
 	/**
-	 * Returns feature-value entries sorted by descending value. Ties broken by
-	 * the natural sort order of the feature.
+	 * Returns entries sorted by descending value. Ties broken by the natural
+	 * sort order of the feature.
 	 * 
-	 * @return feature-value entries sorted by descending value
+	 * @return entries sorted by descending value
 	 */
 	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue() {
 		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
@@ -103,14 +103,16 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	}
 
 	/**
-	 * Returns top <i>n</i> feature-value entries sorted by descending value.
-	 * Ties broken by the natural sort order of the feature.
+	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * the natural sort order of the feature.
 	 * 
 	 * @param n
 	 *            number of entries to return
-	 * @return top <i>n</i> feature-value entries sorted by descending value
+	 * @return top <i>n</i> entries sorted by descending value
 	 */
 	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue(int n) {
+		// TODO: this should be rewritten to use a Fibonacci heap
+		
 		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
 				new Comparator<MapFloat.Entry<K>>() {
 					@SuppressWarnings("unchecked")
