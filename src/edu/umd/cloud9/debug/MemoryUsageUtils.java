@@ -3,6 +3,10 @@ package edu.umd.cloud9.debug;
 public class MemoryUsageUtils {
 
 	public static long getUsedMemory() {
+		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	}
+	
+	public static long getUsedMemoryAccurate() {
 		gc();
 		long totalMemory = Runtime.getRuntime().totalMemory();
 		gc();
