@@ -24,14 +24,15 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * <p>
- * WritableComparable representing a pair of Strings. The elements in the pair
- * are referred to as the left and right elements. The natural sort order is:
- * first by the left element, and then by the right element.
+ * WritableComparable representing a pair consisting of an integer and a String.
+ * The elements in the pair are referred to as the left and right elements. The
+ * natural sort order is: first by the left element, and then by the right
+ * element.
  * </p>
  */
 public class PairOfIntString implements WritableComparable {
 
-	private int leftElement; 
+	private int leftElement;
 	private String rightElement;
 
 	/**
@@ -115,8 +116,7 @@ public class PairOfIntString implements WritableComparable {
 	 */
 	public boolean equals(Object obj) {
 		PairOfIntString pair = (PairOfIntString) obj;
-		return leftElement == pair.getLeftElement()
-				&& rightElement.equals(pair.getRightElement());
+		return leftElement == pair.getLeftElement() && rightElement.equals(pair.getRightElement());
 	}
 
 	/**
