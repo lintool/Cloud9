@@ -117,7 +117,7 @@ import java.util.TreeMap;
  */
 
 public class HashMapFloat<K>
-    extends AbstractMapFloat<K>
+    //extends AbstractMapFloat<K>
     implements MapFloat<K>, Cloneable, Serializable
 {
 
@@ -643,14 +643,14 @@ public class HashMapFloat<K>
      * @return <tt>true</tt> if this map maps one or more keys to the
      *         specified value
      */
-    public boolean containsValue(Object value) {
-	if (value == null)
-            return containsNullValue();
+    public boolean containsValue(float value) {
+	//if (value == null)
+    //        return containsNullValue();
 
 	Entry[] tab = table;
         for (int i = 0; i < tab.length ; i++)
             for (Entry e = tab[i] ; e != null ; e = e.next)
-                if (value.equals(e.value))
+                if (value == e.value)
                     return true;
 	return false;
     }
@@ -723,13 +723,13 @@ public class HashMapFloat<K>
         public final boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry e = (Map.Entry)o;
-            Object k1 = getKey();
-            Object k2 = e.getKey();
+            MapFloat.Entry<K> e = (MapFloat.Entry<K>)o;
+            K k1 = getKey();
+            K k2 = e.getKey();
             if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-                Object v1 = getValue();
-                Object v2 = e.getValue();
-                if (v1 == v2 || (v1 != null && v1.equals(v2)))
+                float v1 = getValue();
+                float v2 = e.getValue();
+                if (v1 == v2 )
                     return true;
             }
             return false;
@@ -788,7 +788,7 @@ public class HashMapFloat<K>
         size++;
     }
 
-    private abstract class HashIterator<E> implements Iterator<E> {
+    private abstract class HashIterator implements Iterator {
         Entry<K> next;	// next entry to return
         int expectedModCount;	// For fast-fail
         int index;		// current slot
@@ -836,19 +836,19 @@ public class HashMapFloat<K>
 
     }
 
-    private final class ValueIterator extends HashIterator<Float> {
+    private final class ValueIterator extends HashIterator {
         public Float next() {
             return nextEntry().value;
         }
     }
 
-    private final class KeyIterator extends HashIterator<K> {
+    private final class KeyIterator extends HashIterator {
         public K next() {
             return nextEntry().getKey();
         }
     }
 
-    private final class EntryIterator extends HashIterator<MapFloat.Entry<K>> {
+    private final class EntryIterator extends HashIterator {
         public MapFloat.Entry<K> next() {
             return nextEntry();
         }
@@ -870,6 +870,14 @@ public class HashMapFloat<K>
 
     private transient Set<MapFloat.Entry<K>> entrySet = null;
 
+    /**
+     * Each of these fields are initialized to contain an instance of the
+     * appropriate view the first time this view is requested.  The views are
+     * stateless, so there's no reason to create more than one of each.
+     */
+    transient volatile Set<K>        keySet = null;
+    transient volatile Collection<Float> values = null;
+    
     /**
      * Returns a {@link Set} view of the keys contained in this map.
      * The set is backed by the map, so changes to the map are
@@ -931,7 +939,7 @@ public class HashMapFloat<K>
         public int size() {
             return size;
         }
-        public boolean contains(Object o) {
+        public boolean contains(float o) {
             return containsValue(o);
         }
         public void clear() {
