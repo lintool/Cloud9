@@ -3,10 +3,10 @@ package edu.umd.cloud9.util.benchmark;
 import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
-import edu.umd.cloud9.util.HashMapInt;
-import edu.umd.cloud9.util.MapInt;
+import edu.umd.cloud9.util.HMapKI;
+import edu.umd.cloud9.util.MapKI;
 
-public class BenchmarkHashMapIntOptimized {
+public class BenchmarkHMapKI {
 
 	public static void main(String[] args) {
 		int size = 5000000;
@@ -17,8 +17,8 @@ public class BenchmarkHashMapIntOptimized {
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
 
-		System.out.println("Benchmarking HashMapInt<Integer>...");
-		MapInt<Integer> map = new HashMapInt<Integer>();
+		System.out.println("Benchmarking HMapKI<Integer>...");
+		MapKI<Integer> map = new HMapKI<Integer>();
 
 		startTime = System.currentTimeMillis();
 		for (int i = 0; i < size; i++) {
@@ -43,8 +43,9 @@ public class BenchmarkHashMapIntOptimized {
 
 		System.out.println("Used memory before: " + usedMemory1);
 		System.out.println("Used memory after: " + usedMemory2);
-		System.out.println("Total memory usage: " + (usedMemory2-usedMemory1));
-		System.out.println("Memory usage per map entry: " + ((float) (usedMemory2-usedMemory1)/size));
+		System.out.println("Total memory usage: " + (usedMemory2 - usedMemory1));
+		System.out.println("Memory usage per map entry: "
+				+ ((float) (usedMemory2 - usedMemory1) / size));
 	}
 
 }

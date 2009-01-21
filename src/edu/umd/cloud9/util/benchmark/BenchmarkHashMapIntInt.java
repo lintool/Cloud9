@@ -6,7 +6,7 @@ import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
 
-public class BenchmarkHashMapIntBaseline {
+public class BenchmarkHashMapIntInt {
 
 	public static void main(String[] args) {
 		int size = 5000000;
@@ -16,7 +16,7 @@ public class BenchmarkHashMapIntBaseline {
 		int[] ints = new int[size];
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
-		
+
 		System.out.println("Benchmarking HashMap<Integer, Integer>...");
 		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 
@@ -43,8 +43,9 @@ public class BenchmarkHashMapIntBaseline {
 
 		System.out.println("Used memory before: " + usedMemory1);
 		System.out.println("Used memory after: " + usedMemory2);
-		System.out.println("Total memory usage: " + (usedMemory2-usedMemory1));
-		System.out.println("Memory usage per map entry: " + ((float) (usedMemory2-usedMemory1)/size));
+		System.out.println("Total memory usage: " + (usedMemory2 - usedMemory1));
+		System.out.println("Memory usage per map entry: "
+				+ ((float) (usedMemory2 - usedMemory1) / size));
 
 	}
 }
