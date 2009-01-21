@@ -335,19 +335,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	}
 
 	/**
-	 * Offloaded version of get() to look up null keys. Null keys map to index
-	 * 0. This null case is split out into separate methods for the sake of
-	 * performance in the two most commonly used operations (get and put), but
-	 * incorporated with conditionals in others.
-	 */
-	/*
-	 * private int getForNullKey() { for (Entry<K> e = table[0]; e != null; e =
-	 * e.next) { if (e.key == null) return e.value; }
-	 * 
-	 * throw new NoSuchElementException(); }
-	 */
-
-	/**
 	 * Returns <tt>true</tt> if this map contains a mapping for the specified
 	 * key.
 	 * 
@@ -707,8 +694,8 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 
 		public final boolean equals(Object o) {
-			if (!(o instanceof MapKI.Entry))
-				return false;
+			//if (!(o instanceof MapKI.Entry))
+			//	return false;
 			MapII.Entry e = (MapII.Entry) o;
 			int k1 = getKey();
 			int k2 = e.getKey();
@@ -966,8 +953,8 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 
 		public boolean contains(Object o) {
-			if (!(o instanceof Map.Entry))
-				return false;
+			//if (!(o instanceof Map.Entry))
+			//	return false;
 			MapII.Entry e = (MapII.Entry) o;
 			Entry candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
