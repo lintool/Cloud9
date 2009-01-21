@@ -127,9 +127,7 @@ import java.util.TreeMap;
  * @since 1.2
  */
 
-public class HashMapKF<K>
-// extends AbstractMapFloat<K>
-		implements MapKF<K>, Cloneable, Serializable {
+public class HMapII implements MapII, Cloneable, Serializable {
 
 	/**
 	 * The default initial capacity - MUST be a power of two.
@@ -150,7 +148,7 @@ public class HashMapKF<K>
 	/**
 	 * The table, resized as necessary. Length MUST Always be a power of two.
 	 */
-	transient Entry<K>[] table;
+	transient Entry[] table;
 
 	/**
 	 * The number of key-value mappings contained in this map.
@@ -192,8 +190,7 @@ public class HashMapKF<K>
 	 *             if the initial capacity is negative or the load factor is
 	 *             nonpositive
 	 */
-	@SuppressWarnings("unchecked")
-	public HashMapKF(int initialCapacity, float loadFactor) {
+	public HMapII(int initialCapacity, float loadFactor) {
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
 		if (initialCapacity > MAXIMUM_CAPACITY)
@@ -221,7 +218,7 @@ public class HashMapKF<K>
 	 * @throws IllegalArgumentException
 	 *             if the initial capacity is negative.
 	 */
-	public HashMapKF(int initialCapacity) {
+	public HMapII(int initialCapacity) {
 		this(initialCapacity, DEFAULT_LOAD_FACTOR);
 	}
 
@@ -229,8 +226,7 @@ public class HashMapKF<K>
 	 * Constructs an empty <tt>HashMap</tt> with the default initial capacity
 	 * (16) and the default load factor (0.75).
 	 */
-	@SuppressWarnings("unchecked")
-	public HashMapKF() {
+	public HMapII() {
 		this.loadFactor = DEFAULT_LOAD_FACTOR;
 		threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
 		table = new Entry[DEFAULT_INITIAL_CAPACITY];
@@ -248,7 +244,7 @@ public class HashMapKF<K>
 	 * @throws NullPointerException
 	 *             if the specified map is null
 	 */
-	public HashMapKF(MapKF<? extends K> m) {
+	public HMapII(MapII m) {
 		this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_INITIAL_CAPACITY),
 				DEFAULT_LOAD_FACTOR);
 		putAllForCreate(m);
@@ -325,13 +321,13 @@ public class HashMapKF<K>
 	 * 
 	 * @see #put(Object, Object)
 	 */
-	public float get(Object key) {
-		if (key == null)
-			return getForNullKey();
-		int hash = hash(key.hashCode());
-		for (Entry<K> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
-			Object k;
-			if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
+	public int get(int key) {
+		// if (key == null)
+		// return getForNullKey();
+		int hash = hash(key);
+		for (Entry e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
+			int k;
+			if (e.hash == hash && ((k = e.key) == key || key == k))
 				return e.value;
 		}
 
@@ -344,14 +340,12 @@ public class HashMapKF<K>
 	 * performance in the two most commonly used operations (get and put), but
 	 * incorporated with conditionals in others.
 	 */
-	private float getForNullKey() {
-		for (Entry<K> e = table[0]; e != null; e = e.next) {
-			if (e.key == null)
-				return e.value;
-		}
-
-		throw new NoSuchElementException();
-	}
+	/*
+	 * private int getForNullKey() { for (Entry<K> e = table[0]; e != null; e =
+	 * e.next) { if (e.key == null) return e.value; }
+	 * 
+	 * throw new NoSuchElementException(); }
+	 */
 
 	/**
 	 * Returns <tt>true</tt> if this map contains a mapping for the specified
@@ -362,7 +356,7 @@ public class HashMapKF<K>
 	 * @return <tt>true</tt> if this map contains a mapping for the specified
 	 *         key.
 	 */
-	public boolean containsKey(Object key) {
+	public boolean containsKey(int key) {
 		return getEntry(key) != null;
 	}
 
@@ -370,11 +364,11 @@ public class HashMapKF<K>
 	 * Returns the entry associated with the specified key in the HashMap.
 	 * Returns null if the HashMap contains no mapping for the key.
 	 */
-	final Entry<K> getEntry(Object key) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());
-		for (Entry<K> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
-			Object k;
-			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k))))
+	final Entry getEntry(int key) {
+		int hash = hash(key);
+		for (Entry e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
+			int k;
+			if (e.hash == hash && ((k = e.key) == key || key == k))
 				return e;
 		}
 		return null;
@@ -394,16 +388,16 @@ public class HashMapKF<K>
 	 *         <tt>null</tt> return can also indicate that the map previously
 	 *         associated <tt>null</tt> with <tt>key</tt>.)
 	 */
-	public void put(K key, float value) {
-		if (key == null) {
-			putForNullKey(value);
-			return;
-		}
-		int hash = hash(key.hashCode());
+	public void put(int key, int value) {
+		/*
+		 * if (key == null) { putForNullKey(value); return; }
+		 */
+		int hash = hash(key);
 		int i = indexFor(hash, table.length);
-		for (Entry<K> e = table[i]; e != null; e = e.next) {
-			Object k;
-			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+		for (Entry e = table[i]; e != null; e = e.next) {
+			int k;
+			if (e.hash == hash && ((k = e.key) == key || key == k)) {
+				// int oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
 				return; // oldValue;
@@ -418,25 +412,20 @@ public class HashMapKF<K>
 	/**
 	 * Offloaded version of put for null keys
 	 */
-	private void putForNullKey(float value) {
-		for (Entry<K> e = table[0]; e != null; e = e.next) {
-			if (e.key == null) {
-				e.value = value;
-				e.recordAccess(this);
-			}
-		}
-		modCount++;
-		addEntry(0, null, value, 0);
-		// return null;
-	}
+	/*
+	 * private void putForNullKey(int value) { for (Entry<K> e = table[0]; e !=
+	 * null; e = e.next) { if (e.key == null) { int oldValue = e.value; e.value =
+	 * value; e.recordAccess(this); //return oldValue; } } modCount++;
+	 * addEntry(0, null, value, 0); //return null; }
+	 */
 
 	/**
 	 * This method is used instead of put by constructors and pseudoconstructors
 	 * (clone, readObject). It does not resize the table, check for
 	 * comodification, etc. It calls createEntry rather than addEntry.
 	 */
-	private void putForCreate(K key, float value) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());
+	private void putForCreate(int key, int value) {
+		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 
 		/**
@@ -444,9 +433,9 @@ public class HashMapKF<K>
 		 * or deserialize. It will only happen for construction if the input Map
 		 * is a sorted map whose ordering is inconsistent w/ equals.
 		 */
-		for (Entry<K> e = table[i]; e != null; e = e.next) {
-			Object k;
-			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
+		for (Entry e = table[i]; e != null; e = e.next) {
+			int k;
+			if (e.hash == hash && ((k = e.key) == key || key == k)) {
 				e.value = value;
 				return;
 			}
@@ -455,9 +444,9 @@ public class HashMapKF<K>
 		createEntry(hash, key, value, i);
 	}
 
-	private void putAllForCreate(MapKF<? extends K> m) {
-		for (Iterator<? extends MapKF.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext();) {
-			MapKF.Entry<? extends K> e = i.next();
+	private void putAllForCreate(MapII m) {
+		for (Iterator<? extends MapII.Entry> i = m.entrySet().iterator(); i.hasNext();) {
+			MapII.Entry e = i.next();
 			putForCreate(e.getKey(), e.getValue());
 		}
 	}
@@ -476,16 +465,15 @@ public class HashMapKF<K>
 	 *            current capacity unless current capacity is MAXIMUM_CAPACITY
 	 *            (in which case value is irrelevant).
 	 */
-	@SuppressWarnings("unchecked")
 	void resize(int newCapacity) {
-		Entry<K>[] oldTable = table;
+		Entry[] oldTable = table;
 		int oldCapacity = oldTable.length;
 		if (oldCapacity == MAXIMUM_CAPACITY) {
 			threshold = Integer.MAX_VALUE;
 			return;
 		}
 
-		Entry<K>[] newTable = new Entry[newCapacity];
+		Entry[] newTable = new Entry[newCapacity];
 		transfer(newTable);
 		table = newTable;
 		threshold = (int) (newCapacity * loadFactor);
@@ -494,15 +482,15 @@ public class HashMapKF<K>
 	/**
 	 * Transfers all entries from current table to newTable.
 	 */
-	void transfer(Entry<K>[] newTable) {
-		Entry<K>[] src = table;
+	void transfer(Entry[] newTable) {
+		Entry[] src = table;
 		int newCapacity = newTable.length;
 		for (int j = 0; j < src.length; j++) {
-			Entry<K> e = src[j];
+			Entry e = src[j];
 			if (e != null) {
 				src[j] = null;
 				do {
-					Entry<K> next = e.next;
+					Entry next = e.next;
 					int i = indexFor(e.hash, newCapacity);
 					e.next = newTable[i];
 					newTable[i] = e;
@@ -522,7 +510,7 @@ public class HashMapKF<K>
 	 * @throws NullPointerException
 	 *             if the specified map is null
 	 */
-	public void putAll(MapKF<? extends K> m) {
+	public void putAll(MapII m) {
 		int numKeysToBeAdded = m.size();
 		if (numKeysToBeAdded == 0)
 			return;
@@ -547,8 +535,8 @@ public class HashMapKF<K>
 				resize(newCapacity);
 		}
 
-		for (Iterator<? extends MapKF.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext();) {
-			MapKF.Entry<? extends K> e = i.next();
+		for (Iterator<? extends MapII.Entry> i = m.entrySet().iterator(); i.hasNext();) {
+			MapII.Entry e = i.next();
 			put(e.getKey(), e.getValue());
 		}
 	}
@@ -563,8 +551,8 @@ public class HashMapKF<K>
 	 *         <tt>null</tt> return can also indicate that the map previously
 	 *         associated <tt>null</tt> with <tt>key</tt>.)
 	 */
-	public float remove(Object key) {
-		Entry<K> e = removeEntryForKey(key);
+	public int remove(int key) {
+		Entry e = removeEntryForKey(key);
 		if (e != null)
 			return e.value;
 
@@ -575,16 +563,16 @@ public class HashMapKF<K>
 	 * Removes and returns the entry associated with the specified key in the
 	 * HashMap. Returns null if the HashMap contains no mapping for this key.
 	 */
-	final Entry<K> removeEntryForKey(Object key) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());
+	final Entry removeEntryForKey(int key) {
+		int hash = hash(key);
 		int i = indexFor(hash, table.length);
-		Entry<K> prev = table[i];
-		Entry<K> e = prev;
+		Entry prev = table[i];
+		Entry e = prev;
 
 		while (e != null) {
-			Entry<K> next = e.next;
-			Object k;
-			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
+			Entry next = e.next;
+			int k;
+			if (e.hash == hash && ((k = e.key) == key || key == k)) {
 				modCount++;
 				size--;
 				if (prev == e)
@@ -604,20 +592,20 @@ public class HashMapKF<K>
 	/**
 	 * Special version of remove for EntrySet.
 	 */
-	@SuppressWarnings("unchecked")
-	final Entry<K> removeMapping(Object o) {
-		if (!(o instanceof Map.Entry))
-			return null;
+	final Entry removeMapping(Object o) {
+		// instanceof is costly, so skip
+		// if (!(o instanceof MapII.Entry))
+		// return null;
 
-		MapKF.Entry<K> entry = (MapKF.Entry<K>) o;
+		MapII.Entry entry = (MapII.Entry) o;
 		Object key = entry.getKey();
 		int hash = (key == null) ? 0 : hash(key.hashCode());
 		int i = indexFor(hash, table.length);
-		Entry<K> prev = table[i];
-		Entry<K> e = prev;
+		Entry prev = table[i];
+		Entry e = prev;
 
 		while (e != null) {
-			Entry<K> next = e.next;
+			Entry next = e.next;
 			if (e.hash == hash && e.equals(entry)) {
 				modCount++;
 				size--;
@@ -641,7 +629,7 @@ public class HashMapKF<K>
 	 */
 	public void clear() {
 		modCount++;
-		Entry<K>[] tab = table;
+		Entry[] tab = table;
 		for (int i = 0; i < tab.length; i++)
 			tab[i] = null;
 		size = 0;
@@ -656,10 +644,10 @@ public class HashMapKF<K>
 	 * @return <tt>true</tt> if this map maps one or more keys to the
 	 *         specified value
 	 */
-	public boolean containsValue(float value) {
-		Entry<K>[] tab = table;
+	public boolean containsValue(int value) {
+		Entry[] tab = table;
 		for (int i = 0; i < tab.length; i++)
-			for (Entry<K> e = tab[i]; e != null; e = e.next)
+			for (Entry e = tab[i]; e != null; e = e.next)
 				if (value == e.value)
 					return true;
 		return false;
@@ -671,11 +659,10 @@ public class HashMapKF<K>
 	 * 
 	 * @return a shallow copy of this map
 	 */
-	@SuppressWarnings("unchecked")
 	public Object clone() {
-		HashMapKF<K> result = null;
+		HMapII result = null;
 		try {
-			result = (HashMapKF<K>) super.clone();
+			result = (HMapII) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// assert false;
 		}
@@ -689,46 +676,45 @@ public class HashMapKF<K>
 		return result;
 	}
 
-	static class Entry<K> implements MapKF.Entry<K> {
-		final K key;
-		float value;
-		Entry<K> next;
+	static class Entry implements MapII.Entry {
+		final int key;
+		int value;
+		Entry next;
 		final int hash;
 
 		/**
 		 * Creates new entry.
 		 */
-		Entry(int h, K k, float v, Entry<K> n) {
+		Entry(int h, int k, int v, Entry n) {
 			value = v;
 			next = n;
 			key = k;
 			hash = h;
 		}
 
-		public final K getKey() {
+		public final int getKey() {
 			return key;
 		}
 
-		public final float getValue() {
+		public final int getValue() {
 			return value;
 		}
 
-		public final float setValue(float newValue) {
-			float oldValue = value;
+		public final int setValue(int newValue) {
+			int oldValue = value;
 			value = newValue;
 			return oldValue;
 		}
 
-		@SuppressWarnings("unchecked")
 		public final boolean equals(Object o) {
-			if (!(o instanceof Map.Entry))
+			if (!(o instanceof MapKI.Entry))
 				return false;
-			MapKF.Entry<K> e = (MapKF.Entry<K>) o;
-			K k1 = getKey();
-			K k2 = e.getKey();
-			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-				float v1 = getValue();
-				float v2 = e.getValue();
+			MapII.Entry e = (MapII.Entry) o;
+			int k1 = getKey();
+			int k2 = e.getKey();
+			if (k1 == k2) {
+				int v1 = getValue();
+				int v2 = e.getValue();
 				if (v1 == v2)
 					return true;
 			}
@@ -736,7 +722,7 @@ public class HashMapKF<K>
 		}
 
 		public final int hashCode() {
-			return (key == null ? 0 : key.hashCode()) ^ ((int) value);
+			return (key) ^ (value);
 		}
 
 		public final String toString() {
@@ -748,13 +734,13 @@ public class HashMapKF<K>
 		 * by an invocation of put(k,v) for a key k that's already in the
 		 * HashMap.
 		 */
-		void recordAccess(HashMapKF<K> m) {
+		void recordAccess(HMapII m) {
 		}
 
 		/**
 		 * This method is invoked whenever the entry is removed from the table.
 		 */
-		void recordRemoval(HashMapKF<K> m) {
+		void recordRemoval(HMapII m) {
 		}
 	}
 
@@ -765,9 +751,9 @@ public class HashMapKF<K>
 	 * 
 	 * Subclass overrides this to alter the behavior of put method.
 	 */
-	void addEntry(int hash, K key, float value, int bucketIndex) {
-		Entry<K> e = table[bucketIndex];
-		table[bucketIndex] = new Entry<K>(hash, key, value, e);
+	void addEntry(int hash, int key, int value, int bucketIndex) {
+		Entry e = table[bucketIndex];
+		table[bucketIndex] = new Entry(hash, key, value, e);
 		if (size++ >= threshold)
 			resize(2 * table.length);
 	}
@@ -780,22 +766,22 @@ public class HashMapKF<K>
 	 * Subclass overrides this to alter the behavior of HashMap(Map), clone, and
 	 * readObject.
 	 */
-	void createEntry(int hash, K key, float value, int bucketIndex) {
-		Entry<K> e = table[bucketIndex];
-		table[bucketIndex] = new Entry<K>(hash, key, value, e);
+	void createEntry(int hash, int key, int value, int bucketIndex) {
+		Entry e = table[bucketIndex];
+		table[bucketIndex] = new Entry(hash, key, value, e);
 		size++;
 	}
 
 	private abstract class HashIterator<E> implements Iterator<E> {
-		Entry<K> next; // next entry to return
+		Entry next; // next entry to return
 		int expectedModCount; // For fast-fail
 		int index; // current slot
-		Entry<K> current; // current entry
+		Entry current; // current entry
 
 		HashIterator() {
 			expectedModCount = modCount;
 			if (size > 0) { // advance to first entry
-				Entry<K>[] t = table;
+				Entry[] t = table;
 				while (index < t.length && (next = t[index++]) == null)
 					;
 			}
@@ -805,15 +791,15 @@ public class HashMapKF<K>
 			return next != null;
 		}
 
-		final Entry<K> nextEntry() {
+		final Entry nextEntry() {
 			if (modCount != expectedModCount)
 				throw new ConcurrentModificationException();
-			Entry<K> e = next;
+			Entry e = next;
 			if (e == null)
 				throw new NoSuchElementException();
 
 			if ((next = e.next) == null) {
-				Entry<K>[] t = table;
+				Entry[] t = table;
 				while (index < t.length && (next = t[index++]) == null)
 					;
 			}
@@ -826,56 +812,56 @@ public class HashMapKF<K>
 				throw new IllegalStateException();
 			if (modCount != expectedModCount)
 				throw new ConcurrentModificationException();
-			Object k = current.key;
+			int k = current.key;
 			current = null;
-			HashMapKF.this.removeEntryForKey(k);
+			HMapII.this.removeEntryForKey(k);
 			expectedModCount = modCount;
 		}
 
 	}
 
-	private final class ValueIterator extends HashIterator<Float> {
-		public Float next() {
+	private final class ValueIterator extends HashIterator<Integer> {
+		public Integer next() {
 			return nextEntry().value;
 		}
 	}
 
-	private final class KeyIterator extends HashIterator<K> {
-		public K next() {
+	private final class KeyIterator extends HashIterator<Integer> {
+		public Integer next() {
 			return nextEntry().getKey();
 		}
 	}
 
-	private final class EntryIterator extends HashIterator<MapKF.Entry<K>> {
-		public MapKF.Entry<K> next() {
+	private final class EntryIterator extends HashIterator<MapII.Entry> {
+		public MapII.Entry next() {
 			return nextEntry();
 		}
 	}
 
 	// Subclass overrides these to alter behavior of views' iterator() method
-	Iterator<K> newKeyIterator() {
+	Iterator<Integer> newKeyIterator() {
 		return new KeyIterator();
 	}
 
-	Iterator<Float> newValueIterator() {
+	Iterator<Integer> newValueIterator() {
 		return new ValueIterator();
 	}
 
-	Iterator<MapKF.Entry<K>> newEntryIterator() {
+	Iterator<MapII.Entry> newEntryIterator() {
 		return new EntryIterator();
 	}
 
 	// Views
 
-	private transient Set<MapKF.Entry<K>> entrySet = null;
+	private transient Set<MapII.Entry> entrySet = null;
 
 	/**
 	 * Each of these fields are initialized to contain an instance of the
 	 * appropriate view the first time this view is requested. The views are
 	 * stateless, so there's no reason to create more than one of each.
 	 */
-	transient volatile Set<K> keySet = null;
-	transient volatile Collection<Float> values = null;
+	transient volatile Set<Integer> keySet = null;
+	transient volatile Collection<Integer> values = null;
 
 	/**
 	 * Returns a {@link Set} view of the keys contained in this map. The set is
@@ -888,13 +874,13 @@ public class HashMapKF<K>
 	 * <tt>retainAll</tt>, and <tt>clear</tt> operations. It does not
 	 * support the <tt>add</tt> or <tt>addAll</tt> operations.
 	 */
-	public Set<K> keySet() {
-		Set<K> ks = keySet;
+	public Set<Integer> keySet() {
+		Set<Integer> ks = keySet;
 		return (ks != null ? ks : (keySet = new KeySet()));
 	}
 
-	private final class KeySet extends AbstractSet<K> {
-		public Iterator<K> iterator() {
+	private final class KeySet extends AbstractSet<Integer> {
+		public Iterator<Integer> iterator() {
 			return newKeyIterator();
 		}
 
@@ -902,16 +888,16 @@ public class HashMapKF<K>
 			return size;
 		}
 
-		public boolean contains(Object o) {
+		public boolean contains(int o) {
 			return containsKey(o);
 		}
 
-		public boolean remove(Object o) {
-			return HashMapKF.this.removeEntryForKey(o) != null;
+		public boolean remove(int o) {
+			return HMapII.this.removeEntryForKey(o) != null;
 		}
 
 		public void clear() {
-			HashMapKF.this.clear();
+			HMapII.this.clear();
 		}
 	}
 
@@ -927,13 +913,13 @@ public class HashMapKF<K>
 	 * and <tt>clear</tt> operations. It does not support the <tt>add</tt>
 	 * or <tt>addAll</tt> operations.
 	 */
-	public Collection<Float> values() {
-		Collection<Float> vs = values;
+	public Collection<Integer> values() {
+		Collection<Integer> vs = values;
 		return (vs != null ? vs : (values = new Values()));
 	}
 
-	private final class Values extends AbstractCollection<Float> {
-		public Iterator<Float> iterator() {
+	private final class Values extends AbstractCollection<Integer> {
+		public Iterator<Integer> iterator() {
 			return newValueIterator();
 		}
 
@@ -941,12 +927,12 @@ public class HashMapKF<K>
 			return size;
 		}
 
-		public boolean contains(float o) {
+		public boolean contains(Integer o) {
 			return containsValue(o);
 		}
 
 		public void clear() {
-			HashMapKF.this.clear();
+			HMapII.this.clear();
 		}
 	}
 
@@ -965,26 +951,25 @@ public class HashMapKF<K>
 	 * 
 	 * @return a set view of the mappings contained in this map
 	 */
-	public Set<MapKF.Entry<K>> entrySet() {
+	public Set<MapII.Entry> entrySet() {
 		return entrySet0();
 	}
 
-	private Set<MapKF.Entry<K>> entrySet0() {
-		Set<MapKF.Entry<K>> es = entrySet;
+	private Set<MapII.Entry> entrySet0() {
+		Set<MapII.Entry> es = entrySet;
 		return es != null ? es : (entrySet = new EntrySet());
 	}
 
-	private final class EntrySet extends AbstractSet<MapKF.Entry<K>> {
-		public Iterator<MapKF.Entry<K>> iterator() {
+	private final class EntrySet extends AbstractSet<MapII.Entry> {
+		public Iterator<MapII.Entry> iterator() {
 			return newEntryIterator();
 		}
 
-		@SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			if (!(o instanceof Map.Entry))
 				return false;
-			MapKF.Entry<K> e = (MapKF.Entry<K>) o;
-			Entry<K> candidate = getEntry(e.getKey());
+			MapII.Entry e = (MapII.Entry) o;
+			Entry candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
 		}
 
@@ -997,7 +982,7 @@ public class HashMapKF<K>
 		}
 
 		public void clear() {
-			HashMapKF.this.clear();
+			HMapII.this.clear();
 		}
 	}
 
@@ -1012,7 +997,7 @@ public class HashMapKF<K>
 	 *             key-value mappings are emitted in no particular order.
 	 */
 	private void writeObject(java.io.ObjectOutputStream s) throws IOException {
-		Iterator<MapKF.Entry<K>> i = (size > 0) ? entrySet0().iterator() : null;
+		Iterator<MapII.Entry> i = (size > 0) ? entrySet0().iterator() : null;
 
 		// Write out the threshold, loadfactor, and any hidden stuff
 		s.defaultWriteObject();
@@ -1026,9 +1011,9 @@ public class HashMapKF<K>
 		// Write out keys and values (alternating)
 		if (i != null) {
 			while (i.hasNext()) {
-				MapKF.Entry<K> e = i.next();
-				s.writeObject(e.getKey());
-				s.writeFloat(e.getValue());
+				MapII.Entry e = i.next();
+				s.writeInt(e.getKey());
+				s.writeInt(e.getValue());
 			}
 		}
 	}
@@ -1039,7 +1024,6 @@ public class HashMapKF<K>
 	 * Reconstitute the <tt>HashMap</tt> instance from a stream (i.e.,
 	 * deserialize it).
 	 */
-	@SuppressWarnings("unchecked")
 	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
 		// Read in the threshold, loadfactor, and any hidden stuff
 		s.defaultReadObject();
@@ -1055,8 +1039,8 @@ public class HashMapKF<K>
 
 		// Read the keys and values, and put the mappings in the HashMap
 		for (int i = 0; i < size; i++) {
-			K key = (K) s.readObject();
-			float value = s.readFloat();
+			int key = s.readInt();
+			int value = s.readInt();
 			putForCreate(key, value);
 		}
 	}

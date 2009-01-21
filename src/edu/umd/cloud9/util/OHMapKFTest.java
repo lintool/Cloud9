@@ -27,11 +27,11 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-public class OrderedHashMapKFTest {
+public class OHMapKFTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m = new OHMapKF<Text>();
 
 		m.put(new Text("hi"), 5.0f);
 		m.put(new Text("there"), 22.0f);
@@ -55,12 +55,12 @@ public class OrderedHashMapKFTest {
 
 	@Test
 	public void testPlus() throws IOException {
-		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m1 = new OHMapKF<Text>();
 
 		m1.put(new Text("hi"), 5.0f);
 		m1.put(new Text("there"), 22.0f);
 
-		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m2 = new OHMapKF<Text>();
 
 		m2.put(new Text("hi"), 4.0f);
 		m2.put(new Text("test"), 5.0f);
@@ -75,13 +75,13 @@ public class OrderedHashMapKFTest {
 
 	@Test
 	public void testDot() throws IOException {
-		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m1 = new OHMapKF<Text>();
 
 		m1.put(new Text("hi"), 2.3f);
 		m1.put(new Text("there"), 1.9f);
 		m1.put(new Text("empty"), 3.0f);
 
-		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m2 = new OHMapKF<Text>();
 
 		m2.put(new Text("hi"), 1.2f);
 		m2.put(new Text("there"), 4.3f);
@@ -94,7 +94,7 @@ public class OrderedHashMapKFTest {
 
 	@Test
 	public void testLengthAndNormalize() throws IOException {
-		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m1 = new OHMapKF<Text>();
 
 		m1.put(new Text("hi"), 2.3f);
 		m1.put(new Text("there"), 1.9f);
@@ -109,7 +109,7 @@ public class OrderedHashMapKFTest {
 		assertEquals(m1.get(new Text("empty")), 0.70907915, 10E-6);
 		assertEquals(m1.length(), 1, 10E-6);
 
-		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m2 = new OHMapKF<Text>();
 
 		m2.put(new Text("hi"), 1.2f);
 		m2.put(new Text("there"), 4.3f);
@@ -127,7 +127,7 @@ public class OrderedHashMapKFTest {
 
 	@Test
 	public void testSortedEntries1() {
-		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m = new OHMapKF<Text>();
 
 		m.put(new Text("a"), 5.0f);
 		m.put(new Text("b"), 2.0f);
@@ -162,7 +162,7 @@ public class OrderedHashMapKFTest {
 
 	@Test
 	public void testSortedEntries2() {
-		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
+		OHMapKF<Text> m = new OHMapKF<Text>();
 
 		m.put(new Text("a"), 5.0f);
 		m.put(new Text("b"), 2.0f);
@@ -184,7 +184,7 @@ public class OrderedHashMapKFTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OrderedHashMapKFTest.class);
+		return new JUnit4TestAdapter(OHMapKFTest.class);
 	}
 
 }

@@ -5,9 +5,9 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
+public class OHMapKIT<K extends Comparable> extends HMapKI<K> {
 
-	private static final long serialVersionUID = 6590482318L;
+	private static final long serialVersionUID = 8726031451L;
 
 	/**
 	 * Treats maps as if they were vectors and performs vector addition.
@@ -15,8 +15,8 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public void plus(OrderedHashMapKF<K> m) {
-		for (MapKF.Entry<K> e : m.entrySet()) {
+	public void plus(OHMapKIT<K> m) {
+		for (MapKI.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -33,10 +33,10 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public float dot(OrderedHashMapKF<K> m) {
-		float s = 0.0f;
+	public int dot(OHMapKIT<K> m) {
+		int s = 0;
 
-		for (MapKF.Entry<K> e : m.entrySet()) {
+		for (MapKI.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -48,44 +48,16 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 	}
 
 	/**
-	 * Treats this map as if it were a vector and returns its length.
-	 * 
-	 * @return length of this vector
-	 */
-	public float length() {
-		float s = 0.0f;
-
-		for (MapKF.Entry<K> e : this.entrySet()) {
-			s += e.getValue() * e.getValue();
-		}
-
-		return (float) Math.sqrt(s);
-	}
-
-	/**
-	 * Treats this map as if it were a vector and normalizes it to a unit-length
-	 * vector.
-	 */
-	public void normalize() {
-		float l = this.length();
-
-		for (K f : this.keySet()) {
-			this.put(f, this.get(f) / l);
-		}
-
-	}
-
-	/**
 	 * Returns entries sorted by descending value. Ties broken by the natural
 	 * sort order of the feature.
 	 * 
 	 * @return entries sorted by descending value
 	 */
-	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue() {
-		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
-				new Comparator<MapKF.Entry<K>>() {
+	public SortedSet<MapKI.Entry<K>> getEntriesSortedByValue() {
+		SortedSet<MapKI.Entry<K>> entries = new TreeSet<MapKI.Entry<K>>(
+				new Comparator<MapKI.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
+					public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -95,7 +67,7 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 					}
 				});
 
-		for (MapKF.Entry<K> entry : this.entrySet()) {
+		for (MapKI.Entry<K> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
@@ -110,13 +82,13 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 	 *            number of entries to return
 	 * @return top <i>n</i> entries sorted by descending value
 	 */
-	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue(int n) {
+	public SortedSet<MapKI.Entry<K>> getEntriesSortedByValue(int n) {
 		// TODO: this should be rewritten to use a Fibonacci heap
-		
-		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
-				new Comparator<MapKF.Entry<K>>() {
+
+		SortedSet<MapKI.Entry<K>> entries = new TreeSet<MapKI.Entry<K>>(
+				new Comparator<MapKI.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
+					public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -127,7 +99,7 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 				});
 
 		int cnt = 0;
-		for (MapKF.Entry<K> entry : getEntriesSortedByValue()) {
+		for (MapKI.Entry<K> entry : getEntriesSortedByValue()) {
 			entries.add(entry);
 			cnt++;
 			if (cnt >= n)
@@ -136,4 +108,5 @@ public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 
 		return Collections.unmodifiableSortedSet(entries);
 	}
+
 }

@@ -27,11 +27,11 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-public class OrderedHashMapKITest {
+public class OHMapKITest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m = new OHMapKIT<Text>();
 
 		m.put(new Text("hi"), 5);
 		m.put(new Text("there"), 22);
@@ -55,12 +55,12 @@ public class OrderedHashMapKITest {
 
 	@Test
 	public void testPlus() throws IOException {
-		OrderedHashMapKIT<Text> m1 = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m1 = new OHMapKIT<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 22);
 
-		OrderedHashMapKIT<Text> m2 = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m2 = new OHMapKIT<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("test"), 5);
@@ -75,13 +75,13 @@ public class OrderedHashMapKITest {
 
 	@Test
 	public void testDot() throws IOException {
-		OrderedHashMapKIT<Text> m1 = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m1 = new OHMapKIT<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 2);
 		m1.put(new Text("empty"), 3);
 
-		OrderedHashMapKIT<Text> m2 = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m2 = new OHMapKIT<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("there"), 4);
@@ -95,7 +95,7 @@ public class OrderedHashMapKITest {
 	@Test
 	public void testSortedEntries1() {
 
-		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m = new OHMapKIT<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);
@@ -131,7 +131,7 @@ public class OrderedHashMapKITest {
 	@Test
 	public void testSortedEntries2() {
 
-		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
+		OHMapKIT<Text> m = new OHMapKIT<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);
@@ -153,7 +153,7 @@ public class OrderedHashMapKITest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OrderedHashMapKITest.class);
+		return new JUnit4TestAdapter(OHMapKITest.class);
 	}
 
 }

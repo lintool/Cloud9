@@ -9,7 +9,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class HashMapKFTest {
+public class HMapKFTest {
 
 	@Test
 	public void testBasic1() {
@@ -17,7 +17,7 @@ public class HashMapKFTest {
 		Random r = new Random();
 		float[] floats = new float[size];
 
-		MapKF<Integer> map = new HashMapKF<Integer>();
+		MapKF<Integer> map = new HMapKF<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k + 0.1f);
@@ -39,7 +39,7 @@ public class HashMapKFTest {
 		float[] floats = new float[size];
 		String[] strings = new String[size];
 
-		MapKF<String> map = new HashMapKF<String>();
+		MapKF<String> map = new HMapKF<String>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			String s = new Integer(k).toString();
@@ -62,7 +62,7 @@ public class HashMapKFTest {
 		Random r = new Random();
 		float[] floats = new float[size];
 
-		MapKF<Integer> map = new HashMapKF<Integer>();
+		MapKF<Integer> map = new HMapKF<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k + 0.1f);
@@ -87,7 +87,7 @@ public class HashMapKFTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(HashMapKFTest.class);
+		return new JUnit4TestAdapter(HMapKFTest.class);
 	}
 
 }

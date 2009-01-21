@@ -127,7 +127,7 @@ import java.util.TreeMap;
  * @since 1.2
  */
 
-public class HashMapKI<K>
+public class HMapKI<K>
 // extends AbstractMapInt<K>
 		implements MapKI<K>, Cloneable, Serializable {
 
@@ -193,7 +193,7 @@ public class HashMapKI<K>
 	 *             nonpositive
 	 */
 	@SuppressWarnings("unchecked")
-	public HashMapKI(int initialCapacity, float loadFactor) {
+	public HMapKI(int initialCapacity, float loadFactor) {
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
 		if (initialCapacity > MAXIMUM_CAPACITY)
@@ -221,7 +221,7 @@ public class HashMapKI<K>
 	 * @throws IllegalArgumentException
 	 *             if the initial capacity is negative.
 	 */
-	public HashMapKI(int initialCapacity) {
+	public HMapKI(int initialCapacity) {
 		this(initialCapacity, DEFAULT_LOAD_FACTOR);
 	}
 
@@ -230,7 +230,7 @@ public class HashMapKI<K>
 	 * (16) and the default load factor (0.75).
 	 */
 	@SuppressWarnings("unchecked")
-	public HashMapKI() {
+	public HMapKI() {
 		this.loadFactor = DEFAULT_LOAD_FACTOR;
 		threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
 		table = new Entry[DEFAULT_INITIAL_CAPACITY];
@@ -248,7 +248,7 @@ public class HashMapKI<K>
 	 * @throws NullPointerException
 	 *             if the specified map is null
 	 */
-	public HashMapKI(MapKI<? extends K> m) {
+	public HMapKI(MapKI<? extends K> m) {
 		this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1, DEFAULT_INITIAL_CAPACITY),
 				DEFAULT_LOAD_FACTOR);
 		putAllForCreate(m);
@@ -672,9 +672,9 @@ public class HashMapKI<K>
 	 */
 	@SuppressWarnings("unchecked")
 	public Object clone() {
-		HashMapKI<K> result = null;
+		HMapKI<K> result = null;
 		try {
-			result = (HashMapKI<K>) super.clone();
+			result = (HMapKI<K>) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// assert false;
 		}
@@ -747,13 +747,13 @@ public class HashMapKI<K>
 		 * by an invocation of put(k,v) for a key k that's already in the
 		 * HashMap.
 		 */
-		void recordAccess(HashMapKI<K> m) {
+		void recordAccess(HMapKI<K> m) {
 		}
 
 		/**
 		 * This method is invoked whenever the entry is removed from the table.
 		 */
-		void recordRemoval(HashMapKI<K> m) {
+		void recordRemoval(HMapKI<K> m) {
 		}
 	}
 
@@ -827,7 +827,7 @@ public class HashMapKI<K>
 				throw new ConcurrentModificationException();
 			Object k = current.key;
 			current = null;
-			HashMapKI.this.removeEntryForKey(k);
+			HMapKI.this.removeEntryForKey(k);
 			expectedModCount = modCount;
 		}
 
@@ -906,11 +906,11 @@ public class HashMapKI<K>
 		}
 
 		public boolean remove(Object o) {
-			return HashMapKI.this.removeEntryForKey(o) != null;
+			return HMapKI.this.removeEntryForKey(o) != null;
 		}
 
 		public void clear() {
-			HashMapKI.this.clear();
+			HMapKI.this.clear();
 		}
 	}
 
@@ -945,7 +945,7 @@ public class HashMapKI<K>
 		}
 
 		public void clear() {
-			HashMapKI.this.clear();
+			HMapKI.this.clear();
 		}
 	}
 
@@ -996,7 +996,7 @@ public class HashMapKI<K>
 		}
 
 		public void clear() {
-			HashMapKI.this.clear();
+			HMapKI.this.clear();
 		}
 	}
 
