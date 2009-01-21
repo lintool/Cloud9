@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
+public class OrderedHashMapKF<K extends Comparable> extends HashMapKF<K> {
 
 	private static final long serialVersionUID = 6590482318L;
 
@@ -15,8 +15,8 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public void plus(OrderedHashMapFloat<K> m) {
-		for (MapFloat.Entry<K> e : m.entrySet()) {
+	public void plus(OrderedHashMapKF<K> m) {
+		for (MapKF.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -33,10 +33,10 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public float dot(OrderedHashMapFloat<K> m) {
+	public float dot(OrderedHashMapKF<K> m) {
 		float s = 0.0f;
 
-		for (MapFloat.Entry<K> e : m.entrySet()) {
+		for (MapKF.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -55,7 +55,7 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	public float length() {
 		float s = 0.0f;
 
-		for (MapFloat.Entry<K> e : this.entrySet()) {
+		for (MapKF.Entry<K> e : this.entrySet()) {
 			s += e.getValue() * e.getValue();
 		}
 
@@ -81,11 +81,11 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	 * 
 	 * @return entries sorted by descending value
 	 */
-	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue() {
-		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
-				new Comparator<MapFloat.Entry<K>>() {
+	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue() {
+		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
+				new Comparator<MapKF.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapFloat.Entry<K> e1, MapFloat.Entry<K> e2) {
+					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -95,7 +95,7 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 					}
 				});
 
-		for (MapFloat.Entry<K> entry : this.entrySet()) {
+		for (MapKF.Entry<K> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
@@ -110,13 +110,13 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 	 *            number of entries to return
 	 * @return top <i>n</i> entries sorted by descending value
 	 */
-	public SortedSet<MapFloat.Entry<K>> getEntriesSortedByValue(int n) {
+	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue(int n) {
 		// TODO: this should be rewritten to use a Fibonacci heap
 		
-		SortedSet<MapFloat.Entry<K>> entries = new TreeSet<MapFloat.Entry<K>>(
-				new Comparator<MapFloat.Entry<K>>() {
+		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
+				new Comparator<MapKF.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapFloat.Entry<K> e1, MapFloat.Entry<K> e2) {
+					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -127,7 +127,7 @@ public class OrderedHashMapFloat<K extends Comparable> extends HashMapFloat<K> {
 				});
 
 		int cnt = 0;
-		for (MapFloat.Entry<K> entry : getEntriesSortedByValue()) {
+		for (MapKF.Entry<K> entry : getEntriesSortedByValue()) {
 			entries.add(entry);
 			cnt++;
 			if (cnt >= n)

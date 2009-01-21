@@ -27,11 +27,11 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-public class OrderedHashMapFloatTest {
+public class OrderedHashMapKFTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OrderedHashMapFloat<Text> m = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
 
 		m.put(new Text("hi"), 5.0f);
 		m.put(new Text("there"), 22.0f);
@@ -55,12 +55,12 @@ public class OrderedHashMapFloatTest {
 
 	@Test
 	public void testPlus() throws IOException {
-		OrderedHashMapFloat<Text> m1 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
 
 		m1.put(new Text("hi"), 5.0f);
 		m1.put(new Text("there"), 22.0f);
 
-		OrderedHashMapFloat<Text> m2 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
 
 		m2.put(new Text("hi"), 4.0f);
 		m2.put(new Text("test"), 5.0f);
@@ -75,13 +75,13 @@ public class OrderedHashMapFloatTest {
 
 	@Test
 	public void testDot() throws IOException {
-		OrderedHashMapFloat<Text> m1 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
 
 		m1.put(new Text("hi"), 2.3f);
 		m1.put(new Text("there"), 1.9f);
 		m1.put(new Text("empty"), 3.0f);
 
-		OrderedHashMapFloat<Text> m2 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
 
 		m2.put(new Text("hi"), 1.2f);
 		m2.put(new Text("there"), 4.3f);
@@ -94,7 +94,7 @@ public class OrderedHashMapFloatTest {
 
 	@Test
 	public void testLengthAndNormalize() throws IOException {
-		OrderedHashMapFloat<Text> m1 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m1 = new OrderedHashMapKF<Text>();
 
 		m1.put(new Text("hi"), 2.3f);
 		m1.put(new Text("there"), 1.9f);
@@ -109,7 +109,7 @@ public class OrderedHashMapFloatTest {
 		assertEquals(m1.get(new Text("empty")), 0.70907915, 10E-6);
 		assertEquals(m1.length(), 1, 10E-6);
 
-		OrderedHashMapFloat<Text> m2 = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m2 = new OrderedHashMapKF<Text>();
 
 		m2.put(new Text("hi"), 1.2f);
 		m2.put(new Text("there"), 4.3f);
@@ -127,7 +127,7 @@ public class OrderedHashMapFloatTest {
 
 	@Test
 	public void testSortedEntries1() {
-		OrderedHashMapFloat<Text> m = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
 
 		m.put(new Text("a"), 5.0f);
 		m.put(new Text("b"), 2.0f);
@@ -135,9 +135,9 @@ public class OrderedHashMapFloatTest {
 		m.put(new Text("d"), 3.0f);
 		m.put(new Text("e"), 1.0f);
 
-		Iterator<MapFloat.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
+		Iterator<MapKF.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
 
-		MapFloat.Entry<Text> e = iter.next();
+		MapKF.Entry<Text> e = iter.next();
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5.0f, (float) e.getValue(), 10E-6);
 
@@ -162,7 +162,7 @@ public class OrderedHashMapFloatTest {
 
 	@Test
 	public void testSortedEntries2() {
-		OrderedHashMapFloat<Text> m = new OrderedHashMapFloat<Text>();
+		OrderedHashMapKF<Text> m = new OrderedHashMapKF<Text>();
 
 		m.put(new Text("a"), 5.0f);
 		m.put(new Text("b"), 2.0f);
@@ -170,9 +170,9 @@ public class OrderedHashMapFloatTest {
 		m.put(new Text("d"), 3.0f);
 		m.put(new Text("e"), 1.0f);
 
-		Iterator<MapFloat.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
+		Iterator<MapKF.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
 
-		MapFloat.Entry<Text> e = iter.next();
+		MapKF.Entry<Text> e = iter.next();
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5.0f, (float) e.getValue(), 10E-6);
 
@@ -184,7 +184,7 @@ public class OrderedHashMapFloatTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OrderedHashMapFloatTest.class);
+		return new JUnit4TestAdapter(OrderedHashMapKFTest.class);
 	}
 
 }

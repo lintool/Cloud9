@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
+public class OrderedHashMapKIT<K extends Comparable> extends HashMapKI<K> {
 
 	private static final long serialVersionUID = 8726031451L;
 
@@ -15,8 +15,8 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public void plus(OrderedHashMapInt<K> m) {
-		for (MapInt.Entry<K> e : m.entrySet()) {
+	public void plus(OrderedHashMapKIT<K> m) {
+		for (MapKI.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -33,10 +33,10 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public int dot(OrderedHashMapInt<K> m) {
+	public int dot(OrderedHashMapKIT<K> m) {
 		int s = 0;
 
-		for (MapInt.Entry<K> e : m.entrySet()) {
+		for (MapKI.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -53,11 +53,11 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	 * 
 	 * @return entries sorted by descending value
 	 */
-	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue() {
-		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
-				new Comparator<MapInt.Entry<K>>() {
+	public SortedSet<MapKI.Entry<K>> getEntriesSortedByValue() {
+		SortedSet<MapKI.Entry<K>> entries = new TreeSet<MapKI.Entry<K>>(
+				new Comparator<MapKI.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapInt.Entry<K> e1, MapInt.Entry<K> e2) {
+					public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -67,7 +67,7 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 					}
 				});
 
-		for (MapInt.Entry<K> entry : this.entrySet()) {
+		for (MapKI.Entry<K> entry : this.entrySet()) {
 			entries.add(entry);
 		}
 
@@ -82,13 +82,13 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 	 *            number of entries to return
 	 * @return top <i>n</i> entries sorted by descending value
 	 */
-	public SortedSet<MapInt.Entry<K>> getEntriesSortedByValue(int n) {
+	public SortedSet<MapKI.Entry<K>> getEntriesSortedByValue(int n) {
 		// TODO: this should be rewritten to use a Fibonacci heap
 
-		SortedSet<MapInt.Entry<K>> entries = new TreeSet<MapInt.Entry<K>>(
-				new Comparator<MapInt.Entry<K>>() {
+		SortedSet<MapKI.Entry<K>> entries = new TreeSet<MapKI.Entry<K>>(
+				new Comparator<MapKI.Entry<K>>() {
 					@SuppressWarnings("unchecked")
-					public int compare(MapInt.Entry<K> e1, MapInt.Entry<K> e2) {
+					public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 						if (e1.getValue() > e2.getValue()) {
 							return -1;
 						} else if (e1.getValue() < e2.getValue()) {
@@ -99,7 +99,7 @@ public class OrderedHashMapInt<K extends Comparable> extends HashMapInt<K> {
 				});
 
 		int cnt = 0;
-		for (MapInt.Entry<K> entry : getEntriesSortedByValue()) {
+		for (MapKI.Entry<K> entry : getEntriesSortedByValue()) {
 			entries.add(entry);
 			cnt++;
 			if (cnt >= n)

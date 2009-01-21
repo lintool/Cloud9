@@ -27,11 +27,11 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-public class OrderedHashMapIntTest {
+public class OrderedHashMapKITest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OrderedHashMapInt<Text> m = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
 
 		m.put(new Text("hi"), 5);
 		m.put(new Text("there"), 22);
@@ -55,12 +55,12 @@ public class OrderedHashMapIntTest {
 
 	@Test
 	public void testPlus() throws IOException {
-		OrderedHashMapInt<Text> m1 = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m1 = new OrderedHashMapKIT<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 22);
 
-		OrderedHashMapInt<Text> m2 = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m2 = new OrderedHashMapKIT<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("test"), 5);
@@ -75,13 +75,13 @@ public class OrderedHashMapIntTest {
 
 	@Test
 	public void testDot() throws IOException {
-		OrderedHashMapInt<Text> m1 = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m1 = new OrderedHashMapKIT<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 2);
 		m1.put(new Text("empty"), 3);
 
-		OrderedHashMapInt<Text> m2 = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m2 = new OrderedHashMapKIT<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("there"), 4);
@@ -95,7 +95,7 @@ public class OrderedHashMapIntTest {
 	@Test
 	public void testSortedEntries1() {
 
-		OrderedHashMapInt<Text> m = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);
@@ -103,9 +103,9 @@ public class OrderedHashMapIntTest {
 		m.put(new Text("d"), 3);
 		m.put(new Text("e"), 1);
 
-		Iterator<MapInt.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
+		Iterator<MapKI.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
 
-		MapInt.Entry<Text> e = iter.next();
+		MapKI.Entry<Text> e = iter.next();
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5, (int) e.getValue());
 
@@ -131,7 +131,7 @@ public class OrderedHashMapIntTest {
 	@Test
 	public void testSortedEntries2() {
 
-		OrderedHashMapInt<Text> m = new OrderedHashMapInt<Text>();
+		OrderedHashMapKIT<Text> m = new OrderedHashMapKIT<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);
@@ -139,9 +139,9 @@ public class OrderedHashMapIntTest {
 		m.put(new Text("d"), 3);
 		m.put(new Text("e"), 1);
 
-		Iterator<MapInt.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
+		Iterator<MapKI.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
 
-		MapInt.Entry<Text> e = iter.next();
+		MapKI.Entry<Text> e = iter.next();
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5, (int) e.getValue());
 
@@ -153,7 +153,7 @@ public class OrderedHashMapIntTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OrderedHashMapIntTest.class);
+		return new JUnit4TestAdapter(OrderedHashMapKITest.class);
 	}
 
 }

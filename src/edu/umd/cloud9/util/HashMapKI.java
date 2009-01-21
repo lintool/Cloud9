@@ -116,9 +116,9 @@ import java.util.TreeMap;
  * @since   1.2
  */
 
-public class HashMapInt<K>
+public class HashMapKI<K>
     //extends AbstractMapInt<K>
-    implements MapInt<K>, Cloneable, Serializable
+    implements MapKI<K>, Cloneable, Serializable
 {
 
     /**
@@ -179,7 +179,7 @@ public class HashMapInt<K>
      * @throws IllegalArgumentException if the initial capacity is negative
      *         or the load factor is nonpositive
      */
-    public HashMapInt(int initialCapacity, float loadFactor) {
+    public HashMapKI(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: " +
                                                initialCapacity);
@@ -207,7 +207,7 @@ public class HashMapInt<K>
      * @param  initialCapacity the initial capacity.
      * @throws IllegalArgumentException if the initial capacity is negative.
      */
-    public HashMapInt(int initialCapacity) {
+    public HashMapKI(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
@@ -215,7 +215,7 @@ public class HashMapInt<K>
      * Constructs an empty <tt>HashMap</tt> with the default initial capacity
      * (16) and the default load factor (0.75).
      */
-    public HashMapInt() {
+    public HashMapKI() {
         this.loadFactor = DEFAULT_LOAD_FACTOR;
         threshold = (int)(DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
         table = new Entry[DEFAULT_INITIAL_CAPACITY];
@@ -231,7 +231,7 @@ public class HashMapInt<K>
      * @param   m the map whose mappings are to be placed in this map
      * @throws  NullPointerException if the specified map is null
      */
-    public HashMapInt(MapInt<? extends K> m) {
+    public HashMapKI(MapKI<? extends K> m) {
         this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,
                       DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
         putAllForCreate(m);
@@ -446,9 +446,9 @@ public class HashMapInt<K>
         createEntry(hash, key, value, i);
     }
 
-    private void putAllForCreate(MapInt<? extends K> m) {
-        for (Iterator<? extends MapInt.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext(); ) {
-            MapInt.Entry<? extends K> e = i.next();
+    private void putAllForCreate(MapKI<? extends K> m) {
+        for (Iterator<? extends MapKI.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext(); ) {
+            MapKI.Entry<? extends K> e = i.next();
             putForCreate(e.getKey(), e.getValue());
         }
     }
@@ -510,7 +510,7 @@ public class HashMapInt<K>
      * @param m mappings to be stored in this map
      * @throws NullPointerException if the specified map is null
      */
-    public void putAll(MapInt<? extends K> m) {
+    public void putAll(MapKI<? extends K> m) {
         int numKeysToBeAdded = m.size();
         if (numKeysToBeAdded == 0)
             return;
@@ -535,8 +535,8 @@ public class HashMapInt<K>
                 resize(newCapacity);
         }
 
-        for (Iterator<? extends MapInt.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext(); ) {
-            MapInt.Entry<? extends K> e = i.next();
+        for (Iterator<? extends MapKI.Entry<? extends K>> i = m.entrySet().iterator(); i.hasNext(); ) {
+            MapKI.Entry<? extends K> e = i.next();
             put(e.getKey(), e.getValue());
         }
     }
@@ -597,7 +597,7 @@ public class HashMapInt<K>
         if (!(o instanceof Map.Entry))
             return null;
 
-        MapInt.Entry<K> entry = (MapInt.Entry<K>) o;
+        MapKI.Entry<K> entry = (MapKI.Entry<K>) o;
         Object key = entry.getKey();
         int hash = (key == null) ? 0 : hash(key.hashCode());
         int i = indexFor(hash, table.length);
@@ -674,9 +674,9 @@ public class HashMapInt<K>
      * @return a shallow copy of this map
      */
     public Object clone() {
-        HashMapInt<K> result = null;
+        HashMapKI<K> result = null;
 	try {
-	    result = (HashMapInt<K>)super.clone();
+	    result = (HashMapKI<K>)super.clone();
 	} catch (CloneNotSupportedException e) {
 	    // assert false;
 	}
@@ -690,7 +690,7 @@ public class HashMapInt<K>
         return result;
     }
 
-    static class Entry<K> implements MapInt.Entry<K> {
+    static class Entry<K> implements MapKI.Entry<K> {
         final K key;
         int value;
         Entry<K> next;
@@ -723,7 +723,7 @@ public class HashMapInt<K>
         public final boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            MapInt.Entry e = (MapInt.Entry)o;
+            MapKI.Entry e = (MapKI.Entry)o;
             Object k1 = getKey();
             Object k2 = e.getKey();
             if (k1 == k2 || (k1 != null && k1.equals(k2))) {
@@ -749,14 +749,14 @@ public class HashMapInt<K>
          * overwritten by an invocation of put(k,v) for a key k that's already
          * in the HashMap.
          */
-        void recordAccess(HashMapInt<K> m) {
+        void recordAccess(HashMapKI<K> m) {
         }
 
         /**
          * This method is invoked whenever the entry is
          * removed from the table.
          */
-        void recordRemoval(HashMapInt<K> m) {
+        void recordRemoval(HashMapKI<K> m) {
         }
     }
 
@@ -830,7 +830,7 @@ public class HashMapInt<K>
                 throw new ConcurrentModificationException();
             Object k = current.key;
             current = null;
-            HashMapInt.this.removeEntryForKey(k);
+            HashMapKI.this.removeEntryForKey(k);
             expectedModCount = modCount;
         }
 
@@ -849,7 +849,7 @@ public class HashMapInt<K>
     }
 
     private final class EntryIterator extends HashIterator {
-        public MapInt.Entry<K> next() {
+        public MapKI.Entry<K> next() {
             return nextEntry();
         }
     }
@@ -861,14 +861,14 @@ public class HashMapInt<K>
     Iterator<Integer> newValueIterator()   {
         return new ValueIterator();
     }
-    Iterator<MapInt.Entry<K>> newEntryIterator()   {
+    Iterator<MapKI.Entry<K>> newEntryIterator()   {
         return new EntryIterator();
     }
 
 
     // Views
 
-    private transient Set<MapInt.Entry<K>> entrySet = null;
+    private transient Set<MapKI.Entry<K>> entrySet = null;
 
     /**
      * Each of these fields are initialized to contain an instance of the
@@ -907,10 +907,10 @@ public class HashMapInt<K>
             return containsKey(o);
         }
         public boolean remove(Object o) {
-            return HashMapInt.this.removeEntryForKey(o) != null;
+            return HashMapKI.this.removeEntryForKey(o) != null;
         }
         public void clear() {
-            HashMapInt.this.clear();
+            HashMapKI.this.clear();
         }
     }
 
@@ -943,7 +943,7 @@ public class HashMapInt<K>
             return containsValue(o);
         }
         public void clear() {
-            HashMapInt.this.clear();
+            HashMapKI.this.clear();
         }
     }
 
@@ -963,23 +963,23 @@ public class HashMapInt<K>
      *
      * @return a set view of the mappings contained in this map
      */
-    public Set<MapInt.Entry<K>> entrySet() {
+    public Set<MapKI.Entry<K>> entrySet() {
 	return entrySet0();
     }
 
-    private Set<MapInt.Entry<K>> entrySet0() {
-        Set<MapInt.Entry<K>> es = entrySet;
+    private Set<MapKI.Entry<K>> entrySet0() {
+        Set<MapKI.Entry<K>> es = entrySet;
         return es != null ? es : (entrySet = new EntrySet());
     }
 
-    private final class EntrySet extends AbstractSet<MapInt.Entry<K>> {
-        public Iterator<MapInt.Entry<K>> iterator() {
+    private final class EntrySet extends AbstractSet<MapKI.Entry<K>> {
+        public Iterator<MapKI.Entry<K>> iterator() {
             return newEntryIterator();
         }
         public boolean contains(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            MapInt.Entry<K> e = (MapInt.Entry<K>) o;
+            MapKI.Entry<K> e = (MapKI.Entry<K>) o;
             Entry<K> candidate = getEntry(e.getKey());
             return candidate != null && candidate.equals(e);
         }
@@ -990,7 +990,7 @@ public class HashMapInt<K>
             return size;
         }
         public void clear() {
-            HashMapInt.this.clear();
+            HashMapKI.this.clear();
         }
     }
 
@@ -1008,7 +1008,7 @@ public class HashMapInt<K>
     private void writeObject(java.io.ObjectOutputStream s)
         throws IOException
     {
-	Iterator<MapInt.Entry<K>> i =
+	Iterator<MapKI.Entry<K>> i =
 	    (size > 0) ? entrySet0().iterator() : null;
 
 	// Write out the threshold, loadfactor, and any hidden stuff
@@ -1023,7 +1023,7 @@ public class HashMapInt<K>
         // Write out keys and values (alternating)
 	if (i != null) {
 	    while (i.hasNext()) {
-		MapInt.Entry<K> e = i.next();
+		MapKI.Entry<K> e = i.next();
 		s.writeObject(e.getKey());
 		s.writeInt(e.getValue());
 	    }

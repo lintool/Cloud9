@@ -9,7 +9,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class HashMapIntTest {
+public class HashMapKITest {
 
 	@Test
 	public void testBasic1() {
@@ -18,7 +18,7 @@ public class HashMapIntTest {
 		Random r = new Random();
 		int[] ints = new int[size];
 
-		MapInt<Integer> map = new HashMapInt<Integer>();
+		MapKI<Integer> map = new HashMapKI<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k);
@@ -42,7 +42,7 @@ public class HashMapIntTest {
 		int[] ints = new int[size];
 		String[] strings = new String[size];
 
-		MapInt<String> map = new HashMapInt<String>();
+		MapKI<String> map = new HashMapKI<String>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			String s = new Integer(k).toString();
@@ -67,7 +67,7 @@ public class HashMapIntTest {
 		Random r = new Random();
 		int[] ints = new int[size];
 
-		MapInt<Integer> map = new HashMapInt<Integer>();
+		MapKI<Integer> map = new HashMapKI<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k);
@@ -92,7 +92,7 @@ public class HashMapIntTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(HashMapIntTest.class);
+		return new JUnit4TestAdapter(HashMapKITest.class);
 	}
 
 }

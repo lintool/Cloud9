@@ -105,7 +105,7 @@ import java.util.TreeMap;
  * @see Set
  * @since 1.2
  */
-public interface MapFloat<K> {
+public interface MapKF<K> {
     // Query Operations
 
     /**
@@ -264,7 +264,7 @@ public interface MapFloat<K> {
      * @throws IllegalArgumentException if some property of a key or value in
      *         the specified map prevents it from being stored in this map
      */
-    void putAll(MapFloat<? extends K> m);
+    void putAll(MapKF<? extends K> m);
 
     /**
      * Removes all of the mappings from this map (optional operation).
@@ -328,7 +328,7 @@ public interface MapFloat<K> {
      *
      * @return a set view of the mappings contained in this map
      */
-    Set<MapFloat.Entry<K>> entrySet();
+    Set<MapKF.Entry<K>> entrySet();
 
     /**
      * A map entry (key-value pair).  The <tt>Map.entrySet</tt> method returns

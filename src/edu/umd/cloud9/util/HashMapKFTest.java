@@ -9,7 +9,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class HashMapFloatTest {
+public class HashMapKFTest {
 
 	@Test
 	public void testBasic1() {
@@ -17,7 +17,7 @@ public class HashMapFloatTest {
 		Random r = new Random();
 		float[] floats = new float[size];
 
-		MapFloat<Integer> map = new HashMapFloat<Integer>();
+		MapKF<Integer> map = new HashMapKF<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k + 0.1f);
@@ -39,7 +39,7 @@ public class HashMapFloatTest {
 		float[] floats = new float[size];
 		String[] strings = new String[size];
 
-		MapFloat<String> map = new HashMapFloat<String>();
+		MapKF<String> map = new HashMapKF<String>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			String s = new Integer(k).toString();
@@ -62,7 +62,7 @@ public class HashMapFloatTest {
 		Random r = new Random();
 		float[] floats = new float[size];
 
-		MapFloat<Integer> map = new HashMapFloat<Integer>();
+		MapKF<Integer> map = new HashMapKF<Integer>();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
 			map.put(i, k + 0.1f);
@@ -87,7 +87,7 @@ public class HashMapFloatTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(HashMapFloatTest.class);
+		return new JUnit4TestAdapter(HashMapKFTest.class);
 	}
 
 }
