@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * An object that maps keys to ints. This is a variant of the standard Java
- * {@link Map}, except that the type of the value is hard coded as int for
+ * {@link Map}, except that the type of the values is hard coded as int for
  * efficiency reasons. This implementation was adapted from Map version 1.56,
  * 04/21/06.
  * 

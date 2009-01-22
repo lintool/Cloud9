@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * An object that maps keys to floats. This is a variant of the standard Java
- * {@link Map}, except that the type of the value is hard coded as float for
+ * {@link Map}, except that the type of the values is hard coded as float for
  * efficiency reasons. This implementation was adapted from Map version 1.56,
  * 04/21/06.
  * 
