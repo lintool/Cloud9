@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Hash-based implementation of the <tt>MapKI</tt> interface. {@link MapKI} is
  * a specialized variant the standard Java {@link Map} interface, except that
- * the value is hard coded as int for efficiency reasons. This implementation
+ * the values are hard coded as ints for efficiency reasons. This implementation
  * was adapted from {@link HashMap} version 1.73, 03/13/07. See <a href="{@docRoot}/../content/map.html">this
  * benchmark</a> for an efficiency comparison.
  * 
@@ -30,9 +30,7 @@ import java.util.Set;
  *            the type of keys maintained by this map
  */
 
-public class HMapKI<K>
-// extends AbstractMapInt<K>
-		implements MapKI<K>, Cloneable, Serializable {
+public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
 
 	/**
 	 * The default initial capacity - MUST be a power of two.
@@ -75,11 +73,11 @@ public class HMapKI<K>
 	final float loadFactor;
 
 	/**
-	 * The number of times this HashMap has been structurally modified
-	 * Structural modifications are those that change the number of mappings in
-	 * the HashMap or otherwise modify its internal structure (e.g., rehash).
-	 * This field is used to make iterators on Collection-views of the HashMap
-	 * fail-fast. (See ConcurrentModificationException).
+	 * The number of times this HMapKI has been structurally modified Structural
+	 * modifications are those that change the number of mappings in the HMapKI
+	 * or otherwise modify its internal structure (e.g., rehash). This field is
+	 * used to make iterators on Collection-views of the HMapKI fail-fast. (See
+	 * ConcurrentModificationException).
 	 */
 	transient volatile int modCount;
 
@@ -161,8 +159,8 @@ public class HMapKI<K>
 
 	/**
 	 * Initialization hook for subclasses. This method is called in all
-	 * constructors and pseudo-constructors (clone, readObject) after HashMap
-	 * has been initialized but before any entries have been inserted. (In the
+	 * constructors and pseudo-constructors (clone, readObject) after HMapKI has
+	 * been initialized but before any entries have been inserted. (In the
 	 * absence of this method, readObject would require explicit knowledge of
 	 * subclasses.)
 	 */
@@ -171,10 +169,10 @@ public class HMapKI<K>
 
 	/**
 	 * Applies a supplemental hash function to a given hashCode, which defends
-	 * against poor quality hash functions. This is critical because HashMap
-	 * uses power-of-two length hash tables, that otherwise encounter collisions
-	 * for hashCodes that do not differ in lower bits. Note: Null keys always
-	 * map to hash 0, thus index 0.
+	 * against poor quality hash functions. This is critical because HMapKI uses
+	 * power-of-two length hash tables, that otherwise encounter collisions for
+	 * hashCodes that do not differ in lower bits. Note: Null keys always map to
+	 * hash 0, thus index 0.
 	 */
 	static int hash(int h) {
 		// This function ensures that hashCodes that differ only by
@@ -236,8 +234,8 @@ public class HMapKI<K>
 	}
 
 	/**
-	 * Returns the entry associated with the specified key in the HashMap.
-	 * Returns null if the HashMap contains no mapping for the key.
+	 * Returns the entry associated with the specified key in the HMapKI.
+	 * Returns null if the HMapKI contains no mapping for the key.
 	 */
 	final Entry<K> getEntry(Object key) {
 		int hash = (key == null) ? 0 : hash(key.hashCode());
@@ -410,7 +408,7 @@ public class HMapKI<K>
 
 	/**
 	 * Removes and returns the entry associated with the specified key in the
-	 * HashMap. Returns null if the HashMap contains no mapping for this key.
+	 * HMapKI. Returns null if the HMapKI contains no mapping for this key.
 	 */
 	final Entry<K> removeEntryForKey(Object key) {
 		int hash = (key == null) ? 0 : hash(key.hashCode());
@@ -491,7 +489,12 @@ public class HMapKI<K>
 		return false;
 	}
 
-	// doc copied from interface
+	/**
+	 * Returns a shallow copy of this <tt>HMapKI</tt> instance: the keys and
+	 * values themselves are not cloned.
+	 * 
+	 * @return a shallow copy of this map
+	 */
 	@SuppressWarnings("unchecked")
 	public Object clone() {
 		HMapKI<K> result = null;
@@ -565,7 +568,7 @@ public class HMapKI<K>
 		/**
 		 * This method is invoked whenever the value in an entry is overwritten
 		 * by an invocation of put(k,v) for a key k that's already in the
-		 * HashMap.
+		 * HMapKI.
 		 */
 		void recordAccess(HMapKI<K> m) {
 		}
@@ -596,7 +599,7 @@ public class HMapKI<K>
 	 * part of Map construction or "pseudo-construction" (cloning,
 	 * deserialization). This version needn't worry about resizing the table.
 	 * 
-	 * Subclass overrides this to alter the behavior of HashMap(Map), clone, and
+	 * Subclass overrides this to alter the behavior of HMapKI(Map), clone, and
 	 * readObject.
 	 */
 	void createEntry(int hash, K key, int value, int bucketIndex) {
@@ -787,10 +790,10 @@ public class HMapKI<K>
 	}
 
 	/**
-	 * Save the state of the <tt>HashMap</tt> instance to a stream (i.e.,
+	 * Save the state of the <tt>HMapKI</tt> instance to a stream (i.e.,
 	 * serialize it).
 	 * 
-	 * @serialData The <i>capacity</i> of the HashMap (the length of the bucket
+	 * @serialData The <i>capacity</i> of the HMapKI (the length of the bucket
 	 *             array) is emitted (int), followed by the <i>size</i> (an
 	 *             int, the number of key-value mappings), followed by the key
 	 *             (Object) and value (Object) for each key-value mapping. The
@@ -821,7 +824,7 @@ public class HMapKI<K>
 	private static final long serialVersionUID = 362498820763181265L;
 
 	/**
-	 * Reconstitute the <tt>HashMap</tt> instance from a stream (i.e.,
+	 * Reconstitute the <tt>HMapKI</tt> instance from a stream (i.e.,
 	 * deserialize it).
 	 */
 	@SuppressWarnings("unchecked")
@@ -838,7 +841,7 @@ public class HMapKI<K>
 		// Read in size (number of Mappings)
 		int size = s.readInt();
 
-		// Read the keys and values, and put the mappings in the HashMap
+		// Read the keys and values, and put the mappings in the HMapKI
 		for (int i = 0; i < size; i++) {
 			K key = (K) s.readObject();
 			int value = s.readInt();
