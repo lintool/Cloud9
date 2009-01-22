@@ -47,7 +47,7 @@ public interface MapKF<K> {
 	 * @return <tt>true</tt> if this map contains a mapping for the specified
 	 *         key
 	 */
-	boolean containsKey(Object key);
+	boolean containsKey(K key);
 
 	/**
 	 * Returns <tt>true</tt> if this map contains one or more mappings with
@@ -71,7 +71,7 @@ public interface MapKF<K> {
 	 * @throws NoSuchElementException
 	 *             if the key is not contained in this map
 	 */
-	float get(Object key);
+	float get(K key);
 
 	// Modification Operations
 
@@ -94,7 +94,7 @@ public interface MapKF<K> {
 	 * @param key
 	 *            key whose mapping is to be removed from the map
 	 */
-	float remove(Object key);
+	float remove(K key);
 
 	// Bulk Operations
 
