@@ -17,6 +17,9 @@ import java.util.Set;
  * {@link Map}, except that the type of the value is hard coded as int for
  * efficiency reasons. This implementation was adapted from Map version 1.56,
  * 04/21/06.
+ * 
+ * @param <K>
+ *            the type of keys maintained by this map
  */
 public interface MapKI<K> {
 	// Query Operations
@@ -122,9 +125,10 @@ public interface MapKI<K> {
 
 	/**
 	 * Returns a {@link Collection} view of the values contained in this map.
-	 * The collection is backed by the map, so changes to the map are reflected
-	 * in the collection, and vice-versa. See {@link Map#values} for more
-	 * details.
+	 * Note that this is a inefficient operation since it triggers autoboxing of
+	 * the int values, which is exactly what this implementation is trying to
+	 * avoid. Unlike a standard Java <tt>Map</tt>, values in the backing map
+	 * cannot be altered with this collection view.
 	 * 
 	 * @return a collection view of the values contained in this map
 	 */
@@ -157,7 +161,7 @@ public interface MapKI<K> {
 		 * @return the key corresponding to this entry
 		 */
 		K getKey();
-		
+
 		/**
 		 * Returns the value corresponding to this entry. If the mapping has
 		 * been removed from the backing map (by the iterator's <tt>remove</tt>
