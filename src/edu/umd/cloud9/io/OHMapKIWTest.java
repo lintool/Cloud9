@@ -32,85 +32,85 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class MapKeyToFloatWritableTest {
+public class OHMapKIWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		MapKeyToFloatWritable<Text> m = new MapKeyToFloatWritable<Text>();
+		OHMapKIW<Text> m = new OHMapKIW<Text>();
 
-		m.put(new Text("hi"), 5.0f);
-		m.put(new Text("there"), 22.0f);
+		m.put(new Text("hi"), 5);
+		m.put(new Text("there"), 22);
 
 		Text key;
-		float value;
+		int value;
 
 		assertEquals(m.size(), 2);
 
 		key = new Text("hi");
 		value = m.get(key);
-		assertTrue(value == 5.0f);
+		assertEquals(value, 5);
 
 		value = m.remove(key);
 		assertEquals(m.size(), 1);
 
 		key = new Text("there");
 		value = m.get(key);
-		assertTrue(value == 22.0f);
+		assertEquals(value, 22);
 	}
 
 	@Test
 	public void testSerialize1() throws IOException {
-		MapKeyToFloatWritable<Text> m1 = new MapKeyToFloatWritable<Text>();
+		OHMapKIW<Text> m1 = new OHMapKIW<Text>();
 
-		m1.put(new Text("hi"), 5.0f);
-		m1.put(new Text("there"), 22.0f);
+		m1.put(new Text("hi"), 5);
+		m1.put(new Text("there"), 22);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		m1.write(dataOut);
 
-		MapKeyToFloatWritable<Text> n2 = MapKeyToFloatWritable.<Text> create(new DataInputStream(
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
 				new ByteArrayInputStream(bytesOut.toByteArray())));
 
 		Text key;
-		float value;
+		int value;
 
-		assertEquals(n2.size(), 2);
+		assertEquals(m2.size(), 2);
 
 		key = new Text("hi");
-		value = n2.get(key);
-		assertTrue(value == 5.0f);
+		value = m2.get(key);
+		assertEquals(value, 5);
 
-		value = n2.remove(key);
-		assertEquals(n2.size(), 1);
+		value = m2.remove(key);
+		assertEquals(m2.size(), 1);
 
 		key = new Text("there");
-		value = n2.get(key);
-		assertTrue(value == 22.0f);
+		value = m2.get(key);
+		assertEquals(value, 22);
 	}
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		MapKeyToFloatWritable<WritableComparable> m1 = new MapKeyToFloatWritable<WritableComparable>();
+		OHMapKIW<WritableComparable> m1 = new OHMapKIW<WritableComparable>();
 
-		m1.put(new Text("hi"), 4.0f);
-		m1.put(new IntWritable(0), 76.0f);
+		m1.put(new Text("hi"), 4);
+		m1.put(new IntWritable(0), 76);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		m1.write(dataOut);
 
-		MapKeyToFloatWritable<Text> m2 = MapKeyToFloatWritable.<Text> create(new DataInputStream(
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
 				new ByteArrayInputStream(bytesOut.toByteArray())));
-
+		
 		m2.size();
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		MapKeyToFloatWritable<WritableComparable> m1 = new MapKeyToFloatWritable<WritableComparable>();
+		OHMapKIW<WritableComparable> m1 = new OHMapKIW<WritableComparable>();
 
 		assertTrue(m1.size() == 0);
 
@@ -119,14 +119,14 @@ public class MapKeyToFloatWritableTest {
 
 		m1.write(dataOut);
 
-		MapKeyToFloatWritable<Text> m2 = MapKeyToFloatWritable.<Text> create(new DataInputStream(
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
 				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
+
 		assertTrue(m2.size() == 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(MapKeyToFloatWritableTest.class);
+		return new JUnit4TestAdapter(OHMapKIWTest.class);
 	}
 
 }

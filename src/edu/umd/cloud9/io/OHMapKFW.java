@@ -8,26 +8,26 @@ import java.util.Set;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import edu.umd.cloud9.util.MapInt;
-import edu.umd.cloud9.util.OrderedHashMapInt;
+import edu.umd.cloud9.util.MapKF;
+import edu.umd.cloud9.util.OHMapKF;
 
 /**
  * <p>
- * Writable representing a map where the values are integers.
+ * Writable representing a map where the values are floats.
  * </p>
  * 
  * @param <K>
  *            type of key
  */
-public class MapKeyToIntWritable<K extends WritableComparable> extends OrderedHashMapInt<K>
+public class OHMapKFW<K extends WritableComparable> extends OHMapKF<K>
 		implements Writable {
 
-	private static final long serialVersionUID = 295863243L;
+	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a MapKeyToIntWritable object.
+	 * Creates a MapKeyToFloatWritable object.
 	 */
-	public MapKeyToIntWritable() {
+	public OHMapKFW() {
 		super();
 	}
 
@@ -49,13 +49,12 @@ public class MapKeyToIntWritable<K extends WritableComparable> extends OrderedHa
 		String keyClassName = in.readUTF();
 
 		K objK;
-
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
-				Integer s = in.readInt();
+				float s = in.readFloat();
 				put(objK, s);
 			}
 
@@ -83,24 +82,23 @@ public class MapKeyToIntWritable<K extends WritableComparable> extends OrderedHa
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<MapInt.Entry<K>> entries = entrySet();
-		MapInt.Entry<K> first = entries.iterator().next();
+		Set<MapKF.Entry<K>> entries = entrySet();
+		MapKF.Entry<K> first = entries.iterator().next();
 		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (MapInt.Entry<K> e : entrySet()) {
+		for (MapKF.Entry<K> e : entrySet()) {
 			e.getKey().write(out);
-			out.writeInt(e.getValue());
+			out.writeFloat(e.getValue());
 		}
 	}
 
-	public static <T extends WritableComparable> MapKeyToIntWritable<T> create(DataInput in)
+	public static <T extends WritableComparable> OHMapKFW<T> create(DataInput in)
 			throws IOException {
-		MapKeyToIntWritable<T> m = new MapKeyToIntWritable<T>();
+		OHMapKFW<T> m = new OHMapKFW<T>();
 		m.readFields(in);
 
 		return m;
 	}
-
 }
