@@ -85,6 +85,9 @@ public class OHMapIFWTest {
 	public void testSerializeEmpty() throws IOException {
 		OHMapIFW m1 = new OHMapIFW();
 
+		// make sure this does nothing
+		m1.decode();
+		
 		assertTrue(m1.size() == 0);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
