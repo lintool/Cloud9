@@ -139,6 +139,9 @@ public class OHMapIF extends HMapIF {
 	public Entry[] getEntriesSortedByValue(int n) {
 		Entry[] entries = getEntriesSortedByValue();
 
+		if (entries == null)
+			return null;
+
 		if (entries.length < n)
 			return entries;
 

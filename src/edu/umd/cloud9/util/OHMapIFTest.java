@@ -171,7 +171,34 @@ public class OHMapIFTest {
 		assertEquals(3, e[1].getKey());
 		assertEquals(3.0f, (float) e[1].getValue(), 10E-6);
 	}
+	
+	@Test
+	public void testSortedEntries3() {
+		OHMapIF m = new OHMapIF();
 
+		m.put(1, 5.0f);
+		m.put(2, 2.0f);
+
+		Entry[] e = m.getEntriesSortedByValue(5);
+
+		assertEquals(2, e.length);
+
+		assertEquals(1, e[0].getKey());
+		assertEquals(5.0f, (float) e[0].getValue(), 10E-6);
+
+		assertEquals(2, e[1].getKey());
+		assertEquals(2.0f, (float) e[1].getValue(), 10E-6);
+	}
+	
+	@Test
+	public void testSortedEntries4() {
+		OHMapIF m = new OHMapIF();
+
+		Entry[] e = m.getEntriesSortedByValue();
+		assertTrue(e == null);
+	}
+
+	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(OHMapIFTest.class);
 	}
