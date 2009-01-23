@@ -1,10 +1,7 @@
 package edu.umd.cloud9.util;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class OHMapIF extends HMapIF {
 
@@ -86,28 +83,32 @@ public class OHMapIF extends HMapIF {
 		if (this.size() == 0)
 			return null;
 
+		// for storing the entries
 		Entry[] entries = new Entry[this.size()];
 		int i = 0;
-
-		Entry[] t = super.table;
+		Entry next = null;
 
 		int index = 0;
 		// advance to first entry
-		Entry next = null;
-		while (index < t.length && (next = t[index++]) == null)
+		while (index < table.length && (next = table[index++]) == null)
 			;
 
 		while (next != null) {
+			// current entry
 			Entry e = next;
+
+			// advance to next entry
 			next = e.next;
 			if ((next = e.next) == null) {
-				while (index < t.length && (next = t[index++]) == null)
+				while (index < table.length && (next = table[index++]) == null)
 					;
 			}
 
+			// add entry to array
 			entries[i++] = e;
 		}
 
+		// sort the entries
 		Arrays.sort(entries, new Comparator<MapIF.Entry>() {
 			@SuppressWarnings("unchecked")
 			public int compare(MapIF.Entry e1, MapIF.Entry e2) {
@@ -120,13 +121,10 @@ public class OHMapIF extends HMapIF {
 				if (e1.getKey() == e2.getKey())
 					return 0;
 
-				return e1.getKey() > e2.getKey() ? -1 : 1;
+				return e1.getKey() > e2.getKey() ? 1 : -1;
 			}
 		});
-		
-		//for ( MapIF.Entry e : entries ) {
-		//	System.out.println(e);
-		//}
+
 		return entries;
 	}
 
@@ -138,36 +136,13 @@ public class OHMapIF extends HMapIF {
 	 *            number of entries to return
 	 * @return top <i>n</i> entries sorted by descending value
 	 */
-	public SortedSet<MapIF.Entry> getEntriesSortedByValue(int n) {
-		// TODO: this should be rewritten to use a Fibonacci heap
+	public Entry[] getEntriesSortedByValue(int n) {
+		Entry[] entries = getEntriesSortedByValue();
 
-		SortedSet<MapIF.Entry> entries = new TreeSet<MapIF.Entry>(new Comparator<MapIF.Entry>() {
-			@SuppressWarnings("unchecked")
-			public int compare(MapIF.Entry e1, MapIF.Entry e2) {
-				if (e1.getValue() > e2.getValue()) {
-					return -1;
-				} else if (e1.getValue() < e2.getValue()) {
-					return 1;
-				}
+		if (entries.length < n)
+			return entries;
 
-				if (e1.getKey() == e2.getKey())
-					return 0;
-
-				return e1.getKey() > e2.getKey() ? -1 : 1;
-			}
-		});
-
-		int cnt = 0;
-		for (MapIF.Entry entry : getEntriesSortedByValue()) {
-			entries.add(entry);
-			cnt++;
-			if (cnt >= n)
-				break;
-		}
-
-		return Collections.unmodifiableSortedSet(entries);
+		return Arrays.copyOfRange(entries, 0, n);
 	}
-
-
 
 }
