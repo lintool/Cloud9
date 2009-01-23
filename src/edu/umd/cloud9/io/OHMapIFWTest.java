@@ -82,6 +82,47 @@ public class OHMapIFWTest {
 	}
 
 	@Test
+	public void testSerializeLazy1() throws IOException {
+		OHMapIFW.setLazyDecodeFlag(true);
+		OHMapIFW m1 = new OHMapIFW();
+
+		m1.put(3, 5.0f);
+		m1.put(4, 22.0f);
+
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+
+		m1.write(dataOut);
+
+		OHMapIFW n2 = OHMapIFW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
+				.toByteArray())));
+
+		assertEquals(0, n2.size());
+		
+		int[] keys = n2.getKeys();
+		float[] values = n2.getValues();
+
+		assertTrue(keys[0] == 3);
+		assertTrue(keys[1] == 4);
+
+		assertTrue(values[0] == 5.0f);
+		assertTrue(values[1] == 22.0f);
+
+		n2.decode();
+		float value;
+		assertEquals(n2.size(), 2);
+
+		value = n2.get(3);
+		assertTrue(value == 5.0f);
+
+		value = n2.remove(3);
+		assertEquals(n2.size(), 1);
+
+		value = n2.get(4);
+		assertTrue(value == 22.0f);
+	}
+	
+	@Test
 	public void testSerializeEmpty() throws IOException {
 		OHMapIFW m1 = new OHMapIFW();
 

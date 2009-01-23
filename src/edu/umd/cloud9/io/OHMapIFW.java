@@ -60,8 +60,6 @@ public class OHMapIFW extends OHMapIF implements Writable {
 				put(in.readInt(), in.readFloat());
 			}
 		}
-
-		// decode();
 	}
 
 	int numEntries = 0;
