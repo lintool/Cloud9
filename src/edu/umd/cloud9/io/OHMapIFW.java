@@ -44,7 +44,7 @@ public class OHMapIFW extends OHMapIF implements Writable {
 			return;
 
 		for (int i = 0; i < numEntries; i++) {
-			//int k = WritableUtils.readVInt(in);
+			// int k = WritableUtils.readVInt(in);
 			int k = in.readInt();
 			float s = in.readFloat();
 			put(k, s);
@@ -65,17 +65,17 @@ public class OHMapIFW extends OHMapIF implements Writable {
 			return;
 
 		for (MapIF.Entry e : entrySet()) {
-			//WritableUtils.writeVInt(out, e.getKey());
+			// WritableUtils.writeVInt(out, e.getKey());
 			out.writeInt(e.getKey());
 			out.writeFloat(e.getValue());
 		}
 	}
 
-	/*
-	 * public static <T extends WritableComparable> OHMapIFW<T>
-	 * create(DataInput in) throws IOException { OHMapIFW<T> m = new OHMapIFW<T>();
-	 * m.readFields(in);
-	 * 
-	 * return m; }
-	 */
+	public static OHMapIFW create(DataInput in) throws IOException {
+		OHMapIFW m = new OHMapIFW();
+		m.readFields(in);
+
+		return m;
+	}
+
 }
