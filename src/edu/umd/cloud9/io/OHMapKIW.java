@@ -9,7 +9,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import edu.umd.cloud9.util.MapKI;
-import edu.umd.cloud9.util.OHMapKIT;
+import edu.umd.cloud9.util.OHMapKI;
 
 /**
  * <p>
@@ -19,7 +19,7 @@ import edu.umd.cloud9.util.OHMapKIT;
  * @param <K>
  *            type of key
  */
-public class OHMapKIW<K extends WritableComparable> extends OHMapKIT<K>
+public class OHMapKIW<K extends WritableComparable> extends OHMapKI<K>
 		implements Writable {
 
 	private static final long serialVersionUID = 295863243L;
