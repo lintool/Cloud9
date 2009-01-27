@@ -31,7 +31,7 @@ public class OHMapKITest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapKIT<Text> m = new OHMapKIT<Text>();
+		OHMapKI<Text> m = new OHMapKI<Text>();
 
 		m.put(new Text("hi"), 5);
 		m.put(new Text("there"), 22);
@@ -55,12 +55,12 @@ public class OHMapKITest {
 
 	@Test
 	public void testPlus() throws IOException {
-		OHMapKIT<Text> m1 = new OHMapKIT<Text>();
+		OHMapKI<Text> m1 = new OHMapKI<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 22);
 
-		OHMapKIT<Text> m2 = new OHMapKIT<Text>();
+		OHMapKI<Text> m2 = new OHMapKI<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("test"), 5);
@@ -75,13 +75,13 @@ public class OHMapKITest {
 
 	@Test
 	public void testDot() throws IOException {
-		OHMapKIT<Text> m1 = new OHMapKIT<Text>();
+		OHMapKI<Text> m1 = new OHMapKI<Text>();
 
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 2);
 		m1.put(new Text("empty"), 3);
 
-		OHMapKIT<Text> m2 = new OHMapKIT<Text>();
+		OHMapKI<Text> m2 = new OHMapKI<Text>();
 
 		m2.put(new Text("hi"), 4);
 		m2.put(new Text("there"), 4);
@@ -95,7 +95,7 @@ public class OHMapKITest {
 	@Test
 	public void testSortedEntries1() {
 
-		OHMapKIT<Text> m = new OHMapKIT<Text>();
+		OHMapKI<Text> m = new OHMapKI<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);
@@ -131,7 +131,7 @@ public class OHMapKITest {
 	@Test
 	public void testSortedEntries2() {
 
-		OHMapKIT<Text> m = new OHMapKIT<Text>();
+		OHMapKI<Text> m = new OHMapKI<Text>();
 
 		m.put(new Text("a"), 5);
 		m.put(new Text("b"), 2);

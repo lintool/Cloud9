@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class OHMapKIT<K extends Comparable> extends HMapKI<K> {
+public class OHMapKI<K extends Comparable> extends HMapKI<K> {
 
 	private static final long serialVersionUID = 8726031451L;
 
@@ -15,7 +15,7 @@ public class OHMapKIT<K extends Comparable> extends HMapKI<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public void plus(OHMapKIT<K> m) {
+	public void plus(OHMapKI<K> m) {
 		for (MapKI.Entry<K> e : m.entrySet()) {
 			K key = e.getKey();
 
@@ -33,7 +33,7 @@ public class OHMapKIT<K extends Comparable> extends HMapKI<K> {
 	 * @param m
 	 *            the other vector
 	 */
-	public int dot(OHMapKIT<K> m) {
+	public int dot(OHMapKI<K> m) {
 		int s = 0;
 
 		for (MapKI.Entry<K> e : m.entrySet()) {
