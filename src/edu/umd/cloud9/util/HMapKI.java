@@ -857,4 +857,24 @@ public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
 	float loadFactor() {
 		return loadFactor;
 	}
+
+	public String toString() {
+		Iterator<MapKI.Entry<K>> i = entrySet().iterator();
+		if (!i.hasNext())
+			return "{}";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		for (;;) {
+			MapKI.Entry<K> e = i.next();
+			K key = e.getKey();
+			float value = e.getValue();
+			sb.append(key);
+			sb.append('=');
+			sb.append(value);
+			if (!i.hasNext())
+				return sb.append('}').toString();
+			sb.append(", ");
+		}
+	}
 }

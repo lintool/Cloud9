@@ -825,4 +825,24 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	float loadFactor() {
 		return loadFactor;
 	}
+
+	public String toString() {
+		Iterator<MapII.Entry> i = entrySet().iterator();
+		if (!i.hasNext())
+			return "{}";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		for (;;) {
+			MapII.Entry e = i.next();
+			int key = e.getKey();
+			int value = e.getValue();
+			sb.append(key);
+			sb.append('=');
+			sb.append(value);
+			if (!i.hasNext())
+				return sb.append('}').toString();
+			sb.append(", ");
+		}
+	}
 }
