@@ -24,6 +24,7 @@ import org.apache.hadoop.io.WritableComparable;
  * @param <F>
  *            type of feature
  */
+@Deprecated
 public class VectorFloat<F extends WritableComparable> extends HashMap<F, Float> implements
 		Writable {
 
