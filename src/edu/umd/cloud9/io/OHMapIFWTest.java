@@ -19,10 +19,6 @@ package edu.umd.cloud9.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
@@ -59,13 +55,8 @@ public class OHMapIFWTest {
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapIFW n2 = OHMapIFW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		byte[] bytes = m1.serialize();
+		OHMapIFW n2 = OHMapIFW.create(bytes);
 
 		float value;
 
@@ -89,18 +80,13 @@ public class OHMapIFWTest {
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+		byte[] bytes = m1.serialize();
+		OHMapIFW m2 = OHMapIFW.create(bytes);
 
-		m1.write(dataOut);
+		assertEquals(0, m2.size());
 
-		OHMapIFW n2 = OHMapIFW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
-
-		assertEquals(0, n2.size());
-		
-		int[] keys = n2.getKeys();
-		float[] values = n2.getValues();
+		int[] keys = m2.getKeys();
+		float[] values = m2.getValues();
 
 		assertTrue(keys[0] == 3);
 		assertTrue(keys[1] == 4);
@@ -108,39 +94,36 @@ public class OHMapIFWTest {
 		assertTrue(values[0] == 5.0f);
 		assertTrue(values[1] == 22.0f);
 
-		n2.decode();
+		m2.decode();
 		float value;
-		assertEquals(n2.size(), 2);
+		assertEquals(m2.size(), 2);
 
-		value = n2.get(3);
+		value = m2.get(3);
 		assertTrue(value == 5.0f);
 
-		value = n2.remove(3);
-		assertEquals(n2.size(), 1);
+		value = m2.remove(3);
+		assertEquals(m2.size(), 1);
 
-		value = n2.get(4);
+		value = m2.get(4);
 		assertTrue(value == 22.0f);
 	}
-	
+
 	@Test
 	public void testSerializeEmpty() throws IOException {
 		OHMapIFW m1 = new OHMapIFW();
 
 		// make sure this does nothing
 		m1.decode();
-		
+
 		assertTrue(m1.size() == 0);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapIFW m2 = OHMapIFW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		byte[] bytes = m1.serialize();
+		OHMapIFW m2 = OHMapIFW.create(bytes);
 
 		assertTrue(m2.size() == 0);
 	}
+
+	// TODO: Should add a test case for lazy add
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(OHMapIFWTest.class);

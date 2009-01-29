@@ -1,7 +1,11 @@
 package edu.umd.cloud9.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
@@ -94,11 +98,23 @@ public class OHMapIFW extends OHMapIF implements Writable {
 		}
 	}
 
+	public byte[] serialize() throws IOException {
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+		write(dataOut);
+
+		return bytesOut.toByteArray();
+	}
+
 	public static OHMapIFW create(DataInput in) throws IOException {
 		OHMapIFW m = new OHMapIFW();
 		m.readFields(in);
 
 		return m;
+	}
+
+	public static OHMapIFW create(byte[] bytes) throws IOException {
+		return OHMapIFW.create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 
 	public static void setLazyDecodeFlag(boolean b) {
@@ -117,19 +133,15 @@ public class OHMapIFW extends OHMapIF implements Writable {
 		return values;
 	}
 
-	public void plus(OHMapIFW m) {
-		if (!sLazyDecode) {
-			super.plus(m);
-		} else {
-			int[] k = m.getKeys();
-			float[] v = m.getValues();
+	public void lazyplus(OHMapIFW m) {
+		int[] k = m.getKeys();
+		float[] v = m.getValues();
 
-			for (int i = 0; i < k.length; i++) {
-				if (this.containsKey(k[i])) {
-					this.put(k[i], this.get(k[i]) + v[i]);
-				} else {
-					this.put(k[i], v[i]);
-				}
+		for (int i = 0; i < k.length; i++) {
+			if (this.containsKey(k[i])) {
+				this.put(k[i], this.get(k[i]) + v[i]);
+			} else {
+				this.put(k[i], v[i]);
 			}
 		}
 	}
