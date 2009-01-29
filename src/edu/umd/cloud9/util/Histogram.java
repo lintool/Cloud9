@@ -46,6 +46,7 @@ import java.util.Map;
  * @param <T>
  *            type of object
  */
+@Deprecated
 public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> {
 
 	private static final long serialVersionUID = 9190462865L;

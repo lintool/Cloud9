@@ -36,6 +36,7 @@ import java.util.TreeSet;
  * @param <K>
  *            type of key
  */
+@Deprecated
 public class Scorekeeper<K extends Comparable<K>, V extends Number & Comparable<V>> extends
 		HashMap<K, V> {
 
