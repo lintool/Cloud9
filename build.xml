@@ -4,7 +4,7 @@
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="lib" location="../umd-hadoop-dist/jars" />
-	<property name="regression_results" location="../umd-hadoop-dist/regression-results" />
+	<property name="regression_results" location="regression-results" />
 	<property name="javadoc" location="../umd-hadoop-dist/cloud9-docs/api/" />
 
 	<path id="classpath">
@@ -86,9 +86,9 @@
 	<target name="javadoc">
 		<javadoc destdir="${javadoc}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" classpathref="classpath">
 			<fileset dir="src">
-				<include name="**/*.java"/>
+				<include name="**/*.java" />
 				<exclude name="**/*Test.java" />
-                                <exclude name="**/benchmark/*.java" />
+				<exclude name="**/benchmark/*.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
 			<link href="../../hadoop/hadoop-0.17.0/docs/api" />
