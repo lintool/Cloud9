@@ -14,6 +14,7 @@ public class Spinn3rItem implements Indexable {
 
 	private String mItem;
 	private String mTitle;
+	private String mGuid;
 	private String mLanguage;
 
 	public Spinn3rItem() {
@@ -32,8 +33,8 @@ public class Spinn3rItem implements Indexable {
 		Spinn3rItem.readItem(this, new String(bytes));
 	}
 
-	public int getDocno() {
-		return -1;
+	public String getDocid() {
+		return mGuid;
 	}
 
 	public String getContent() {
@@ -48,12 +49,12 @@ public class Spinn3rItem implements Indexable {
 		return mTitle;
 	}
 
+	public String getGuid() {
+		return mGuid;
+	}
+	
 	public String getLanguage() {
 		return mLanguage;
-	}
-
-	public static Spinn3rItem createEmptyItem() {
-		return new Spinn3rItem();
 	}
 
 	public static void readItem(Spinn3rItem item, String s) {
@@ -63,6 +64,11 @@ public class Spinn3rItem implements Indexable {
 		int start = s.indexOf("<title>");
 		int end = s.indexOf("</title>", start);
 		item.mTitle = s.substring(start + 7, end);
+
+		// parse out guid
+		start = s.indexOf("<guid>");
+		end = s.indexOf("</guid>", start);
+		item.mGuid = s.substring(start + 6, end);
 
 		// parse out actual text of article
 		// item.mTextStart = s .indexOf("<text>");

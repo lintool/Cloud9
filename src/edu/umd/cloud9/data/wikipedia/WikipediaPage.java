@@ -36,8 +36,8 @@ public class WikipediaPage implements Indexable {
 		WikipediaPage.readPage(this, new String(bytes));
 	}
 
-	public int getDocno() {
-		return -1;
+	public String getDocid() {
+		return getTitle();
 	}
 	
 	public String getContent() {
