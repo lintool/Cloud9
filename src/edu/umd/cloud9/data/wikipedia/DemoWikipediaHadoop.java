@@ -16,8 +16,6 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.data.XMLInputFormat;
-
 public class DemoWikipediaHadoop {
 
 	protected static enum PageTypes {
@@ -79,12 +77,9 @@ public class DemoWikipediaHadoop {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
+		conf.setInputFormat(WikipediaPageInputFormat.class);
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
-
-		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.set(XMLInputFormat.START_TAG_KEY, WikipediaPage.XML_START_TAG);
-		conf.set(XMLInputFormat.END_TAG_KEY, WikipediaPage.XML_END_TAG);
 
 		conf.setMapperClass(MyMapper.class);
 
