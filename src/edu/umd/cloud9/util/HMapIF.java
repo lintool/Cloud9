@@ -228,9 +228,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 
 	// doc copied from interface
 	public void put(int key, float value) {
-		/*
-		 * if (key == null) { putForNullKey(value); return; }
-		 */
 		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 		for (Entry e = table[i]; e != null; e = e.next) {
@@ -247,16 +244,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 		addEntry(hash, key, value, i);
 		// return null;
 	}
-
-	/**
-	 * Offloaded version of put for null keys
-	 */
-	/*
-	 * private void putForNullKey(int value) { for (Entry<K> e = table[0]; e !=
-	 * null; e = e.next) { if (e.key == null) { int oldValue = e.value; e.value =
-	 * value; e.recordAccess(this); //return oldValue; } } modCount++;
-	 * addEntry(0, null, value, 0); //return null; }
-	 */
 
 	/**
 	 * This method is used instead of put by constructors and pseudoconstructors
@@ -414,10 +401,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	 * Special version of remove for EntrySet.
 	 */
 	final Entry removeMapping(Object o) {
-		// instanceof is costly, so skip
-		// if (!(o instanceof MapII.Entry))
-		// return null;
-
 		MapII.Entry entry = (MapII.Entry) o;
 		Object key = entry.getKey();
 		int hash = (key == null) ? 0 : hash(key.hashCode());
@@ -517,8 +500,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 		}
 
 		public final boolean equals(Object o) {
-			// if (!(o instanceof MapKI.Entry))
-			// return false;
 			MapIF.Entry e = (MapIF.Entry) o;
 			int k1 = getKey();
 			int k2 = e.getKey();
@@ -741,8 +722,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 		}
 
 		public boolean contains(Object o) {
-			// if (!(o instanceof Map.Entry))
-			// return false;
 			MapIF.Entry e = (MapIF.Entry) o;
 			Entry candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
