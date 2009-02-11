@@ -23,10 +23,10 @@ public class DemoWikipediaHadoop {
 	};
 
 	public static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, LongWritable, Text> {
+			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
 		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<LongWritable, Text> output, Reporter reporter) throws IOException {
+				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(PageTypes.TOTAL, 1);
 
 			if (p.isRedirect()) {
