@@ -27,10 +27,10 @@ public class XMLInputFormat extends TextInputFormat {
 
 	public RecordReader<LongWritable, Text> getRecordReader(InputSplit inputSplit, JobConf jobConf,
 			Reporter reporter) throws IOException {
-		return new XmlRecordReader((FileSplit) inputSplit, jobConf);
+		return new XMLRecordReader((FileSplit) inputSplit, jobConf);
 	}
 
-	public static class XmlRecordReader implements RecordReader<LongWritable, Text> {
+	public static class XMLRecordReader implements RecordReader<LongWritable, Text> {
 		private byte[] startTag;
 		private byte[] endTag;
 		private long start;
@@ -38,9 +38,12 @@ public class XMLInputFormat extends TextInputFormat {
 		private FSDataInputStream fsin;
 		private DataOutputBuffer buffer = new DataOutputBuffer();
 
-		public XmlRecordReader(FileSplit split, JobConf jobConf) throws IOException {
-			startTag = jobConf.get("xmlinput.start").getBytes("utf-8");
-			endTag = jobConf.get("xmlinput.end").getBytes("utf-8");
+		public XMLRecordReader(FileSplit split, JobConf jobConf) throws IOException {
+			if (jobConf.get(START_TAG_KEY) == null || jobConf.get(END_TAG_KEY) == null)
+				throw new RuntimeException("Error! XML start and end tags unspecified!");
+
+			startTag = jobConf.get(START_TAG_KEY).getBytes("utf-8");
+			endTag = jobConf.get(END_TAG_KEY).getBytes("utf-8");
 
 			// open the file and seek to the start of the split
 			start = split.getStart();
