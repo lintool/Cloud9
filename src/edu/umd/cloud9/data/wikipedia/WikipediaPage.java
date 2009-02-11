@@ -7,7 +7,9 @@ import java.io.IOException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
-public class WikipediaPage implements Writable {
+import edu.umd.cloud9.data.Indexable;
+
+public class WikipediaPage implements Indexable {
 	public static final String XML_START_TAG = "<page>";
 	public static final String XML_END_TAG = "</page>";
 
@@ -21,7 +23,7 @@ public class WikipediaPage implements Writable {
 
 	public WikipediaPage() {
 	}
-
+	
 	public void write(DataOutput out) throws IOException {
 		byte[] bytes = mPage.getBytes();
 		WritableUtils.writeVInt(out, bytes.length);
@@ -35,6 +37,14 @@ public class WikipediaPage implements Writable {
 		WikipediaPage.readPage(this, new String(bytes));
 	}
 
+	public int getDocno() {
+		return -1;
+	}
+	
+	public String getContent() {
+		return getTitle() + getText();
+	}
+	
 	public String getRawXML() {
 		return mPage;
 	}

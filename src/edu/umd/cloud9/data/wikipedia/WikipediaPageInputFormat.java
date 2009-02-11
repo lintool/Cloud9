@@ -4,34 +4,38 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.data.XMLInputFormat.XmlRecordReader;
+import edu.umd.cloud9.data.IndexableFileInputFormat;
+import edu.umd.cloud9.data.XMLInputFormat;
+import edu.umd.cloud9.data.XMLInputFormat.XMLRecordReader;
 
-public class WikipediaPageInputFormat extends FileInputFormat<LongWritable, WikipediaPage> {
+public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
 
-	public void configure(JobConf jobConf) {
+	public void configure(JobConf conf) {
 	}
 
 	public RecordReader<LongWritable, WikipediaPage> getRecordReader(InputSplit inputSplit,
-			JobConf jobConf, Reporter reporter) throws IOException {
-		return new WikipediaPageRecordReader((FileSplit) inputSplit, jobConf);
+			JobConf conf, Reporter reporter) throws IOException {
+		return new WikipediaPageRecordReader((FileSplit) inputSplit, conf);
 	}
 
 	public static class WikipediaPageRecordReader implements
 			RecordReader<LongWritable, WikipediaPage> {
 
-		private XmlRecordReader mReader;
+		private XMLRecordReader mReader;
 		private Text mText = new Text();
 		private LongWritable mLong = new LongWritable();
 
-		public WikipediaPageRecordReader(FileSplit split, JobConf jobConf) throws IOException {
-			mReader = new XmlRecordReader(split, jobConf);
+		public WikipediaPageRecordReader(FileSplit split, JobConf conf) throws IOException {
+			conf.set(XMLInputFormat.START_TAG_KEY, WikipediaPage.XML_START_TAG);
+			conf.set(XMLInputFormat.END_TAG_KEY, WikipediaPage.XML_END_TAG);
+
+			mReader = new XMLRecordReader(split, conf);
 		}
 
 		public boolean next(LongWritable key, WikipediaPage value) throws IOException {
