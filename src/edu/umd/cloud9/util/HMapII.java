@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Hash-based implementation of the <tt>MapKI</tt> interface. {@link MapKI} is
+ * Hash-based implementation of the <tt>MapII</tt> interface. {@link MapII} is
  * a specialized variant the standard Java {@link Map} interface, except that
  * the keys and values are hard coded as ints for efficiency reasons. This
  * implementation was adapted from {@link HashMap} version 1.73, 03/13/07. See
@@ -246,16 +246,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	}
 
 	/**
-	 * Offloaded version of put for null keys
-	 */
-	/*
-	 * private void putForNullKey(int value) { for (Entry<K> e = table[0]; e !=
-	 * null; e = e.next) { if (e.key == null) { int oldValue = e.value; e.value =
-	 * value; e.recordAccess(this); //return oldValue; } } modCount++;
-	 * addEntry(0, null, value, 0); //return null; }
-	 */
-
-	/**
 	 * This method is used instead of put by constructors and pseudoconstructors
 	 * (clone, readObject). It does not resize the table, check for
 	 * comodification, etc. It calls createEntry rather than addEntry.
@@ -411,10 +401,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	 * Special version of remove for EntrySet.
 	 */
 	final Entry removeMapping(Object o) {
-		// instanceof is costly, so skip
-		// if (!(o instanceof MapII.Entry))
-		// return null;
-
 		MapII.Entry entry = (MapII.Entry) o;
 		Object key = entry.getKey();
 		int hash = (key == null) ? 0 : hash(key.hashCode());
@@ -514,8 +500,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 
 		public final boolean equals(Object o) {
-			// if (!(o instanceof MapKI.Entry))
-			// return false;
 			MapII.Entry e = (MapII.Entry) o;
 			int k1 = getKey();
 			int k2 = e.getKey();
@@ -738,8 +722,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 
 		public boolean contains(Object o) {
-			// if (!(o instanceof Map.Entry))
-			// return false;
 			MapII.Entry e = (MapII.Entry) o;
 			Entry candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
