@@ -1,8 +1,13 @@
 package edu.umd.cloud9.data.wikipedia;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -18,6 +23,8 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
+
+import edu.umd.cloud9.util.FSLineReader;
 
 public class NumberWikipediaArticles {
 
@@ -70,20 +77,68 @@ public class NumberWikipediaArticles {
 	protected NumberWikipediaArticles() {
 	}
 
+	static public void writeArticleTitlesData(String input, String output) throws IOException {
+		System.out.println("Writing article titles to " + output);
+		FSLineReader reader = new FSLineReader(input);
+		List<String> list = new ArrayList<String>();
+
+		System.out.print("Reading " + input);
+		int cnt = 0;
+		Text line = new Text();
+		while (reader.readLine(line) > 0) {
+			String[] arr = line.toString().split("\\t");
+			list.add(arr[0]);
+			cnt++;
+			if (cnt % 100000 == 0) {
+				System.out.print(".");
+			}
+		}
+		reader.close();
+		System.out.print("Done!\n");
+
+		System.out.print("Writing " + output);
+		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(output), true);
+		out.writeInt(list.size());
+		for (int i = 0; i < list.size(); i++) {
+			out.writeUTF(list.get(i));
+			cnt++;
+			if (cnt % 100000 == 0) {
+				System.out.print(".");
+			}
+		}
+		out.close();
+		System.out.print("Done!\n");
+	}
+
+	static public String[] readArticleTitlesData(String file) throws IOException {
+		FSDataInputStream in = FileSystem.get(new Configuration()).open(new Path(file));
+		int sz = in.readInt();
+
+		String[] arr = new String[sz];
+		for (int i = 0; i < sz; i++) {
+			arr[i] = in.readUTF();
+		}
+		in.close();
+
+		return arr;
+	}
+
 	/**
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 3) {
-			System.out.println("usage: [xml-dump] [output-dir] [num-mappers]");
+		if (args.length != 4) {
+			System.out.println("usage: [xml-dump] [output-dir] [output-file] [num-mappers]");
 			System.exit(-1);
 
 		}
 		String inputPath = args[0];
 		String outputPath = args[1];
-		int mapTasks = Integer.parseInt(args[2]);
+		String outputFile = args[2];
+		int mapTasks = Integer.parseInt(args[3]);
 
 		System.out.println("input: " + inputPath);
+		System.out.println("output: " + outputPath);
 		System.out.println("number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(NumberWikipediaArticles.class);
@@ -108,5 +163,7 @@ public class NumberWikipediaArticles {
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
+
+		NumberWikipediaArticles.writeArticleTitlesData(outputPath + "/part-00000", outputFile);
 	}
 }
