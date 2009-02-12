@@ -41,7 +41,7 @@ public class WikipediaPage implements Indexable {
 	}
 	
 	public String getContent() {
-		return getTitle() + getText();
+		return getTitle() + "\n" + getText();
 	}
 	
 	public String getRawXML() {
