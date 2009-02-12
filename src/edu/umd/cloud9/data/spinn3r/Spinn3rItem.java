@@ -16,6 +16,7 @@ public class Spinn3rItem implements Indexable {
 	private String mTitle;
 	private String mGuid;
 	private String mLanguage;
+	private String mDescription;
 
 	public Spinn3rItem() {
 	}
@@ -37,8 +38,12 @@ public class Spinn3rItem implements Indexable {
 		return mGuid;
 	}
 
+	public void setDocid(String docid) {
+		mGuid = docid;
+	}
+
 	public String getContent() {
-		return getTitle();
+		return getTitle() + "\n" + getDescription();
 	}
 
 	public String getRawXML() {
@@ -49,10 +54,14 @@ public class Spinn3rItem implements Indexable {
 		return mTitle;
 	}
 
+	public String getDescription() {
+		return mDescription;
+	}
+
 	public String getGuid() {
 		return mGuid;
 	}
-	
+
 	public String getLanguage() {
 		return mLanguage;
 	}
@@ -71,8 +80,9 @@ public class Spinn3rItem implements Indexable {
 		item.mGuid = s.substring(start + 6, end);
 
 		// parse out actual text of article
-		// item.mTextStart = s .indexOf("<text>");
-		// item.mTextEnd = s.indexOf("</text>", page.mTextStart);
+		start = s.indexOf("<description>");
+		end = s.indexOf("</description>", start);
+		item.mDescription = s.substring(start + 13, end);
 
 		start = s.indexOf("<dc:lang>");
 		end = s.indexOf("</dc:lang>", start);
