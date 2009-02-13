@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-public class WritableComparatorTest {
+public class WritableComparatorTestHarness {
 
 	public static int compare(WritableComparator comparator, WritableComparable obj1,
 			WritableComparable obj2) {

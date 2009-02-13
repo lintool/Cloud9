@@ -31,7 +31,7 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.WritableComparator;
 import org.junit.Test;
 
-import edu.umd.cloud9.debug.WritableComparatorTest;
+import edu.umd.cloud9.debug.WritableComparatorTestHarness;
 
 public class PairOfIntsTest {
 
@@ -111,12 +111,12 @@ public class PairOfIntsTest {
 		PairOfInts pair5 = new PairOfInts();
 		pair5.set(9, 0);
 
-		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair2) == 0);
-		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair3) > 0);
-		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair4) > 0);
-		assertTrue(WritableComparatorTest.compare(comparator, pair1, pair5) < 0);
-		assertTrue(WritableComparatorTest.compare(comparator, pair3, pair4) > 0);
-		assertTrue(WritableComparatorTest.compare(comparator, pair4, pair5) < 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair4) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair5) < 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair3, pair4) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair4, pair5) < 0);
 	}
 
 	public static junit.framework.Test suite() {
