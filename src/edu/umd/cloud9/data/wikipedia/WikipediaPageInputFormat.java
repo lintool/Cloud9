@@ -41,7 +41,7 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 		public boolean next(LongWritable key, WikipediaPage value) throws IOException {
 			if (mReader.next(mLong, mText) == false)
 				return false;
-
+			key.set(mLong.get());
 			WikipediaPage.readPage(value, mText.toString());
 			return true;
 		}

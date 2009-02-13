@@ -110,8 +110,8 @@ public class NumberWikipediaArticles {
 		System.out.print("Done!\n");
 	}
 
-	static public String[] readArticleTitlesData(String file) throws IOException {
-		FSDataInputStream in = FileSystem.get(new Configuration()).open(new Path(file));
+	static public String[] readArticleTitlesData(Path p, FileSystem fs) throws IOException {
+		FSDataInputStream in = fs.open(p);
 		int sz = in.readInt();
 
 		String[] arr = new String[sz];
