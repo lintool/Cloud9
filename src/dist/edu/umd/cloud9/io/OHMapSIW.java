@@ -10,19 +10,16 @@ import edu.umd.cloud9.util.MapKI;
 import edu.umd.cloud9.util.OHMapKI;
 
 /**
- * <p>
- * Writable representing a map where the values are floats.
- * </p>
- * 
- * @param <K>
- *            type of key
+ * Writable representing a map where keys are Strings and values are ints. This
+ * class is specialized for String objects to avoid the overhead that comes with
+ * wrapping Strings inside <code>Text</code> objects.
  */
 public class OHMapSIW extends OHMapKI<String> implements Writable {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a MapKeyToFloatWritable object.
+	 * Creates a <code>OHMapSIW</code> object.
 	 */
 	public OHMapSIW() {
 		super();
@@ -67,6 +64,15 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 		}
 	}
 
+	/**
+	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
+	 * 
+	 * @param in
+	 *            <code>DataInput</code> for reading the serialized
+	 *            representation
+	 * @return a newly-created <code>OHMapSIW</code> object
+	 * @throws IOException
+	 */
 	public static OHMapSIW create(DataInput in) throws IOException {
 		OHMapSIW m = new OHMapSIW();
 		m.readFields(in);

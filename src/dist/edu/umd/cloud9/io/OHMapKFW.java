@@ -12,20 +12,17 @@ import edu.umd.cloud9.util.MapKF;
 import edu.umd.cloud9.util.OHMapKF;
 
 /**
- * <p>
- * Writable representing a map where the values are floats.
- * </p>
+ * Writable representing a map where values are floats.
  * 
  * @param <K>
  *            type of key
  */
-public class OHMapKFW<K extends WritableComparable> extends OHMapKF<K>
-		implements Writable {
+public class OHMapKFW<K extends WritableComparable> extends OHMapKF<K> implements Writable {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a MapKeyToFloatWritable object.
+	 * Creates a <code>OHMapKFW</code> object.
 	 */
 	public OHMapKFW() {
 		super();
@@ -94,6 +91,15 @@ public class OHMapKFW<K extends WritableComparable> extends OHMapKF<K>
 		}
 	}
 
+	/**
+	 * Creates a <code>OHMapKFW</code> object from a <code>DataInput</code>.
+	 * 
+	 * @param in
+	 *            <code>DataInput</code> for reading the serialized
+	 *            representation
+	 * @return a newly-created <code>OHMapKFW</code> object
+	 * @throws IOException
+	 */
 	public static <T extends WritableComparable> OHMapKFW<T> create(DataInput in)
 			throws IOException {
 		OHMapKFW<T> m = new OHMapKFW<T>();

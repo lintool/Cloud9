@@ -12,20 +12,17 @@ import edu.umd.cloud9.util.MapKI;
 import edu.umd.cloud9.util.OHMapKI;
 
 /**
- * <p>
- * Writable representing a map where the values are integers.
- * </p>
+ * Writable representing a map where values are floats.
  * 
  * @param <K>
  *            type of key
  */
-public class OHMapKIW<K extends WritableComparable> extends OHMapKI<K>
-		implements Writable {
+public class OHMapKIW<K extends WritableComparable> extends OHMapKI<K> implements Writable {
 
 	private static final long serialVersionUID = 295863243L;
 
 	/**
-	 * Creates a MapKeyToIntWritable object.
+	 * Creates a <code>OFMapKIW</code> object.
 	 */
 	public OHMapKIW() {
 		super();
@@ -95,6 +92,15 @@ public class OHMapKIW<K extends WritableComparable> extends OHMapKI<K>
 		}
 	}
 
+	/**
+	 * Creates a <code>OHMapKIW</code> object from a <code>DataInput</code>.
+	 * 
+	 * @param in
+	 *            <code>DataInput</code> for reading the serialized
+	 *            representation
+	 * @return a newly-created <code>OHMapKIW</code> object
+	 * @throws IOException
+	 */
 	public static <T extends WritableComparable> OHMapKIW<T> create(DataInput in)
 			throws IOException {
 		OHMapKIW<T> m = new OHMapKIW<T>();
