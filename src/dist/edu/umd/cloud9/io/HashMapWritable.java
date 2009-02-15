@@ -26,8 +26,6 @@ import java.util.Set;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.benchmark.io.BenchmarkHashMapWritable;
-
 /**
  * <p>
  * Writable extension of a Java HashMap. This generic class supports the use of
