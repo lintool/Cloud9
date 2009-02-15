@@ -15,6 +15,10 @@ public class WikipediaDocnoMapping implements IdDocnoMapping {
 		return Arrays.binarySearch(mTitles, docid);
 	}
 
+	public String getDocid(int docno) {
+		return mTitles[docno];
+	}
+
 	public void loadMapping(Path p, FileSystem fs) throws IOException {
 		mTitles = NumberWikipediaArticles.readArticleTitlesData(p, fs);
 	}
