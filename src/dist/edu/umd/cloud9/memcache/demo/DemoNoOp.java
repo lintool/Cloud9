@@ -19,25 +19,10 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-/**
- * @author Anand Bahety
- * @code - this code is only used to test the minimum time to communicate
- *       between two mappers. This does not do a HDFS set or a get.
- */
-
 public class DemoNoOp {
 
 	public static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, FloatWritable> {
-
-		/**
-		 * @param key -
-		 *            line number of the sentence whose log probability needs to
-		 *            be calculated
-		 * @param value -
-		 *            the actual sentence
-		 * @return
-		 */
 
 		public void map(LongWritable key, Text value,
 				OutputCollector<LongWritable, FloatWritable> output, Reporter reporter)
@@ -98,7 +83,8 @@ public class DemoNoOp {
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
 		long endTime = System.currentTimeMillis();
-		long diff = (endTime-startTime);
-		
-		System.out.println("Total job completion time (ms): " + diff);	}
+		long diff = (endTime - startTime);
+
+		System.out.println("Total job completion time (ms): " + diff);
+	}
 }

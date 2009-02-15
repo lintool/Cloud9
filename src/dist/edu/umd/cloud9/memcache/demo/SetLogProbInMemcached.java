@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Random;
 
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
@@ -24,13 +23,6 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-/**
- * This class uses map reduce framework to set log probability of in from
- * memcache.
- * 
- * @author Anand
- * 
- */
 public class SetLogProbInMemcached {
 
 	public static class MyMapper extends MapReduceBase implements
@@ -68,7 +60,7 @@ public class SetLogProbInMemcached {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 			// to fulfill the mapper configuration
 			// output.collect(text, value);
 		}
