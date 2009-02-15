@@ -25,7 +25,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 public class SetLogProbInMemcached {
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<Text, FloatWritable, Text, FloatWritable> {
 
 		// Float keyTemp = new Float(0);

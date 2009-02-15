@@ -69,7 +69,7 @@ public class DemoWordCountTuple1 {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Tuple, Tuple, IntWritable> {
 
 		// define value '1' statically so we can reuse the object, i.e., avoid
@@ -99,7 +99,7 @@ public class DemoWordCountTuple1 {
 	}
 
 	// reducer counts up tuple occurrences
-	public static class MyReducer extends MapReduceBase implements
+	private static class MyReducer extends MapReduceBase implements
 			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 

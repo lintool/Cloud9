@@ -22,7 +22,7 @@ public class DemoWikipediaHadoop {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
 		public void map(LongWritable key, WikipediaPage p,

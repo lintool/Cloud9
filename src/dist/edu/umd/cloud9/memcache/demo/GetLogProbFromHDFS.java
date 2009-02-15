@@ -34,7 +34,7 @@ public class GetLogProbFromHDFS {
 	 * Mapper class : Tokenizes the string and just accesses log probabilities
 	 * from file on HDFS
 	 */
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Tuple, LongWritable, FloatWritable> {
 
 		Long keyTemp = new Long(0);

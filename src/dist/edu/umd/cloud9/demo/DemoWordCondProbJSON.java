@@ -67,7 +67,7 @@ import edu.umd.cloud9.io.JSONObjectWritable;
 public class DemoWordCondProbJSON {
 
 	// define custom intermediate key; must specify sort order
-	public static class MyTuple extends JSONObjectWritable implements WritableComparable {
+	private static class MyTuple extends JSONObjectWritable implements WritableComparable {
 		public int compareTo(Object obj) {
 			try {
 				MyTuple that = (MyTuple) obj;

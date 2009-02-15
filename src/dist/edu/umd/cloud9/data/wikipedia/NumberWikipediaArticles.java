@@ -32,7 +32,7 @@ public class NumberWikipediaArticles {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
 		private final static Text mText = new Text();
@@ -62,7 +62,7 @@ public class NumberWikipediaArticles {
 		}
 	}
 
-	public static class MyReducer extends MapReduceBase implements
+	private static class MyReducer extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
 		private final static IntWritable mCnt = new IntWritable(0);
@@ -74,7 +74,7 @@ public class NumberWikipediaArticles {
 		}
 	}
 
-	protected NumberWikipediaArticles() {
+	private NumberWikipediaArticles() {
 	}
 
 	static public void writeArticleTitlesData(String input, String output) throws IOException {

@@ -61,7 +61,7 @@ import edu.umd.cloud9.io.JSONObjectWritable;
 public class DemoWordCountJSON {
 
 	// define custom intermediate key; must specify sort order
-	public static class MyKey extends JSONObjectWritable implements WritableComparable {
+	private static class MyKey extends JSONObjectWritable implements WritableComparable {
 		public int compareTo(Object obj) {
 			try {
 				MyKey that = (MyKey) obj;

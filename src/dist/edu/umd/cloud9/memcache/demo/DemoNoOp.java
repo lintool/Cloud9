@@ -21,7 +21,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 
 public class DemoNoOp {
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, FloatWritable> {
 
 		public void map(LongWritable key, Text value,
