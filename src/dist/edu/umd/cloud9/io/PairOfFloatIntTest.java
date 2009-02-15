@@ -28,7 +28,10 @@ import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
 
+import org.apache.hadoop.io.WritableComparator;
 import org.junit.Test;
+
+import edu.umd.cloud9.debug.WritableComparatorTestHarness;
 
 public class PairOfFloatIntTest {
 
@@ -87,6 +90,36 @@ public class PairOfFloatIntTest {
 		assertTrue(pair1.compareTo(pair5) < 0);
 		assertTrue(pair3.compareTo(pair4) > 0);
 		assertTrue(pair4.compareTo(pair5) < 0);
+	}
+
+	@Test
+	public void testComparison2() throws IOException {
+		WritableComparator comparator = new PairOfFloatInt.Comparator();
+
+		PairOfFloatInt pair1 = new PairOfFloatInt();
+		pair1.set(3.14f, 2);
+
+		PairOfFloatInt pair2 = new PairOfFloatInt();
+		pair2.set(3.14f, 2);
+
+		PairOfFloatInt pair3 = new PairOfFloatInt();
+		pair3.set(3.14f, 1);
+
+		PairOfFloatInt pair4 = new PairOfFloatInt();
+		pair4.set(0.3f, 9);
+
+		PairOfFloatInt pair5 = new PairOfFloatInt();
+		pair5.set(9.9f, 0);
+
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
+		assertFalse(WritableComparatorTestHarness.compare(comparator, pair1, pair3) == 0);
+
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair4) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair5) < 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair3, pair4) > 0);
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair4, pair5) < 0);
 	}
 
 	public static junit.framework.Test suite() {
