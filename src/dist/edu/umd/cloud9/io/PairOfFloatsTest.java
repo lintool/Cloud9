@@ -110,8 +110,8 @@ public class PairOfFloatsTest {
 		PairOfFloats pair5 = new PairOfFloats();
 		pair5.set(9.9f, 0.0f);
 
-		assertTrue(pair1.equals(pair2));
-		assertFalse(pair1.equals(pair3));
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
+		assertFalse(WritableComparatorTestHarness.compare(comparator, pair1, pair3) == 0);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);
