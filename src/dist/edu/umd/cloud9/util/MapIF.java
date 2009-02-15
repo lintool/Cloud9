@@ -147,7 +147,7 @@ public interface MapIF {
 	 * <tt>MapIF.entrySet</tt> method returns a collection-view of the map,
 	 * whose elements are of this class. The <i>only</i> way to obtain a
 	 * reference to a map entry is from the iterator of this collection-view.
-	 * These <tt>Map.Entry</tt> objects are valid <i>only</i> for the
+	 * These <tt>MapIF.Entry</tt> objects are valid <i>only</i> for the
 	 * duration of the iteration; more formally, the behavior of a map entry is
 	 * undefined if the backing map has been modified after the entry was
 	 * returned by the iterator, except through the <tt>setValue</tt>

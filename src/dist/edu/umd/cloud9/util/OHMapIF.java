@@ -3,15 +3,19 @@ package edu.umd.cloud9.util;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * Subclass of <code>HMapIF</code> that provides access to entries sorted by
+ * value and other convenience methods.
+ */
 public class OHMapIF extends HMapIF {
 
 	private static final long serialVersionUID = 823615346L;
 
 	/**
-	 * Treats maps as if they were vectors and performs vector addition.
+	 * Adds values of keys from another map to this map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public void plus(HMapIF m) {
 		for (MapIF.Entry e : m.entrySet()) {
@@ -26,10 +30,10 @@ public class OHMapIF extends HMapIF {
 	}
 
 	/**
-	 * Treats maps as if they were vectors and computes the dot product.
+	 * Computes the dot product of this map with another map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public float dot(HMapIF m) {
 		float s = 0.0f;
@@ -46,9 +50,9 @@ public class OHMapIF extends HMapIF {
 	}
 
 	/**
-	 * Treats this map as if it were a vector and returns its length.
+	 * Returns the length of the vector represented by this map.
 	 * 
-	 * @return length of this vector
+	 * @return length of the vector represented by this map
 	 */
 	public float length() {
 		float s = 0.0f;
@@ -61,8 +65,8 @@ public class OHMapIF extends HMapIF {
 	}
 
 	/**
-	 * Treats this map as if it were a vector and normalizes it to a unit-length
-	 * vector.
+	 * Normalizes values such that the vector represented by this map has
+	 * unit length.
 	 */
 	public void normalize() {
 		float l = this.length();
@@ -74,8 +78,7 @@ public class OHMapIF extends HMapIF {
 	}
 
 	/**
-	 * Returns entries sorted by descending value. Ties broken by the natural
-	 * sort order of the feature.
+	 * Returns entries sorted by descending value. Ties broken by the key.
 	 * 
 	 * @return entries sorted by descending value
 	 */
@@ -109,9 +112,9 @@ public class OHMapIF extends HMapIF {
 		}
 
 		// sort the entries
-		Arrays.sort(entries, new Comparator<MapIF.Entry>() {
+		Arrays.sort(entries, new Comparator<Entry>() {
 			@SuppressWarnings("unchecked")
-			public int compare(MapIF.Entry e1, MapIF.Entry e2) {
+			public int compare(Entry e1, Entry e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;
 				} else if (e1.getValue() < e2.getValue()) {
@@ -130,7 +133,7 @@ public class OHMapIF extends HMapIF {
 
 	/**
 	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
-	 * the natural sort order of the feature.
+	 * the key.
 	 * 
 	 * @param n
 	 *            number of entries to return

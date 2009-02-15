@@ -3,15 +3,19 @@ package edu.umd.cloud9.util;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * Subclass of <code>HMapII</code> that provides access to entries sorted by
+ * value and other convenience methods.
+ */
 public class OHMapII extends HMapII {
 
 	private static final long serialVersionUID = 7231860502L;
 
 	/**
-	 * Treats maps as if they were vectors and performs vector addition.
+	 * Adds values of keys from another map to this map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public void plus(HMapII m) {
 		for (MapII.Entry e : m.entrySet()) {
@@ -26,10 +30,10 @@ public class OHMapII extends HMapII {
 	}
 
 	/**
-	 * Treats maps as if they were vectors and computes the dot product.
+	 * Computes the dot product of this map with another map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public int dot(HMapII m) {
 		int s = 0;
@@ -45,6 +49,13 @@ public class OHMapII extends HMapII {
 		return s;
 	}
 
+	/**
+	 * Increments the key. If the key does not exist in the map, its value is
+	 * set to one.
+	 * 
+	 * @param key
+	 *            key to increment
+	 */
 	public void increment(int key) {
 		if (this.containsKey(key)) {
 			this.put(key, this.get(key) + 1);
@@ -52,10 +63,9 @@ public class OHMapII extends HMapII {
 			this.put(key, 1);
 		}
 	}
-	
+
 	/**
-	 * Returns entries sorted by descending value. Ties broken by the natural
-	 * sort order of the feature.
+	 * Returns entries sorted by descending value. Ties broken by the key.
 	 * 
 	 * @return entries sorted by descending value
 	 */
@@ -89,9 +99,9 @@ public class OHMapII extends HMapII {
 		}
 
 		// sort the entries
-		Arrays.sort(entries, new Comparator<MapII.Entry>() {
+		Arrays.sort(entries, new Comparator<Entry>() {
 			@SuppressWarnings("unchecked")
-			public int compare(MapII.Entry e1, MapII.Entry e2) {
+			public int compare(Entry e1, Entry e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;
 				} else if (e1.getValue() < e2.getValue()) {
@@ -110,7 +120,7 @@ public class OHMapII extends HMapII {
 
 	/**
 	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
-	 * the natural sort order of the feature.
+	 * the key.
 	 * 
 	 * @param n
 	 *            number of entries to return
