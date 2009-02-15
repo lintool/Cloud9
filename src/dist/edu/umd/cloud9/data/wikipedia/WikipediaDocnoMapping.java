@@ -6,9 +6,9 @@ import java.util.Arrays;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import edu.umd.cloud9.data.IdDocnoMapping;
+import edu.umd.cloud9.data.DocnoMapping;
 
-public class WikipediaDocnoMapping implements IdDocnoMapping {
+public class WikipediaDocnoMapping implements DocnoMapping {
 	String[] mTitles;
 
 	public int getDocno(String docid) {

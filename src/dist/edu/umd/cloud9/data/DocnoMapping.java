@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public interface IdDocnoMapping {
+public interface DocnoMapping {
 	public int getDocno(String docid);
 
 	public void loadMapping(Path f, FileSystem fs) throws IOException;
