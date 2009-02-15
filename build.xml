@@ -85,7 +85,7 @@
 
 	<target name="javadoc">
 		<javadoc destdir="${javadoc}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" classpathref="classpath">
-			<fileset dir="src">
+			<fileset dir="src/dist">
 				<include name="**/*.java" />
 				<exclude name="**/*Test.java" />
 				<exclude name="**/benchmark/*.java" />
