@@ -1,12 +1,12 @@
-package edu.umd.cloud9.util.benchmark;
+package edu.umd.cloud9.benchmark.util;
 
 import java.util.Random;
 
-import edu.umd.cloud9.util.FibonacciHeapInt;
+import edu.umd.cloud9.util.FibonacciHeap;
 
-public class BenchmarkFibonacciHeapInt {
+public class BenchmarkFibonacciHeap {
 	public static void main(String[] args) {
-		FibonacciHeapInt heap = new FibonacciHeapInt();
+		FibonacciHeap<Integer> heap = new FibonacciHeap<Integer>();
 		Random r = new Random();
 
 		long startTime;

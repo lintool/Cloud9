@@ -1,4 +1,4 @@
-package edu.umd.cloud9.io.benchmark;
+package edu.umd.cloud9.benchmark.io;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.io.benchmark;
+package edu.umd.cloud9.benchmark.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
