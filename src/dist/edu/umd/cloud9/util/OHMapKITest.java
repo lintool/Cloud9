@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -94,7 +93,6 @@ public class OHMapKITest {
 
 	@Test
 	public void testSortedEntries1() {
-
 		OHMapKI<Text> m = new OHMapKI<Text>();
 
 		m.put(new Text("a"), 5);
@@ -103,34 +101,34 @@ public class OHMapKITest {
 		m.put(new Text("d"), 3);
 		m.put(new Text("e"), 1);
 
-		Iterator<MapKI.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByValue();
+		MapKI.Entry<Text> e = null;
 
-		MapKI.Entry<Text> e = iter.next();
+		assertEquals(5, entries.length);
+
+		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5, (int) e.getValue());
 
-		e = iter.next();
+		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
 		assertEquals(3, (int) e.getValue());
 
-		e = iter.next();
+		e = entries[2];
 		assertEquals(new Text("d"), e.getKey());
 		assertEquals(3, (int) e.getValue());
 
-		e = iter.next();
+		e = entries[3];
 		assertEquals(new Text("b"), e.getKey());
 		assertEquals(2, (int) e.getValue());
 
-		e = iter.next();
+		e = entries[4];
 		assertEquals(new Text("e"), e.getKey());
 		assertEquals(1, (int) e.getValue());
-
-		assertEquals(false, iter.hasNext());
 	}
 
 	@Test
 	public void testSortedEntries2() {
-
 		OHMapKI<Text> m = new OHMapKI<Text>();
 
 		m.put(new Text("a"), 5);
@@ -139,17 +137,18 @@ public class OHMapKITest {
 		m.put(new Text("d"), 3);
 		m.put(new Text("e"), 1);
 
-		Iterator<MapKI.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByValue(2);
+		MapKI.Entry<Text> e = null;
 
-		MapKI.Entry<Text> e = iter.next();
+		assertEquals(2, entries.length);
+
+		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5, (int) e.getValue());
 
-		e = iter.next();
+		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
 		assertEquals(3, (int) e.getValue());
-
-		assertEquals(false, iter.hasNext());
 	}
 
 	public static junit.framework.Test suite() {

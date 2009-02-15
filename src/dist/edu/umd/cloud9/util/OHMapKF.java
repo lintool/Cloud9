@@ -1,19 +1,21 @@
 package edu.umd.cloud9.util;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
+/**
+ * Subclass of <code>HMapKF</code> that provides access to entries sorted by
+ * value and other convenience methods.
+ */
 public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 
 	private static final long serialVersionUID = 6590482318L;
 
 	/**
-	 * Treats maps as if they were vectors and performs vector addition.
+	 * Adds values of keys from another map to this map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public void plus(OHMapKF<K> m) {
 		for (MapKF.Entry<K> e : m.entrySet()) {
@@ -28,10 +30,10 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 	}
 
 	/**
-	 * Treats maps as if they were vectors and computes the dot product.
+	 * Computes the dot product of this map with another map.
 	 * 
 	 * @param m
-	 *            the other vector
+	 *            the other map
 	 */
 	public float dot(OHMapKF<K> m) {
 		float s = 0.0f;
@@ -48,9 +50,9 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 	}
 
 	/**
-	 * Treats this map as if it were a vector and returns its length.
+	 * Returns the length of the vector represented by this map.
 	 * 
-	 * @return length of this vector
+	 * @return length of the vector represented by this map
 	 */
 	public float length() {
 		float s = 0.0f;
@@ -63,8 +65,8 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 	}
 
 	/**
-	 * Treats this map as if it were a vector and normalizes it to a unit-length
-	 * vector.
+	 * Normalizes values such that the vector represented by this map has
+	 * unit length.
 	 */
 	public void normalize() {
 		float l = this.length();
@@ -76,64 +78,85 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 	}
 
 	/**
-	 * Returns entries sorted by descending value. Ties broken by the natural
-	 * sort order of the feature.
+	 * Returns entries sorted by descending value. Ties broken by the key.
 	 * 
 	 * @return entries sorted by descending value
 	 */
-	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue() {
-		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
-				new Comparator<MapKF.Entry<K>>() {
-					@SuppressWarnings("unchecked")
-					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
-						if (e1.getValue() > e2.getValue()) {
-							return -1;
-						} else if (e1.getValue() < e2.getValue()) {
-							return 1;
-						}
-						return e1.getKey().compareTo(e2.getKey());
-					}
-				});
+	public Entry<K>[] getEntriesSortedByValue() {
+		if (this.size() == 0)
+			return null;
 
-		for (MapKF.Entry<K> entry : this.entrySet()) {
-			entries.add(entry);
+		// for storing the entries
+		Entry<K>[] entries = new Entry[this.size()];
+		int i = 0;
+		Entry<K> next = null;
+
+		int index = 0;
+		// advance to first entry
+		while (index < table.length && (next = table[index++]) == null)
+			;
+
+		while (next != null) {
+			// current entry
+			Entry<K> e = next;
+
+			// advance to next entry
+			next = e.next;
+			if ((next = e.next) == null) {
+				while (index < table.length && (next = table[index++]) == null)
+					;
+			}
+
+			// add entry to array
+			entries[i++] = e;
 		}
 
-		return Collections.unmodifiableSortedSet(entries);
+		// sort the entries
+		Arrays.sort(entries, new Comparator<Entry<K>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(Entry<K> e1, Entry<K> e2) {
+				if (e1.getValue() > e2.getValue()) {
+					return -1;
+				} else if (e1.getValue() < e2.getValue()) {
+					return 1;
+				}
+
+				if (e1.getKey() == e2.getKey())
+					return 0;
+
+				return e1.getKey().compareTo(e2.getKey());
+			}
+		});
+
+		return entries;
 	}
 
 	/**
 	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
-	 * the natural sort order of the feature.
+	 * the key.
 	 * 
 	 * @param n
 	 *            number of entries to return
 	 * @return top <i>n</i> entries sorted by descending value
 	 */
-	public SortedSet<MapKF.Entry<K>> getEntriesSortedByValue(int n) {
-		// TODO: this should be rewritten to use a Fibonacci heap
-		
-		SortedSet<MapKF.Entry<K>> entries = new TreeSet<MapKF.Entry<K>>(
-				new Comparator<MapKF.Entry<K>>() {
-					@SuppressWarnings("unchecked")
-					public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
-						if (e1.getValue() > e2.getValue()) {
-							return -1;
-						} else if (e1.getValue() < e2.getValue()) {
-							return 1;
-						}
-						return e1.getKey().compareTo(e2.getKey());
-					}
-				});
+	public Entry<K>[] getEntriesSortedByValue(int n) {
+		Entry<K>[] entries = getEntriesSortedByValue();
 
-		int cnt = 0;
-		for (MapKF.Entry<K> entry : getEntriesSortedByValue()) {
-			entries.add(entry);
-			cnt++;
-			if (cnt >= n)
-				break;
+		if (entries == null)
+			return null;
+
+		if (entries.length < n)
+			return entries;
+
+		// return Arrays.copyOfRange(entries, 0, n);
+
+		// copyOfRange isn't available until Java 1.6, so it doesn't run on the
+		// Google/IBM cluster.
+		Entry[] r = new Entry[n];
+		for (int i = 0; i < n; i++) {
+			r[i] = entries[i];
 		}
 
-		return Collections.unmodifiableSortedSet(entries);
+		return r;
 	}
 }

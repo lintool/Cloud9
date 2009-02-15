@@ -135,29 +135,31 @@ public class OHMapKFTest {
 		m.put(new Text("d"), 3.0f);
 		m.put(new Text("e"), 1.0f);
 
-		Iterator<MapKF.Entry<Text>> iter = m.getEntriesSortedByValue().iterator();
+		MapKF.Entry<Text>[] entries = m.getEntriesSortedByValue();
+		MapKF.Entry<Text> e = null;
 
-		MapKF.Entry<Text> e = iter.next();
+		assertEquals(5, entries.length);
+
+		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5.0f, (float) e.getValue(), 10E-6);
 
-		e = iter.next();
+		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
 		assertEquals(3.0f, (float) e.getValue(), 10E-6);
 
-		e = iter.next();
+		e = entries[2];
 		assertEquals(new Text("d"), e.getKey());
 		assertEquals(3.0f, (float) e.getValue(), 10E-6);
 
-		e = iter.next();
+		e = entries[3];
 		assertEquals(new Text("b"), e.getKey());
 		assertEquals(2.0f, (float) e.getValue(), 10E-6);
 
-		e = iter.next();
+		e = entries[4];
 		assertEquals(new Text("e"), e.getKey());
 		assertEquals(1.0f, (float) e.getValue(), 10E-6);
 
-		assertEquals(false, iter.hasNext());
 	}
 
 	@Test
@@ -170,17 +172,18 @@ public class OHMapKFTest {
 		m.put(new Text("d"), 3.0f);
 		m.put(new Text("e"), 1.0f);
 
-		Iterator<MapKF.Entry<Text>> iter = m.getEntriesSortedByValue(2).iterator();
+		MapKF.Entry<Text>[] entries = m.getEntriesSortedByValue(2);
+		MapKF.Entry<Text> e = null;
 
-		MapKF.Entry<Text> e = iter.next();
+		assertEquals(2, entries.length);
+
+		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
 		assertEquals(5.0f, (float) e.getValue(), 10E-6);
 
-		e = iter.next();
+		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
 		assertEquals(3.0f, (float) e.getValue(), 10E-6);
-
-		assertEquals(false, iter.hasNext());
 	}
 
 	public static junit.framework.Test suite() {
