@@ -173,11 +173,11 @@ public class PairOfInts implements WritableComparable {
 		return new PairOfInts(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for PairOfInts. */
+	/** Comparator optimized for <code>PairOfInts</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for PairOfInts.
+		 * Creates a new Comparator optimized for <code>PairOfInts</code>.
 		 */
 		public Comparator() {
 			super(PairOfInts.class);

@@ -33,55 +33,54 @@ import org.junit.Test;
 
 import edu.umd.cloud9.debug.WritableComparatorTestHarness;
 
-public class PairOfStringsTest {
+public class PairOfLongsTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfStrings pair = new PairOfStrings();
+		PairOfLongs pair = new PairOfLongs();
 
-		pair.set("hi", "there");
+		pair.set(1L, 2L);
 
-		assertEquals(pair.getLeftElement(), "hi");
-		assertEquals(pair.getRightElement(), "there");
+		assertEquals(1L, pair.getLeftElement());
+		assertEquals(2L, pair.getRightElement());
 	}
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfStrings origPair = new PairOfStrings();
+		PairOfLongs origPair = new PairOfLongs();
 
-		origPair.set("hi", "there");
+		origPair.set(1L, 2L);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		origPair.write(dataOut);
 
-		PairOfStrings pair = new PairOfStrings();
+		PairOfLongs pair = new PairOfLongs();
 
-		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
-		assertEquals(pair.getLeftElement(), "hi");
-		assertEquals(pair.getRightElement(), "there");
+		assertEquals(1L, pair.getLeftElement());
+		assertEquals(2L, pair.getRightElement());
 	}
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfStrings pair1 = new PairOfStrings();
-		pair1.set("hi", "there");
+		PairOfLongs pair1 = new PairOfLongs();
+		pair1.set(1L, 2L);
 
-		PairOfStrings pair2 = new PairOfStrings();
-		pair2.set("hi", "there");
+		PairOfLongs pair2 = new PairOfLongs();
+		pair2.set(1L, 2L);
 
-		PairOfStrings pair3 = new PairOfStrings();
-		pair3.set("hi", "howdy");
+		PairOfLongs pair3 = new PairOfLongs();
+		pair3.set(1L, 1L);
 
-		PairOfStrings pair4 = new PairOfStrings();
-		pair4.set("a", "howdy");
+		PairOfLongs pair4 = new PairOfLongs();
+		pair4.set(0L, 9L);
 
-		PairOfStrings pair5 = new PairOfStrings();
-		pair5.set("hi", "z");
-		
+		PairOfLongs pair5 = new PairOfLongs();
+		pair5.set(9L, 0L);
+
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
 
@@ -90,40 +89,38 @@ public class PairOfStringsTest {
 		assertTrue(pair1.compareTo(pair4) > 0);
 		assertTrue(pair1.compareTo(pair5) < 0);
 		assertTrue(pair3.compareTo(pair4) > 0);
-		assertTrue(pair4.compareTo(pair5) < 0);		
+		assertTrue(pair4.compareTo(pair5) < 0);
 	}
 
 	@Test
 	public void testComparison2() throws IOException {
-		WritableComparator comparator = new PairOfStrings.Comparator();
+		WritableComparator comparator = new PairOfLongs.Comparator();
 
-		PairOfStrings pair1 = new PairOfStrings();
-		pair1.set("hi", "there");
+		PairOfLongs pair1 = new PairOfLongs();
+		pair1.set(1L, 2L);
 
-		PairOfStrings pair2 = new PairOfStrings();
-		pair2.set("hi", "there");
+		PairOfLongs pair2 = new PairOfLongs();
+		pair2.set(1L, 2L);
 
-		PairOfStrings pair3 = new PairOfStrings();
-		pair3.set("hi", "howdy");
+		PairOfLongs pair3 = new PairOfLongs();
+		pair3.set(1L, 1L);
 
-		PairOfStrings pair4 = new PairOfStrings();
-		pair4.set("a", "howdy");
+		PairOfLongs pair4 = new PairOfLongs();
+		pair4.set(0L, 9L);
 
-		PairOfStrings pair5 = new PairOfStrings();
-		pair5.set("hi", "z");
-		
-		assertTrue(pair1.equals(pair2));
-		assertFalse(pair1.equals(pair3));
+		PairOfLongs pair5 = new PairOfLongs();
+		pair5.set(9L, 0L);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair4) > 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair5) < 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair3, pair4) > 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, pair4, pair5) < 0);		
+		assertTrue(WritableComparatorTestHarness.compare(comparator, pair4, pair5) < 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(PairOfStringsTest.class);
+		return new JUnit4TestAdapter(PairOfLongsTest.class);
 	}
+
 }

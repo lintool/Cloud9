@@ -21,12 +21,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
- * WritableComparable representing a pair of longs. The elements in the pair
- * are referred to as the left and right elements. The natural sort order is:
- * first by the left element, and then by the right element.
+ * WritableComparable representing a pair of longs. The elements in the pair are
+ * referred to as the left and right elements. The natural sort order is: first
+ * by the left element, and then by the right element.
  * </p>
  */
 public class PairOfLongs implements WritableComparable {
@@ -172,4 +173,37 @@ public class PairOfLongs implements WritableComparable {
 		return new PairOfLongs(this.leftElement, this.rightElement);
 	}
 
+	/** Comparator optimized for <code>PairOfLongs</code>. */
+	public static class Comparator extends WritableComparator {
+
+		/**
+		 * Creates a new Comparator optimized for <code>PairOfLongs</code>.
+		 */
+		public Comparator() {
+			super(PairOfInts.class);
+		}
+
+		/**
+		 * Optimization hook.
+		 */
+		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+			long thisLeftValue = readLong(b1, s1);
+			long thatLeftValue = readLong(b2, s2);
+
+			if (thisLeftValue == thatLeftValue) {
+				long thisRightValue = readLong(b1, s1 + 8);
+				long thatRightValue = readLong(b2, s2 + 8);
+
+				return (thisRightValue < thatRightValue ? -1
+						: (thisRightValue == thatRightValue ? 0 : 1));
+
+			}
+
+			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));
+		}
+	}
+
+	static { // register this comparator
+		WritableComparator.define(PairOfLongs.class, new Comparator());
+	}
 }

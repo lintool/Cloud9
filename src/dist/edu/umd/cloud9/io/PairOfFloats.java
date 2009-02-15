@@ -21,6 +21,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
@@ -172,4 +173,37 @@ public class PairOfFloats implements WritableComparable {
 		return new PairOfFloats(this.leftElement, this.rightElement);
 	}
 
+	/** Comparator optimized for <code>PairOfFloats</code>. */
+	public static class Comparator extends WritableComparator {
+
+		/**
+		 * Creates a new Comparator optimized for <code>PairOfFloats</code>.
+		 */
+		public Comparator() {
+			super(PairOfFloats.class);
+		}
+
+		/**
+		 * Optimization hook.
+		 */
+		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+			float thisLeftValue = readFloat(b1, s1);
+			float thatLeftValue = readFloat(b2, s2);
+
+			if (thisLeftValue == thatLeftValue) {
+				int thisRightValue = readInt(b1, s1 + 4);
+				int thatRightValue = readInt(b2, s2 + 4);
+
+				return (thisRightValue < thatRightValue ? -1
+						: (thisRightValue == thatRightValue ? 0 : 1));
+
+			}
+
+			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));
+		}
+	}
+
+	static { // register this comparator
+		WritableComparator.define(PairOfFloats.class, new Comparator());
+	}
 }
