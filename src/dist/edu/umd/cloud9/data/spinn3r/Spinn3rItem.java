@@ -3,6 +3,10 @@ package edu.umd.cloud9.data.spinn3r;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.hadoop.io.WritableUtils;
 
@@ -17,6 +21,7 @@ public class Spinn3rItem implements Indexable {
 	private String mGuid;
 	private String mLanguage;
 	private String mDescription;
+	private Date mPubDate;
 
 	public Spinn3rItem() {
 	}
@@ -66,6 +71,23 @@ public class Spinn3rItem implements Indexable {
 		return mLanguage;
 	}
 
+	public Date getPubDate() {
+		if (mPubDate == null) {
+			int start = mItem.indexOf("<pubDate>");
+			int end = mItem.indexOf("</pubDate>", start);
+			String s = mItem.substring(start + 9, end);
+
+			try {
+				DateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+				mPubDate = format.parse(s);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return mPubDate;
+	}
+
 	public static void readItem(Spinn3rItem item, String s) {
 		item.mItem = s;
 
@@ -88,6 +110,7 @@ public class Spinn3rItem implements Indexable {
 		end = s.indexOf("</dc:lang>", start);
 		item.mLanguage = s.substring(start + 9, end);
 
+		item.mPubDate = null;
 	}
 
 }
