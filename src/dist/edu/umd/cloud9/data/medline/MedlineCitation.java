@@ -44,8 +44,6 @@ public class MedlineCitation implements Indexable {
 
 	public String getPmid() {
 		if (mPmid == null) {
-			System.out.println(mCitation);
-
 			int start = mCitation.indexOf("<PMID>");
 
 			if (start == -1) {
@@ -94,8 +92,6 @@ public class MedlineCitation implements Indexable {
 	}
 
 	public static void readPage(MedlineCitation citation, String s) {
-		System.out.println("reading: " + s);
-
 		if (s == null) {
 			throw new RuntimeException("Error, can't read null string!");
 		}
