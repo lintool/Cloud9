@@ -8,5 +8,7 @@ import org.apache.hadoop.fs.Path;
 public interface DocnoMapping {
 	public int getDocno(String docid);
 
+	public String getDocid(int docno);
+	
 	public void loadMapping(Path f, FileSystem fs) throws IOException;
 }
