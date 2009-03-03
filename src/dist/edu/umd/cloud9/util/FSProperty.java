@@ -46,10 +46,8 @@ public class FSProperty {
 			in.close();
 			return val;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Unable to read property at " + path);
 		}
-
-		return 0;
 	}
 
 	public static float readFloat(FileSystem fs, String path) {
@@ -59,10 +57,8 @@ public class FSProperty {
 			in.close();
 			return val;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Unable to read property at " + path);
 		}
-
-		return 0f;
 	}
 
 	public static String readString(FileSystem fs, String path) {
@@ -72,10 +68,8 @@ public class FSProperty {
 			in.close();
 			return val;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Unable to read property at " + path);
 		}
-
-		return null;
 	}
 
 }
