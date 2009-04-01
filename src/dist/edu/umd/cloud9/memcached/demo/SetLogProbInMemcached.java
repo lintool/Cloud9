@@ -1,10 +1,9 @@
-package edu.umd.cloud9.memcache.demo;
+package edu.umd.cloud9.memcached.demo;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
@@ -12,7 +11,6 @@ import net.spy.memcached.MemcachedClient;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -22,21 +20,15 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-public class DemoMemcachedAccess {
-	/*
-	 * This is used to add up total time for access to HDFS in map cycle
-	 */
-	static enum MyCounters {
-		TIME;
-	};
+public class SetLogProbInMemcached {
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, LongWritable, FloatWritable> {
+			Mapper<Text, FloatWritable, Text, FloatWritable> {
 
-		// Long keyTemp = new Long(0);
+		// Float keyTemp = new Float(0);
 		// Object obj ;
 		MemcachedClient memcachedClient;
 
@@ -52,43 +44,37 @@ public class DemoMemcachedAccess {
 			}
 		}
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<LongWritable, FloatWritable> output, Reporter reporter)
-				throws IOException {
-			FloatWritable totalProb = new FloatWritable();
-			String line = value.toString();
-			StringTokenizer itr = new StringTokenizer(line);
-			float sum = 0;
-			while (itr.hasMoreTokens()) {
-				String temp = itr.nextToken();
+		public void map(Text text, FloatWritable value,
+				OutputCollector<Text, FloatWritable> output, Reporter reporter) throws IOException {
 
-				// Ignore words that are too long...
-				if (temp.toString().length() > 100)
-					continue;
+			// Ignore words that are too long...
+			if (text.toString().length() > 100)
+				return;
 
-				// timer starts
-				long startTime = System.currentTimeMillis();
-				// access the memcached servers to get log prob of the word
-				Object obj = memcachedClient.get(temp);
-				// end timer
-				long endTime = System.currentTimeMillis();
-				long diff = (endTime - startTime);
+			// writing key value pair to cache
+			Object obj = ((Float) (value.get())).toString();
+			memcachedClient.set(text.toString(), 60 * 60 * 20, obj);
 
-				// incrementing the counter
-				reporter.incrCounter(MyCounters.TIME, diff);
-				if (obj == null)
-					throw new RuntimeException("Error getting from memcache: key = " + temp);
-				// adding the log prob
-				sum = sum + Float.parseFloat(obj.toString());
+			try {
+				Thread.sleep(1);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			totalProb.set(sum);
-			output.collect(key, totalProb);
 
+			// to fulfill the mapper configuration
+			// output.collect(text, value);
 		}
 
 		public void close() {
 			memcachedClient.shutdown();
 		}
+	}
+
+	/*
+	 * default constructor
+	 */
+	public SetLogProbInMemcached() {
+
 	}
 
 	/**
@@ -123,28 +109,25 @@ public class DemoMemcachedAccess {
 		return ipAddresses;
 	}
 
-	protected DemoMemcachedAccess() {
-	}
-
 	/**
-	 * The main method takes three arguments from the command line 1. Path of
-	 * the file containing ip addresses on local file system 2. Path of the
-	 * sequence file on HDFS. This is the file which will be read by mappers and
-	 * base on the words in the line read, there will be a probe to MemCache to
-	 * find the log probability 3. Number of Map tast you want to generate in
-	 * the map reduce cycle.
-	 * 
+	 * First argument - path of file on local file system on master node
+	 * containing list of memcache servers Second argument - path of file on dfs
+	 * on master node to be converted into sequence file and put in memcache
 	 */
 	public static void main(String[] args) throws IOException {
 
+		/*
+		 * 
+		 */
+
 		if (args.length != 3) {
 			System.out
-					.println(" usage : [path of ip address file] [path of sequence file on hdfs] [no of Map Tasks]");
+					.println(" usage : [path of ip address file] [path of sequence file on dfs ] [num mappers]");
 			System.exit(1);
 		}
 
 		String pathOfIpAddressFile = args[0];
-		String inputPath = args[1];
+		String inputPathSeqFile = args[1];
 
 		String ipAddress = getListOfIpAddresses(pathOfIpAddressFile);
 		if (ipAddress.equals("")) {
@@ -153,36 +136,38 @@ public class DemoMemcachedAccess {
 		} else {
 			System.out.println("List of IP addresses : " + ipAddress);
 		}
-		String extraPath = "/results";
 
-		int mapTasks = Integer.parseInt(args[2]);
-		// No need of reducer
+		// Path for output of reducer.
+		String extraPath = "/tmp";
+		// Flush the memcache servers before setting the values
+		MemcachedClient myMCC;
+		myMCC = new MemcachedClient(AddrUtil.getAddresses(ipAddress));
+		myMCC.flush();
+		myMCC.shutdown();
+
+		// Number of maptask has to be one else some values get converted to
+		// null in memcache.
+		// TODO : Check why this happens
+		int mapTasks = Integer.parseInt(args[2]); // Integer.parseInt(args[2]);
 		int reduceTasks = 0;
 
-		JobConf conf = new JobConf(DemoMemcachedAccess.class);
-		conf.setJobName("DemoMemcachedAccess");
+		JobConf conf = new JobConf(SetLogProbInMemcached.class);
+		conf.setJobName("SetLogProbInMemcached");
 		// setting the variable to hold ip addresses so that it can be available
 		// in the mapper
 		conf.set("ADDRESSES", ipAddress);
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		conf.setInputFormat(TextInputFormat.class);
-		conf.setMapOutputKeyClass(LongWritable.class);
-		conf.setMapOutputValueClass(FloatWritable.class);
+		FileInputFormat.setInputPaths(conf, new Path(inputPathSeqFile));
+		conf.setInputFormat(SequenceFileInputFormat.class);
+		FileOutputFormat.setOutputPath(conf, new Path(extraPath));
 		conf.setMapperClass(MyMapper.class);
 		conf.setReducerClass(IdentityReducer.class);
-
 		Path outputDir = new Path(extraPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		FileOutputFormat.setOutputPath(conf, outputDir);
 
-		long startTime = System.currentTimeMillis();
+		System.out.println("getting: " + conf.get("ADDRESSES"));
 		JobClient.runJob(conf);
-		long endTime = System.currentTimeMillis();
-		long diff = (endTime - startTime);
-
-		System.out.println("Total job completion time (ms): " + diff);
 	}
 }

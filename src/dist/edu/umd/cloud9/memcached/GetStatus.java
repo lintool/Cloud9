@@ -1,4 +1,4 @@
-package edu.umd.cloud9.memcache;
+package edu.umd.cloud9.memcached;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
