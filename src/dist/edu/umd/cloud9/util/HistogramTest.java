@@ -17,10 +17,6 @@
 package edu.umd.cloud9.util;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.Iterator;
-import java.util.Map;
-
 import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
@@ -43,25 +39,20 @@ public class HistogramTest {
 		assertEquals(2, h.getCount("no"));
 		assertEquals(1, h.getCount("maybe"));
 		assertEquals(1, h.getCount("so"));
+		
+		MapKI.Entry<String>[] arr = h.getEntriesSortedByValue();
 
-		Iterator<Map.Entry<String, Integer>> iter = h.getSortedEntries().iterator();
-		Map.Entry<String, Integer> e = null;
+		assertEquals("yes", arr[0].getKey());
+		assertEquals(3, arr[0].getValue());
 
-		e = iter.next();
-		assertEquals("yes", e.getKey());
-		assertEquals(3, e.getValue().intValue());
+		assertEquals("no", arr[1].getKey());
+		assertEquals(2, arr[1].getValue());
 
-		e = iter.next();
-		assertEquals("no", e.getKey());
-		assertEquals(2, e.getValue().intValue());
+		assertEquals("maybe", arr[2].getKey());
+		assertEquals(1, arr[2].getValue());
 
-		e = iter.next();
-		assertEquals("maybe", e.getKey());
-		assertEquals(1, e.getValue().intValue());
-
-		e = iter.next();
-		assertEquals("so", e.getKey());
-		assertEquals(1, e.getValue().intValue());
+		assertEquals("so", arr[3].getKey());
+		assertEquals(1, arr[3].getValue());
 
 		assertEquals(7, h.getTotalCount());
 

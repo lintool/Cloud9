@@ -16,13 +16,11 @@
 
 package edu.umd.cloud9.util;
 
-import java.util.Map;
-
 /**
  * <p>
- * A class for keeping track of the number of times an object has been
- * encountered. This is useful for counting things in a stream, e.g., POS tags,
- * terms, etc. This object extends {@link Scorekeeper}.
+ * A class for keeping track of the number of times an event has been observed.
+ * This is useful for counting things like distribution over POS tags, terms,
+ * etc.
  * </p>
  * 
  * <p>
@@ -37,7 +35,8 @@ import java.util.Map;
  * 	h.count(term);
  * }
  * 
- * for (Map.Entry&lt;String, Integer&gt; e : h.entrySet()) {
+ * for (MapKI.Entry&lt;String&gt; e : h.entrySet()) {
+ * 	System.out.println(e.getKey() + &quot;: &quot; + e.getValue());
  * 	// do something with e.getKey()
  * 	// do something with e.getValue()
  * }
@@ -46,8 +45,7 @@ import java.util.Map;
  * @param <T>
  *            type of object
  */
-@Deprecated
-public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> {
+public class Histogram<T extends Comparable<T>> extends OHMapKI<T> {
 
 	private static final long serialVersionUID = 9190462865L;
 
@@ -92,7 +90,7 @@ public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> 
 	 */
 	public int getCount(T inst) {
 		if (this.containsKey(inst)) {
-			return this.get(inst).intValue();
+			return this.get(inst);
 		}
 
 		return 0;
@@ -112,8 +110,8 @@ public class Histogram<T extends Comparable<T>> extends Scorekeeper<T, Integer> 
 	 * counts.
 	 */
 	public void printCounts() {
-		for (Map.Entry<T, Integer> map : this.getSortedEntries()) {
-			System.out.println(map.getValue().intValue() + "\t" + map.getKey());
+		for (MapKI.Entry<T> map : this.getEntriesSortedByValue()) {
+			System.out.println(map.getValue() + "\t" + map.getKey());
 		}
 	}
 
