@@ -3,6 +3,7 @@ package edu.umd.cloud9.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Random;
 
 import junit.framework.JUnit4TestAdapter;
@@ -59,7 +60,7 @@ public class HMapKITest {
 		}
 
 	}
-	
+
 	@Test
 	public void testUpdate() {
 
@@ -77,7 +78,7 @@ public class HMapKITest {
 		assertEquals(size, map.size());
 
 		for (int i = 0; i < size; i++) {
-			map.put(i, ints[i]+1);
+			map.put(i, ints[i] + 1);
 		}
 
 		assertEquals(size, map.size());
@@ -89,6 +90,16 @@ public class HMapKITest {
 			assertTrue(map.containsKey(i));
 		}
 
+	}
+
+	@Test
+	public void testToString() throws IOException {
+		HMapKI<String> m1 = new HMapKI<String>();
+
+		m1.put("hi", 5);
+		m1.put("there", 22);
+
+		assertEquals("{there=22, hi=5}", m1.toString());
 	}
 
 	public static junit.framework.Test suite() {

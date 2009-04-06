@@ -868,7 +868,7 @@ public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
 		for (;;) {
 			MapKI.Entry<K> e = i.next();
 			K key = e.getKey();
-			float value = e.getValue();
+			int value = e.getValue();
 			sb.append(key);
 			sb.append('=');
 			sb.append(value);
