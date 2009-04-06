@@ -34,7 +34,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.io.VectorInt;
+import edu.umd.cloud9.io.OHMapSIW;
 import edu.umd.cloud9.util.HadoopTask;
 
 /**
@@ -53,9 +53,9 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 	private static int mWindow = 2;
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, Text, VectorInt<Text>> {
+			Mapper<LongWritable, Text, Text, OHMapSIW> {
 
-		public void map(LongWritable key, Text line, OutputCollector<Text, VectorInt<Text>> output,
+		public void map(LongWritable key, Text line, OutputCollector<Text, OHMapSIW> output,
 				Reporter reporter) throws IOException {
 			String text = line.toString();
 
@@ -68,7 +68,7 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 				if (term.length() == 0)
 					continue;
 
-				VectorInt<Text> map = new VectorInt<Text>();
+				OHMapSIW map = new OHMapSIW();
 
 				for (int j = i - mWindow; j < i + mWindow + 1; j++) {
 					if (j == i || j < 0)
@@ -81,11 +81,10 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 					if (terms[j].length() == 0)
 						continue;
 
-					Text t = new Text(terms[j]);
-					if (map.containsKey(t)) {
-						map.put(t, map.get(t) + 1);
+					if (map.containsKey(terms[j])) {
+						map.increment(terms[j]);
 					} else {
-						map.put(t, 1);
+						map.put(terms[j], 1);
 					}
 				}
 
@@ -95,13 +94,12 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 	}
 
 	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, VectorInt<Text>, Text, VectorInt<Text>> {
+			Reducer<Text, OHMapSIW, Text, OHMapSIW> {
 
-		public void reduce(Text key, Iterator<VectorInt<Text>> values,
-				OutputCollector<Text, VectorInt<Text>> output, Reporter reporter)
-				throws IOException {
+		public void reduce(Text key, Iterator<OHMapSIW> values,
+				OutputCollector<Text, OHMapSIW> output, Reporter reporter) throws IOException {
 
-			VectorInt<Text> map = null;
+			OHMapSIW map = null;
 
 			while (values.hasNext()) {
 				if (map == null) {
@@ -152,7 +150,7 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
 		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(VectorInt.class);
+		conf.setOutputValueClass(OHMapSIW.class);
 
 		conf.setMapperClass(MyMapper.class);
 		conf.setCombinerClass(MyReducer.class);
