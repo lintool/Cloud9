@@ -19,6 +19,16 @@ public class FSProperty {
 		}
 	}
 
+	public static void writeLong(FileSystem fs, String path, long val) {
+		try {
+			FSDataOutputStream out = fs.create(new Path(path), true);
+			out.writeLong(val);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void writeFloat(FileSystem fs, String path, float val) {
 		try {
 			FSDataOutputStream out = fs.create(new Path(path), true);
@@ -43,6 +53,17 @@ public class FSProperty {
 		try {
 			FSDataInputStream in = fs.open(new Path(path));
 			int val = in.readInt();
+			in.close();
+			return val;
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to read property at " + path);
+		}
+	}
+
+	public static long readLong(FileSystem fs, String path) {
+		try {
+			FSDataInputStream in = fs.open(new Path(path));
+			long val = in.readLong();
 			in.close();
 			return val;
 		} catch (Exception e) {
