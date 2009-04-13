@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data.wikipedia;
+package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
@@ -10,9 +10,9 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.data.IndexableFileInputFormat;
-import edu.umd.cloud9.data.XMLInputFormat;
-import edu.umd.cloud9.data.XMLInputFormat.XMLRecordReader;
+import edu.umd.cloud9.collection.IndexableFileInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
 

@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data.spinn3r;
+package edu.umd.cloud9.collection.spinn3r;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -10,7 +10,7 @@ import java.util.Date;
 
 import org.apache.hadoop.io.WritableUtils;
 
-import edu.umd.cloud9.data.Indexable;
+import edu.umd.cloud9.collection.Indexable;
 
 public class Spinn3rItem implements Indexable {
 	public static final String XML_START_TAG = "<item>";

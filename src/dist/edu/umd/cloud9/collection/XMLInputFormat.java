@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data;
+package edu.umd.cloud9.collection;
 
 import java.io.IOException;
 

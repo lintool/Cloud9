@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data.wikipedia;
+package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 

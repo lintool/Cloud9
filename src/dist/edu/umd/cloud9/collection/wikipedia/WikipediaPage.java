@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data.wikipedia;
+package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.WritableUtils;
 
-import edu.umd.cloud9.data.Indexable;
+import edu.umd.cloud9.collection.Indexable;
 
 public class WikipediaPage implements Indexable {
 	public static final String XML_START_TAG = "<page>";

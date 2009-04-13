@@ -1,4 +1,4 @@
-package edu.umd.cloud9.data.spinn3r;
+package edu.umd.cloud9.collection.spinn3r;
 
 import java.io.IOException;
 
