@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Debugging MapReduce Programs with log4j</h2>
+
+<p>by Jimmy Lin, Greg Jablonski</p>
+
+<p>
+<small>(Page first created: 19 Apr 2009; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated+")");
+-->
+</script>
+</small>
+</p>
+
+<div class="main">
+
+<p>Hadoop
+uses <a href="http://logging.apache.org/log4j/1.2/index.html">log4j</a>
+for it's logging infrastructure, which you can leverage for debugging
+MapReduce programs also.  It comes bundled with the Hadoop distribution
+so you shouldn't need to download anything.</p>
+
+<p>You can easily get a handle on a Logger by putting something like
+this in your class:</p>
+
+<pre>
+import org.apache.log4j.Logger;
+...
+
+public class Foo {
+    private static final Logger sLogger = Logger.getLogger(Foo.class);
+    ...
+}
+</pre>
+
+<p>Logger.getLogger will also accept any String, though it's common
+practice to name the Logger after the class it's logging in.</p>
+
+<p><b>Note:</b> In the most common case, you'll have mapper and
+reducer classes as nested static classes within some enclosing
+class&mdash;you'll want to grab a handle to the Logger from the
+enclosing class (not inside each mapper or reducer class itself).</p>
+
+<p>After you get a handle on the logger, within your class you can
+make logging calls at different levels.</p>
+
+<pre>
+    sLogger.debug("Debug message");
+    sLogger.info("Info message");
+    sLogger.warn("Warn message");
+    sLogger.error("Error message");
+    sLogger.fatal("Fatal message");
+</pre>
+
+<p>You can also log Exceptions:</p>
+
+<pre>
+   try {
+     ...
+   } catch (Exception x) {
+       sLogger.error("Caught some exception", x)
+   }
+</pre>
+
+<p>The above will log the Exception info, including a stack trace,
+of <code>x</code> along with the message.</p>
+
+<p>Without messing with the Hadoop log4j configurations, you can
+programmatically set the log level:</p>
+
+<pre>
+    sLogger.setLevel(Level.INFO); // or DEBUG, WARN, whatever
+</pre>
+
+<p>You might want to set the logging level inside the configure method
+of the mapper or reducer.  Each Level includes all higher priority
+levels. So, e.g., at DEBUG, all DEBUG, INFO, WARN, etc. messages will
+be logged. At WARN, calls to debug() and info() won't log
+anything.</p>
+
+<p>If you want to log a DEBUG or INFO message that requires any
+non-trivial work (generally anything more than String appending) which
+wouldn't otherwise need to be executed, it's best to test the level
+first so you don't waste a lot of cycles when running at a higher
+logging level:</p>
+
+<pre>
+    if(sLogger.isDebugEnabled()) {
+        String msg = doALotOfWork();
+        sLogger.debug(msg);
+    }
+</pre>
+
+<p>You can get access to the logging info via the Hadoop Job Tracker
+Webapp (i.e., on port 50030).  If you drill down into individual map
+or reduce tasks, you'll see a column in the table with the heading
+"Task Logs".  The links in this column provide you access to the
+logs.</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>

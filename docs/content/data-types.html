@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Working with complex data types</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 30 Oct 2007; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated+")");
+-->
+</script>
+</small>
+</p>
+
+<div class="main">
+
+<h3>Introduction</h3>
+
+<p>In Hadoop, the two basic data types are:</p>
+
+<ul>
+
+  <li><code>WritableComparable</code> is the base interface
+  for keys, and</li>
+
+  <li><code>Writable</code> is the base class interface for
+  values.</li>
+
+</ul>
+
+<p>Classes implementing the above two interfaces provide your basic
+primitives:</p>
+
+<ul>
+
+  <li><code>IntWriteable</code> (ints),</li>
+  <li><code>Text</code> (strings),</li>
+  <li><code>BytesWritable</code> (raw bytes),</li>
+  <li>etc.</li>
+
+</ul>
+
+<p>So what do you do when you need to work with more complex data
+types?  Well, here are your options:</p>
+
+<ul>
+
+  <li><b><a href="#option1">Option 1</a></b>: hack it &mdash; treat
+  everything as text, parse it manually (this gets ugly real
+  quick).</li>
+
+  <li><b><a href="#option2">Option 2</a></b>: use the
+  Cloud<sup><small>9</small></sup> bindings for JSON &mdash; easy to
+  use, but runs pretty slow.</li>
+
+  <li><b><a href="#option3">Option 3</a></b>: use the
+  Cloud<sup><small>9</small></sup> Tuple library &mdash; runs faster
+  than using JSON.</li>
+
+  <li><b><a href="#option4">Option 4</a></b>: roll your own custom
+  data type &mdash; runs much faster (up to an order of magnitude),
+  but I wouldn't recommend this if you're just starting out since it
+  requires writing more code.</li>
+
+  <li><b><a href="#alternatives">Alternatives</a></b>: other things to
+  look at.</li>
+
+</ul>
+
+<p>At the very end, I'm going to discuss some <a
+href="#benchmarks">benchmarks</a> comparing options 2, 3, and 4.</p>
+
+<h3><a name="option1">Option 1: Hack it yourself</a></h3>
+
+<p>The simplest way to represent complex data is to encode it
+into <code>Text</code>.  For example, you could represent lists as
+comma delimited values.  Once you read the text (e.g., in a mapper),
+split the string on commas and reconstruct the individual list
+elements.  Before emitting a key or a value, encode the list back into
+Text in the same way.  The downside of this technique, of course, is
+an ugly mess.  This is a quick way to get started with Hadoop, but
+you'll want to quickly move past this phase.</p>
+
+<h3><a name="option2">Option 2: JSON bindings in Cloud<sup><small>9</small></sup></a></h3>
+
+<p>JSON (JavaScript Object Notation) is a lightweight, text-based data
+interchange format for representing simple data structures.
+The <a href="http://en.wikipedia.org/wiki/JSON">Wikipedia article
+about JSON</a> and <a href="http://www.json.org/">json.org</a> are
+good places for more information.  The basic idea is to use JSON
+objects as complex data structure inside Hadoop.  Included with
+Cloud<sup><small>9</small></sup>
+is <a href="http://www.json.org/java/index.html">Java support for JSON</a>
+in the <code>org.json</code> package.</p>
+
+<p>As an example, the following JSON object:</p>
+
+<pre>
+ {
+     "firstName": "John",
+     "lastName": "Smith",
+     "address": {
+         "streetAddress": "21 2nd Street",
+         "city": "New York",
+         "state": "NY",
+         "postalCode": 10021
+     },
+     "phoneNumbers": [
+         "212 555-1234",
+         "646 555-4567"
+     ]
+ }
+</pre>
+
+<p>Can be built with the following code snippet:</p>
+
+<pre>
+JSONObject obj = new JSONObject();
+
+obj.put("firstName", "John");
+obj.put("lastName", "Smith");
+		 
+JSONObject address = new JSONObject();
+address.put("streetAddress", "21 2nd Street");
+address.put("city", "New York");
+address.put("state", "NY");
+address.put("postalCode", 10021);
+
+JSONArray phoneNumbers = new JSONArray();
+phoneNumbers.put("212 555-1234");
+phoneNumbers.put("646 555-4567");
+
+obj.put("address", address);
+obj.put("phoneNumbers", phoneNumbers);
+</pre>
+
+<p>Cloud<sup><small>9</small></sup> provides support for JSON
+via <a href="../api/edu/umd/cloud9/io/JSONObjectWritable.html"><code>JSONObjectWritable</code></a>,
+which extends <code>JSONObject</code> to provide serialization and
+deserialization capabilities.
+See <a href="../../../umd-hadoop-core/src/edu/umd/cloud9/demo/DemoWordCondProbJSON.java"><code>DemoWordCondProbJSON.java</code></a>
+for an example of using JSON objects as keys in Hadoop, for computing
+conditional probabilities.</p>
+
+<p>One caveat is that <code>JSONObjectWritable</code>
+implements <code>Writable</code>,
+not <code>WriteableComparable</code>: this is because JSON objects, in
+general, do not have a natural sort order.  However, keys for
+MapReduce jobs in Hadoop need to
+implement <code>WritableComparable</code>: the solution is to
+extend <code>JSONObjectWritable</code> to
+implement <code>WritableComparable</code> and define your own custom
+comparator:</p>
+
+<pre>
+public class MyJSONObject extends JSONObjectWritable implements WritableComparable {
+    public int compareTo(Object obj) {
+        ....
+    }
+}
+</pre>
+
+<p>If your custom JSON Object is defined as an inner class, remember
+to declare it <b><code>static</code></b> so the Hadoop runtime is able
+to instantiate objects independent of an enclosing instance of the
+outer class.</p>
+
+<p><b>Important:</b> You will also want to
+override <code>hashCode()</code> so that relevant JSON objects get
+sent to the same reducer.  Or else write a
+custom <code>Partitioner</code>.</p>
+
+<h3><a name="option3">Option 3: Tuple library in Cloud<sup><small>9</small></sup></a></h3>
+
+<p>See <a href="../../../umd-hadoop-core/src/edu/umd/cloud9/demo/DemoWordCondProbTuple.java"><code>DemoWordCountTuple.java</code></a>
+for a demo of the Tuple class used as an intermediate key in a
+MapReduce job.</p>
+
+<p>The structure of each tuple is dictated by a schema.  Schemas are
+defined by the <a
+href="../api/edu/umd/cloud9/io/Schema.html"><code>Schema</code></a>
+class.  Here a sample code fragment of how a schema is defined:</p>
+
+<pre>
+public static final Schema MYSCHEMA = new Schema();
+static {
+    MYSCHEMA.addField("token", String.class, "");
+    MYSCHEMA.addField("int", Integer.class, new Integer(1));
+}
+</pre>
+
+<p>The <code>addField</code> method allows you to insert a field and
+specify default values.  The following are valid field types:</p>
+
+<ul>
+  <li>Basic Java primitives: Boolean, Integer, Long, Float, Double, String</li>
+  <li>Classes that implement Writable</li>
+</ul>
+
+<p>Once a schema has been defined, tuples can be instantiated in one
+of two ways:</p>
+
+<pre>
+// method 1: new Tuple with default values
+Tuple tuple1 = MYSCHEMA.instantiate();
+
+// method 2: new Tuple with specified values
+Tuple tuple2 = MYSCHEMA.instantiate("test", 2);
+</pre>
+
+<p>Calling the <code>instantiate()</code> method without any
+parameters creates a new <a
+href="../api/edu/umd/cloud9/io/Tuple.html"><code>Tuple</code></a> with
+default values.  Alternatively, you can directly specify the values of
+each field using <code>instantiate(Object...)</code>, the overloaded
+method that takes a variable number of Objects as parameters.</p>
+
+<p>Once a tuple is created, fields can be modified using the
+<code>set</code> method; field values can be retrieved using the
+<code>get</code> method.  You can refer to a field by its integer
+index position, or by its field name: the first is faster, but the
+second makes code more readable.</p>
+
+<p>Since a Tuple implements WritableComparable, it can be used
+directly in Hadoop without any effort.  The class automatically takes
+care of serializing and deserializing the object.</p>
+
+<p>Another feature of the Tuple class is its ability to store special
+symbols.  Each field in the Tuple can either hold an Object of the
+type defined by its Schema, or a special symbol String.  The method
+<code>containsSymbol</code> can be used to check if a field contains a
+special symbol. If the field contains a special symbol,
+<code>get</code> will return <code>null</code>. If the field does not
+contain a special symbol, <code>getSymbol</code> will return
+<code>null</code>.</p>
+
+<p>What's the use of this feature?  Say you had tuples that
+represented <code>count(a,b)</code>, where <code>a</code> and
+<code>b</code> are tokens you observe (i.e., these are the joint
+counts). There is often a need to compute <code>count(a,*)</code>,
+which corresponds to the marginal count.  In this case, you can use a
+special symbol to represent the <code>*</code>, and distinguish it
+from the lexical token '<code>*</code>' (where asterisks actually
+appeared as tokens).  Refer to
+<code>edu.umd.cloud9.demo.DemoWordCondProbTuple</code> for a
+well-commented basic demo that uses this special symbol feature.</p>
+
+<p>Also of interest
+is <a href="../api/edu/umd/cloud9/io/ArrayListWritable.html"><code>ArrayListWritable</code></a>,
+which provides a Hadoop data type for storing a list of
+homogeneous <code>Writable</code> elements.  This class, combined
+with <code>Tuple</code>, allows you to define arbitrarily complex data
+structures.</p>
+
+<!--h4>Design Rationale</h4>
+
+<p>In adopting the <a
+href="http://en.wikipedia.org/wiki/Factory_method_pattern">factory
+pattern</a> for the creation of tuples from the Schema class,
+verbosity was traded for transparency and readability.  Using factory
+methods for instantiation may be cumbersome at times, but one is
+forced to develop explicit schemas that appropriately model the data.
+Furthermore, the current design allows fields to be referenced by
+descriptive names, which improves program readability, at the expense
+of larger serialized objects (since field names need to be stored with
+the tuples).</p>
+
+<p>Donald Knuth's famous quote, "premature optimization is the root of
+all evil" (Knuth, 1974), should be kept in mind when considering the
+current implementation of the Tuple class.  For example, the class
+uses a reasonable, but not particularly clever or optimized algorithm
+for serialization and deserialization.  But that's not the point.  We
+need to develop experience with a broad range of usage scenarios
+before optimization should be undertaken.</p-->
+
+<h3><a name="option4">Option 4: Custom types</a></h3>
+
+<p>Finally, you can roll out your own custom data type by coding it
+from scratch.  For rapid prototyping, this may be too slow; but once
+you know what you want, you'll probably want to write custom data
+types.</p>
+
+<p>For <code>Writable</code>, you'll need to implement these
+two methods:</p>
+
+<ul>
+
+  <li>public void write(DataOutput out) throws IOException</li>
+  <li>public void readFields(DataInput in) throws IOException</li>
+
+</ul>
+
+<p>They tell the object how to serialize and deserialize itself.  In
+addition, make sure you have defined a zero argument constructor:
+that's how the runtime creates objects of the type.  Finally, make
+sure that <code>readFields</code> "resets" the object every time it is
+called: the Hadoop runtime will reuse objects whenever possible, which
+means that <code>readFields</code> will be called repeatedly.  Make
+sure the state of the object is cleared before deserialization.</p>
+
+<p><code>WritableComparable</code> is a sub-interface
+of <code>Writable</code>, so in addition to everything above, you'll
+need to implement <code>compareTo</code>, which defines the sort order
+of the object.</p>
+
+
+<h3><a name="benchmarks">Benchmarks</a></h3>
+
+<p>Ah, so why so many options?  It all boils down to a speed versus
+convenience tradeoff.  JSON (Option 2) and the tuple facilities in
+Cloud<sup><small>9</small></sup> (Option 3) are relatively easy to get
+started with, but run slow.  Writing custom types will make your code
+run <i>much</i> faster, but well... you have to write more code (and
+tweaking the code can be a pain if you don't quite have the data
+structure right the first time).  So, I would suggest rapid
+prototyping in JSON or the tuple facilities; write custom types when
+you finally got your algorithm nailed down.</p>
+
+<p>As a reference, here are some benchmarks comparing options 2, 3,
+and 4.  The "complex" data structure is pretty simple: just a pair of
+integers.  The sort order is also pretty straightforward: sort by
+first number, then by second number.  I compared three different
+data types:</p>
+
+<ul>
+
+<li><a href="../api/edu/umd/cloud9/io/PairOfInts.html"><code>PairOfInts</code></a></li>
+<li>a Tuple with two fields</li>
+<li>a JSON object with two fields</li>
+
+</ul>
+
+<p>I ran three different tasks:</p>
+
+<ul>
+
+  <li>Creating 2 million new objects.  Each is populated with two
+  random numbers between 0 and 1000.  All objects are added to an
+  ArrayList.</li>
+
+  <li>Cloning all 2 million objects.  All new objects are added to
+  another ArrayList.</li>
+
+  <li>Sorting the second ArrayList</li>
+
+</ul>
+
+<p>And here are the results (all in seconds):</p>
+
+<table cellpadding="5" border="1">
+<tr><td></td><td width="90"><b>PairOfInts</b></td><td width="90"><b>Tuple</b></td><td width="90"><b>JSON</b></td></tr>
+
+<tr><td>Creating objects</td><td>0.609</td><td>3.319</td><td>4.472</td></tr>
+
+<tr><td>Cloning objects</td><td>0.576</td><td>2.303</td><td>4.972</td></tr>
+
+<tr><td>Sorting list</td><td>1.681</td><td>7.591</td><td>11.644</td></tr>
+
+</table>
+
+<p>Times were arrived at by taking the average of 10 trials.
+Experiments were conducted on Aug 6, 2008 on a 2.6GHz MacBook Pro
+running Windows XP and Cygwin.  (Yes, yes, I know its blasphemous to
+run XP on a MBP: I actually dual-boot... just happened to be in
+Windows while running these experiments.) </p>
+
+<p>You may wonder, why is JSON so slow?  The reason is that in the
+current implementation provided by <code>org.json</code>, the
+underlying implementation of JSONObject uses HashMaps.  Tuple uses
+arrays.  Array accesses are much much faster than looking up keys in a
+hash.</p>
+
+<p>If you're curious, you can run these benchmarks yourself: see code
+in the <code>edu.umd.cloud9.io</code> package.</p>
+
+<h3><a name="alternatives">Alternatives</a></h3>
+
+<p>Other things you might want to look at:</p>
+
+<ul>
+
+  <li>Hadoop's record I/O classes, in
+  <code>org.apache.hadoop.record</code>.  The downside is that it's a
+  relatively heavyweight implementation, since you must first define
+  record types in a data description language (DDL), and then use
+  Hadoop's translator to automatically generate code.</li>
+
+  <li><a href="http://code.google.com/apis/protocolbuffers/">Google's
+  Protocol Buffers</a>.</li>
+
+</ul>
+
+<!--h3>References</h3>
+
+<p>Knuth, Donald. Structured Programming with go to Statements, ACM
+Journal Computing Surveys, 6(4):261-301, 1974.</p-->
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>

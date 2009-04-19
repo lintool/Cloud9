@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Getting started with S3</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 05 Aug 2008; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>)
+</small>
+</p>
+
+<div class="main">
+
+<h3>Introduction</h3>
+
+<p>This tutorial will get you started with Amazon's S3.  Before you
+begin, first complete the tutorial
+on <a href="start-EC2.html">downloading
+Cloud<sup><small>9</small></sup> and getting started with EC2</a>. By
+the end of this tutorial, you will have successful transferred files
+between HDFS and S3.</p>
+
+<p>To understand what we're doing, let's address the obvious question:
+why do we need S3?  The issue with EC2 is that all your data disappear
+after you tear down your instances. Puff&mdash;just like that,
+vanished into the bit bucket (sorry, mixing metaphors here).  Of
+course, you can scp data over, and you can scp data back onto your
+local machine.  Unfortunately, not only is this slow, but Amazon
+charges you for inbound and outbound bandwidth.  The solution: enter
+S3, which is a persistent store that works in conjunction with EC2.
+There are no charges for transferring data between EC2 and S3.  Ah,
+but here's the catch: S3 charges by the GB per month.
+Ultimately, <i>they</i> get you one way or another&mdash;it's like
+shipping and handling in those infomercials.  Nevertheless, the point
+is that moving data between EC2 and S3 is quite convenient, and much
+faster than scp.</p>
+
+<p>Before we begin, a few notes:</p>
+
+<ul>
+
+  <li>For writing these instructions I used Hadoop 0.17.0 and Sun's
+  Java JDK 1.6.0_06 on Windows XP (with Cygwin).  However, these
+  instructions should be applicable to other operating systems.</li>
+
+  <li>Note that I'm showing commands as they apply to me: you'll have
+  to change paths, name of machines, etc. as appropriate.</li>
+
+  <li>In capturing traces of commands running, I use the convention of
+  [...] to indicate places where the output has been truncated.</li>
+
+  <li>You'll be typing a lot of commands on the command-line.  What
+  I've found helpful is to keep a text file open to keep track of the
+  commands I've entered.  This is useful for both fixing inevitable
+  typos in command-line arguments and for retracing your steps
+  later.</li>
+
+  <li>It is best to allocate an uninterrupted block of time to this
+  tutorial, because once you start up an EC2 cluster, you're being
+  charged by time.</li>
+
+</ul>
+
+<p>Just to give you an overview, here are the steps:</p>
+
+<ul>
+
+  <li><a href="#step0">Step 0:</a> Download JetS3t and prep S3</li>
+  <li><a href="#step1">Step 1:</a> Copying stuff out of HDFS in S3</li>
+  <li><a href="#step2">Step 2:</a> Copying stuff into HDFS from S3</li>
+  <li><a href="#ps">Postscript</a></li>
+
+</ul>
+
+<p>Let's get started!</p>
+
+<h3><a name="step0">Step 0: Download JetS3t and prep S3</a></h3>
+
+<p>Download <a href="http://jets3t.s3.amazonaws.com/index.html">JetS3t</a>,
+which is an open-source Java toolkit and application suite for S3.
+There are many APIs/clients/front-ends to S3, but this happens to be
+the one I like the most.  After you unpack JetS3t, fire up Cockpit,
+which is its GUI to S3.  Launch scripts should be
+in <code>bin/</code>. In the "Cockpit Login" you want to go to the
+"Direct Login" tab.  Put in your AWS Access Key and AWS Secret Key,
+and you should be able to log in.</p>
+
+<p>In the Cockpit interface, you'll see a listing of buckets in the
+left panel and a list of objects in the right panel.  Buckets are just
+that&mdash;places to put stuff.  Click on the little icon in the
+buckets panel and create a new bucket, call it "my-hdfs".  Your screen
+should look something like this:</p>
+
+<p><a href="jetS3t-screenshot1.png"><img width="400"
+src="jetS3t-screenshot1.png" alt="Screenshot of JetS3t"
+border="0"/></a></p>
+
+
+<h3><a name="step1">Step 1: Copying stuff out of HDFS in S3</a></h3>
+
+<p>For a more complete reference, you'll want to consult
+the <a href="http://wiki.apache.org/hadoop/AmazonS3">Hadoop Wiki page
+on Amazon S3</a>.  But the instructions here should suffice to get you
+started.</p>
+
+<p>When you start your Hadoop cluser, you'll see something like:</p>
+
+<pre>
+[...]
+Started as domU-12-31-39-00-7C-58.compute-1.internal
+[...]
+</pre>
+
+<p>Take note of the identifier that begins with <code>domU</code>:
+that's your private DNS name and you'll need it for later.  In case
+you're curious, it references a Xen DomU guest.</p>
+
+<p>I assume you've completed the tutorial
+on <a href="start-EC2.html">downloading
+Cloud<sup><small>9</small></sup> and getting started with EC2</a>.  If
+so, you should already have the sample data loaded.  To verify:</p>
+
+<pre>
+[root@domU-12-31-39-00-7C-58 ~]# hadoop dfs -ls /shared/sample-input
+Found 1 items
+/shared/sample-input/bible+shakes.nopunc        &lt;r 3&gt;   9068074 [...]
+</pre>
+
+<p>With Hadoop 0.17.0, you may get some warnings about deprecated
+filesystem name.  Don't worry about them.</p>
+
+<p>Now issue the following command to copy data directly from HDFS
+into S3:</p>
+
+<pre>
+[root@domU-12-31-39-00-7C-58 ~]# hadoop distcp hdfs://domU-XXX:50001/shared/sample-input
+  s3://ACCESS_KEY_ID:SECRET_ACCESS_KEY@my-hdfs/shared/sample-input
+</pre>
+
+<p>Remember to replace <code>domU-XXX</code> with your actual internal
+DNS name (from above).  Also replace <code>ACCESS_KEY_ID</code>
+and <code>SECRET_ACCESS_KEY</code> with their actual values.  Note
+that <code>my-hdfs</code> corresponds to the bucket you set up in the
+previous step.  The execution trace of the above command will look
+something like:</p>
+
+<pre>
+08/08/05 14:05:18 INFO util.CopyFiles: srcPaths=[hdfs://domU-XXX:50001/shared/sample-input]
+08/08/05 14:05:18 INFO util.CopyFiles: destPath=s3://ACCESS_KEY_ID:SECRET_ACCESS_KEY@my-hdfs/shared/sample-input
+08/08/05 14:05:22 INFO util.CopyFiles: srcCount=2
+08/08/05 14:05:28 INFO mapred.JobClient: Running job: job_200808051356_0001
+08/08/05 14:05:29 INFO mapred.JobClient:  map 0% reduce 0%
+08/08/05 14:05:52 INFO mapred.JobClient:  map 100% reduce 100%
+08/08/05 14:05:53 INFO mapred.JobClient: Job complete: job_200808051356_0001
+08/08/05 14:05:53 INFO mapred.JobClient: Counters: 8
+08/08/05 14:05:53 INFO mapred.JobClient:   File Systems
+08/08/05 14:05:53 INFO mapred.JobClient:     HDFS bytes read=9068352
+08/08/05 14:05:53 INFO mapred.JobClient:     S3 bytes written=9068082
+08/08/05 14:05:53 INFO mapred.JobClient:   Job Counters
+08/08/05 14:05:53 INFO mapred.JobClient:     Launched map tasks=1
+08/08/05 14:05:53 INFO mapred.JobClient:   distcp
+08/08/05 14:05:53 INFO mapred.JobClient:     Files copied=1
+08/08/05 14:05:53 INFO mapred.JobClient:     Bytes copied=9068074
+08/08/05 14:05:53 INFO mapred.JobClient:     Bytes expected=9068074
+08/08/05 14:05:53 INFO mapred.JobClient:   Map-Reduce Framework
+08/08/05 14:05:53 INFO mapred.JobClient:     Map input records=1
+08/08/05 14:05:53 INFO mapred.JobClient:     Map input bytes=176
+</pre>
+
+<p>Once again, you may get some warnings about deprecated filesystem
+name.  Don't worry about them.</p>
+
+<p>If you go back to JetS3t and refresh, your screen should look
+something like this:</p>
+
+<p><a href="jetS3t-screenshot2.png"><img width="400"
+src="jetS3t-screenshot2.png" alt="Screenshot of JetS3t"
+border="0"/></a></p>
+
+<p>Congratulations!  You've succesfully stored stuff in S3.</p>
+
+<h3><a name="step2">Step 2: Copying stuff into HDFS from S3</a></h3>
+
+<p>Now let's work on the reverse, copying data from S3 directly into
+HDFS.  First, let's blow away data in HDFS.  Don't worry, we'll be
+getting it right back from S3!</p>
+
+<pre>
+[root@domU-12-31-39-00-7C-58 ~]# hadoop dfs -rmr /shared
+Deleted /shared
+</pre>
+
+<p>The command is basically the same as before, except the arguments
+are reversed now:</p>
+
+<pre>
+[root@domU-12-31-39-00-7C-58 ~]# hadoop distcp s3://ACCESS_KEY_ID:SECRET_ACCESS_KEY@my-hdfs/shared/sample-input 
+  hdfs://domU-XXX.compute-1.internal:50001/shared/sample-input
+</pre>
+
+<p>Remember to replace <code>domU-XXX</code> with your actual internal
+DNS name; similarly, replace <code>ACCESS_KEY_ID</code>
+and <code>SECRET_ACCESS_KEY</code> with their actual values.  The
+execution trace of the above command will look something like:</p>
+
+<pre>
+08/08/05 14:11:23 INFO util.CopyFiles: srcPaths=[s3://ACCESS_KEY_ID:SECRET_ACCESS_KEY@my-hdfs/shared/sample-input]
+08/08/05 14:11:23 INFO util.CopyFiles: destPath=hdfs://domU-XXX:50001/shared/sample-input
+08/08/05 14:11:28 INFO mapred.JobClient: Running job: job_200808051356_0002
+08/08/05 14:11:29 INFO mapred.JobClient:  map 0% reduce 0%
+08/08/05 14:11:36 INFO mapred.JobClient:  map 100% reduce 100%
+08/08/05 14:11:37 INFO mapred.JobClient: Job complete: job_200808051356_0002
+08/08/05 14:11:38 INFO mapred.JobClient: Counters: 9
+08/08/05 14:11:38 INFO mapred.JobClient:   File Systems
+08/08/05 14:11:38 INFO mapred.JobClient:     HDFS bytes read=284
+08/08/05 14:11:38 INFO mapred.JobClient:     HDFS bytes written=9068082
+08/08/05 14:11:38 INFO mapred.JobClient:     S3 bytes read=9068074
+08/08/05 14:11:38 INFO mapred.JobClient:   Job Counters
+08/08/05 14:11:38 INFO mapred.JobClient:     Launched map tasks=1
+08/08/05 14:11:38 INFO mapred.JobClient:   distcp
+08/08/05 14:11:38 INFO mapred.JobClient:     Files copied=1
+08/08/05 14:11:38 INFO mapred.JobClient:     Bytes copied=9068074
+08/08/05 14:11:38 INFO mapred.JobClient:     Bytes expected=9068074
+08/08/05 14:11:38 INFO mapred.JobClient:   Map-Reduce Framework
+08/08/05 14:11:38 INFO mapred.JobClient:     Map input records=1
+08/08/05 14:11:38 INFO mapred.JobClient:     Map input bytes=182
+</pre>
+
+<p>You can confirm that the data is indeed back in HDFS:</p>
+
+<pre>
+[root@domU-12-31-39-00-7C-58 ~]# hadoop dfs -ls /shared/sample-input
+Found 1 items
+/shared/sample-input/bible+shakes.nopunc        &lt;r 3&gt; [...]
+</pre>
+
+<p>And that's it!  Remember to clean up when you are done, i.e., tear
+down your cluster!</p>
+
+<h3><a name="ps">Postscript</a></h3>
+
+<p>We've now gone through all steps in the typical development cycle
+with Hadoop on EC2/S3.  Putting everything together, a typical hacking
+session might look like:</p>
+
+<ul>
+
+  <li>Start Hadoop cluster on EC2.</li>
+
+  <li>Copy data from S3 in HDFS.</li>
+
+  <li>Do development.</li>
+
+  <li>Copy data you wish to save from HDFS back into S3.</li>
+
+  <li>Tear down cluster.</li>
+
+</ul>
+
+<p>Of course, there are many variations on a theme... but my tutorials
+should represent a good start.  Have fun computing in the clouds!</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>

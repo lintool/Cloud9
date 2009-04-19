@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Adding to your own project</h2>
+
+<p>by Jimmy Lin</p>
+
+<div class="main">
+
+<p>Once you've gotten Cloud<sup><small>9</small></sup> running from
+<a href="start.html">this guide</a>.  You'll probably want to add
+the libraries to your own project (since it would be unwise to develop
+directly in the Cloud<sup><small>9</small></sup> repository).</p>
+
+<p>This is a bit tricky because Cloud<sup><small>9</small></sup> isn't
+installed on the Hadoop cluster, so you'll need to ship over the the
+library itself.  Unfortunately, the Hadoop Eclipse plug-in isn't smart
+enough to package necessary dependencies along with your code, so
+simply including the Cloud<sup><small>9</small></sup> jar in the build
+path won't work (it'll allow you to compile the program locally, but
+the program will fail to run on the server).</p>
+
+<p>We get around this by using the "Link Source" feature in Eclipse,
+which is like a symbolic link.  Here's what you do: right click on the
+project you want to use Cloud<sup><small>9</small></sup> in, select
+"Properties". Go to "Java Build Path", go to "Source" tab, click "Link
+Source..." button.  Specify a folder name ("cloud9") and browse for
+the location of <code>umd-hadoop-core/src</code>.  After you've done
+this, the linked source folder should appear in your project,
+annotated with a little icon.</p>
+
+<p>One issue with this solution is that the linked source folder path
+must be an absolute path.  This information is stored in
+the <code>.project</code> metadata file in your project directory.
+Thus, if your project is under version control, there may be a problem
+since everyone's sandbox might not be in the same location.
+Therefore, if other people check out the same project they must fix
+the path in their sandbox.  Not ideal, but I haven't found a better
+solution...</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+<small>This page, first created: 31 Jan 2008; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</small>
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>

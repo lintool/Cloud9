@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="keywords" content="Debugging with log4j" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="search" type="application/opensearchdescription+xml" href="/umd-hadoop/opensearch_desc.php" title="Umd-hadoop (English)" />
+		<title>Debugging with log4j - Umd-hadoop</title>
+		<style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/umd-hadoop/skins/monobook/main.css?9"; /*]]>*/</style>
+		<link rel="stylesheet" type="text/css" media="print" href="/umd-hadoop/skins/common/commonPrint.css" />
+		<!--[if lt IE 5.5000]><style type="text/css">@import "/umd-hadoop/skins/monobook/IE50Fixes.css";</style><![endif]-->
+		<!--[if IE 5.5000]><style type="text/css">@import "/umd-hadoop/skins/monobook/IE55Fixes.css";</style><![endif]-->
+		<!--[if IE 6]><style type="text/css">@import "/umd-hadoop/skins/monobook/IE60Fixes.css";</style><![endif]-->
+		<!--[if IE 7]><style type="text/css">@import "/umd-hadoop/skins/monobook/IE70Fixes.css?1";</style><![endif]-->
+		<!--[if lt IE 7]><script type="text/javascript" src="/umd-hadoop/skins/common/IEFixes.js"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+		
+		<script type= "text/javascript">
+			var skin = "monobook";
+			var stylepath = "/umd-hadoop/skins";
+
+			var wgArticlePath = "/umd-hadoop/index.php/$1";
+			var wgScriptPath = "/umd-hadoop";
+			var wgServer = "https://wiki.umiacs.umd.edu";
+                        
+			var wgCanonicalNamespace = "";
+			var wgNamespaceNumber = 0;
+			var wgPageName = "Debugging_with_log4j";
+			var wgTitle = "Debugging with log4j";
+			var wgArticleId = 1502;
+			var wgIsArticle = true;
+                        
+			var wgUserName = "Jimmylin";
+			var wgUserLanguage = "en";
+			var wgContentLanguage = "en";
+		</script>
+		                
+		<script type="text/javascript" src="/umd-hadoop/skins/common/wikibits.js?1"><!-- wikibits js --></script>
+		<script type="text/javascript" src="/umd-hadoop/index.php?title=-&amp;action=raw&amp;smaxage=0&amp;gen=js"><!-- site js --></script>
+		<style type="text/css">/*<![CDATA[*/
+@import "/umd-hadoop/index.php?title=MediaWiki:Common.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=18000";
+@import "/umd-hadoop/index.php?title=MediaWiki:Monobook.css&usemsgcache=yes&action=raw&ctype=text/css&smaxage=18000";
+@import "/umd-hadoop/index.php?title=-&action=raw&gen=css&maxage=18000&smaxage=0";
+/*]]>*/</style>
+		<!-- Head Scripts -->
+			</head>
+<body  class="mediawiki ns-0 ltr">
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+				<h1 class="firstHeading">Debugging with log4j</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">From Umd-hadoop</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>			<!-- start content -->
+			<p>Hadoop uses <a href="http://logging.apache.org/log4j/1.2/" class="external text" title="http://logging.apache.org/log4j/1.2/" rel="nofollow">log4j 1.2</a> for it's logging infrastructure, which I've found useful for debugging my map-reduce page rank program as well.  It comes bundled with the Hadoop distribution so you shouldn't need to download anything.
+</p>
+<table id="toc" class="toc" summary="Contents"><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1"><a href="#Getting_and_using_a_Logger"><span class="tocnumber">1</span> <span class="toctext">Getting and using a Logger</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Configuration"><span class="tocnumber">1.1</span> <span class="toctext">Configuration</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Watching_the_log"><span class="tocnumber">2</span> <span class="toctext">Watching the log</span></a>
+<ul>
+<li class="toclevel-2"><a href="#In_real_time"><span class="tocnumber">2.1</span> <span class="toctext">In real time</span></a></li>
+<li class="toclevel-2"><a href="#Logging_to_a_file"><span class="tocnumber">2.2</span> <span class="toctext">Logging to a file</span></a></li>
+</ul>
+</li>
+</ul>
+</td></tr></table><script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit&amp;section=1" title="Edit section: Getting and using a Logger">edit</a>]</div><a name="Getting_and_using_a_Logger"></a><h2>Getting and using a Logger</h2>
+<p>You can easily get a handle on a Logger by putting something like this in your class
+</p>
+<pre>
+import org.apache.log4j.Logger;
+
+public class Foo {
+
+    private static final Logger mLogger = Logger.getLogger(Foo.class);
+</pre>
+<p>Logger.getLogger will also accept any String, though it's common practice to name the Logger after the class it's logging in.  
+</p><p>Then within your class you can make logging calls at different levels.
+</p>
+<pre>
+    mLogger.debug(&quot;Debug message&quot;);
+    mLogger.info(&quot;Info message&quot;);
+    mLogger.warn(&quot;Warn message&quot;);
+    mLogger.error(&quot;Error message&quot;);
+    mLogger.fatal(&quot;Fatal message&quot;);
+</pre>
+<p>You can also log Exceptions:
+</p>
+<pre>
+   try {
+     ...
+   } catch (Exception x) {
+       mLogger.error(&quot;Caught some exception&quot;, x)
+   }
+</pre>
+<p>which will log the Exception info, including a stack trace, of x along with the message.
+</p><p>Without wanting to mess with the Hadoop log4j configurations, you can programmatically set the <a href="http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html" class="external text" title="http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html" rel="nofollow">log level</a>:
+</p>
+<pre>
+    mLogger.setLevel(Level.INFO); // or DEBUG, WARN, whatever
+</pre>
+<p>Each Level includes all higher priority levels.  So, e.g. at DEBUG, all DEBUG, INFO, WARN, etc. messages will be logged.  At WARN, calls to debug() and info() won't log anything.  
+</p><p>If you want to log a DEBUG or INFO message that requires any non-trivial work (generally anything more than String appending) that wouldn't otherwise need to be executed, it's best to test the level first so you don't waste a lot of cycles when running at a higher logging level.
+</p>
+<pre>
+    if(mLogger.isDebugEnabled()) {
+        String msg = doALotOfWork();
+        mLogger.debug(msg);
+    }
+</pre>
+<p>Everything described so far will log your messages to the rootLogger, which is configured in the Hadoop installation's log4j configuration, and which seems to write them to a file buried somewhere obscure under ~/hadoop/logs/userlogs/task_XXXX_A_XXXXXX_X/syslog/part-XXXXXX.  
+</p>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit&amp;section=2" title="Edit section: Configuration">edit</a>]</div><a name="Configuration"></a><h3>Configuration</h3>
+<p>A more useful way to watch messages is remotely, by configuring your Logger to log to a SocketAppender.  This can be configured programmatically like this
+</p>
+<pre>
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.net.SocketAppender;
+
+public class Foo {
+    private static final Logger mLogger;
+    // initialize the logger programatically
+    static {
+        mLogger = Logger.getLogger(Foo.class);
+        SocketAppender out = new SocketAppender(&quot;HOST&quot;, port);
+        mLogger.setLevel(Level.DEBUG);
+        mLogger.addAppender(out);
+    }
+</pre>
+<p>This will send everything you log over a socket to HOST:port, e.g. "192.168.1.109":4445.  It's not pretty but you can hard-code the host and listening port (see below) of your development machine here.  If your Hadoop cluster's behind a firewall you'll have to configure "HOST" to be localhost and set up some port forwarding from localhost:port to HOST port to tunnel your messages through.
+</p><p>You can also propagate configuration information from main to Mappers, Reducers, Partitioners via the JobConf.
+</p><p>In main (or wherever you're firing your jobs from).
+</p>
+<pre>
+    JobConf conf = new JobConf(PageRank.class);
+    conf.set(&quot;log4j.remote.host&quot;, (Object)logHost);
+    conf.set(&quot;log4j.remote.port&quot;, (Object)logPort);
+</pre>
+<p>and in your Mapper/Reducer/Partitioner:
+</p>
+<pre>
+    private Logger mLogger = null;
+    public void Configure(JobConf job) {
+        if(mLogger == null) {
+             mLogger = Logger.getLogger(this.getClass());
+             mLogger.setLevel(Level.DEBUG);
+             String logHost = (String)(job.get(&quot;log4j.remote.host&quot;));
+             String logPort = (String)(job.get(&quot;log4j.remote.port&quot;));
+            
+             if(logHost&nbsp;!= null &amp;&amp; logPort&nbsp;!= null) {
+                 SocketAppender out = new SocketAppender(logHost, Integer.valueOf(logPort));
+                 mLogger.addAppender(out);
+             }
+        }
+    }
+</pre>
+<dl><dd> <b>NOTE:</b>  Because these configurations attempts to send log messages directly from the client machine running this code to HOST:port, for it to work from the cluster you'd have to set up port forwarding on every machine.  I think what to do in this case is configure your SocketAppenders to log to an address on the gateway, which address you'd port-forward to your local machine.  Of course, without cluster access&nbsp;;), all I can do is speculate.
+</dd></dl>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit&amp;section=3" title="Edit section: Watching the log">edit</a>]</div><a name="Watching_the_log"></a><h2> Watching the log </h2>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit&amp;section=4" title="Edit section: In real time">edit</a>]</div><a name="In_real_time"></a><h3>In real time</h3>
+<p>Download the eclipse plugin <a href="http://www.nitwit.de/log4eclipse/" class="external text" title="http://www.nitwit.de/log4eclipse/" rel="nofollow">log4eclipse</a>, configure it to listen on the appropriate port for incoming messages, fire it up, and it will display log4j messages as they come in.
+</p><p>There's also a standalone application for doing this, called <a href="http://logging.apache.org/chainsaw/index.html" class="external text" title="http://logging.apache.org/chainsaw/index.html" rel="nofollow">Chainsaw</a> which I've never used, but have heard good things about.
+</p><p>The eclipse plugin isn't that great, especially if you have a lot of messages coming in and fast.
+</p><p>For some reason log4eclipse doesn't work under Ubuntu 7.04 and Eclipse 3.2.  In Vista, Eclipse 3.4 and Eclipse 3.3, it works.
+</p>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit&amp;section=5" title="Edit section: Logging to a file">edit</a>]</div><a name="Logging_to_a_file"></a><h3>Logging to a file</h3>
+<p>Instead of (or in addition to) eclipse you can run log4j's tiny server, SimpleSocketServer, that will listen on a socket, accept connections, and record the messages it receives according to a local policy, such as by writing them to a file you can then tail, grep, etc.
+</p>
+<pre>
+   bash$ java -cp /path/to/log4j-version.jar org.apache.log4j.net.SimpleSocketServer 1234 log4j.properties
+</pre>
+<ul><li> There's a log4j jar at umd-hadoop-dist/hadoop-x.x.x/lib/log4j-1.2.13.jar
+</li><li> 1234 is the port you want it to listen on (the port to which your SocketAppenders are connecting)
+</li><li> log4j.properties is a file that specifies the logging policy for the LoggingEvents it receives
+</li></ul>
+<p>log4j configuration is kind of complicated, but for example, my log4j.properties file looks like:
+</p>
+<pre>
+# create a file appender
+log4j.appender.file=org.apache.log4j.FileAppender 
+log4j.appender.file.File=run.log # name of the file to append to
+
+# format of the output to file
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{HH:mm:ss,SSS} %p %c{1}: %m%n
+
+# set the rootLogger to log at level ERROR to appender file
+log4j.rootCategory=ERROR, file
+
+# configure the loggers in category edu.umd.mapreduce to log at level DEBUG
+# (this category matches all classes in package edu.umd.mapreduce)
+log4j.category.edu.umd.mapreduce=DEBUG
+</pre>
+<p>It will write all messages at level DEBUG or higher from any logger under edu.umd.mapreduce, or ERROR or higher from anywhere else, to run.log as they arrive.
+</p><p>You can also have it relay messages to another socket as well, by adding
+</p>
+<pre>
+# define another socket appender, named socket
+log4j.appender.socket=org.apache.log4j.net.SocketAppender
+log4j.appender.socket.RemoteHost=localhost
+log4j.appender.socket.Port=4445
+
+# set the root logger to append to appenders file and socket
+log4j.rootCategory=ERROR, file, socket
+</pre>
+<p>so you can watch them with log4eclipse and write them to a file at the same time.
+</p>
+<!-- Saved in parser cache with key umiacs-umdhadoop_:pcache:idhash:1502-0!1!0!!en!2 and timestamp 20090116232704 -->
+<div class="printfooter">
+Retrieved from "<a href="https://wiki.umiacs.umd.edu/umd-hadoop/index.php/Debugging_with_log4j">https://wiki.umiacs.umd.edu/umd-hadoop/index.php/Debugging_with_log4j</a>"</div>
+						<!-- end content -->
+			<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+		<div id="column-one">
+	<div id="p-cactions" class="portlet">
+		<h5>Views</h5>
+		<ul>
+				 <li id="ca-nstab-main" class="selected"><a href="/umd-hadoop/index.php/Debugging_with_log4j">Article</a></li>
+				 <li id="ca-talk" class="new"><a href="/umd-hadoop/index.php?title=Talk:Debugging_with_log4j&amp;action=edit">Discussion</a></li>
+				 <li id="ca-edit"><a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=edit">Edit</a></li>
+				 <li id="ca-history"><a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=history">History</a></li>
+				 <li id="ca-move"><a href="/umd-hadoop/index.php?title=Special:Movepage&amp;target=Debugging_with_log4j">Move</a></li>
+				 <li id="ca-watch"><a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;action=watch">Watch</a></li>
+		</ul>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul>
+				<li id="pt-userpage"><a href="/umd-hadoop/index.php/User:Jimmylin" class="new">Jimmylin</a></li>
+				<li id="pt-mytalk"><a href="/umd-hadoop/index.php/User_talk:Jimmylin" class="new">My talk</a></li>
+				<li id="pt-preferences"><a href="/umd-hadoop/index.php/Special:Preferences">My preferences</a></li>
+				<li id="pt-watchlist"><a href="/umd-hadoop/index.php/Special:Watchlist">My watchlist</a></li>
+				<li id="pt-mycontris"><a href="/umd-hadoop/index.php/Special:Contributions/Jimmylin">My contributions</a></li>
+				<li id="pt-logout"><a href="/umd-hadoop/index.php?title=Special:Userlogout&amp;returnto=Debugging_with_log4j">Log out</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="portlet" id="p-logo">
+		<a style="background-image: url(/umd-hadoop/skins/common/images/wiki.png);" href="/umd-hadoop/index.php/Main_Page" title="Main Page"></a>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+		<div class='portlet' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+			<ul>
+				<li id="n-mainpage"><a href="/umd-hadoop/index.php/Main_Page">Main Page</a></li>
+				<li id="n-portal"><a href="/umd-hadoop/index.php/Umd-hadoop:Community_Portal">Community portal</a></li>
+				<li id="n-currentevents"><a href="/umd-hadoop/index.php/Current_events">Current events</a></li>
+				<li id="n-recentchanges"><a href="/umd-hadoop/index.php/Special:Recentchanges">Recent changes</a></li>
+				<li id="n-randompage"><a href="/umd-hadoop/index.php/Special:Random">Random page</a></li>
+				<li id="n-help"><a href="/umd-hadoop/index.php/Help:Contents">Help</a></li>
+				<li id="n-sitesupport"><a href="/umd-hadoop/index.php/Umd-hadoop:Site_support">Donations</a></li>
+			</ul>
+		</div>
+	</div>
+		<div id="p-search" class="portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="searchBody" class="pBody">
+			<form action="/umd-hadoop/index.php/Special:Search" id="searchform"><div>
+				<input id="searchInput" name="search" type="text" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="Go" />&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" value="Search" />
+			</div></form>
+		</div>
+	</div>
+	<div class="portlet" id="p-tb">
+		<h5>Toolbox</h5>
+		<div class="pBody">
+			<ul>
+				<li id="t-whatlinkshere"><a href="/umd-hadoop/index.php?title=Special:Whatlinkshere&amp;target=Debugging_with_log4j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/umd-hadoop/index.php?title=Special:Recentchangeslinked&amp;target=Debugging_with_log4j">Related changes</a></li>
+<li id="t-specialpages"><a href="/umd-hadoop/index.php/Special:Specialpages">Special pages</a></li>
+				<li id="t-print"><a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;printable=yes">Printable version</a></li>				<li id="t-permalink"><a href="/umd-hadoop/index.php?title=Debugging_with_log4j&amp;oldid=1552">Permanent link</a></li>			</ul>
+		</div>
+	</div>
+		</div><!-- end of the left (by default at least) column -->
+			<div class="visualClear"></div>
+			<div id="footer">
+				<div id="f-poweredbyico"><a href="http://www.mediawiki.org/"><img src="/umd-hadoop/skins/common/images/poweredby_mediawiki_88x31.png" alt="MediaWiki" /></a></div>
+			<ul id="f-list">
+				<li id="lastmod"> This page was last modified 21:56, 19 February 2008.</li>
+				<li id="viewcount">This page has been accessed 66 times.</li>
+				<li id="privacy"><a href="/umd-hadoop/index.php/Umd-hadoop:Privacy_policy" title="Umd-hadoop:Privacy policy">Privacy policy</a></li>
+				<li id="about"><a href="/umd-hadoop/index.php/Umd-hadoop:About" title="Umd-hadoop:About">About Umd-hadoop</a></li>
+				<li id="disclaimer"><a href="/umd-hadoop/index.php/Umd-hadoop:General_disclaimer" title="Umd-hadoop:General disclaimer">Disclaimers</a></li>
+			</ul>
+		</div>
+		
+	
+		<script type="text/javascript">if (window.runOnloadHook) runOnloadHook();</script>
+</div>
+<!-- Served by tiki.umiacs.umd.edu in 0.163 secs. --></body></html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Frequently asked questions about
+Hadoop</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 23 Dec 2008; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>)
+</small>
+</p>
+
+<div class="main">
+
+<p>If you're seriously getting into Hadoop, then you should definitely
+subscribe to the user mailing
+list, <code>core-user@hadoop.apache.org</code>; instructions for
+signing up can be found 
+<a href="http://hadoop.apache.org/core/mailing_lists.html">here</a>.
+The list gets a fair amount of traffic and the signal-to-noise ratio
+can be low at times, I would nevertheless recommend subscribing.</p>
+
+<p>Have a question about Hadoop?  The user mailing list would be the
+place to ask.  However, before posting, you might want
+to <a href="http://www.nabble.com/Hadoop-core-user-f30590.html">search
+the archives</a> (site can be a bit slow) or browse
+posts <a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/">with
+this interface</a> (much faster, but little in the way of search
+support).</p>
+
+<p>From time to time, I find posts worth saving, usually about basic
+questions that a Hadoop developer might ask.  I've compiled them here,
+with links back to the original post (and subsequent responses).
+Think of this as a curated FAQ with answers from the mailing list.</p>
+
+<h3>MapReduce</h3>
+
+<ul>
+
+  <li>How do I get access to the name of the file being processed
+  inside a mapper?
+  [<a href="http://www.nabble.com/Can-mapper-get-access-to-filename-being-processed--to20883754.html">Dec
+  07, 2008</a>]</li>
+
+  <li>How do I get access to pre-defined counters (e.g., "Reduce input
+  records")?
+  [<a href="http://www.nabble.com/Predefined-counters-to21122036.html">Dec
+  21, 2008</a>]</li>
+
+  <li>How do I find out what partition number a reducer is processing?
+  [<a href="http://www.nabble.com/How-to-find-partition-number-in-reducer--to20927911.html">Dec
+  09, 2008</a>]</li>
+
+  <li>Is there a way for the mapper to know when it's processed all
+  records?
+  [<a href="http://www.nabble.com/File-loss-at-Nebraska-to20865375.html#a20921830">Dec
+  09, 2008</a>]
+  [<a href="http://www.nabble.com/Know-how-many-records-remain--to19076016.html">Aug
+  20, 2008</a>]</li>
+
+  <li>How do I process different types of files simultaneously (i.e.,
+  mapping over differently formatted inputs)?
+  [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200902.mbox/%3Cc9118d4c0902060155k6c9bd142tc8eb68c4fd8797a5@mail.gmail.com%3E">Feb
+  06, 2009</a>]</li>
+
+  <li>When using Hadoop streaming, how do I update counters? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200902.mbox/%3CDD0844F7-C05F-4507-ABFE-9B2CD69B2122@yahoo-inc.com%3E">Feb 06, 2009</a>]</li>
+
+  <li>How do I access counter values from the command line? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200902.mbox/%3Cac79ea400902110141r5dd071afn4cd81b5c3500c60c@mail.gmail.com%3E">Feb 06, 2009</a>]</li>
+
+  <li>How do you programmatically change default the task memory
+  allocation (for mappers and reducers)?
+[<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200902.mbox/%3C314098690902070814s715f5524lfd9587604042063a@mail.gmail.com%3E">Feb
+07, 2009</a>]</li>
+
+  <li>How can you map over lzo-compressed files? [<a href="http://blog.oskarsson.nu/2009/03/hadoop-feat-lzo-save-disk-space-and.html">Mar 03, 2009</a>]</li>
+
+  <li>How do I emit mutiple types of key-value pairs? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200904.mbox/%3Cea0328fe0904022250tf5a9fffxb731830282f5ba8a@mail.gmail.com%3E">Apr 03, 2009</a>]</li>
+
+</ul>
+
+
+<h3>HDFS</h3>
+
+<ul>
+  <li>How do I know which replica is being accessed when reading
+  something from HDFS?
+  [<a href="http://www.nabble.com/Which-replica--to20783298.html">Dec
+  01, 2008</a>]</li>
+
+ <li>How do I "mount" HDFS as a "standard" file system?
+ [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200812.mbox/%3C623d9cf40812081631m3a99ca2an47f39cda766b28ce@mail.gmail.com%3E">Dec
+ 09, 2008</a>]</li>
+
+  <li>How do I directly "cat" a file into HDFS from the local disk? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200812.mbox/%3Cd6d7c4410812091936i1b39d20cgc5fc20013d6ecac1@mail.gmail.com%3E">Dec 09, 2008</a>]</li>
+
+  <li>How do I get metadata of a file in HDFS (blocks, block locations, etc.)? 
+  [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200901.mbox/%3C1232823619.7308.6.camel@latewhatgrow-lx.eglbp.corp.yahoo.com%3E">Jan 24, 2009</a>]</li>
+
+  <li>How do I restart an individual datanode? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200812.mbox/%3Cd6d7c4410812091927v3d8f5736h76021a11d7fcfb08@mail.gmail.com%3E">Dec 10, 2009</a>]</li>
+
+  <li>How do I "cat" the contents of a SequenceFile?
+  [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200901.mbox/%3C314098690901261313m1fcb3ac6k8d66138008a1234b@mail.gmail.com%3E">Jan
+  26, 2009</a>]</li>
+
+  <li>How do I programmatically get the block locations of a file in HDFS? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200901.mbox/%3Cf83401cd0901270440rec0458dt553006e56ec8b7b3@mail.gmail.com%3E">Jan 27, 2009</a>]</li>
+
+  <li>What's wrong with a lot of small files with HDFS? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200902.mbox/%3Cc9118d4c0902091835o16e662demaf967c683fe23e9f@mail.gmail.com%3E">Feb 10, 2009</a>] [<a href="http://www.cloudera.com/blog/2009/02/02/the-small-files-problem/">Cloudera blog post on Feb 2, 2009</a>]</li>
+
+  <li>How many people are using Hadoop streaming?  What's the overhead of using Hadoop streaming? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200904.mbox/%3CAEF99EED-7CF3-4EC6-A445-97AA7E1A3329@apache.org%3E">Apr 03, 2009</a>]</li>
+
+  <li>How easy is it to bypass user authentication in HDFS? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200904.mbox/%3C3f8297b20904050330g29d67b29t6dacd2faf5326efe@mail.gmail.com%3E">Apr 05, 2009</a>]</li>
+
+</ul>
+
+<h3>Other</h3>
+
+<ul>
+
+  <li>How do I integrate Hadoop and MySQL?
+  [<a href="http://issues.apache.org/jira/browse/HADOOP-2536">JIRA
+  2536</a>]</li>
+
+  <li>What is the largest <i>documented</i> Hadoop cluster? [~10k cores, as of <a href="http://developer.yahoo.net/blogs/hadoop/2008/02/yahoo-worlds-largest-production-hadoop.html">Feb 19, 2008</a>] [~30k cores, as of <a href="http://developer.yahoo.net/blogs/hadoop/2008/09/">Sep 30, 2008</a>]</li>
+
+  <li>How do I secure a Hadoop cluster through a gateway? [<a href="http://www.cloudera.com/blog/2008/12/03/securing-a-hadoop-cluster-through-a-gateway/">Dec 03, 2009</a>]</li>
+
+  <li>What options are there for a scalable, distributed key-value store? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200901.mbox/%3C771c51630901192157j16a1ffd0s89190a8aa233f9e4@mail.gmail.com%3E">Jan 20, 2009</a>]</li>
+
+  <li>How do I build a Lucene indexes in Hadoop? 
+  [<a href="http://www.nabble.com/Creating-Lucene-index-in-Hadoop-td22490120.html">Mar 13, 2009</a>]</li>
+
+</ul>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>
