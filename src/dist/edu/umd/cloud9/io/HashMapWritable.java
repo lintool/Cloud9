@@ -26,11 +26,14 @@ import java.util.Set;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 
+import edu.umd.cloud9.benchmark.io.BenchmarkHashMapWritable;
+
 /**
  * <p>
  * Writable extension of a Java HashMap. This generic class supports the use of
- * any type as either key or value. For a feature vector, use either
- * {@link VectorInt} or {@link VectorFloat} for a more efficient implementation.
+ * any type as either key or value. For a feature vector, {@link OHMapKIW},
+ * {@link OHMapKFW}, and a family of related classes provides a more efficient
+ * implementation.
  * </p>
  * 
  * <p>
