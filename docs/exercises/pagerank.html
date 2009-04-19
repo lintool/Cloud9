@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Exercises: PageRank exercise</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 05 Feb 2008; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated+")");
+-->
+</script>
+</small>
+</p>
+
+<div class="main">
+
+<p>In this exercise, you are going to implement PageRank in MapReduce.
+Here are three separate graphs to work with:</p>
+
+<ul>
+
+  <li><a href="./sample-small.txt">a small one</a> (93 nodes, 195 edges)</li>
+
+  <li><a href="./sample-medium.txt">a medium one</a> (316 nodes, 430 edges)</li>
+
+  <li><a href="./sample-large.txt">a large one</a> (1458 nodes, 3545 edges)</li>
+
+</ul>
+
+<p>The files are tab-delimited adjacency list representations of the
+graphs.  The first token on each line represents the unique id of the
+source node, and the rest of the tokens represent the target nodes
+(i.e., outlinks from the source node).  If a node does not have any
+outlinks, its corresponding line will contain only one token (the
+source node id).</p>
+
+<p>To make your lives easier, I've created a small demo program that
+computes PageRank using
+the <a href="http://jung.sourceforge.net/">JUNG</a> package (2.0
+alpha1).  The relevant class
+is <code>edu.umd.cloud9.demo.SequentialPageRank</code>, which takes
+two command-line arguments: the first is a file containing the graph
+(one of the ones above), and the second is the random jump factor (a
+typical setting is 0.15).</p>
+
+<p>If you run the program on the small network, with a random jump
+factor of 0.15, these will be your command-line
+arguments (relative to <code>umd-hadoop-core</code>):</p>
+
+<pre>../umd-hadoop-dist/cloud9-docs/exercises/sample-small.txt 0.15</pre>
+
+<p>And here's the sample output:</p>
+
+<pre>
+Number of components: 1
+Number of edges: 195
+Number of nodes: 93
+Random jump factor: 0.15
+
+PageRank of nodes, in descending order:
+8709207 0.04821883130281773
+11287582 0.03471311923002198
+9650960 0.034389246806747764
+12610128 0.03394520471428961
+8553535 0.03237815039961933
+12518224 0.030345338942444594
+11044077 0.028403133546904703
+...
+</pre>
+
+<p>To help in your implementation, I've captured the complete output
+of <code>edu.umd.cloud9.demo.SequentialPageRank</code> for each of the
+above graphs:</p>
+
+<ul>
+
+  <li><a href="./sample-small.pagerank.txt">PageRank values for the
+  small graph</a></li>
+
+  <li><a href="./sample-medium.pagerank.txt">PageRank values for the
+  medium graph</a></li>
+
+  <li><a href="./sample-large.pagerank.txt">PageRank values for the
+  large graph</a></li>
+
+</ul>
+
+<h3>Hints</h3>
+
+<p>If you're stuck, you might want to take a look at the source code
+of the <a href="http://jung.sourceforge.net/">JUNG</a>
+implementation.</p>
+
+<p>In the networks above, there are a relatively large number of
+dangling nodes, i.e., nodes with no outlinks.  This frequently happens
+in the Web context also; for example, pages the crawler hasn't
+downloaded yet would appear as "dangling".  For these nodes, you'll
+need to figure out how to "spread" its PageRank score to the other
+nodes.</p>
+
+<p>Here's the a good order in which to tackle the various issues:</p>
+
+<ol>
+
+  <li>Build an implementation that does not handle the random jump
+  factor and does not handling dangling nodes.</li>
+
+  <li>Add in support for dangling nodes.</li>
+
+  <li>Add in support for the random jump factor.</li>
+
+</ol>
+
+
+<h3>Postscript</h3>
+
+<p>If you're curious: the nodes in these graphs represent MEDLINE
+records (abstracts in the life sciences domain).  The links represent
+content-similarity links, i.e., pairs of abstracts that are similar in
+the words they contain.  For example, consider pmid (unique identifier
+in the MEDLINE collection)
+<a href="http://www.ncbi.nlm.nih.gov/pubmed/8709207">8709207</a>.  See
+the "Related Links" panel on the right hand side of the browser?  The
+data provided above represent instances of graphs defined by such
+links.</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>
