@@ -3,17 +3,16 @@
 	<classpathentry kind="src" path="src/sandbox"/>
 	<classpathentry kind="src" path="src/dist"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/junit-4.4.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-algorithms-2.0-alpha2.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-graph-impl-2.0-alpha2.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/jung-api-2.0-alpha2.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/collections-generic-4.01.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop/hadoop-0.16.0/contrib/hbase/hadoop-0.16.0-hbase.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/commons-logging-1.1.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/log4j-1.2.13.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/hadoop/hadoop-0.17.0/hadoop-0.17.0-core.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/memcached-2.2.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/spy-2.4.jar"/>
-	<classpathentry kind="lib" path="/umd-hadoop-dist/jars/bzip2.jar"/>
+	<classpathentry kind="lib" path="lib/bzip2.jar"/>
+	<classpathentry kind="lib" path="lib/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung-algorithms-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="lib/jung-api-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0-alpha2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
+	<classpathentry kind="lib" path="hadoop/hadoop-0.17.2/hadoop-0.17.2-core.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
