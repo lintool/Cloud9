@@ -35,12 +35,18 @@
 	</target>
 
 	<target name="compile" depends="init" description="compile the source ">
-		<javac classpathref="classpath" srcdir="${src}" destdir="${build}" optimize="on" debug="on">
+		<javac classpathref="classpath" srcdir="${src}/dist" destdir="${build}" optimize="on" debug="on">
 			<!-- compilerarg value="-Xlint:unchecked"/ 
         uncomment this to check for generics -->
 		</javac>
+		<javac classpathref="classpath" srcdir="${src}/sandbox" destdir="${build}" optimize="on" debug="on">
+			<!-- compilerarg value="-Xlint:unchecked"/ 
+        uncomment this to check for generics -->
+		</javac>
+
 		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java" />
+			<fileset dir="${src}/dist" excludes="**/*.java" />
+			<fileset dir="${src}/sandbox" excludes="**/*.java" />
 		</copy>
 	</target>
 
