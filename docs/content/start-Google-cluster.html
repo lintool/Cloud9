@@ -9,7 +9,7 @@
 
 <center><table width="80%"><tbody><tr><td align="left">
 
-<h2>Cloud<sup><small>9</small></sup>: Accessing the Google/IBM CLuE cluster</h2>
+<h2>Cloud<sup><small>9</small></sup>: Getting started with the Google/IBM CLuE cluster</h2>
 
 <p>by Jimmy Lin</p>
 
@@ -53,9 +53,11 @@ measure.</p>
 
 <h3>1. Unpack Hadoop</h3>
 
-<p>Unpack Hadoop on your local machine.  The current stable release is
-0.17.2, which is located in <code>umd-hadoop-dist/hadoop/</code>.
-Unpack the tarball <code>hadoop-0.17.2.tar.gz</code>.</p>
+<p>Unpack Hadoop on your local machine.  The release running on the
+cluster is 0.17.2, a copy of which is located
+in <code>umd-hadoop-core/hadoop/</code>, the core distribution of
+Cloud<sup><small>9</small></sup>.  Unpack the
+tarball <code>hadoop-0.17.2.tar.gz</code>.</p>
 
 <h3>2. Site up configuration files</h3>
 
@@ -113,7 +115,7 @@ package.</p>
 the Hadoop cluster from your local machine!  Basically, you've set up
 a direct connection to the Hadoop cluster via a SOCKS proxy.</p>
 
-<p>Try things out with a simple command:</p>
+<p>Try things out with a simple command (from your local machine):</p>
 
 <pre>
 hadoop dfs -ls /

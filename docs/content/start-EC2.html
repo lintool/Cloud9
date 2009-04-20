@@ -36,9 +36,12 @@ Cloud<sup><small>9</small></sup>.  Before we begin, a few notes:</p>
 
 <ul>
 
-  <li>For writing these instructions I used Hadoop 0.17.0 and Sun's
+  <li>For writing these instructions I used Hadoop 0.17.2 and Sun's
   Java JDK 1.6.0_06 on Windows XP (with Cygwin).  However, these
-  instructions should be applicable to other operating systems.</li>
+  instructions should be applicable to other operating systems.  We're
+  a bit behind on the Hadoop release because this is the version that
+  the Google/IBM CLuE cluster is running, and it's nice to have
+  consistency across all our various Hadoop clusters.</li>
 
   <li><b>For Windows users:</b> If you are using Windows, you must
   use <a href="http://www.cygwin.com">Cygwin</a>, as the EC2 tools
@@ -121,35 +124,31 @@ Window &gt; Open Perspective &gt; Other &gt; SVN Repository
 Exploring.</p>
 
 <p>Add repository by right clicking on left panel &gt; New &gt;
-Repository Location. The two repositories you want to check out
-are:</p>
+Repository Location.  The repository location you want to add is:</p>
 
-<ul>
+<blockquote>
+<code>umd-hadoop-core</code>: <a href="https://subversion.umiacs.umd.edu/umd-hadoop/core">https://subversion.umiacs.umd.edu/umd-hadoop/core</a></li>
+</blockquote>
 
-  <li><code>umd-hadoop-dist</code>: <a href="https://subversion.umiacs.umd.edu/umd-hadoop/dist">https://subversion.umiacs.umd.edu/umd-hadoop/dist</a></li>
-
-  <li><code>umd-hadoop-core</code>: <a href="https://subversion.umiacs.umd.edu/umd-hadoop/core">https://subversion.umiacs.umd.edu/umd-hadoop/core</a></li>
-
-</ul>
-
-<p>For each repository, expand the tree.  You should see "branches",
-"tags", and "trunk".  Right click on trunk &gt; Checkout...  Follow
-dialog to check out repository.  When the checkout process is
-complete, open a shell and go to <code>umd-hadoop-dist/hadoop/</code>.
-Unpack the latest Hadoop 0.17.0 distribution:</p>
+<p>Once you've added the repository, expand the tree.  You should see
+"branches", "tags", and "trunk".  Right click on trunk &gt;
+Checkout...  Follow dialog to check out repository.  When the checkout
+process is complete, open a shell and go
+to <code>umd-hadoop-core/hadoop/</code>.  Unpack the latest Hadoop
+0.17.2 distribution:</p>
 
 <pre>
-$ tar xvfz hadoop-0.17.0.tar.gz
+$ tar xvfz hadoop-0.17.2.tar.gz
 </pre>
 
 <p>After Hadoop has been unpacked, go back to Eclipse, and switch back
-to the Java perspective.  You should have two new projects:
-<code>umd-hadoop-core</code> and <code>umd-hadoop-dist</code>.  If
-you're still getting errors, you might need to recompile the projects.
-Select menu option: Project &gt; Clean...</p>
+to the Java perspective.  You should have the project
+<code>umd-hadoop-core</code>.  If you're still getting errors, you
+might need to recompile the projects.  Select menu option: Project
+&gt; Clean...</p>
 
 <p>You'll note that Hadoop itself is checked in the
-repository <code>umd-hadoop-dist</code>.  This is intentional, to
+repository <code>umd-hadoop-core</code>.  This is intentional, to
 ensure everyone is using the same version of Hadoop (makes debugging
 easier).  In the future, newer versions can be seamlessly rolled out
 by checking in a newer version in Subversion and having everyone
@@ -175,7 +174,7 @@ regenerate.</p>
 consult <a href="http://wiki.apache.org/hadoop/AmazonEC2">Running
 Hadoop on Amazon EC2</a> for reference, but I'll summarize the
 instructions below.  To begin, make sure you're working with Hadoop
-0.17.0 and have the EC2 environment variables properly set (see
+0.17.2 and have the EC2 environment variables properly set (see
 previous step).  Note that all the Amazon tools begin
 with <code>ec2-</code>, which distinguishes them from tools bundle in
 the Hadoop distribution.</p>
@@ -197,8 +196,12 @@ IMAGE   ami-fe7c9997    radlab-hadoop-4-large/image.manifest.xml [...]
 IMAGE   ami-7f7f9a16    radlab-hadoop-4/image.manifest.xml [...]
 </pre>
 
+<p>Note that at the time these instructions were initially written,
+there was no AMI for Hadoop 0.17.2; 0.17.0 is the closet and will do
+just fine.</p>
+
 <p>Open the
-file <code>umd-hadoop-dist/hadoop/hadoop-0.17.0/src/contrib/ec2/bin/hadoop-ec2-env.sh</code>.
+file <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2/bin/hadoop-ec2-env.sh</code>.
 Fill in the following variables with information from you own account:</p>
 
 <ul>
@@ -226,7 +229,7 @@ containing spaces, which breaks some of the Hadoop EC2 scripts.</p>
 
 
 <p>Open a shell and go
-to <code>umd-hadoop-dist/hadoop/hadoop-0.17.0/src/contrib/ec2</code>.
+to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>.
 Launch a EC2 cluster and start Hadoop with the following command. You
 must supply a cluster name (test-cluster) and the number of slaves (2
 in my case). At this point, it makes no sense to start up a large
@@ -281,7 +284,7 @@ INSTANCE        i-cef22da7      ami-ee53b687    ec2-75-101-236-71.compute-1.amaz
 
 <p>Let's log into the cluster and poke around.  Open a shell on your
 local machine and go
-to <code>umd-hadoop-dist/hadoop/hadoop-0.17.0/src/contrib/ec2</code>.
+to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>.
 Log into the master:</p>
 
 <pre>
@@ -327,7 +330,7 @@ Found 2 items
 </pre>
 
 <p>Right now, not much, but we're going to put some stuff there.  Open
-a shell on your local machine and go to <code>umd-hadoop-dist/</code>.
+a shell on your local machine and go to <code>umd-hadoop-core/</code>.
 Now scp the sample data over to the master.</p>
 
 <pre>
@@ -502,7 +505,7 @@ redistribution of the blocks).</p>
 doesn't stop (i.e., the bill continues to accumulate, dime by dime)
 until you shut down your Hadoop cluster.  To do so, open a shell on
 your local machine and go
-to <code>umd-hadoop-dist/hadoop/hadoop-0.17.0/src/contrib/ec2</code>:</p>
+to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>:</p>
 
 <pre>
 $ bin/hadoop-ec2 terminate-cluster test-cluster
