@@ -18,11 +18,11 @@ import org.apache.hadoop.mapred.Reporter;
 
 public class DemoCountSpinn3rEnglishPosts {
 
-	protected static enum Languages {
+	private static enum Languages {
 		TOTAL, EN
 	};
 
-	public static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Spinn3rItem, LongWritable, Text> {
 		public void map(LongWritable key, Spinn3rItem item,
 				OutputCollector<LongWritable, Text> output, Reporter reporter) throws IOException {
@@ -35,7 +35,7 @@ public class DemoCountSpinn3rEnglishPosts {
 		}
 	}
 
-	protected DemoCountSpinn3rEnglishPosts() {
+	private DemoCountSpinn3rEnglishPosts() {
 	}
 
 	/**
