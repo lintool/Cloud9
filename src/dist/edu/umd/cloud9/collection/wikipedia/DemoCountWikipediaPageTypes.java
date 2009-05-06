@@ -16,7 +16,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-public class DemoWikipediaHadoop {
+public class DemoCountWikipediaPageTypes {
 
 	protected static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
@@ -46,7 +46,7 @@ public class DemoWikipediaHadoop {
 		}
 	}
 
-	protected DemoWikipediaHadoop() {
+	protected DemoCountWikipediaPageTypes() {
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class DemoWikipediaHadoop {
 		long r = System.currentTimeMillis();
 		String outputPath = "/tmp/" + r;
 
-		JobConf conf = new JobConf(DemoWikipediaHadoop.class);
+		JobConf conf = new JobConf(DemoCountWikipediaPageTypes.class);
 		conf.setJobName("wikipedia-demo");
 
 		conf.setNumMapTasks(mapTasks);
