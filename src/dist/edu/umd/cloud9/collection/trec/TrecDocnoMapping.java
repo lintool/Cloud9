@@ -13,9 +13,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
 
-public class TrecDocnoMapping {
+public class TrecDocnoMapping implements DocnoMapping {
 
 	private static final Logger sLogger = Logger.getLogger(TrecDocnoMapping.class);
 
@@ -69,10 +70,13 @@ public class TrecDocnoMapping {
 
 	static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
 		FSDataInputStream in = fs.open(p);
-		int sz = in.readInt();
-
+		
+		// docnos start at one, so we need an array that's one larger than
+		// number of docs
+		int sz = in.readInt() + 1;
 		String[] arr = new String[sz];
-		for (int i = 0; i < sz; i++) {
+		
+		for (int i = 1; i < sz; i++) {
 			arr[i] = in.readUTF();
 		}
 		in.close();
@@ -94,7 +98,7 @@ public class TrecDocnoMapping {
 		mapping.loadMapping(new Path(args[1]), fs);
 
 		if (args[0].equals("list")) {
-			for (int i = 0; i < mapping.mDocids.length; i++) {
+			for (int i = 1; i < mapping.mDocids.length; i++) {
 				System.out.println(i + "\t" + mapping.mDocids[i]);
 			}
 		} else if (args[0].equals("getDocno")) {
