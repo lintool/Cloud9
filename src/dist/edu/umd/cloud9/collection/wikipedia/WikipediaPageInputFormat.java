@@ -14,6 +14,9 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
+/**
+ * Hadoop InputFormat for processing Wikipedia pages from the XML dumps.
+ */
 public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
 
 	public void configure(JobConf conf) {
@@ -24,6 +27,9 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 		return new WikipediaPageRecordReader((FileSplit) inputSplit, conf);
 	}
 
+	/**
+	 * Hadoop RecordReader for reading Wikipedia pages from the XML dumps.
+	 */
 	public static class WikipediaPageRecordReader implements
 			RecordReader<LongWritable, WikipediaPage> {
 

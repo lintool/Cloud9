@@ -8,6 +8,9 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
+/**
+ * Object representing an Wikipedia page.
+ */
 public class WikipediaPage implements Indexable {
 	public static final String XML_START_TAG = "<page>";
 	public static final String XML_END_TAG = "</page>";
@@ -22,7 +25,7 @@ public class WikipediaPage implements Indexable {
 
 	public WikipediaPage() {
 	}
-	
+
 	public void write(DataOutput out) throws IOException {
 		byte[] bytes = mPage.getBytes();
 		WritableUtils.writeVInt(out, bytes.length);
@@ -39,11 +42,11 @@ public class WikipediaPage implements Indexable {
 	public String getDocid() {
 		return getTitle();
 	}
-	
+
 	public String getContent() {
 		return getTitle() + "\n" + getText();
 	}
-	
+
 	public String getRawXML() {
 		return mPage;
 	}
