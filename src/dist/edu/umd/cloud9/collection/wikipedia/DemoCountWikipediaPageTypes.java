@@ -68,7 +68,7 @@ public class DemoCountWikipediaPageTypes {
 		String outputPath = "/tmp/" + r;
 
 		JobConf conf = new JobConf(DemoCountWikipediaPageTypes.class);
-		conf.setJobName("wikipedia-demo");
+		conf.setJobName("DemoCountWikipediaPageTypes");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
