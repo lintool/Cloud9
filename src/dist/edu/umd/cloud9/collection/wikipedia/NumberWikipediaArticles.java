@@ -1,13 +1,8 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -24,8 +19,6 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
-import edu.umd.cloud9.util.FSLineReader;
-
 public class NumberWikipediaArticles {
 
 	protected static enum PageTypes {
@@ -35,8 +28,8 @@ public class NumberWikipediaArticles {
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
-		private final static Text mText = new Text();
-		private final static IntWritable mInt = new IntWritable(1);
+		private final static Text sText = new Text();
+		private final static IntWritable sInt = new IntWritable(1);
 
 		public void map(LongWritable key, WikipediaPage p,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
@@ -56,8 +49,8 @@ public class NumberWikipediaArticles {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
 
-				mText.set(p.getTitle());
-				output.collect(mText, mInt);
+				sText.set(p.getTitle());
+				output.collect(sText, sInt);
 			}
 		}
 	}
@@ -65,66 +58,20 @@ public class NumberWikipediaArticles {
 	private static class MyReducer extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
-		private final static IntWritable mCnt = new IntWritable(0);
+		private final static IntWritable sCnt = new IntWritable(1);
 
 		public void reduce(Text key, Iterator<IntWritable> values,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			output.collect(key, mCnt);
-			mCnt.set(mCnt.get() + 1);
+			output.collect(key, sCnt);
+			sCnt.set(sCnt.get() + 1);
 		}
 	}
 
 	private NumberWikipediaArticles() {
 	}
 
-	static public void writeArticleTitlesData(String input, String output) throws IOException {
-		System.out.println("Writing article titles to " + output);
-		FSLineReader reader = new FSLineReader(input);
-		List<String> list = new ArrayList<String>();
-
-		System.out.print("Reading " + input);
-		int cnt = 0;
-		Text line = new Text();
-		while (reader.readLine(line) > 0) {
-			String[] arr = line.toString().split("\\t");
-			list.add(arr[0]);
-			cnt++;
-			if (cnt % 100000 == 0) {
-				System.out.print(".");
-			}
-		}
-		reader.close();
-		System.out.print("Done!\n");
-
-		System.out.print("Writing " + output);
-		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(output), true);
-		out.writeInt(list.size());
-		for (int i = 0; i < list.size(); i++) {
-			out.writeUTF(list.get(i));
-			cnt++;
-			if (cnt % 100000 == 0) {
-				System.out.print(".");
-			}
-		}
-		out.close();
-		System.out.print("Done!\n");
-	}
-
-	static public String[] readArticleTitlesData(Path p, FileSystem fs) throws IOException {
-		FSDataInputStream in = fs.open(p);
-		int sz = in.readInt();
-
-		String[] arr = new String[sz];
-		for (int i = 0; i < sz; i++) {
-			arr[i] = in.readUTF();
-		}
-		in.close();
-
-		return arr;
-	}
-
 	/**
-	 * Runs the demo.
+	 * Runs the program.
 	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 4) {
@@ -142,7 +89,7 @@ public class NumberWikipediaArticles {
 		System.out.println("number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(NumberWikipediaArticles.class);
-		conf.setJobName("wikipedia-processing");
+		conf.setJobName("NumberWikipediaArticles");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(1);
@@ -164,6 +111,6 @@ public class NumberWikipediaArticles {
 
 		JobClient.runJob(conf);
 
-		NumberWikipediaArticles.writeArticleTitlesData(outputPath + "/part-00000", outputFile);
+		WikipediaDocnoMapping.writeArticleTitlesData(outputPath + "/part-00000", outputFile);
 	}
 }
