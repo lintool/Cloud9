@@ -85,6 +85,10 @@ public class WikipediaDocnoMapping implements DocnoMapping {
 		}
 		in.close();
 
+		// can't leave the zero'th entry null, or else we might get a null
+		// pointer exception during a binary search on the array
+		arr[0] = "";
+
 		return arr;
 	}
 
