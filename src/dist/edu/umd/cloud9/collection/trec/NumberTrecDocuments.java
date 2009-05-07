@@ -43,7 +43,7 @@ public class NumberTrecDocuments {
 	private static class MyReducer extends MapReduceBase implements
 			Reducer<Text, IntWritable, Text, IntWritable> {
 
-		private final static IntWritable sCnt = new IntWritable(0);
+		private final static IntWritable sCnt = new IntWritable(1);
 
 		public void reduce(Text key, Iterator<IntWritable> values,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
