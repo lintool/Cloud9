@@ -10,7 +10,7 @@ import org.apache.hadoop.io.WritableUtils;
 import edu.umd.cloud9.collection.Indexable;
 
 public class Aquaint2Document implements Indexable {
-	public static final String XML_START_TAG = "<DOC";
+	public static final String XML_START_TAG = "<DOC ";
 	public static final String XML_END_TAG = "</DOC>";
 
 	private String mRawDoc;
