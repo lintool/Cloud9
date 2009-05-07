@@ -70,16 +70,20 @@ public class TrecDocnoMapping implements DocnoMapping {
 
 	static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
 		FSDataInputStream in = fs.open(p);
-		
+
 		// docnos start at one, so we need an array that's one larger than
 		// number of docs
 		int sz = in.readInt() + 1;
 		String[] arr = new String[sz];
-		
+
 		for (int i = 1; i < sz; i++) {
 			arr[i] = in.readUTF();
 		}
 		in.close();
+
+		// can't leave the zero'th entry null, or else we might get a null
+		// pointer exception during a binary search on the array
+		arr[0] = "";
 
 		return arr;
 	}
