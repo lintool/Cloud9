@@ -91,10 +91,16 @@
 				<include name="**/*.java" />
 				<exclude name="**/*Test.java" />
 				<exclude name="**/benchmark/*.java" />
+				<exclude name="edu/cmu/**/*.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
 			<link href="../../hadoop/hadoop-0.17.2/docs/api" />
 		</javadoc>
+		<copy todir="${javadoc}">
+			<fileset dir="${src}/dist">
+                             <include name="edu/umd/cloud9/collection/trec/*.txt" />
+                        </fileset>
+		</copy>
 	</target>
 
 	<target name="scripts" depends="lib">
