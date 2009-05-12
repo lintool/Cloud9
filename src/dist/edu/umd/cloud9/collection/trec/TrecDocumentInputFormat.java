@@ -14,6 +14,9 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
+/**
+ * InputFormat for reading the TREC collection
+ */
 public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecDocument> {
 
 	public void configure(JobConf conf) {
@@ -24,6 +27,9 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		return new TrecDocumentRecordReader((FileSplit) inputSplit, conf);
 	}
 
+	/**
+	 * RecordReader for TREC-formatted documents
+	 */
 	public static class TrecDocumentRecordReader implements
 			RecordReader<LongWritable, TrecDocument> {
 

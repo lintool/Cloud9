@@ -16,6 +16,10 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
 
+/**
+ * Object that maps between TREC docids (String identifiers) to docnos
+ * (sequentially-numbered ints).
+ */
 public class TrecDocnoMapping implements DocnoMapping {
 
 	private static final Logger sLogger = Logger.getLogger(TrecDocnoMapping.class);

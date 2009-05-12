@@ -19,6 +19,20 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
+/**
+ * <p>
+ * Program that builds the mapping from TREC docids (String identifiers) to
+ * docnos (sequentially-numbered ints). Program takes four command-line
+ * arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[input-dir] path to the document collection
+ * <li>[output-dir] path to temporary MapReduce output directory
+ * <li>[output-file] path to location of mapping file
+ * <li>[num-mappers] number of mappers to run
+ * </ul>
+ */
 public class NumberTrecDocuments {
 
 	protected static enum Count {
@@ -55,9 +69,16 @@ public class NumberTrecDocuments {
 	private NumberTrecDocuments() {
 	}
 
+	/**
+	 * Runs the program
+	 * 
+	 * @param args
+	 *            command-line arguments
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 4) {
-			System.out.println("usage: [xml-dump] [output-dir] [output-file] [num-mappers]");
+			System.out.println("usage: [input-dir] [output-dir] [output-file] [num-mappers]");
 			System.exit(-1);
 		}
 
@@ -66,8 +87,9 @@ public class NumberTrecDocuments {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input: " + inputPath);
-		System.out.println("output: " + outputPath);
+		System.out.println("input dir: " + inputPath);
+		System.out.println("output dir: " + outputPath);
+		System.out.println("output file: " + outputFile);
 		System.out.println("number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(NumberTrecDocuments.class);

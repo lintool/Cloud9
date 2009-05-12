@@ -9,6 +9,9 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
+/**
+ * Object representing a TREC document
+ */
 public class TrecDocument implements Indexable {
 	public static final String XML_START_TAG = "<DOC>";
 	public static final String XML_END_TAG = "</DOC>";
