@@ -4,8 +4,65 @@
 </head>
 <body>
 
-Provides classes for working with TREC documents (particularly disks 4
-and 5, minus <i>Congressional Records</i>).
+<p>Provides classes for working with the TREC collection (particularly
+disks 4 and 5).  TREC disks 4 and 5 represent one of the standard
+collections used in information retrieval research.  There are two
+common "configurations" of the collection:</p>
+
+<ul>
+
+<li>TREC disks 4 and 5, minus CR (Congressional Record): a total of
+528,155 documents. <a href="files.vol4-5.no-cr.txt">A complete
+listing</a> of all files that comprise this configuration.</li>
+
+<li>TREC disks 4 and 5, minus CR (Congressional Record) and FR
+(Federal Register): a total of 472,525
+documents. <a href="files.vol4-5.no-crfr.txt">A complete listing</a>
+of all files that comprise this configuration.</li>
+
+</ul>
+
+<p>Here are the two steps for preparing the collection for processing
+with Hadoop:</p>
+
+<ol>
+
+  <li>The distribution of the collection consists of many individual
+  small files (listed above).  Since Hadoop works better with large
+  files, it is advisable to cat the individual files together (e.g.,
+  with a simple Perl script).</li>
+
+  <li>Since many information retrieval algorithms require a sequential
+  numbering of documents, it is necessary to build a mapping between
+  docids (e.g., <code>LA123190-0134</code>) and docnos (an int).  The
+  class <code><a href="NumberTrecDocuments.html">NumberTrecDocuments</a></code>
+  accomplishes this.  Here is a sample invocation:</li>
+
+<blockquote><pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
+/umd/collections/trec/trec4-5_noCR.xml \
+/user/jimmylin/trec-docid-tmp \
+/user/jimmylin/docno.mapping 100
+</pre></blockquote>
+
+</ol>
+
+<p>After the corpus has been prepared, it is ready for processing with
+Hadoop.  The
+class <code><a href="DemoCountTrecDocuments.html">DemoCountTrecDocuments</a></code>
+is a simple demo program that counts all documents in the collection.
+It provides a skeleton for MapReduce programs that process the
+collection.  Here is a sample invocation:</p>
+
+<blockquote><pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
+/umd/collections/trec/trec4-5_noCR.xml \
+/user/jimmylin/count-tmp \
+/user/jimmylin/docno.mapping 100
+</pre></blockquote>
+
+<p>The output key-value pairs in this sample program are the docid to
+docno mappings.</p>
 
 </body>
 </html>
