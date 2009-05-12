@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Working with standard document collections</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 11 May 2009; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>)
+</small>
+</p>
+
+<div class="main">
+
+<p>The Cloud<sup><small>9</small></sup> library contains APIs for
+working with many document collections that are frequently used in
+information retrieval experiments.  This article provides an overview
+of these APIs.</p>
+
+<p>The class <code>edu.umd.cloud9.collection.Indexable</code> is an
+interface that represents a generic document.
+An <code>Indexable</code> object has a docid, which is a
+globally-unique String identifier for the document in the collection.
+For many types of information retrieval algorithms, documents in the
+collection must be sequentially numbered; thus, each document in the
+collection must be assigned a unique integer identifier, which is its
+docno.  The interface
+<code>edu.umd.cloud9.collection.DocnoMapping</code> provides the
+generic API to managing these mappings.  The mappings are managed on a
+collection-specific basis.  Typically, however, the docid to docno
+mappings are stored in a mappings file, which is loaded into memory by
+concrete objects implementing this interface.</p>
+
+<p>APIs for working with specific collections are located in the
+package hierarchy under <code>edu.umd.cloud9.collection.*</code>; see
+documentation for each individual collection below:</p>
+
+<ul>
+
+<li><code><a href="../api/edu/umd/cloud9/collection/medline/package-summary.html">edu.umd.cloud9.collection.medline</a></code>:
+MEDLINE citations (particularly, for the TREC 2004/2005 genomics
+tracks)</li>
+
+<li><code><a href="../api/edu/umd/cloud9/collection/trec/package-summary.html">edu.umd.cloud9.collection.trec</a></code>:
+the TREC collection, particularly disks 4 and 5</li>
+
+<li><code><a href="../api/edu/umd/cloud9/collection/wikipedia/package-summary.html">edu.umd.cloud9.collection.wikipedia</a></code>:
+Wikipedia XML dumps</li>
+
+</ul>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main
+page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>
