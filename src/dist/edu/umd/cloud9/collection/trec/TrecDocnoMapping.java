@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
@@ -17,14 +33,34 @@ import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
 
 /**
+ * <p>
  * Object that maps between TREC docids (String identifiers) to docnos
  * (sequentially-numbered ints).
+ * </p>
+ * 
+ * <p>
+ * The <code>main</code> of this class provides a simple program for accessing
+ * docno mappings. Command-line arguments are as follows:
+ * </p>
+ * 
+ * <ul>
+ * <li>list, getDocno, getDocid: the command&mdash;list all mappings; get docno
+ * from docid; or, get docid from docno</li>
+ * <li>[mappings-file]: the mappings file</li>
+ * <li>[docid/docno]: the docid or docno (optional)</li>
+ * </ul>
  */
 public class TrecDocnoMapping implements DocnoMapping {
 
 	private static final Logger sLogger = Logger.getLogger(TrecDocnoMapping.class);
 
 	private String[] mDocids;
+
+	/**
+	 * Creates a TrecDocnoMapping object
+	 */
+	public TrecDocnoMapping() {
+	}
 
 	public int getDocno(String docid) {
 		return Arrays.binarySearch(mDocids, docid);
@@ -38,12 +74,23 @@ public class TrecDocnoMapping implements DocnoMapping {
 		mDocids = TrecDocnoMapping.readDocnoData(p, fs);
 	}
 
-	static public void writeDocnoData(String input, String output) throws IOException {
-		sLogger.info("Writing docno data to " + output);
-		FSLineReader reader = new FSLineReader(input);
+	/**
+	 * Creates a mappings file from the contents of a flat text file containing
+	 * docid to docno mappings. This method is used by
+	 * {@link NumberTrecDocuments} internally.
+	 * 
+	 * @param inputFile
+	 *            flat text file containing doid to docno mappings
+	 * @param outputFile
+	 *            output mappings file
+	 * @throws IOException
+	 */
+	static public void writeDocnoData(String inputFile, String outputFile) throws IOException {
+		sLogger.info("Writing docno data to " + outputFile);
+		FSLineReader reader = new FSLineReader(inputFile);
 		List<String> list = new ArrayList<String>();
 
-		sLogger.info("Reading " + input);
+		sLogger.info("Reading " + inputFile);
 		int cnt = 0;
 		Text line = new Text();
 		while (reader.readLine(line) > 0) {
@@ -58,8 +105,9 @@ public class TrecDocnoMapping implements DocnoMapping {
 		sLogger.info(cnt + " docs total. Done!");
 
 		cnt = 0;
-		sLogger.info("Writing " + output);
-		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(output), true);
+		sLogger.info("Writing " + outputFile);
+		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(outputFile),
+				true);
 		out.writeInt(list.size());
 		for (int i = 0; i < list.size(); i++) {
 			out.writeUTF(list.get(i));
@@ -72,6 +120,16 @@ public class TrecDocnoMapping implements DocnoMapping {
 		sLogger.info(cnt + " docs total. Done!");
 	}
 
+	/**
+	 * Reads a mappings files into memory.
+	 * 
+	 * @param p
+	 *            path to the mappings file
+	 * @param fs
+	 *            appropriate FileSystem
+	 * @return an array of docids; the index position of each docid is its docno
+	 * @throws IOException
+	 */
 	static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
 		FSDataInputStream in = fs.open(p);
 
@@ -92,6 +150,13 @@ public class TrecDocnoMapping implements DocnoMapping {
 		return arr;
 	}
 
+	/**
+	 * Simple program the provides access to the docno/docid mappings.
+	 * 
+	 * @param args
+	 *            command-line arguments
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length < 2) {
 			System.out.println("usage: (list|getDocno|getDocid) [mapping-file] [docid/docno]");
@@ -126,8 +191,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 			}
 		} else {
 			System.out.println("Invalid command!");
-			System.out.println("usage: (list|getDocno|getDocid) [mapping-file] [docid/docno]");
+			System.out.println("usage: (list|getDocno|getDocid) [mappings-file] [docid/docno]");
 		}
 	}
-
 }

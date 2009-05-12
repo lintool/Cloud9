@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
@@ -22,7 +38,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 /**
  * <p>
  * Program that builds the mapping from TREC docids (String identifiers) to
- * docnos (sequentially-numbered ints). Program takes four command-line
+ * docnos (sequentially-numbered ints). The program takes four command-line
  * arguments:
  * </p>
  * 
@@ -32,6 +48,22 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * <li>[output-file] path to location of mapping file
  * <li>[num-mappers] number of mappers to run
  * </ul>
+ * 
+ * <p>
+ * Here's a sample invocation:
+ * </p>
+ * 
+ * <blockquote>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
+ * /umd/collections/trec/trec4-5_noCR.xml \
+ * /user/jimmylin/trec-docid-tmp \
+ * /user/jimmylin/docno.mapping 100
+ * </pre>
+ * 
+ * </blockquote>
+ * 
  */
 public class NumberTrecDocuments {
 
