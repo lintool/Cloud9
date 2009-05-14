@@ -70,6 +70,7 @@ import org.apache.hadoop.io.WritableComparable;
  * @see HashMapWritable
  * @see Schema
  * 
+ * @author Jimmy Lin
  */
 public class Tuple implements WritableComparable {
 

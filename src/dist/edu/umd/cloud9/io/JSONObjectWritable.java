@@ -11,6 +11,8 @@ import org.json.JSONTokener;
 
 /**
  * Writable representing a JSON Object.
+ * 
+ * @author Jimmy Lin
  */
 public class JSONObjectWritable extends JSONObject implements Writable {
 

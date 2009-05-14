@@ -30,6 +30,8 @@ import org.apache.hadoop.io.WritableComparator;
  * right element (the integer). The natural sort order is: first by the left
  * element, and then by the right element.
  * </p>
+ * 
+ * @author Jimmy Lin
  */
 public class PairOfFloatInt implements WritableComparable {
 	private float leftElement;

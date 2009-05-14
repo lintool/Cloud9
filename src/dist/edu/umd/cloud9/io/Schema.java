@@ -63,6 +63,7 @@ import org.apache.hadoop.io.Writable;
  * href="http://prefuse.org/">Prefuse Visualization Toolkit</a>.
  * </p>
  * 
+ * @author Jimmy Lin
  */
 public class Schema implements Cloneable {
 
@@ -111,8 +112,7 @@ public class Schema implements Cloneable {
 
 		// check the schema validity
 		if (names.length != types.length) {
-			throw new IllegalArgumentException(
-					"Input arrays should be the same length");
+			throw new IllegalArgumentException("Input arrays should be the same length");
 		}
 		for (int i = 0; i < names.length; ++i) {
 			addField(names[i], types[i], null);
@@ -135,8 +135,7 @@ public class Schema implements Cloneable {
 
 		// check the schema validity
 		if (names.length != types.length || types.length != defaults.length) {
-			throw new IllegalArgumentException(
-					"Input arrays should be the same length");
+			throw new IllegalArgumentException("Input arrays should be the same length");
 		}
 		for (int i = 0; i < names.length; ++i) {
 			addField(names[i], types[i], defaults[i]);
@@ -219,33 +218,27 @@ public class Schema implements Cloneable {
 	 *             this schema.
 	 */
 	public void addField(String name, Class<?> type, Object defaultValue) {
-		if (!(type == Integer.class || type == Boolean.class
-				|| type == Long.class || type == Float.class
-				|| type == Double.class || type == String.class || (!type
+		if (!(type == Integer.class || type == Boolean.class || type == Long.class
+				|| type == Float.class || type == Double.class || type == String.class || (!type
 				.isInterface() && Writable.class.isAssignableFrom(type)))) {
-			throw new SchemaException("Illegal field type: "
-					+ type.getCanonicalName());
+			throw new SchemaException("Illegal field type: " + type.getCanonicalName());
 		}
 
 		// check lock status
 		if (mLocked) {
-			throw new IllegalStateException(
-					"Can not add column to a locked Schema.");
+			throw new IllegalStateException("Can not add column to a locked Schema.");
 		}
 		// check for validity
 		if (name == null) {
-			throw new IllegalArgumentException(
-					"Null column names are not allowed.");
+			throw new IllegalArgumentException("Null column names are not allowed.");
 		}
 		if (type == null) {
-			throw new IllegalArgumentException(
-					"Null column types are not allowed.");
+			throw new IllegalArgumentException("Null column types are not allowed.");
 		}
 		for (int i = 0; i < mFieldCount; ++i) {
 			if (mFieldNames[i].equals(name)) {
-				throw new IllegalArgumentException(
-						"Duplicate column names are not allowed: "
-								+ mFieldNames[i]);
+				throw new IllegalArgumentException("Duplicate column names are not allowed: "
+						+ mFieldNames[i]);
 			}
 		}
 
@@ -365,8 +358,7 @@ public class Schema implements Cloneable {
 	public void setDefault(int index, Object val) {
 		// check lock status
 		if (mLocked) {
-			throw new IllegalStateException(
-					"Can not update default values of a locked Schema.");
+			throw new IllegalStateException("Can not update default values of a locked Schema.");
 		}
 		mDefaultValues[index] = val;
 	}
@@ -382,8 +374,7 @@ public class Schema implements Cloneable {
 	public void setDefault(String field, Object val) {
 		// check lock status
 		if (mLocked) {
-			throw new IllegalStateException(
-					"Can not update default values of a locked Schema.");
+			throw new IllegalStateException("Can not update default values of a locked Schema.");
 		}
 		int idx = getFieldIndex(field);
 		mDefaultValues[idx] = val;
@@ -465,8 +456,8 @@ public class Schema implements Cloneable {
 
 		for (int i = 0; i < mFieldCount; ++i) {
 			if (!(mFieldNames[i].equals(s.getFieldName(i))
-					&& mFieldTypes[i].equals(s.getFieldType(i)) && mDefaultValues[i]
-					.equals(s.getDefault(i)))) {
+					&& mFieldTypes[i].equals(s.getFieldType(i)) && mDefaultValues[i].equals(s
+					.getDefault(i)))) {
 				return false;
 			}
 		}

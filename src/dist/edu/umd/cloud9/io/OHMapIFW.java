@@ -28,6 +28,8 @@ import edu.umd.cloud9.util.OHMapIF;
  * {@link #getValues()} methods, respectively. The map can be subsequently
  * populated with the {@link #decode()} method.
  * </p>
+ * 
+ * @author Jimmy Lin
  */
 public class OHMapIFW extends OHMapIF implements Writable {
 

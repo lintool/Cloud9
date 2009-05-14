@@ -64,6 +64,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * 
  * </blockquote>
  * 
+ * @author Jimmy Lin
  */
 public class NumberTrecDocuments {
 

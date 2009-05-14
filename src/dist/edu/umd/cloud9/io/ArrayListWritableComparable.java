@@ -34,6 +34,9 @@ import org.apache.hadoop.io.WritableComparable;
  * @see Tuple
  * @param <E>
  *            type of list element
+ * 
+ * @author Jimmy Lin
+ * @author Tamer Elsayed
  */
 
 public class ArrayListWritableComparable<E extends WritableComparable> extends ArrayList<E>

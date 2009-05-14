@@ -18,6 +18,8 @@ package edu.umd.cloud9.io;
 
 /**
  * Exception for Schema-related errors.
+ * 
+ * @author Jimmy Lin
  */
 public class SchemaException extends RuntimeException {
 	public static final long serialVersionUID = 2673497691l;

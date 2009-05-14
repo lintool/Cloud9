@@ -13,6 +13,8 @@ import org.apache.hadoop.io.WritableComparable;
  * natural sort order is: first by the left element, and then by the right
  * element.
  * </p>
+ * 
+ * @author Jimmy Lin
  */
 public class PairOfStringInt implements WritableComparable {
 

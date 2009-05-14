@@ -49,6 +49,8 @@ import edu.umd.cloud9.util.FSLineReader;
  * <li>[mappings-file]: the mappings file</li>
  * <li>[docid/docno]: the docid or docno (optional)</li>
  * </ul>
+ * 
+ * @author Jimmy Lin
  */
 public class TrecDocnoMapping implements DocnoMapping {
 

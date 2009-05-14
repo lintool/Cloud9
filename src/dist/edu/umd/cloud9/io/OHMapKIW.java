@@ -16,6 +16,8 @@ import edu.umd.cloud9.util.OHMapKI;
  * 
  * @param <K>
  *            type of key
+ * 
+ * @author Jimmy Lin
  */
 public class OHMapKIW<K extends WritableComparable> extends OHMapKI<K> implements Writable {
 

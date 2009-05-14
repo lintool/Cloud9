@@ -16,6 +16,8 @@ import edu.umd.cloud9.util.OHMapKF;
  * 
  * @param <K>
  *            type of key
+ *            
+ * @author Jimmy Lin
  */
 public class OHMapKFW<K extends WritableComparable> extends OHMapKF<K> implements Writable {
 

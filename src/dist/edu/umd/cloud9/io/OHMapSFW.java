@@ -13,6 +13,8 @@ import edu.umd.cloud9.util.OHMapKF;
  * Writable representing a map where keys are Strings and values are floats.
  * This class is specialized for String objects to avoid the overhead that comes
  * with wrapping Strings inside <code>Text</code> objects.
+ * 
+ * @author Jimmy Lin
  */
 public class OHMapSFW extends OHMapKF<String> implements Writable {
 

@@ -32,6 +32,8 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
  * Hadoop InputFormat for processing the TREC collection.
+ * 
+ * @author Jimmy Lin
  */
 public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecDocument> {
 

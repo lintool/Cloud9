@@ -65,6 +65,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * 
  * </blockquote>
  * 
+ * @author Jimmy Lin
  */
 public class DemoCountTrecDocuments {
 

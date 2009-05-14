@@ -34,6 +34,9 @@ import org.apache.hadoop.io.Writable;
  * @see Tuple
  * @param <E>
  *            type of list element
+ * 
+ * @author Jimmy Lin
+ * @author Tamer Elsayed
  */
 
 public class ArrayListWritable<E extends Writable> extends ArrayList<E> implements Writable {

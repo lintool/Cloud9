@@ -55,6 +55,9 @@ import org.apache.hadoop.io.Writable;
  *            type of the key
  * @param <V>
  *            type of the value
+ * 
+ * @author Jimmy Lin
+ * @author Tamer Elsayed
  */
 public class HashMapWritable<K extends Writable, V extends Writable> extends HashMap<K, V>
 		implements Writable {

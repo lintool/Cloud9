@@ -27,6 +27,8 @@ import edu.umd.cloud9.collection.Indexable;
 
 /**
  * Object representing a TREC document.
+ * 
+ * @author Jimmy Lin
  */
 public class TrecDocument implements Indexable {
 
