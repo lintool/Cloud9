@@ -56,7 +56,7 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		private LongWritable mLong = new LongWritable();
 
 		/**
-		 * Creates a TrecDocumentRecordReader.
+		 * Creates a <code>TrecDocumentRecordReader</code>.
 		 */
 		public TrecDocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
 			conf.set(XMLInputFormat.START_TAG_KEY, TrecDocument.XML_START_TAG);
@@ -66,7 +66,7 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		}
 
 		/**
-		 * Returns the next key-value pair.
+		 * Reads the next key-value pair.
 		 */
 		public boolean next(LongWritable key, TrecDocument value) throws IOException {
 			if (mReader.next(mLong, mText) == false)

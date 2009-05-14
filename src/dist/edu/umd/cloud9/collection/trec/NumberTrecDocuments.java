@@ -43,9 +43,9 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * </p>
  * 
  * <ul>
- * <li>[input-dir] path to the document collection
+ * <li>[input] path to the document collection
  * <li>[output-dir] path to temporary MapReduce output directory
- * <li>[output-file] path to location of mapping file
+ * <li>[output-file] path to location of mappings file
  * <li>[num-mappers] number of mappers to run
  * </ul>
  * 
@@ -111,7 +111,7 @@ public class NumberTrecDocuments {
 	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 4) {
-			System.out.println("usage: [input-dir] [output-dir] [output-file] [num-mappers]");
+			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
 			System.exit(-1);
 		}
 

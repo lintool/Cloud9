@@ -38,13 +38,14 @@ import org.apache.hadoop.mapred.Reporter;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
+ * <p>
  * Simple demo program that counts all the documents in the TREC collection.
- * This provides a skeleton for MapReduce programs that process the collection.
+ * This provides a skeleton for MapReduce programs to process the collection.
  * The program takes four command-line arguments:
  * </p>
  * 
  * <ul>
- * <li>[input-dir] path to the document collection
+ * <li>[input] path to the document collection
  * <li>[output-dir] path to the output directory
  * <li>[mappings-file] path to the mappings file
  * <li>[num-mappers] number of mappers to run
@@ -117,7 +118,7 @@ public class DemoCountTrecDocuments {
 	 */
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		if (args.length != 4) {
-			System.out.println("usage: [input-dir] [output-dir] [mappings-file] [num-mappers]");
+			System.out.println("usage: [input] [output-dir] [mappings-file] [num-mappers]");
 			System.exit(-1);
 		}
 

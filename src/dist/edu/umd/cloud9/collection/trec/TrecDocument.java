@@ -49,7 +49,7 @@ public class TrecDocument implements Indexable {
 	private static Pattern sTags = Pattern.compile("<[^>]+>");
 
 	/**
-	 * Creates a TrecDocument object.
+	 * Creates an empty <code>TrecDocument</code> object.
 	 */
 	public TrecDocument() {
 	}
@@ -115,10 +115,10 @@ public class TrecDocument implements Indexable {
 	}
 
 	/**
-	 * Reads a raw XML string into a TrecDocument object.
+	 * Reads a raw XML string into a <code>TrecDocument</code> object.
 	 * 
 	 * @param doc
-	 *            the TrecDocument object
+	 *            the <code>TrecDocument</code> object
 	 * @param s
 	 *            raw XML string
 	 */

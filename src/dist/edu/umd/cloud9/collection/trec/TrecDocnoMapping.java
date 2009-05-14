@@ -59,7 +59,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 	private String[] mDocids;
 
 	/**
-	 * Creates a TrecDocnoMapping object
+	 * Creates a <code>TrecDocnoMapping</code> object
 	 */
 	public TrecDocnoMapping() {
 	}
@@ -82,7 +82,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 	 * {@link NumberTrecDocuments} internally.
 	 * 
 	 * @param inputFile
-	 *            flat text file containing doid to docno mappings
+	 *            flat text file containing docid to docno mappings
 	 * @param outputFile
 	 *            output mappings file
 	 * @throws IOException
@@ -123,7 +123,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 	}
 
 	/**
-	 * Reads a mappings files into memory.
+	 * Reads a mappings file into memory.
 	 * 
 	 * @param p
 	 *            path to the mappings file
