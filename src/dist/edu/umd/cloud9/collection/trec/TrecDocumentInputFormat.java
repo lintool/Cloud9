@@ -31,14 +31,14 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop InputFormat for processing the TREC collection.
+ * Hadoop <code>InputFormat</code> for processing the TREC collection.
  * 
  * @author Jimmy Lin
  */
 public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecDocument> {
 
 	/**
-	 * Returns a RecordReader for this InputFormat.
+	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
 	 */
 	public RecordReader<LongWritable, TrecDocument> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
@@ -46,7 +46,7 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 	}
 
 	/**
-	 * Hadoop RecordReader for reading TREC-formatted documents
+	 * Hadoop <code>RecordReader</code> for reading TREC-formatted documents.
 	 */
 	public static class TrecDocumentRecordReader implements
 			RecordReader<LongWritable, TrecDocument> {

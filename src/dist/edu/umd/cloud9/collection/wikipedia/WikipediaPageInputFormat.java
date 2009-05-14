@@ -31,14 +31,15 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop InputFormat for processing Wikipedia pages from the XML dumps.
+ * Hadoop <code>InputFormat</code> for processing Wikipedia pages from the XML
+ * dumps.
  * 
  * @author Jimmy Lin
  */
 public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
 
 	/**
-	 * Returns a RecordReader for this InputFormat.
+	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
 	 */
 	public RecordReader<LongWritable, WikipediaPage> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
@@ -46,7 +47,8 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 	}
 
 	/**
-	 * Hadoop RecordReader for reading Wikipedia pages from the XML dumps.
+	 * Hadoop <code>RecordReader</code> for reading Wikipedia pages from the
+	 * XML dumps.
 	 */
 	public static class WikipediaPageRecordReader implements
 			RecordReader<LongWritable, WikipediaPage> {
