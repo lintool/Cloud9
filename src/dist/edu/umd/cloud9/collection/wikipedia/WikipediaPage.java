@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.DataInput;
@@ -10,9 +26,19 @@ import edu.umd.cloud9.collection.Indexable;
 
 /**
  * Object representing an Wikipedia page.
+ * 
+ * @author Jimmy Lin
  */
 public class WikipediaPage implements Indexable {
+
+	/**
+	 * Start delimiter of the page, which is &lt;<code>page</code>&gt;.
+	 */
 	public static final String XML_START_TAG = "<page>";
+
+	/**
+	 * End delimiter of the page, which is &lt;<code>/page</code>&gt;.
+	 */
 	public static final String XML_END_TAG = "</page>";
 
 	private String mPage;
@@ -23,15 +49,24 @@ public class WikipediaPage implements Indexable {
 	private boolean mIsDisambig;
 	private boolean mIsStub;
 
+	/**
+	 * Creates an empty <code>WikipediaPage</code> object.
+	 */
 	public WikipediaPage() {
 	}
 
+	/**
+	 * Deserializes this object.
+	 */
 	public void write(DataOutput out) throws IOException {
 		byte[] bytes = mPage.getBytes();
 		WritableUtils.writeVInt(out, bytes.length);
 		out.write(bytes, 0, bytes.length);
 	}
 
+	/**
+	 * Serializes this object.
+	 */
 	public void readFields(DataInput in) throws IOException {
 		int length = WritableUtils.readVInt(in);
 		byte[] bytes = new byte[length];
@@ -39,18 +74,30 @@ public class WikipediaPage implements Indexable {
 		WikipediaPage.readPage(this, new String(bytes));
 	}
 
+	/**
+	 * Returns the article title (i.e., the docid).
+	 */
 	public String getDocid() {
 		return getTitle();
 	}
 
+	/**
+	 * Returns the contents of this page (title + text).
+	 */
 	public String getContent() {
 		return getTitle() + "\n" + getText();
 	}
 
+	/**
+	 * Returns the raw XML of this page.
+	 */
 	public String getRawXML() {
 		return mPage;
 	}
 
+	/**
+	 * Returns the text of this page.
+	 */
 	public String getText() {
 		if (mTextStart == -1)
 			return null;
@@ -58,6 +105,9 @@ public class WikipediaPage implements Indexable {
 		return mPage.substring(mTextStart + 27, mTextEnd);
 	}
 
+	/**
+	 * Returns the title of this page.
+	 */
 	public String getTitle() {
 		return mTitle;
 	}
@@ -67,7 +117,7 @@ public class WikipediaPage implements Indexable {
 	 * <code>WikipediaPage</code> is either an article, a disambiguation page,
 	 * a redirect page, or an empty page.
 	 * 
-	 * @return true if this page is a disambiguation page
+	 * @return <code>true</code> if this page is a disambiguation page
 	 */
 	public boolean isDisambiguation() {
 		return mIsDisambig;
@@ -78,7 +128,7 @@ public class WikipediaPage implements Indexable {
 	 * <code>WikipediaPage</code> is either an article, a disambiguation page,
 	 * a redirect page, or an empty page.
 	 * 
-	 * @return true if this page is a redirect page
+	 * @return <code>true</code> if this page is a redirect page
 	 */
 	public boolean isRedirect() {
 		return mIsRedirect;
@@ -89,7 +139,7 @@ public class WikipediaPage implements Indexable {
 	 * is either an article, a disambiguation page, a redirect page, or an empty
 	 * page.
 	 * 
-	 * @return true if this page is an empty page
+	 * @return <code>true</code> if this page is an empty page
 	 */
 	public boolean isEmpty() {
 		return mTextStart == -1;
@@ -100,12 +150,20 @@ public class WikipediaPage implements Indexable {
 	 * if this page isn't a disambiguation page, a redirect page, or an empty
 	 * page.
 	 * 
-	 * @return true if this article is a stub
+	 * @return <code>true</code> if this article is a stub
 	 */
 	public boolean isStub() {
 		return mIsStub;
 	}
 
+	/**
+	 * Returns the inter-language link to a specific language (if any).
+	 * 
+	 * @param lang
+	 *            language
+	 * @return title of the article in the foreign language if link exists,
+	 *         <code>null</code> otherwise
+	 */
 	public String findInterlanguageLink(String lang) {
 		int start = mPage.indexOf("[[" + lang + ":");
 
@@ -135,6 +193,14 @@ public class WikipediaPage implements Indexable {
 		return link;
 	}
 
+	/**
+	 * Reads a raw XML string into a <code>WikipediaPage</code> object.
+	 * 
+	 * @param page
+	 *            the <code>WikipediaPage</code> object
+	 * @param s
+	 *            raw XML string
+	 */
 	public static void readPage(WikipediaPage page, String s) {
 		page.mPage = s;
 

@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
@@ -19,6 +35,37 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 
+/**
+ * <p>
+ * Program that builds the mapping from Wikipedia article titles (docids) to
+ * sequentially-numbered ints (docnos). The program takes four command-line
+ * arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[input] path to the Wikipedia XML dump file
+ * <li>[output-dir] path to temporary MapReduce output directory
+ * <li>[output-file] path to location of mappings file
+ * <li>[num-mappers] number of mappers to run
+ * </ul>
+ * 
+ * <p>
+ * Here's a sample invocation:
+ * </p>
+ * 
+ * <blockquote>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.NumberWikipediaArticles \
+ * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
+ * /user/jimmylin/wikipedia-docid-tmp \
+ * /user/jimmylin/docno.mapping 100 *
+ * </pre>
+ * 
+ * </blockquote>
+ * 
+ * @author Jimmy Lin
+ */
 public class NumberWikipediaArticles {
 
 	protected static enum PageTypes {
@@ -71,11 +118,15 @@ public class NumberWikipediaArticles {
 	}
 
 	/**
-	 * Runs the program.
+	 * Runs the program
+	 * 
+	 * @param args
+	 *            command-line arguments
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 4) {
-			System.out.println("usage: [xml-dump] [output-dir] [output-file] [num-mappers]");
+			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
 			System.exit(-1);
 
 		}
