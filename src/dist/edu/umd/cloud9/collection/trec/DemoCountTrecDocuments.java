@@ -83,8 +83,14 @@ public class DemoCountTrecDocuments {
 			try {
 				Path[] localFiles = DistributedCache.getLocalCacheFiles(job);
 
+				// instead of hard-coding the actual concrete DocnoMapping
+				// class, have the name of the class passed in as a property;
+				// this makes the mapper more general
 				mDocMapping = (DocnoMapping) Class.forName(job.get("DocnoMappingClass"))
 						.newInstance();
+
+				// simply assume that the mappings file is the only file in the
+				// distributed cache
 				mDocMapping.loadMapping(localFiles[0], FileSystem.getLocal(job));
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -130,8 +136,13 @@ public class DemoCountTrecDocuments {
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
+		// pass in the class name as a String; this is makes the mapper general
+		// in being able to load any collection of Indexable objects that has
+		// docid/docno mapping specified by a DocnoMapping object
 		conf.set("DocnoMappingClass", "edu.umd.cloud9.collection.trec.TrecDocnoMapping");
 
+		// put the mapping file in the distributed cache so each map worker will
+		// have it
 		DistributedCache.addCacheFile(new URI(mappingFile), conf);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
