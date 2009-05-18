@@ -37,176 +37,90 @@ package edu.umd.cloud9.collection.clue;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MultiFileSplit;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.ReflectionUtils;
 
 public class ClueWarcInputFormat extends FileInputFormat<LongWritable, ClueWarcRecord> {
 
-  /**
-   * Don't allow the files to be split!
-   */
-  @Override
-  protected boolean isSplitable(FileSystem fs, Path filename) {
-    // ensure the input files are not splittable!
-    return false;
-  }
-
-  /**
-   * Just return the record reader
-   */
-  public RecordReader<LongWritable, ClueWarcRecord> getRecordReader(InputSplit split, JobConf conf, Reporter reporter) throws IOException {
-    return new ClueWarcRecordReader(conf, split);
-  }
-  
-  public static class ClueWarcRecordReader implements RecordReader<LongWritable, ClueWarcRecord> {
-	  public static final Log LOG = LogFactory.getLog(ClueWarcRecordReader.class);
-
-	  private long recordNumber=1;
-
-	  private Path[] filePathList=null;
-	  private int currentFilePath=-1;
-
-	  private FSDataInputStream currentFile=null;
-	  private CompressionCodec compressionCodec=null;
-	  private DataInputStream compressionInput=null;
-	  private FileSystem fs=null;
-	  private long totalFileSize=0;
-	  private long totalNumBytesRead=0;
-
-	  public ClueWarcRecordReader(Configuration conf, InputSplit split) throws IOException {
-	    this.fs = FileSystem.get(conf);
-	    if (split instanceof FileSplit) {
-	      this.filePathList=new Path[1];
-	      this.filePathList[0]=((FileSplit)split).getPath();
-	    } else if (split instanceof MultiFileSplit) {
-	      this.filePathList=((MultiFileSplit)split).getPaths();
-	    } else {
-	      throw new IOException("InputSplit is not a file split or a multi-file split - aborting");
-	    }
-
-	    // get the total file sizes
-	    for (int i=0; i < filePathList.length; i++) {
-	      totalFileSize += fs.getFileStatus(filePathList[i]).getLen();
-	    }
-
-	    Class<? extends CompressionCodec> codecClass=null;
-
-	    try {
-	      codecClass=conf.getClassByName("org.apache.hadoop.io.compress.GzipCodec").asSubclass(CompressionCodec.class);
-	      compressionCodec=(CompressionCodec)ReflectionUtils.newInstance(codecClass, conf);
-	    } catch (ClassNotFoundException cnfEx) {
-	      compressionCodec=null;
-	      LOG.info("!!! ClassNotFoun Exception thrown setting Gzip codec");
-	    }
-
-	    openNextFile();
-	  }
-
-	  private boolean openNextFile() {
-	    try {
-	      if (compressionInput!=null) {
-	        compressionInput.close();
-	      } else if (currentFile!=null) {
-	        currentFile.close();
-	      }
-	      currentFile=null;
-	      compressionInput=null;
-
-	      currentFilePath++;
-	      if (currentFilePath >= filePathList.length) { return false; }
-
-	      currentFile=this.fs.open(filePathList[currentFilePath]);
-
-	      // is the file gzipped?
-	      if ((compressionCodec!=null) && (filePathList[currentFilePath].getName().endsWith("gz"))) {
-	        compressionInput=new DataInputStream(compressionCodec.createInputStream(currentFile));
-	        LOG.info("Compression enabled");
-	      }
-
-	    } catch (IOException ex) {
-	      LOG.info("IOError opening " + filePathList[currentFilePath].toString() + " - message: " + ex.getMessage());
-	      return false;
-	    }
-	    return true;
-	  }
-
-	  public boolean next(LongWritable key, ClueWarcRecord value) throws IOException {
-	    DataInputStream whichStream=null;
-	    if (compressionInput!=null) {
-	      whichStream=compressionInput;
-	    } else if (currentFile!=null) {
-	      whichStream=currentFile;
-	    }
-
-	    if (whichStream==null) { return false; }
-
-	    ClueWarcRecord newRecord=ClueWarcRecord.readNextWarcRecord(whichStream);
-	    if (newRecord==null) {
-	      // try advancing the file
-	      if (openNextFile()) {
-	        newRecord=ClueWarcRecord.readNextWarcRecord(whichStream);
-	      }
-
-	      if (newRecord==null) { return false; }
-	    }
-
-	    totalNumBytesRead += (long)newRecord.getTotalRecordLength();
-	    newRecord.setWarcFilePath(filePathList[currentFilePath].toString());
-
-	    // now, set our output variables
-	    value.set(newRecord);
-	    key.set(recordNumber);
-
-	    recordNumber++;
-	    return true;
-	  }
-
-	  public LongWritable createKey() {
-	    return new LongWritable();
-	  }
-
-	  public ClueWarcRecord createValue() {
-	    return new ClueWarcRecord();
-	  }
-
-	  public long getPos() throws IOException {
-	    return totalNumBytesRead;
-	  }
-
-	  public void close() throws IOException {
-	    totalNumBytesRead=totalFileSize;
-	    if (compressionInput!=null) {
-	      compressionInput.close();
-	    } else if (currentFile!=null) {
-	      currentFile.close();
-	    }
-	  }
-
-	  public float getProgress() throws IOException {
-	    if (compressionInput!=null) {
-	      if (filePathList.length==0) { return 1.0f; }
-	      // return which file - can't do extact byte matching
-	      return (float)currentFilePath / (float)(filePathList.length);
-	    }
-	    if (totalFileSize==0) { return 0.0f; }
-	    return (float)totalNumBytesRead/(float)totalFileSize;
-	  }
-
+	/**
+	 * Don't allow the files to be split!
+	 */
+	@Override
+	protected boolean isSplitable(FileSystem fs, Path filename) {
+		// ensure the input files are not splittable!
+		return false;
 	}
 
-}
+	/**
+	 * Just return the record reader
+	 */
+	public RecordReader<LongWritable, ClueWarcRecord> getRecordReader(InputSplit split,
+			JobConf conf, Reporter reporter) throws IOException {
+		return new ClueWarcRecordReader(conf, (FileSplit) split);
+	}
 
+	public static class ClueWarcRecordReader implements RecordReader<LongWritable, ClueWarcRecord> {
+		private long mRecordCount = 1;
+		private Path mFilePath = null;
+		private DataInputStream mCompressedInput = null;
+
+		private long totalNumBytesRead = 0;
+
+		public ClueWarcRecordReader(Configuration conf, FileSplit split) throws IOException {
+			FileSystem fs = FileSystem.get(conf);
+			mFilePath = split.getPath();
+
+			CompressionCodec compressionCodec = new GzipCodec();
+			mCompressedInput = new DataInputStream(compressionCodec.createInputStream(fs
+					.open(mFilePath)));
+		}
+
+		public boolean next(LongWritable key, ClueWarcRecord value) throws IOException {
+			DataInputStream whichStream = mCompressedInput;
+
+			ClueWarcRecord newRecord = ClueWarcRecord.readNextWarcRecord(whichStream);
+			if (newRecord == null) {
+				return false;
+			}
+
+			totalNumBytesRead += (long) newRecord.getTotalRecordLength();
+			newRecord.setWarcFilePath(mFilePath.toString());
+
+			value.set(newRecord);
+			key.set(mRecordCount);
+
+			mRecordCount++;
+			return true;
+		}
+
+		public LongWritable createKey() {
+			return new LongWritable();
+		}
+
+		public ClueWarcRecord createValue() {
+			return new ClueWarcRecord();
+		}
+
+		public long getPos() throws IOException {
+			return totalNumBytesRead;
+		}
+
+		public void close() throws IOException {
+			mCompressedInput.close();
+		}
+
+		public float getProgress() throws IOException {
+			return (float) mRecordCount / 40000f;
+		}
+	}
+}
