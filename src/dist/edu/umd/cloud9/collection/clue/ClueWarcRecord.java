@@ -43,6 +43,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 
 import org.apache.hadoop.io.Writable;
@@ -50,7 +52,7 @@ import org.apache.hadoop.io.Writable;
 import edu.umd.cloud9.collection.Indexable;
 
 public class ClueWarcRecord implements Writable, Indexable {
-
+  
   public static String WARC_VERSION = "WARC/0.18";
   public static String WARC_VERSION_LINE = "WARC/0.18\n";
   private static String NEWLINE="\n";
@@ -586,9 +588,49 @@ public class ClueWarcRecord implements Writable, Indexable {
   public String getDocid() {
 		return getHeaderMetadataItem("WARC-TREC-ID");
 	  }
-	  
+
+  private static Pattern PATTERN_BODY=Pattern.compile("<[Bb][Oo][Dd][Yy](.*)", Pattern.DOTALL);
+  private static Pattern PATTERN_JAVASCRIPT=Pattern.compile("<script(.*?)</script>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);  
+  private static Pattern PATTERN_STYLE=Pattern.compile("<style(.*?)</style>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+  private static Pattern PATTERN_COMMENTS=Pattern.compile("<!--(.*?)-->", Pattern.DOTALL);
+  private static Pattern PATTERN_ALL_HTML_TAGS=Pattern.compile("<(.*?)>", Pattern.DOTALL);
+  private static Pattern PATTERN_NBSP=Pattern.compile("(&nbsp;|&gt;|&lt;|&quot;|&raquo;|&laquo;|&lsaquo;|&rsaquo;|&mdidot;|&mdash;|&amp;)");
+
+  private static Pattern PATTERN_APOSTROPHE=Pattern.compile("&#0?39;");
+
+  private static Pattern PATTERN_CRLF=Pattern.compile("\\n\\r");
+  private static Pattern PATTERN_MULTIPLE_BLANK_LINES=Pattern.compile("\\n{3,}");
+  private static Pattern PATTERN_SPACES=Pattern.compile("[\\t ]+");
+  private static Pattern PATTERN_LEADING_SPACES=Pattern.compile("^[ \\t]+", Pattern.MULTILINE);
+  
+  
+
+
 	  public String getContent() {
-		  return getContentUTF8();
+		  //return getContentUTF8();
+		  Matcher m = PATTERN_BODY.matcher(getContentUTF8());
+		  
+		  if ( !m.find() )
+			 return ""; 
+	
+		  String s = null;
+		  s= m.group();
+		  		  
+		  s = PATTERN_JAVASCRIPT.matcher(s).replaceAll(" ");
+		  s = PATTERN_STYLE.matcher(s).replaceAll(" ");
+		  // strip comments before all HTML tags because you can comment out multiple HTML tags
+		  s = PATTERN_COMMENTS.matcher(s).replaceAll(" ");
+		  s = PATTERN_ALL_HTML_TAGS.matcher(s).replaceAll(" ");
+		  s = PATTERN_NBSP.matcher(s).replaceAll(" ");
+		  s = PATTERN_APOSTROPHE.matcher(s).replaceAll("'");
+		  s = PATTERN_SPACES.matcher(s).replaceAll(" ");
+		  s = PATTERN_LEADING_SPACES.matcher(s).replaceAll("");
+		  s = PATTERN_CRLF.matcher(s).replaceAll("\n");
+		  s = PATTERN_MULTIPLE_BLANK_LINES.matcher(s).replaceAll("\n\n");
+
+		  
+		  return s;
+
 	  }
 
 }
