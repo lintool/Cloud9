@@ -60,7 +60,7 @@ public class DemoCountClueRecords {
 		conf.setNumReduceTasks(0);
 
 		//FileInputFormat.addInputPath(conf, new Path("/umd/collections/crawldata/ClueWeb09_English_1/en0000/"));
-		ClueCollectionPathConstants.addEnglishTinyPaths(conf, "/umd/collections/crawldata");
+		ClueCollectionPathConstants.addEnglishTinyCollection(conf, "/umd/collections/crawldata");
 		
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
