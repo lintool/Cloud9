@@ -48,11 +48,15 @@ import java.util.regex.Pattern;
 import java.util.Set;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.log4j.Logger;
+
+import sun.util.LocaleServiceProviderPool.LocalizedObjectGetter;
 
 import edu.umd.cloud9.collection.Indexable;
 
 public class ClueWarcRecord implements Writable, Indexable {
-  
+	private static final Logger sLogger = Logger.getLogger(ClueWarcRecord.class);
+
   public static String WARC_VERSION = "WARC/0.18";
   public static String WARC_VERSION_LINE = "WARC/0.18\n";
   private static String NEWLINE="\n";
@@ -408,6 +412,7 @@ public class ClueWarcRecord implements Writable, Indexable {
   public void set(ClueWarcRecord o) {
     this.warcHeader=new WarcHeader(o.warcHeader);
     this.warcContent=o.warcContent;
+    this.mCachedCleanedContent = null;
   }
   
   /**
@@ -571,6 +576,15 @@ public class ClueWarcRecord implements Writable, Indexable {
   public void write(DataOutput out) throws IOException {
     warcHeader.write(out);
     out.write(warcContent);
+
+    if ( mCachedCleanedContent == null)
+    	mCachedCleanedContent = getContent();
+    
+    	byte[] bytes = mCachedCleanedContent.getBytes();
+    	//sLogger.info("writing: " + this.getDocid() + ", " + bytes.length);
+    	
+    	out.writeInt(bytes.length);
+    	out.write(bytes);
   }
   
   /**
@@ -583,6 +597,12 @@ public class ClueWarcRecord implements Writable, Indexable {
     int contentLengthBytes=warcHeader.contentLength;
     warcContent=new byte[contentLengthBytes];
     in.readFully(warcContent);
+    
+    int cz = in.readInt();
+    	byte[] bytes = new byte[cz];
+    	in.readFully(bytes);
+    	mCachedCleanedContent = new String(bytes);
+    
   }
   
   public String getDocid() {
@@ -603,10 +623,11 @@ public class ClueWarcRecord implements Writable, Indexable {
   private static Pattern PATTERN_SPACES=Pattern.compile("[\\t ]+");
   private static Pattern PATTERN_LEADING_SPACES=Pattern.compile("^[ \\t]+", Pattern.MULTILINE);
   
-  
-
 
 	  public String getContent() {
+		  if (mCachedCleanedContent != null)
+			  return mCachedCleanedContent;
+		  
 		  //return getContentUTF8();
 		  Matcher m = PATTERN_BODY.matcher(getContentUTF8());
 		  
@@ -633,6 +654,7 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	  }
 
+	  private String mCachedCleanedContent = null;
 }
 
 
