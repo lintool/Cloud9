@@ -6,9 +6,11 @@ import org.apache.hadoop.mapred.JobConf;
 
 public class ClueCollectionPathConstants {
 
-	private static final String[] sEnglishTinyPaths = { "ClueWeb09_English_1/en0000/" };
+	private static final String[] sEnglishTest = { "ClueWeb09_English_1/en0000/00.warc.gz" };
 
-	private static final String[] sEnglishSmallPaths = { "ClueWeb09_English_1/en0000/",
+	private static final String[] sEnglishTiny = { "ClueWeb09_English_1/en0000/" };
+
+	private static final String[] sEnglishSmall = { "ClueWeb09_English_1/en0000/",
 			"ClueWeb09_English_1/en0001/", "ClueWeb09_English_1/en0002/",
 			"ClueWeb09_English_1/en0003/", "ClueWeb09_English_1/en0004/",
 			"ClueWeb09_English_1/en0005/", "ClueWeb09_English_1/en0006/",
@@ -18,7 +20,7 @@ public class ClueCollectionPathConstants {
 			"ClueWeb09_English_1/enwp01/", "ClueWeb09_English_1/enwp02/",
 			"ClueWeb09_English_1/enwp03/" };
 
-	private static final String[] sEnglishAllPaths = { "ClueWeb09_English_1/en0000/",
+	private static final String[] sEnglishComplete = { "ClueWeb09_English_1/en0000/",
 			"ClueWeb09_English_1/en0001/", "ClueWeb09_English_1/en0002/",
 			"ClueWeb09_English_1/en0003/", "ClueWeb09_English_1/en0004/",
 			"ClueWeb09_English_1/en0005/", "ClueWeb09_English_1/en0006/",
@@ -89,20 +91,26 @@ public class ClueCollectionPathConstants {
 			"ClueWeb09_English_10/en0131", "ClueWeb09_English_10/en0132",
 			"ClueWeb09_English_10/en0133" };
 
-	public static void addEnglishTinyPaths(JobConf conf, String base) {
-		for (String s : sEnglishTinyPaths) {
+	public static void addEnglishTestFile(JobConf conf, String base) {
+		for (String s : sEnglishTest) {
 			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));
 		}
 	}
 
-	public static void addEnglishSmallPaths(JobConf conf, String base) {
-		for (String s : sEnglishSmallPaths) {
+	public static void addEnglishTinyCollection(JobConf conf, String base) {
+		for (String s : sEnglishTiny) {
 			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));
 		}
 	}
 
-	public static void addEnglishAllPaths(JobConf conf, String base) {
-		for (String s : sEnglishAllPaths) {
+	public static void addEnglishSmallCollection(JobConf conf, String base) {
+		for (String s : sEnglishSmall) {
+			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));
+		}
+	}
+
+	public static void addEnglishCompleteCollection(JobConf conf, String base) {
+		for (String s : sEnglishComplete) {
 			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));
 		}
 	}
