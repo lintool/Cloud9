@@ -710,4 +710,9 @@ public class ClueWarcRecord implements Writable, Indexable {
 	}
 
 	private String mCachedCleanedContent = null;
+	
+	public String getHTML() {
+		String s = getContentUTF8();
+		return getContentUTF8().substring(s.indexOf("\n\n"));
+	}
 }
