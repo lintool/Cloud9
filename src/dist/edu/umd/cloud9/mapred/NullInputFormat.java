@@ -9,6 +9,8 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
+// Note, there was a thread on the Hadoop users list on exactly this issue. 
+// 5/8/2009, "How to write a map() method that needs no input?"
 public class NullInputFormat implements InputFormat<NullWritable, NullWritable> {
 
 	public RecordReader<NullWritable, NullWritable> getRecordReader(InputSplit split, JobConf job,
