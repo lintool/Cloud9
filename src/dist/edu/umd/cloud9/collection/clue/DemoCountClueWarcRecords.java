@@ -14,11 +14,15 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.log4j.Logger;
 
-public class DemoCountClueRecords {
-	private static final Logger sLogger = Logger.getLogger(DemoCountClueRecords.class);
-
+/**
+ * Simple demo program to count the number of records in the Clue Web
+ * collection, from the original distribution (<code>war.gz</code> files).
+ * 
+ * @author Jimmy Lin
+ * 
+ */
+public class DemoCountClueWarcRecords {
 	private static enum Records {
 		TOTAL, PAGES
 	};
@@ -33,15 +37,10 @@ public class DemoCountClueRecords {
 
 			if (id != null)
 				reporter.incrCounter(Records.PAGES, 1);
-
-			//sLogger.info(id + ", " + doc.getTotalRecordLength() + ", " + doc.getContent().length());
-			sLogger.info(id + ", " + doc.getTotalRecordLength());
-			
-			//System.out.println("###BEGIN-" + doc.getHeaderMetadataItem("WARC-TREC-ID")+ "###" + doc.getContent() + "###END###");
 		}
 	}
 
-	private DemoCountClueRecords() {
+	private DemoCountClueWarcRecords() {
 	}
 
 	/**
@@ -53,15 +52,14 @@ public class DemoCountClueRecords {
 		long r = System.currentTimeMillis();
 		String outputPath = "/tmp/" + r;
 
-		JobConf conf = new JobConf(DemoCountClueRecords.class);
+		JobConf conf = new JobConf(DemoCountClueWarcRecords.class);
 		conf.setJobName("DemoCountCountCluePages");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
-		//FileInputFormat.addInputPath(conf, new Path("/umd/collections/crawldata/ClueWeb09_English_1/en0000/"));
 		ClueCollectionPathConstants.addEnglishTinyCollection(conf, "/umd/collections/crawldata");
-		
+
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
