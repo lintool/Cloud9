@@ -1,11 +1,68 @@
-!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <head>
 </head>
 <body>
 
-Provides classes for working with MEDLINE citations (particularly, for
-the TREC 2004/2005 genomics tracks).
+<p>Provides classes for working with MEDLINE citations in XML format
+(particularly, for the TREC 2004-5 genomics tracks).  The TREC 2004
+and TREC 2005 genomics tracks used a 10-year subset of MEDLINE
+totaling 4,591,008 records (citations); this is commonly called the
+MEDLINE04 collection.  These classes are designed to work with the
+XML-formatted version of the distribution, which comes in five
+different files:</p>
+
+<ul>
+
+  <li>2004_TREC_XML_MEDLINE_A.gz</li>
+  <li>2004_TREC_XML_MEDLINE_B.gz</li>
+  <li>2004_TREC_XML_MEDLINE_C.gz</li>
+  <li>2004_TREC_XML_MEDLINE_D.gz</li>
+  <li>2004_TREC_XML_MEDLINE_E.gz</li>
+
+</ul>
+
+<p>Here are the two steps for preparing the collection for processing
+with Hadoop:</p>
+
+<ol>
+
+  <li>Uncompresss the XML files and put them in HDFS.  Working with
+  the uncompressed versions makes it possible to split processing
+  across many mappers.</li>
+
+  <li>Since many information retrieval algorithms require a sequential
+  numbering of documents (i.e., Wikipedia articles), it is necessary
+  to build a mapping between docids (i.e., PMIDs) and docnos
+  (sequentially-numbered ints).  The
+  class <code><a href="NumberMedlineCitations.html">NumberMedlineCitations</a></code>
+  accomplishes this.  Here is a sample invocation:</li>
+
+<blockquote><pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations \
+/umd/collections/medline04.raw/ \
+/user/jimmylin/medline-docid-tmp \
+/user/jimmylin/docno.mapping 100
+</pre></blockquote>
+
+</ol>
+
+<p>After the corpus has been prepared, it is ready for processing with
+Hadoop.  The
+class <code><a href="DemoCountMedlineCitations.html">DemoCountMedlineCitations</a></code>
+is a simple demo program that counts all documents in the collection.
+It provides a skeleton for MapReduce programs that process the
+collection.  Here is a sample invocation:</p>
+
+<blockquote><pre>
+ hadoop jar cloud9.jar edu.umd.cloud9.collection.medline.DemoCountMedlineCitations \
+ /umd/collections/medline04.raw/ \
+ /user/jimmylin/count-tmp \
+ /user/jimmylin/docno.mapping 100
+</pre></blockquote>
+
+<p>The output key-value pairs in this sample program are the docid to
+docno mappings.</p>
 
 </body>
 </html>
