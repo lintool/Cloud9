@@ -14,8 +14,14 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 
-public class UncompressClueRecords {
-
+/**
+ * Program to uncompress the Clue Web collection from the original distribution (<code>war.gz</code>
+ * files). Output is written as <code>SequenceFile</code>s.
+ * 
+ * @author Jimmy Lin
+ * 
+ */
+public class UncompressClueWarcRecords {
 	private static enum Records {
 		TOTAL, PAGES
 	};
@@ -33,14 +39,10 @@ public class UncompressClueRecords {
 				reporter.incrCounter(Records.PAGES, 1);
 				output.collect(key, doc);
 			}
-
-			// System.out.println(doc.getRecord().getHeaderMetadataItem("WARC-TREC-ID")
-			// + "#"
-			// + doc.getRecord().getTotalRecordLength());
 		}
 	}
 
-	private UncompressClueRecords() {
+	private UncompressClueWarcRecords() {
 	}
 
 	/**
@@ -51,7 +53,7 @@ public class UncompressClueRecords {
 
 		String outputPath = "/umd/collections/clue.en.small/";
 
-		JobConf conf = new JobConf(UncompressClueRecords.class);
+		JobConf conf = new JobConf(UncompressClueWarcRecords.class);
 		conf.setJobName("UncompressClueRecords");
 
 		conf.setNumMapTasks(mapTasks);
