@@ -4,6 +4,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
 
+/**
+ * Class containing paths to portions of the Clue Web collection.
+ * 
+ * @author Jimmy Lin
+ */
 public class ClueCollectionPathConstants {
 
 	private static final String[] sEnglishTest = { "ClueWeb09_English_1/en0000/00.warc.gz" };
