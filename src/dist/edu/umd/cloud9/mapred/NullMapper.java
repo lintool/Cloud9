@@ -12,7 +12,31 @@ import org.apache.hadoop.mapred.Reporter;
 public abstract class NullMapper extends MapReduceBase implements
 		Mapper<NullWritable, NullWritable, NullWritable, NullWritable> {
 
+	static enum Heartbeat {
+		COUNT
+	};
+
 	private JobConf mConf = null;
+
+	// The sole job of this thread is to increment counters once in a while
+	// to let the job track know we're still alive.
+	private static class HeartbeatRunnable implements Runnable {
+		Reporter mReporter;
+
+		public HeartbeatRunnable(Reporter reporter) {
+			mReporter = reporter;
+		}
+
+		public void run() {
+			while (true) {
+				try {
+					mReporter.incrCounter(Heartbeat.COUNT, 1);
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+	}
 
 	public void configure(JobConf conf) {
 		mConf = conf;
@@ -21,6 +45,10 @@ public abstract class NullMapper extends MapReduceBase implements
 	public void map(NullWritable key, NullWritable value,
 			OutputCollector<NullWritable, NullWritable> output, Reporter reporter)
 			throws IOException {
+
+		Thread pulse = new Thread(new HeartbeatRunnable(reporter));
+		pulse.start();
+
 		run(mConf);
 	}
 
