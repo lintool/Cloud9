@@ -2,29 +2,20 @@ package edu.umd.cloud9.demo;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.mapred.NullInputFormat;
+import edu.umd.cloud9.mapred.NullMapper;
 import edu.umd.cloud9.mapred.NullOutputFormat;
 
 public class DemoNullInput {
 
 	private static final Logger sLogger = Logger.getLogger(DemoNullInput.class);
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<NullWritable, NullWritable, NullWritable, NullWritable> {
-
-		public void map(NullWritable key, NullWritable value,
-				OutputCollector<NullWritable, NullWritable> output, Reporter reporter)
-				throws IOException {
-
+	private static class MyMapper extends NullMapper {
+		public void run(JobConf conf) throws IOException {
 			sLogger.info("Counting to 10:");
 			for (int i = 0; i < 10; i++) {
 				sLogger.info(i + 1 + "...");
