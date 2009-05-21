@@ -41,6 +41,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -48,11 +49,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.Indexable;
 
 public class ClueWarcRecord implements Writable, Indexable {
-	//private static final Logger sLogger = Logger.getLogger(ClueWarcRecord.class);
+	private static final Logger sLogger = Logger.getLogger(ClueWarcRecord.class);
 
 	public static String WARC_VERSION = "WARC/0.18";
 	public static String WARC_VERSION_LINE = "WARC/0.18\n";
@@ -149,6 +151,18 @@ public class ClueWarcRecord implements Writable, Indexable {
 		return retString.toString();
 	}
 
+	static Set<String> errors = new HashSet<String>();
+	static {
+		errors.add("clueweb09-en0001-41-14941");
+		errors.add("clueweb09-en0003-88-28589");
+		errors.add("clueweb09-en0005-46-08669");
+		errors.add("clueweb09-en0007-31-02866");
+		errors.add("clueweb09-en0007-91-00093");
+		errors.add("clueweb09-en0007-93-23823");
+		errors.add("clueweb09-en0009-60-41300");
+		errors.add("clueweb09-en0009-60-41302");
+	}
+
 	/**
 	 * The actual heavy lifting of reading in the next WARC record
 	 * 
@@ -187,12 +201,24 @@ public class ClueWarcRecord implements Writable, Indexable {
 			return null;
 		}
 
+		boolean ignoreFirstEmptyLine = false;
+		if (previousTrecid != null && errors.contains(previousTrecid)) {
+			sLogger.info("Special handling of errors following record " + previousTrecid);
+			ignoreFirstEmptyLine = true;
+		}
+
 		// then read to the first newline
 		// get the content length and set our retContent
 		while (inHeader && ((line = readLineFromInputStream(in)) != null)) {
+			if (line.trim().length() == 0 && ignoreFirstEmptyLine) {
+				ignoreFirstEmptyLine = false;
+				continue;
+			}
+
 			if (line.trim().length() == 0) {
 				inHeader = false;
 			} else {
+				// System.out.println("appending");
 				headerBuffer.append(line);
 				headerBuffer.append(NEWLINE);
 			}
@@ -293,8 +319,11 @@ public class ClueWarcRecord implements Writable, Indexable {
 		// set the content
 		retRecord.setContent(recordContent);
 
+		previousTrecid = retRecord.getDocid();
 		return retRecord;
 	}
+
+	private static String previousTrecid;
 
 	/**
 	 * Warc header class
@@ -710,7 +739,7 @@ public class ClueWarcRecord implements Writable, Indexable {
 	}
 
 	private String mCachedCleanedContent = null;
-	
+
 	public String getHTML() {
 		String s = getContentUTF8();
 		return getContentUTF8().substring(s.indexOf("\n\n"));
