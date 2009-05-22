@@ -151,6 +151,22 @@ public class ClueWarcRecord implements Writable, Indexable {
 		return retString.toString();
 	}
 
+	static Set<String> errors2 = new HashSet<String>();
+	static {
+		// part 4
+		errors2.add("clueweb09-en0044-01-04501");
+		
+		// part 5
+		errors2.add("clueweb09-en0059-46-06368");
+
+		// part 9
+		errors2.add("clueweb09-en0117-48-12547");
+
+		// part 10
+		errors2.add("clueweb09-en0126-33-37391");
+		errors2.add("clueweb09-en0126-88-10049");
+	}
+	
 	static Set<String> errors = new HashSet<String>();
 	static {
 		// part 1
@@ -194,6 +210,43 @@ public class ClueWarcRecord implements Writable, Indexable {
 		errors.add("clueweb09-en0035-80-26664");
 		errors.add("clueweb09-en0035-91-11777");
 		errors.add("clueweb09-en0035-91-11852");
+
+		// part 4
+		errors.add("clueweb09-en0041-70-34116"); //
+		errors.add("clueweb09-en0042-40-34405"); //
+		errors.add("clueweb09-en0043-73-09059"); //
+		errors.add("clueweb09-en0044-28-14850"); //
+		errors.add("clueweb09-en0045-40-13370"); //
+		errors.add("clueweb09-en0045-40-13378"); //
+		errors.add("clueweb09-en0047-53-04057"); //
+		errors.add("clueweb09-en0047-79-14724"); //
+		errors.add("clueweb09-en0049-08-27467"); //
+		errors.add("clueweb09-en0049-08-27469"); //
+		errors.add("clueweb09-en0049-52-17127"); //
+		errors.add("clueweb09-en0049-56-38703"); //
+		errors.add("clueweb09-en0049-56-38706"); //
+		errors.add("clueweb09-en0049-56-38712"); //
+		errors.add("clueweb09-en0049-56-38713"); //
+		errors.add("clueweb09-en0049-56-38714"); //
+		errors.add("clueweb09-en0049-56-38715"); //
+		errors.add("clueweb09-en0051-79-15041"); //
+		errors.add("clueweb09-en0052-01-00911"); //
+		errors.add("clueweb09-en0052-01-00935"); //
+
+		// part 5
+		errors.add("clueweb09-en0058-26-24946"); //
+		errors.add("clueweb09-en0060-02-11350"); //
+		errors.add("clueweb09-en0060-02-11352"); //
+		errors.add("clueweb09-en0061-83-10291"); //
+		errors.add("clueweb09-en0063-51-34432"); //
+		errors.add("clueweb09-en0063-51-34436"); //
+		errors.add("clueweb09-en0063-51-34437"); //
+		errors.add("clueweb09-en0063-51-34438"); //
+		errors.add("clueweb09-en0063-51-34439"); //
+		errors.add("clueweb09-en0063-78-17592"); //
+		errors.add("clueweb09-en0063-78-17608"); //
+		errors.add("clueweb09-en0063-78-17940"); //
+		errors.add("clueweb09-en0065-67-26241"); //
 
 		// part 6
 		errors.add("clueweb09-en0073-24-22329");
@@ -256,10 +309,10 @@ public class ClueWarcRecord implements Writable, Indexable {
 		errors.add("clueweb09-en0121-89-41649"); //
 
 		// part 10
-		errors.add("clueweb09-en0126-33-37391");
+		//errors.add("clueweb09-en0126-33-37391");
 		errors.add("clueweb09-en0126-37-13778"); //
 		errors.add("clueweb09-en0126-87-37931"); //
-		errors.add("clueweb09-en0126-88-10049");
+		//errors.add("clueweb09-en0126-88-10049");
 		errors.add("clueweb09-en0126-92-38225"); //
 		errors.add("clueweb09-en0127-16-00160"); //
 		errors.add("clueweb09-en0127-29-01098"); //
@@ -320,19 +373,46 @@ public class ClueWarcRecord implements Writable, Indexable {
 		}
 
 		boolean ignoreFirstEmptyLine = false;
+		boolean ignoreSecondEmptyLine = false;
+		boolean ignoreThirdEmptyLine = false;
+		
 		if (previousTrecid != null && errors.contains(previousTrecid)) {
-			sLogger.info("Special handling of errors following record " + previousTrecid);
+			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 1)");
 			ignoreFirstEmptyLine = true;
+		}
+
+		if (previousTrecid != null && errors2.contains(previousTrecid)) {
+			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 2)");
+			ignoreFirstEmptyLine = true;
+			ignoreSecondEmptyLine = true;
+		}
+
+		if (previousTrecid != null && previousTrecid.equals("clueweb09-en0112-59-06118")) {
+			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 3)");
+			ignoreFirstEmptyLine = true;
+			ignoreSecondEmptyLine = true;
+			ignoreThirdEmptyLine = true;
 		}
 
 		// then read to the first newline
 		// get the content length and set our retContent
 		while (inHeader && ((line = readLineFromInputStream(in)) != null)) {
+			System.out.println(line);
 			if (line.trim().length() == 0 && ignoreFirstEmptyLine) {
 				ignoreFirstEmptyLine = false;
 				continue;
 			}
 
+			if (line.trim().length() == 0 && ignoreSecondEmptyLine) {
+				ignoreSecondEmptyLine = false;
+				continue;
+			}
+
+			if (line.trim().length() == 0 && ignoreThirdEmptyLine) {
+				ignoreThirdEmptyLine = false;
+				continue;
+			}
+			
 			if (line.trim().length() == 0) {
 				inHeader = false;
 			} else {
