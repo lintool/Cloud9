@@ -153,6 +153,7 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	static Set<String> errors = new HashSet<String>();
 	static {
+		// part 1
 		errors.add("clueweb09-en0001-41-14941");
 		errors.add("clueweb09-en0003-88-28589");
 		errors.add("clueweb09-en0005-46-08669");
@@ -161,6 +162,123 @@ public class ClueWarcRecord implements Writable, Indexable {
 		errors.add("clueweb09-en0007-93-23823");
 		errors.add("clueweb09-en0009-60-41300");
 		errors.add("clueweb09-en0009-60-41302");
+
+		// part 2
+		errors.add("clueweb09-en0016-28-15816");
+		errors.add("clueweb09-en0018-85-25777");
+		errors.add("clueweb09-en0019-97-01055");
+		errors.add("clueweb09-en0020-37-41738");
+		errors.add("clueweb09-en0021-24-31539");
+		errors.add("clueweb09-en0021-24-31541");
+		errors.add("clueweb09-en0021-24-31552");
+		errors.add("clueweb09-en0021-24-31554");
+		errors.add("clueweb09-en0021-24-31572");
+		errors.add("clueweb09-en0021-41-00137");
+		errors.add("clueweb09-en0023-97-13993");
+		errors.add("clueweb09-en0023-97-14978");
+
+		// part 3
+		errors.add("clueweb09-en0030-15-04127");
+		errors.add("clueweb09-en0030-62-18205");
+		errors.add("clueweb09-en0030-62-18209");
+		errors.add("clueweb09-en0032-50-32906");
+		errors.add("clueweb09-en0032-50-32969");
+		errors.add("clueweb09-en0032-66-26110");
+		errors.add("clueweb09-en0032-80-27292");
+		errors.add("clueweb09-en0035-66-28044");
+		errors.add("clueweb09-en0035-66-28074");
+		errors.add("clueweb09-en0035-66-28222");
+		errors.add("clueweb09-en0035-80-26647");
+		errors.add("clueweb09-en0035-80-26651");
+		errors.add("clueweb09-en0035-80-26663");
+		errors.add("clueweb09-en0035-80-26664");
+		errors.add("clueweb09-en0035-91-11777");
+		errors.add("clueweb09-en0035-91-11852");
+
+		// part 6
+		errors.add("clueweb09-en0073-24-22329");
+		errors.add("clueweb09-en0073-24-22339");
+		errors.add("clueweb09-en0073-24-22352");
+		errors.add("clueweb09-en0074-31-09086");
+		errors.add("clueweb09-en0074-84-02250");
+		errors.add("clueweb09-en0077-31-34097");
+		errors.add("clueweb09-en0078-35-17333");
+		errors.add("clueweb09-en0078-65-13858");
+		errors.add("clueweb09-en0078-91-13081");
+		errors.add("clueweb09-en0079-26-06558");
+		
+		// part 7
+		errors.add("clueweb09-en0084-40-00165");
+		errors.add("clueweb09-en0084-40-00172");
+		errors.add("clueweb09-en0086-99-19332");
+		errors.add("clueweb09-en0090-01-05591");
+		errors.add("clueweb09-en0091-76-28810");
+		errors.add("clueweb09-en0091-76-28814");
+		errors.add("clueweb09-en0091-76-28949");
+		errors.add("clueweb09-en0092-51-03618");
+		errors.add("clueweb09-en0092-51-03620");
+		errors.add("clueweb09-en0092-51-03621");
+		errors.add("clueweb09-en0092-51-03622");
+		errors.add("clueweb09-en0092-51-03623");
+		errors.add("clueweb09-en0092-51-03624");
+		errors.add("clueweb09-en0092-51-03625");
+
+		// part 8
+		errors.add("clueweb09-en0100-01-00311");
+		errors.add("clueweb09-en0100-08-28250");
+		errors.add("clueweb09-en0101-12-07414");
+		errors.add("clueweb09-en0101-95-20336");
+		errors.add("clueweb09-en0105-93-12436");
+		errors.add("clueweb09-en0105-93-12438");
+		errors.add("clueweb09-en0105-93-12439");
+		errors.add("clueweb09-en0105-93-12440");
+		errors.add("clueweb09-en0105-93-12441");
+		errors.add("clueweb09-en0105-93-12442");
+		errors.add("clueweb09-en0105-93-12443");
+		errors.add("clueweb09-en0105-93-12444");
+		errors.add("clueweb09-en0105-93-12445");
+		errors.add("clueweb09-en0105-93-12446");
+		errors.add("clueweb09-en0107-58-21769");
+		errors.add("clueweb09-en0109-88-38443");
+
+		// part 9
+		errors.add("clueweb09-en0110-80-12838"); //
+		errors.add("clueweb09-en0112-59-06118");
+		errors.add("clueweb09-en0113-08-03899"); //
+		errors.add("clueweb09-en0115-33-02340"); //
+		errors.add("clueweb09-en0117-48-12547");
+		errors.add("clueweb09-en0117-89-14585"); //
+		errors.add("clueweb09-en0119-41-43728"); //
+		errors.add("clueweb09-en0119-41-43730"); //
+		errors.add("clueweb09-en0119-41-43731"); //
+		errors.add("clueweb09-en0119-41-43732"); //
+		errors.add("clueweb09-en0119-41-43733"); //
+		errors.add("clueweb09-en0121-89-41649"); //
+
+		// part 10
+		errors.add("clueweb09-en0126-33-37391");
+		errors.add("clueweb09-en0126-37-13778"); //
+		errors.add("clueweb09-en0126-87-37931"); //
+		errors.add("clueweb09-en0126-88-10049");
+		errors.add("clueweb09-en0126-92-38225"); //
+		errors.add("clueweb09-en0127-16-00160"); //
+		errors.add("clueweb09-en0127-29-01098"); //
+		errors.add("clueweb09-en0129-86-14453"); //
+		errors.add("clueweb09-en0130-16-28129"); //
+		errors.add("clueweb09-en0130-54-25838"); //
+		errors.add("clueweb09-en0130-58-50061"); //
+		errors.add("clueweb09-en0130-58-50063"); //
+		errors.add("clueweb09-en0130-58-50065"); //
+		errors.add("clueweb09-en0130-92-39888"); //
+		errors.add("clueweb09-en0130-92-39999"); //
+		errors.add("clueweb09-en0130-92-40090"); //
+		errors.add("clueweb09-en0130-92-40700"); //
+		errors.add("clueweb09-en0131-66-26013"); //
+		errors.add("clueweb09-en0131-66-26014"); //
+		errors.add("clueweb09-en0131-66-26015"); //
+		errors.add("clueweb09-en0131-66-26016"); //
+		errors.add("clueweb09-en0131-66-26017"); //
+		errors.add("clueweb09-en0132-87-39267"); //
 	}
 
 	/**
