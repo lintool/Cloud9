@@ -56,7 +56,12 @@ public class FSLineReader {
 		this.in = fs.open(new Path(file));
 		this.buffer = new byte[this.bufferSize];
 	}
-	
+
+	public FSLineReader(Path file, FileSystem fs) throws IOException {
+		this.in = fs.open(file);
+		this.buffer = new byte[this.bufferSize];
+	}
+
 	/**
 	 * Fill the buffer with more data.
 	 * 
