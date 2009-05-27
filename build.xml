@@ -100,6 +100,9 @@
 			<fileset dir="${src}/dist">
                              <include name="edu/umd/cloud9/collection/trec/*.txt" />
                         </fileset>
+			<fileset dir="${src}/dist">
+                             <include name="edu/umd/cloud9/collection/clue/docno.mapping" />
+                        </fileset>
 		</copy>
 	</target>
 
