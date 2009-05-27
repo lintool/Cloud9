@@ -10,10 +10,30 @@ import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
 import edu.umd.cloud9.util.HMapKI;
 
+/**
+ * <p>
+ * Object that maps between WARC-TREC-IDs (String identifiers) to docnos
+ * (sequentially-numbered ints). This object provides mappings for the Clue Web
+ * English collection; the docnos are numbered from part 1 all the way through
+ * part 10.
+ * </p>
+ * <p>
+ * Note that this class needs the data file <a href="docno.mapping"><code>docno.mapping</code></a>,
+ * loaded via the {@link #loadMapping(Path, FileSystem)} method.
+ * </p>
+ * 
+ * @author Jimmy Lin
+ */
 public class ClueWarcDocnoMapping implements DocnoMapping {
 
 	private static int[] sOffets = new int[13217];
 	private static final HMapKI<String> sSubDirMapping = new HMapKI<String>();
+
+	/**
+	 * Creates a <code>ClueWarcDocnoMapping</code> object
+	 */
+	public ClueWarcDocnoMapping() {
+	}
 
 	public int getDocno(String docid) {
 		if (docid == null)
@@ -45,7 +65,7 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 			String[] arr = t.toString().split(",");
 
 			if (prevSec == null || !arr[0].equals(prevSec)) {
-				//System.out.println(cnt + " " + arr[0]);
+				// System.out.println(cnt + " " + arr[0]);
 				sSubDirMapping.put(arr[0], cnt);
 			}
 
