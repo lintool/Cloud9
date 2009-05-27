@@ -30,7 +30,7 @@ public class ClueCollectionPathConstants {
 			"ClueWeb09_English_1/enwp01/", "ClueWeb09_English_1/enwp02/",
 			"ClueWeb09_English_1/enwp03/" };
 
-	private static final String[][] sEnglishParts = {
+	private static final String[][] sEnglishSections = {
 			{ "ClueWeb09_English_1/en0000/", "ClueWeb09_English_1/en0001/",
 					"ClueWeb09_English_1/en0002/", "ClueWeb09_English_1/en0003/",
 					"ClueWeb09_English_1/en0004/", "ClueWeb09_English_1/en0005/",
@@ -194,7 +194,7 @@ public class ClueCollectionPathConstants {
 	}
 
 	/**
-	 * Adds the first segment of the Clue Web English collection to a Hadoop
+	 * Adds the first section of the Clue Web English collection to a Hadoop
 	 * <code>JobConf</code> object. Specifically, this method adds the
 	 * contents of <code>ClueWeb09_English_1/en0000/</code>, which contains
 	 * 3,382,356 pages.
@@ -211,8 +211,8 @@ public class ClueCollectionPathConstants {
 	}
 
 	/**
-	 * Adds the first part of the Clue Web English collection to a Hadoop
-	 * <code>JobConf</code> object. Specifically, this method adds the
+	 * Adds the first part (segment) of the Clue Web English collection to a
+	 * Hadoop <code>JobConf</code> object. Specifically, this method adds the
 	 * contents of <code>ClueWeb09_English_1/</code>, which contains
 	 * 50,220,423 pages.
 	 * 
@@ -245,7 +245,7 @@ public class ClueCollectionPathConstants {
 	}
 
 	/**
-	 * Adds a part of the Clue Web English collection to a Hadoop
+	 * Adds a part (segment) of the Clue Web English collection to a Hadoop
 	 * <code>JobConf</code> object. Part 1 corresponds to the contents of
 	 * <code>ClueWeb09_English_1/</code> (i.e., the "small" collection), all
 	 * the way through part 10. Note that adding all ten parts is equivalent to
@@ -260,7 +260,7 @@ public class ClueCollectionPathConstants {
 		if (i < 1 || i > 10)
 			throw new InvalidParameterException("Invalid part of the collection!");
 
-		for (String s : sEnglishParts[i - 1]) {
+		for (String s : sEnglishSections[i - 1]) {
 			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));
 		}
 	}
