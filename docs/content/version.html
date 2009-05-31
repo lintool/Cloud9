@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: What Hadoop version should I use?</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 30 May 2009; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>)
+</small>
+</p>
+
+<div class="main">
+
+<p>What Hadoop version should I use?  I get this question a lot... and
+the answer is (as you might expect): <i>it depends</i>.
+Unfortunately, in many cases this is a damned if you do, damned if you
+don't decision.  Take your chances with new unknown bugs or continue
+working around known ones?  But if you never upgrade you'll never get
+to take advantage of new features...</p>
+
+<p>Here are some guidelines that may be helpful, but first, a
+clarification on terminology.  Hadoop releases are currently numbered
+0.<i>X</i>.<i>Y</i>, where <i>X</i> is usually known as the major
+release, and <i>Y</i> is usually known as the minor release.</p>
+
+<ul>
+
+  <li>Hadoop 0.18.3 is currently considered the "stable release".
+  Stability, however, is relative.  You might be interested
+  in <a href="http://www.cloudera.com/hadoop">Cloudera's
+  distribution</a>.</li>
+
+  <li>Hadoop 0.19.X is a complete disaster&mdash;avoid at all costs.
+  This release introduced HDFS file append, a very complex feature
+  that require significant changes to the code base.  It was so buggy
+  that the developers had to disable the feature in a subsequent minor
+  release.</li>
+
+  <li>Hadoop 0.20.0 is the latest release, available on April 22,
+  2009.  This release is still in it's shakeout period, but things
+  look promising from a stability point of view.  There are
+  non-trivial API changes in 0.20.0, so upgrading to this version will
+  require changes to existing code.</li>
+
+</ul>
+
+<p>In general, nearly all initial major releases (i.e., 0.<i>X</i>.0)
+are buggy.  These bugs are usually fixed in subsequent minor releases.
+Therefore, it is probably a good idea to wait until 0.20.1 before
+upgrading... let others debug the release first!  However, since
+upgrading to 0.20 will require code changes, I expect that many will
+remain with 0.18.3 for a while.</p>
+
+<p>Cloud<sup><small>9</small></sup> is currently written for 0.17.2,
+which is included in <code>hadoop/</code>.  It's a bit behind, because
+the clusters that Maryland uses are still running that release.
+However, since there are no major API changes from 0.17 to 0.18, the
+entire code base should run fine with 0.18.3 (for example, on
+EC2).</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>
