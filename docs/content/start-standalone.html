@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><title>Cloud9: A MapReduce Library for Hadoop :: Getting started in standalone mode</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../style.css" type="text/css" />
+</head>
+
+<body>
+
+<center><table width="80%"><tbody><tr><td align="left">
+
+<h2>Cloud<sup><small>9</small></sup>: Getting started in standalone mode</h2>
+
+<p>by Jimmy Lin</p>
+
+<p>
+<small>(Page first created: 31 May 2009; last updated:
+<script language="JavaScript" type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>)
+</small>
+</p>
+
+<div class="main">
+
+<h3>Introduction</h3>
+
+<p>This tutorial will get you started with
+Cloud<sup><small>9</small></sup> in standalone mode.  In standalone
+mode, you run Hadoop directly on your local machine.  Of course, you
+don't get the benefit of distributing the code across multiple
+machines... but it's a good start for learning about Hadoop.  Also,
+see companion tutorial on <a href="start-EC2.html">getting started
+with Cloud<sup><small>9</small></sup></a> on EC2</a>.</p>
+
+<p><b>For Windows users:</b> If you are using Windows,
+use <a href="http://www.cygwin.com">Cygwin</a>.  That's what I mean
+when I say, "open up a shell".</p>
+
+
+<h3>Step 0: Download various software packages</h3>
+
+<p>This is the same as step 0 in the
+<a href="start-EC2.html#step0">getting started with
+Cloud<sup><small>9</small></sup></a> on EC2</a> page.</p>
+
+<h3>Step 1: Check out Subversion repositories</h3>
+
+<p>This is the same as step 1 in the
+<a href="start-EC2.html#step1">getting started with
+Cloud<sup><small>9</small></sup></a> on EC2</a> page.</p>
+
+<h3>Step 2: Configure Hadoop for standalone mode</h3>
+
+<p>Open a shell and go
+to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/conf</code>.  Make sure
+<code>hadoop-site.xml</code> has the following contents:</p>
+
+<pre>
+&lt;?xml version="1.0"?&gt;
+&lt;?xml-stylesheet type="text/xsl" href="configuration.xsl"?&gt;
+
+&lt;!-- Put site-specific property overrides in this file. --&gt;
+
+&lt;configuration&gt;
+
+&lt;/configuration&gt;
+</pre>
+
+<p>This should be the default, but in case you've made edits doing
+something else...  This configuration ensures that your Hadoop now
+runs in standalone mode.</p>
+
+<h3>Step 3: Run pi</h3>
+
+<p>Open a shell and go
+to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code>. Now run the pi
+demo:</p>
+
+<pre>
+$ bin/hadoop jar hadoop-0.17.2-examples.jar pi 10 1000
+Number of Maps = 10 Samples per Map = 1000
+Wrote input for Map #0
+Wrote input for Map #1
+Wrote input for Map #2
+Wrote input for Map #3
+Wrote input for Map #4
+Wrote input for Map #5
+Wrote input for Map #6
+Wrote input for Map #7
+Wrote input for Map #8
+Wrote input for Map #9
+Starting Job
+09/05/31 00:04:50 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
+09/05/31 00:04:50 INFO mapred.FileInputFormat: Total input paths to process : 10
+09/05/31 00:04:51 INFO mapred.JobClient: Running job: job_local_1
+09/05/31 00:04:51 INFO mapred.MapTask: numReduceTasks: 1
+09/05/31 00:04:51 INFO mapred.LocalJobRunner: Generated 1 samples.
+09/05/31 00:04:51 INFO mapred.TaskRunner: Task 'job_local_1_map_0000' done.
+09/05/31 00:04:51 INFO mapred.TaskRunner: Saved output of task 'job_local_1_map_0000' ...
+[...]
+09/05/31 00:04:52 INFO mapred.LocalJobRunner: reduce > reduce
+09/05/31 00:04:52 INFO mapred.TaskRunner: Task 'reduce_r781hl' done.
+09/05/31 00:04:52 INFO mapred.TaskRunner: Saved output of task 'reduce_r781hl' to ...
+09/05/31 00:04:53 INFO mapred.JobClient: Job complete: job_local_1
+09/05/31 00:04:53 INFO mapred.JobClient: Counters: 11
+09/05/31 00:04:53 INFO mapred.JobClient:   File Systems
+09/05/31 00:04:53 INFO mapred.JobClient:     Local bytes read=1159787
+09/05/31 00:04:53 INFO mapred.JobClient:     Local bytes written=1355306
+09/05/31 00:04:53 INFO mapred.JobClient:   Map-Reduce Framework
+09/05/31 00:04:53 INFO mapred.JobClient:     Map input records=10
+09/05/31 00:04:53 INFO mapred.JobClient:     Map output records=20
+09/05/31 00:04:53 INFO mapred.JobClient:     Map input bytes=240
+09/05/31 00:04:53 INFO mapred.JobClient:     Map output bytes=320
+09/05/31 00:04:53 INFO mapred.JobClient:     Combine input records=0
+09/05/31 00:04:53 INFO mapred.JobClient:     Combine output records=0
+09/05/31 00:04:53 INFO mapred.JobClient:     Reduce input groups=2
+09/05/31 00:04:53 INFO mapred.JobClient:     Reduce input records=20
+09/05/31 00:04:53 INFO mapred.JobClient:     Reduce output records=0
+Job Finished in 2.578 seconds
+Estimated value of PI is 3.1108
+</pre>
+
+<p>Okay, so the value of pi is a bit off... but at least Hadoop
+works!</p>
+
+<h3>Step 4: "Transfer" some data into HDFS</h3>
+
+<p>Now we're getting ready to run the word count demo.  Normally, you
+have to transfer data into HDFS before you can run any Hadoop jobs,
+but in standalone mode, the "HDFS" is your actual hard drive, so this
+isn't strictly necessary.  Nevertheless, it's a good opportunity to
+learn some HDFS commands.</p>
+
+<p>Open a shell and go to <code>umd-hadoop-core/data/</code>.
+Uncompress the sample data file:</p>
+
+<pre>
+$ gunzip bible+shakes.nopunc.gz
+</pre>
+
+<p>Go to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code>.  Create
+the appropriate directories:</p>
+
+<pre>
+$ bin/hadoop dfs -mkdir /shared
+$ bin/hadoop dfs -mkdir /shared/sample-input
+</pre>
+
+<p>Note that in actuality, Hadoop creates a normal directory on your
+local disk.  Next, copy the data to the appropriate place:</p>
+
+<pre>
+$ bin/hadoop dfs -put ../../data/bible+shakes.nopunc /shared/sample-input
+</pre>
+
+<h3>Step 5: Build and run the word count demo</h3>
+
+<p>Now let's actually run the word count demo.  Open a shell and go
+to <code>umd-hadoop-core/build/</code> (which is where Eclipse
+automatically puts compiled class files).  Jar up the class files:</p>
+
+<pre>
+$ jar cvf cloud9.jar *
+</pre>
+
+<p>If there's nothing in <code>build/</code>, go back to Step 1 and
+make sure the code compiled okay.  Once you have created the jar, go
+back to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code> and run the
+code:</p>
+
+<pre>
+$ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount
+09/05/31 00:24:28 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
+09/05/31 00:24:28 INFO mapred.FileInputFormat: Total input paths to process : 1
+09/05/31 00:24:29 INFO mapred.JobClient: Running job: job_local_1
+09/05/31 00:24:30 INFO mapred.MapTask: numReduceTasks: 1
+09/05/31 00:24:30 INFO mapred.JobClient:  map 0% reduce 0%
+09/05/31 00:24:36 INFO mapred.LocalJobRunner: file:/shared/sample-input/bible+shakes.nopunc:0+9068074
+09/05/31 00:24:36 INFO mapred.LocalJobRunner: file:/shared/sample-input/bible+shakes.nopunc:0+9068074
+09/05/31 00:24:36 INFO mapred.TaskRunner: Task 'job_local_1_map_0000' done.
+09/05/31 00:24:36 INFO mapred.TaskRunner: Saved output of task 'job_local_1_map_0000' to ...
+09/05/31 00:24:37 INFO mapred.JobClient:  map 100% reduce 0%
+09/05/31 00:24:37 INFO mapred.LocalJobRunner: reduce > reduce
+09/05/31 00:24:37 INFO mapred.TaskRunner: Task 'reduce_di9aal' done.
+09/05/31 00:24:37 INFO mapred.TaskRunner: Saved output of task 'reduce_di9aal' to ...
+09/05/31 00:24:38 INFO mapred.JobClient: Job complete: job_local_1
+09/05/31 00:24:38 INFO mapred.JobClient: Counters: 11
+09/05/31 00:24:38 INFO mapred.JobClient:   File Systems
+09/05/31 00:24:38 INFO mapred.JobClient:     Local bytes read=24663546
+09/05/31 00:24:38 INFO mapred.JobClient:     Local bytes written=8784276
+09/05/31 00:24:38 INFO mapred.JobClient:   Map-Reduce Framework
+09/05/31 00:24:38 INFO mapred.JobClient:     Map input records=156215
+09/05/31 00:24:38 INFO mapred.JobClient:     Map output records=1734298
+09/05/31 00:24:38 INFO mapred.JobClient:     Map input bytes=9068074
+09/05/31 00:24:38 INFO mapred.JobClient:     Map output bytes=15919397
+09/05/31 00:24:38 INFO mapred.JobClient:     Combine input records=1734298
+09/05/31 00:24:38 INFO mapred.JobClient:     Combine output records=86460
+09/05/31 00:24:38 INFO mapred.JobClient:     Reduce input groups=41788
+09/05/31 00:24:38 INFO mapred.JobClient:     Reduce input records=86460
+09/05/31 00:24:38 INFO mapred.JobClient:     Reduce output records=41788
+</pre>
+
+<p>There should now be a new sub-directory in your current directory
+called <code>sample-counts</code> that contains the output of the word
+count demo:</p>
+
+<pre>
+$ head sample-counts/part-00000
+&c      70
+&c'     1
+''all   1
+''among 1
+''and   1
+''but   1
+''how   1
+''lo    2
+''look  1
+''my    1
+
+$ tail sample-counts/part-00000
+zorites 1
+zorobabel       3
+zounds  20
+zuar    5
+zuph    3
+zur     5
+zuriel  1
+zurishaddai     5
+zuzims  1
+zwaggered       1
+
+$ wc sample-counts/part-00000
+ 41788  83576 447180 sample-counts/part-00000
+</pre>
+
+<p>And that's it!  Now you're ready to run a <i>real</i> MapReduce
+cluster.</p>
+
+<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
+<tr><td valign="top" align="left">
+</td>
+<td valign="top" align="right">
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
+  </a>
+  <a href="http://validator.w3.org/check/referer">
+  <img src="../images/valid-xhtml10.gif" border="0"
+       alt="Valid XHTML 1.0!" height="31" width="88" />
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+  <img style="border:0;width:88px;height:31px"
+       src="../images/vcss.gif" 
+       alt="Valid CSS!" />
+  </a>
+</td></tr></table>
+
+</td></tr></tbody></table></center>
+
+</body></html>
