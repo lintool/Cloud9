@@ -43,7 +43,7 @@ related human language technologies.  The entire collection is
 available <a href="http://boston.lti.cs.cmu.edu/Data/clueweb09/">for
 research purposes</a>.  This guide provides instructions on processing
 the English portion of the Clue Web collection using Hadoop with
-Cloud<sup><small>9</small></sup>.</p>
+Cloud<sup><small>9</small></sup> (which is work in progress).</p>
 
 
 <p>See <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Dataset+Information">the
@@ -93,6 +93,34 @@ distribution).</p>
 
 <h3>Errata</h3>
 
+<p>There are a number of malformed WARC records in the English portion
+of the collection (there may be malformed records in the other
+languages also, but I haven't analyzed them yet).  The most prevalent
+problem is an extra newline in the WARC header.  There are a few cases
+of other malformed headers also.  See
+this <a href="clue-en-malformed-warc.txt">list of docids</a>: each
+docid refers to a WARC record that immediately precedes a malformed
+WARC record.  For example, the first docid in the list
+is <code>clueweb09-en0001-41-14941</code>, which means
+that <code>clueweb09-en0001-41-14942</code> is malformed.</p>
+
+<p>Of all the malformed WARC records referenced in the file above, all
+except for the following are malformed in having an extra newline in
+the WARC header.  The following docids are malformed in other ways
+(all cases of garbled URL):</p>
+
+<pre>
+clueweb09-en0044-01-04501
+clueweb09-en0059-46-06368
+clueweb09-en0117-48-12547
+clueweb09-en0112-59-06118
+clueweb09-en0126-33-37391
+clueweb09-en0126-88-10049
+</pre>
+
+<p>This errata is provided primarily for reference.  The API in
+Cloud<sup><small>9</small></sup> transparently handles these malformed
+WARC records.</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 
