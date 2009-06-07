@@ -49,8 +49,8 @@ public abstract class NullMapper extends MapReduceBase implements
 		Thread pulse = new Thread(new HeartbeatRunnable(reporter));
 		pulse.start();
 
-		run(mConf);
+		run(mConf, reporter);
 	}
 
-	public abstract void run(JobConf conf) throws IOException;
+	public abstract void run(JobConf conf, Reporter reporter) throws IOException;
 }

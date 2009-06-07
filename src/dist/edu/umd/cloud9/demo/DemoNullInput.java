@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.mapred.NullInputFormat;
@@ -15,7 +16,7 @@ public class DemoNullInput {
 	private static final Logger sLogger = Logger.getLogger(DemoNullInput.class);
 
 	private static class MyMapper extends NullMapper {
-		public void run(JobConf conf) throws IOException {
+		public void run(JobConf conf, Reporter reporter) throws IOException {
 			sLogger.info("Counting to 10:");
 			for (int i = 0; i < 10; i++) {
 				sLogger.info(i + 1 + "...");
