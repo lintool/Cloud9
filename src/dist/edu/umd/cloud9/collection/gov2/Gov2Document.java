@@ -44,6 +44,7 @@ public class Gov2Document implements Writable, Indexable {
 	 * Deserializes this object.
 	 */
 	public void write(DataOutput out) throws IOException {
+		out.writeUTF(mDocid);
 		byte[] bytes = mContent.getBytes();
 		WritableUtils.writeVInt(out, bytes.length);
 		out.write(bytes, 0, bytes.length);
@@ -53,10 +54,12 @@ public class Gov2Document implements Writable, Indexable {
 	 * Serializes this object.
 	 */
 	public void readFields(DataInput in) throws IOException {
+		mDocid = in.readUTF();
 		int length = WritableUtils.readVInt(in);
 		byte[] bytes = new byte[length];
 		in.readFully(bytes, 0, length);
-		Gov2Document.readDocument(this, new String(bytes));
+		mContent = new String(bytes);
+		//Gov2Document.readDocument(this, new String(bytes));
 	}
 
 	/**
