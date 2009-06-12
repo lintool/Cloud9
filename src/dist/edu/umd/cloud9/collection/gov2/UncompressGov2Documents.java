@@ -30,7 +30,7 @@ public class UncompressGov2Documents {
 			System.out.println(doc.getDocid());
 			//System.out.println("============" + doc.getDocid() + "============\n"
 			//		+ doc.getContent());
-
+			output.collect(key, doc);
 		}
 	}
 
