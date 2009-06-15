@@ -1,6 +1,8 @@
 package edu.umd.cloud9.collection.clue;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -8,7 +10,8 @@ import org.apache.hadoop.io.Text;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
-import edu.umd.cloud9.util.HMapKI;
+import edu.umd.cloud9.util.MapKI;
+import edu.umd.cloud9.util.OHMapKI;
 
 /**
  * <p>
@@ -26,8 +29,11 @@ import edu.umd.cloud9.util.HMapKI;
  */
 public class ClueWarcDocnoMapping implements DocnoMapping {
 
-	private static int[] sOffets = new int[13217];
-	private static final HMapKI<String> sSubDirMapping = new HMapKI<String>();
+	private static final int[] sOffets = new int[13217];
+	private static final OHMapKI<String> sSubDirMapping = new OHMapKI<String>();
+
+	private static final NumberFormat sFormatW2 = new DecimalFormat("00");
+	private static final NumberFormat sFormatW5 = new DecimalFormat("00000");
 
 	/**
 	 * Creates a <code>ClueWarcDocnoMapping</code> object
@@ -52,7 +58,26 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 	}
 
 	public String getDocid(int docno) {
-		throw new UnsupportedOperationException();
+		int i = 0;
+		for (i = 0; i < sOffets.length; i++) {
+			if (docno < sOffets[i])
+				break;
+		}
+		i--;
+
+		//System.out.println("offset = " + i + ", " + sOffets[i]);
+
+		String docid = null;
+		for (MapKI.Entry<String> e : sSubDirMapping.getEntriesSortedByValue()) {
+			if (e.getValue() <= i) {
+				//System.out.println(e.getKey() + "\t" + e.getValue());
+				docid = "clueweb09-" + e.getKey() + "-" + sFormatW2.format(i - e.getValue()) + "-"
+						+ sFormatW5.format(docno - sOffets[i]);
+				break;
+			}
+		}
+
+		return docid;
 	}
 
 	public void loadMapping(Path p, FileSystem fs) throws IOException {
