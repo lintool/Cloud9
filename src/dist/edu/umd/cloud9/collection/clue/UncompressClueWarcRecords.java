@@ -59,7 +59,7 @@ public class UncompressClueWarcRecords {
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
-		ClueCollectionPathConstants.addEnglishSmallCollection(conf, "/umd/collections/crawldata");
+		ClueCollectionPathConstants.addEnglishSmallCollection(conf, "/umd/collections/ClueWeb09");
 
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
