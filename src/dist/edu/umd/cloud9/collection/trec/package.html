@@ -7,7 +7,7 @@
 <p>Provides classes for working with the TREC collection (particularly
 disks 4 and 5).  TREC disks 4 and 5 represent one of the standard
 collections used in information retrieval research.  There are two
-common "configurations" of the collection:</p>
+common "views" of the collection:</p>
 
 <ul>
 
@@ -41,7 +41,7 @@ with Hadoop:</p>
 
 <blockquote><pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
-/umd/collections/trec/trec4-5_noCR.xml \
+/umd/collections/trec/trec4-5_noCRFR.xml \
 /user/jimmylin/trec-docid-tmp \
 /user/jimmylin/docno.mapping 100
 </pre></blockquote>
@@ -57,7 +57,7 @@ collection.  Here is a sample invocation:</p>
 
 <blockquote><pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
-/umd/collections/trec/trec4-5_noCR.xml \
+/umd/collections/trec/trec4-5_noCRFR.xml \
 /user/jimmylin/count-tmp \
 /user/jimmylin/docno.mapping 100
 </pre></blockquote>
