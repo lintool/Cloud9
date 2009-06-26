@@ -19,6 +19,8 @@ package edu.umd.cloud9.collection.trec;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -34,6 +36,9 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -43,10 +48,10 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * </p>
  * 
  * <ul>
- * <li>[input] path to the document collection
- * <li>[output-dir] path to temporary MapReduce output directory
- * <li>[output-file] path to location of mappings file
- * <li>[num-mappers] number of mappers to run
+ * <li>[input] path to the document collection</li>
+ * <li>[output-dir] path to temporary MapReduce output directory</li>
+ * <li>[output-file] path to location of mappings file</li>
+ * <li>[num-mappers] number of mappers to run</li>
  * </ul>
  * 
  * <p>
@@ -57,7 +62,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * 
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
- * /umd/collections/trec/trec4-5_noCR.xml \
+ * /umd/collections/trec/trec4-5_noCRFR.xml \
  * /user/jimmylin/trec-docid-tmp \
  * /user/jimmylin/docno.mapping 100
  * </pre>
@@ -66,7 +71,9 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * 
  * @author Jimmy Lin
  */
-public class NumberTrecDocuments {
+public class NumberTrecDocuments extends Configured implements Tool {
+
+	private static final Logger sLogger = Logger.getLogger(NumberTrecDocuments.class);
 
 	protected static enum Count {
 		DOCS
@@ -102,17 +109,19 @@ public class NumberTrecDocuments {
 	private NumberTrecDocuments() {
 	}
 
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
+	}
+
 	/**
-	 * Runs the program
-	 * 
-	 * @param args
-	 *            command-line arguments
-	 * @throws IOException
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
-			System.exit(-1);
+			printUsage();
+			return -1;
 		}
 
 		String inputPath = args[0];
@@ -120,12 +129,13 @@ public class NumberTrecDocuments {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input dir: " + inputPath);
-		System.out.println("output dir: " + outputPath);
-		System.out.println("output file: " + outputFile);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("Tool name: NumberTrecDocuments");
+		sLogger.info(" - Input path: " + inputPath);
+		sLogger.info(" - Output path: " + outputPath);
+		sLogger.info(" - Output file: " + outputFile);
+		sLogger.info("Launching with " + mapTasks + " mappers...");
 
-		JobConf conf = new JobConf(NumberTrecDocuments.class);
+		JobConf conf = new JobConf(getConf(), NumberTrecDocuments.class);
 		conf.setJobName("NumberTrecDocuments");
 
 		conf.setNumMapTasks(mapTasks);
@@ -149,5 +159,15 @@ public class NumberTrecDocuments {
 		JobClient.runJob(conf);
 
 		TrecDocnoMapping.writeDocnoData(outputPath + "/part-00000", outputFile);
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new NumberTrecDocuments(), args);
+		System.exit(res);
 	}
 }
