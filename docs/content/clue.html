@@ -31,9 +31,9 @@ document.writeln (LastUpdated);
 <h3>Introduction</h3>
 
 <p>The <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=ClueWeb09%20Wiki">Clue
-Web collection</a> consists of one billion web pages (5 TB compressed,
-25 TB uncompressed), in ten languages, collected in January and
-February 2009.  Its creation, supported by U.S. National Science
+Web collection</a> (ClueWeb09) consists of one billion web pages (5 TB
+compressed, 25 TB uncompressed), in ten languages, crawled in January
+and February 2009.  Its creation, supported by U.S. National Science
 Foundation (NSF), was led
 by <a href="http://www.cs.cmu.edu/~callan/">Jamie Callan</a> of the
 <a href="http://www.lti.cs.cmu.edu/">Language Technologies
@@ -43,8 +43,24 @@ related human language technologies.  The entire collection is
 available <a href="http://boston.lti.cs.cmu.edu/Data/clueweb09/">for
 research purposes</a>.  This guide provides instructions on processing
 the English portion of the Clue Web collection using Hadoop with
-Cloud<sup><small>9</small></sup> (which is work in progress).</p>
+Cloud<sup><small>9</small></sup>, building
+on <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Working+with+WARC+Files">code</a>
+developed by Mark Hoy at CMU.  For now, this page deal exclusively
+with the English portion of the collection.</p>
 
+<p>Topics that this page covers:</p>
+
+<ul>
+
+  <li><a href="#counting">Counting the records</a></li>
+
+  <li><a href="#uncompressing">Uncompressing the records</a></li>
+
+  <li><a href="#docnos">Sequentially-numbered docnos</a></li>
+
+  <li><a href="#malformed">Malformed records</a></li>
+
+</ul>
 
 <p>See <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Dataset+Information">the
 "official" dataset information page</a> for the definitive description
@@ -70,9 +86,9 @@ ClueWeb09_English_10   45,175,228 pages
 </pre>
 
 <p>Each segment contains a number of sub-directories, each of which
-contains a number of compressed WARC archives.  There is no official
-name for these sub-directories, so to be precise I'll call them
-sections.  They are numbered from <code>en0000</code> all the way
+contains a number of compressed WARC files.  There is no official name
+for these sub-directories, so to be precise I'll call them sections.
+They are numbered from <code>en0000</code> all the way
 through <code>en0133</code>.  For example, <code>en0000</code>
 to <code>en0011</code> belong to segment 1.  That is, the first
 segment contains the following sub-directories:</p>
@@ -91,7 +107,295 @@ Wikipedia.  Also, sections <code>en0083</code>, <code>en0084</code>,
 and <code>en0097</code> do not exist (or are empty, depending on the
 distribution).</p>
 
-<h3>Errata</h3>
+<h3><a name="counting">Counting the Records</a></h3>
+
+<p>Once you've gotten your hands on the collection, the first thing
+you might want to do is run some sanity checks.  The simplest sanity
+check is to rea through all the records and count them.  This
+functionality is provided by
+a <a href="../api/edu/umd/cloud9/collection/clue/DemoCountClueWarcRecords.html">demo
+program</a> in Cloud<sup><small>9</small></sup>.  Here's the
+command-line invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.DemoCountClueWarcRecords /umd/collections/ClueWeb09 1
+</pre>
+
+<p>The first command-line argument is the base path of your ClueWeb09
+distribution; the second command-line argument is the segment number
+(1 through 10).  If you run the demo program on all ten segments, you
+should get the following results:</p>
+
+<table>
+<tr><td class="myheader"><b>segment</b></td>
+    <td class="myheader"><b># files</b></td>
+    <td class="myheader"><b>bytes off disk</b></td>
+    <td class="myheader"><b># of records</b></td>
+    <td class="myheader"><b># of pages</b></td>
+    <td class="myheader"><b>total size</b></td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">1</td>
+<td class="mycell" align="right">1492</td>
+<td class="mycell" align="right">246,838,508,311</td>
+<td class="mycell" align="right">50,221,915</td>
+<td class="mycell" align="right">50,220,423</td>
+<td class="mycell" align="right">1,527,155,667,036</td>
+
+<tr>
+<td class="mycell" align="right">2</td>
+<td class="mycell" align="right">1416</td>
+<td class="mycell" align="right">224,505,694,289</td>
+<td class="mycell" align="right">51,578,493</td>
+<td class="mycell" align="right">51,577,077</td>
+<td class="mycell" align="right">1,435,415,062,235</td>
+
+<tr>
+<td class="mycell" align="right">3</td>
+<td class="mycell" align="right">1375</td>
+<td class="mycell" align="right">217,428,760,570</td>
+<td class="mycell" align="right">50,548,868</td>
+<td class="mycell" align="right">50,547,493</td>
+<td class="mycell" align="right">1,392,234,129,944</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">4</td>
+<td class="mycell" align="right">1363</td>
+<td class="mycell" align="right">213,615,715,952</td>
+<td class="mycell" align="right">52,312,423</td>
+<td class="mycell" align="right">52,311,060</td>
+<td class="mycell" align="right">1,379,063,022,766</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">5</td>
+<td class="mycell" align="right">1322</td>
+<td class="mycell" align="right">205,092,621,204</td>
+<td class="mycell" align="right">50,758,180</td>
+<td class="mycell" align="right">50,756,858</td>
+<td class="mycell" align="right">1,333,142,147,191</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">6</td>
+<td class="mycell" align="right">1302</td>
+<td class="mycell" align="right">203,616,661,324</td>
+<td class="mycell" align="right">50,560,395</td>
+<td class="mycell" align="right">50,559,093</td>
+<td class="mycell" align="right">1,314,228,067,242</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">7</td>
+<td class="mycell" align="right">1358</td>
+<td class="mycell" align="right">213,335,482,896</td>
+<td class="mycell" align="right">52,473,716</td>
+<td class="mycell" align="right">52,472,358</td>
+<td class="mycell" align="right">1,366,774,469,429</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">8</td>
+<td class="mycell" align="right">1295</td>
+<td class="mycell" align="right">199,607,688,405</td>
+<td class="mycell" align="right">49,546,641</td>
+<td class="mycell" align="right">49,545,346</td>
+<td class="mycell" align="right">1,308,432,844,339</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">9</td>
+<td class="mycell" align="right">1306</td>
+<td class="mycell" align="right">204,295,706,812</td>
+<td class="mycell" align="right">50,740,180</td>
+<td class="mycell" align="right">50,738,874</td>
+<td class="mycell" align="right">1,331,922,112,879</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">10</td>
+<td class="mycell" align="right">988</td>
+<td class="mycell" align="right">150,042,155,900</td>
+<td class="mycell" align="right">45,176,216</td>
+<td class="mycell" align="right">45,175,228</td>
+<td class="mycell" align="right">983,120,555,934</td>
+</tr>
+</table>
+
+<p>Description of the columns:</p>
+
+<ul>
+
+  <li><b>segment</b>: the segment in question.</li>
+
+  <li><b># files</b>: number files (compressed WARC files) in the
+  segment.</li>
+
+  <li><b>bytes off disk</b>: compressed size of the compressed WARC
+  files.</li>
+
+  <li><b># of records</b>: number of WARC records.</li>
+
+  <li><b># of pages</b>: number of actual HTML pages.</li>
+
+  <li><b>total size</b>: uncompressed size of all records.</li>
+
+</ul>
+
+<p>As a note, each compressed WARC file has a header followed by
+the actual HTML pages, so number of records should be equal to number
+of files plus number of pages.</p>
+
+<h3><a name="uncompressing">Uncompressing the Records</a></h3>
+
+<p>I've found it much more convenient to work with WARC records in
+uncompressed format.  This is because gzip files aren't inherently
+splittable, which causes two issues: first, each WARC file represents
+the smallest map task in MapReduce (which might be too
+coarse-grained); second, it is costly to seek to a record in the
+middle of a WARC file.</p>
+
+<p>Cloud<sup><small>9</small></sup> provides
+a <a href="../api/edu/umd/cloud9/collection/clue/UncompressClueWarcRecords.html">program</a>
+to uncompress WARC files into a SequenceFile of ClueWarcRecords.  The
+uncompressed WARC records take up a lot of space, but space is
+relatively cheap!  On the upside, having all the records in
+SequenceFiles makes processing by Hadoop a breeze.  Note that
+SequenceFiles can be block- or value-compressed, which allows one to
+enjoy the best of both worlds (although the program doesn't use
+compression by default).</p>
+
+<p>Sample invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.UncompressClueWarcRecords \
+/umd/collections/ClueWeb09 /umd/collection/clue.en.segment.01 1
+</pre>
+
+<p>The first command-line argument is the base path of your ClueWeb09
+distribution; the second is the output path; the third is the segment
+number (1 through 10).</p>
+
+<p>If you uncompress all 10 segments, here are the results you'll get
+(for sanity-checking purposes):</p>
+
+<table>
+<tr><td class="myheader"><b>segment</b></td>
+    <td class="myheader"><b>bytes off disk</b></td>
+    <td class="myheader"><b>bytes written</b></td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">1</td>
+<td class="mycell" align="right">246,838,508,311</td>
+<td class="mycell" align="right">1,525,554,716,021</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">2</td>
+<td class="mycell" align="right">224,505,694,289</td>
+<td class="mycell" align="right">1,433,771,764,817</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">3</td>
+<td class="mycell" align="right">217,428,760,570</td>
+<td class="mycell" align="right">1,390,623,590,780</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">4</td>
+<td class="mycell" align="right">213,615,715,952</td>
+<td class="mycell" align="right">1,377,396,825,545</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">5</td>
+<td class="mycell" align="right">205,092,621,204</td>
+<td class="mycell" align="right">1,331,525,473,462</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">6</td>
+<td class="mycell" align="right">203,616,661,324</td>
+<td class="mycell" align="right">1,312,617,780,539</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">7</td>
+<td class="mycell" align="right">213,335,482,896</td>
+<td class="mycell" align="right">1,365,103,234,854</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">8</td>
+<td class="mycell" align="right">199,607,688,405</td>
+<td class="mycell" align="right">1,306,854,552,419</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">9</td>
+<td class="mycell" align="right">204,295,706,812</td>
+<td class="mycell" align="right">1,330,305,871,511</td>
+</tr>
+
+<tr>
+<td class="mycell" align="right">10</td>
+<td class="mycell" align="right">150,042,155,900</td>
+<td class="mycell" align="right">981,660,357,458</td>
+</tr>
+</table>
+
+<p>The second column is exactly the same as the third column in the
+table above.  The third column lists the size of the output.</p>
+
+<h3><a name="docnos">Sequentially-numbered docnos</a></h3>
+
+<p>Many information retrieval and other text processing tasks require
+that all documents in the collection be sequentially numbered, from 1
+... <i>n</i>.  Typically, you'll want to start with document 1 as
+opposed to 0 because it is not possible to represent 0 with many
+standard compression schemes used in information retrieval (i.e.,
+Golomb codes).  For clarity, I call these sequentially-numbered
+document ids <b>docnos</b>, whereas I call the original
+ids <b>docids</b>. (This is a bit
+confusing as in previous TREC collections alphanumeric document ids
+are tagged as DOCNOs.)</p>
+
+<p>The format of a docid (WARC-TREC-ID) in the collection is
+<code>clueweb09-enXXXX-YY-ZZZZZ</code>.  Due to this regular format,
+it is very easy to algorithmically map between docnos and docids.  In
+Cloud<sup><small>9</small></sup>, the
+<a href="../api/edu/umd/cloud9/collection/clue/ClueWarcDocnoMapping.html">ClueWarcDocnoMapping</a>
+class in the edu.umd.cloud9.collection.clue package provides an API
+for you.</p>
+
+<p>Even if you don't want to use the Cloud<sup><small>9</small></sup>
+API, this <a href="clue-en-docno-mapping.txt">mappings data file</a>
+should be useful.  Here are the first few lines:</p>
+
+<pre>
+en0000,0,35582,1
+en0000,1,28413,35583
+en0000,2,36053,63996
+en0000,3,36260,100049
+en0000,4,34786,136309
+en0000,5,33015,171095
+...
+</pre>
+
+<p>It's a CSV data file, where the first column represents
+the <code>enXXXX</code> portion of the docid, the second column
+represents the <code>YY</code> portion, and the third column lists the
+number of pages with the <code>enXXXX-YY</code> prefix.
+Since <code>ZZZZZ</code> starts at zero, the last docid is the third
+column minus one.  The fourth column tracks the cumulative count in
+the number of documents.  With this information, mapping between
+docnos and docids is a simple matter of arithmetic.</p>
+
+<h3><a name="malformed">Malformed records</a></h3>
 
 <p>There are a number of malformed WARC records in the English portion
 of the collection (there may be malformed records in the other
@@ -120,7 +424,8 @@ clueweb09-en0126-88-10049
 
 <p>This errata is provided primarily for reference.  The API in
 Cloud<sup><small>9</small></sup> transparently handles these malformed
-WARC records.</p>
+WARC records (thanks to code originally written by Mark Hoy from
+CMU).</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 
