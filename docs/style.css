@@ -25,6 +25,20 @@ div.main {
   margin-left: 20px;
 }*/
 
+td.myheader
+{
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 3pt;
+}
+
+td.mycell
+{
+	border: 1pt solid #AEBDCC;
+	/*background-color: #F3F5F7;*/
+	padding: 3pt;
+}
+
 pre 
 {
 	border: 1pt solid #AEBDCC;
