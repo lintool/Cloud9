@@ -19,6 +19,8 @@ package edu.umd.cloud9.collection.medline;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -36,6 +38,9 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -67,9 +72,11 @@ import org.apache.hadoop.mapred.Counters.Counter;
  * 
  * @author Jimmy Lin
  */
-public class NumberMedlineCitations {
+public class NumberMedlineCitations extends Configured implements Tool {
 
-	protected static enum Citations {
+	private static final Logger sLogger = Logger.getLogger(NumberMedlineCitations.class);
+
+	private static enum Citations {
 		TOTAL
 	};
 
@@ -103,31 +110,39 @@ public class NumberMedlineCitations {
 		}
 	}
 
-	protected NumberMedlineCitations() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public NumberMedlineCitations() {
 	}
 
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
+	}
+	
 	/**
-	 * Runs the program
-	 * 
-	 * @param args
-	 *            command-line arguments
-	 * @throws IOException
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
-			System.exit(-1);
-
+			printUsage();
+			return -1;
 		}
+		
 		String inputPath = args[0];
 		String outputPath = args[1];
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input: " + inputPath);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("Tool name: NumberMedlineCitations");
+		sLogger.info(" - Input path: " + inputPath);
+		sLogger.info(" - Output path: " + outputPath);
+		sLogger.info(" - Output file: " + outputFile);
+		sLogger.info("Launching with " + mapTasks + " mappers...");
 
-		JobConf conf = new JobConf(NumberMedlineCitations.class);
+		JobConf conf = new JobConf(getConf(), NumberMedlineCitations.class);
 		conf.setJobName("NumberMedlineCitations");
 
 		conf.setNumMapTasks(mapTasks);
@@ -159,6 +174,16 @@ public class NumberMedlineCitations {
 		System.out.println("number of docs: " + numdocs);
 
 		MedlineDocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
+		
+		return 0;
 	}
 
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new NumberMedlineCitations(), args);
+		System.exit(res);
+	}
 }
