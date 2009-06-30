@@ -75,7 +75,7 @@ public class NumberTrecDocuments extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(NumberTrecDocuments.class);
 
-	protected static enum Count {
+	private static enum Count {
 		DOCS
 	};
 
