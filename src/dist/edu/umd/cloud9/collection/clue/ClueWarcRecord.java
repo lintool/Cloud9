@@ -41,20 +41,15 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.Writable;
-import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.Indexable;
 
 public class ClueWarcRecord implements Writable, Indexable {
-	private static final Logger sLogger = Logger.getLogger(ClueWarcRecord.class);
 
 	public static String WARC_VERSION = "WARC/0.18";
 	public static String WARC_VERSION_LINE = "WARC/0.18\n";
@@ -151,189 +146,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 		return retString.toString();
 	}
 
-	static Set<String> errors2 = new HashSet<String>();
-	static {
-		// part 4
-		errors2.add("clueweb09-en0044-01-04501");
-		
-		// part 5
-		errors2.add("clueweb09-en0059-46-06368");
-
-		// part 9
-		errors2.add("clueweb09-en0117-48-12547");
-
-		// part 10
-		errors2.add("clueweb09-en0126-33-37391");
-		errors2.add("clueweb09-en0126-88-10049");
-	}
-	
-	static Set<String> errors = new HashSet<String>();
-	static {
-		// part 1
-		errors.add("clueweb09-en0001-41-14941");
-		errors.add("clueweb09-en0003-88-28589");
-		errors.add("clueweb09-en0005-46-08669");
-		errors.add("clueweb09-en0007-31-02866");
-		errors.add("clueweb09-en0007-91-00093");
-		errors.add("clueweb09-en0007-93-23823");
-		errors.add("clueweb09-en0009-60-41300");
-		errors.add("clueweb09-en0009-60-41302");
-
-		// part 2
-		errors.add("clueweb09-en0016-28-15816");
-		errors.add("clueweb09-en0018-85-25777");
-		errors.add("clueweb09-en0019-97-01055");
-		errors.add("clueweb09-en0020-37-41738");
-		errors.add("clueweb09-en0021-24-31539");
-		errors.add("clueweb09-en0021-24-31541");
-		errors.add("clueweb09-en0021-24-31552");
-		errors.add("clueweb09-en0021-24-31554");
-		errors.add("clueweb09-en0021-24-31572");
-		errors.add("clueweb09-en0021-41-00137");
-		errors.add("clueweb09-en0023-97-13993");
-		errors.add("clueweb09-en0023-97-14978");
-
-		// part 3
-		errors.add("clueweb09-en0030-15-04127");
-		errors.add("clueweb09-en0030-62-18205");
-		errors.add("clueweb09-en0030-62-18209");
-		errors.add("clueweb09-en0032-50-32906");
-		errors.add("clueweb09-en0032-50-32969");
-		errors.add("clueweb09-en0032-66-26110");
-		errors.add("clueweb09-en0032-80-27292");
-		errors.add("clueweb09-en0035-66-28044");
-		errors.add("clueweb09-en0035-66-28074");
-		errors.add("clueweb09-en0035-66-28222");
-		errors.add("clueweb09-en0035-80-26647");
-		errors.add("clueweb09-en0035-80-26651");
-		errors.add("clueweb09-en0035-80-26663");
-		errors.add("clueweb09-en0035-80-26664");
-		errors.add("clueweb09-en0035-91-11777");
-		errors.add("clueweb09-en0035-91-11852");
-
-		// part 4
-		errors.add("clueweb09-en0041-70-34116"); //
-		errors.add("clueweb09-en0042-40-34405"); //
-		errors.add("clueweb09-en0043-73-09059"); //
-		errors.add("clueweb09-en0044-28-14850"); //
-		errors.add("clueweb09-en0045-40-13370"); //
-		errors.add("clueweb09-en0045-40-13378"); //
-		errors.add("clueweb09-en0047-53-04057"); //
-		errors.add("clueweb09-en0047-79-14724"); //
-		errors.add("clueweb09-en0049-08-27467"); //
-		errors.add("clueweb09-en0049-08-27469"); //
-		errors.add("clueweb09-en0049-52-17127"); //
-		errors.add("clueweb09-en0049-56-38703"); //
-		errors.add("clueweb09-en0049-56-38706"); //
-		errors.add("clueweb09-en0049-56-38712"); //
-		errors.add("clueweb09-en0049-56-38713"); //
-		errors.add("clueweb09-en0049-56-38714"); //
-		errors.add("clueweb09-en0049-56-38715"); //
-		errors.add("clueweb09-en0051-79-15041"); //
-		errors.add("clueweb09-en0052-01-00911"); //
-		errors.add("clueweb09-en0052-01-00935"); //
-
-		// part 5
-		errors.add("clueweb09-en0058-26-24946"); //
-		errors.add("clueweb09-en0060-02-11350"); //
-		errors.add("clueweb09-en0060-02-11352"); //
-		errors.add("clueweb09-en0061-83-10291"); //
-		errors.add("clueweb09-en0063-51-34432"); //
-		errors.add("clueweb09-en0063-51-34436"); //
-		errors.add("clueweb09-en0063-51-34437"); //
-		errors.add("clueweb09-en0063-51-34438"); //
-		errors.add("clueweb09-en0063-51-34439"); //
-		errors.add("clueweb09-en0063-78-17592"); //
-		errors.add("clueweb09-en0063-78-17608"); //
-		errors.add("clueweb09-en0063-78-17940"); //
-		errors.add("clueweb09-en0065-67-26241"); //
-
-		// part 6
-		errors.add("clueweb09-en0073-24-22329");
-		errors.add("clueweb09-en0073-24-22339");
-		errors.add("clueweb09-en0073-24-22352");
-		errors.add("clueweb09-en0074-31-09086");
-		errors.add("clueweb09-en0074-84-02250");
-		errors.add("clueweb09-en0077-31-34097");
-		errors.add("clueweb09-en0078-35-17333");
-		errors.add("clueweb09-en0078-65-13858");
-		errors.add("clueweb09-en0078-91-13081");
-		errors.add("clueweb09-en0079-26-06558");
-		
-		// part 7
-		errors.add("clueweb09-en0084-40-00165");
-		errors.add("clueweb09-en0084-40-00172");
-		errors.add("clueweb09-en0086-99-19332");
-		errors.add("clueweb09-en0090-01-05591");
-		errors.add("clueweb09-en0091-76-28810");
-		errors.add("clueweb09-en0091-76-28814");
-		errors.add("clueweb09-en0091-76-28949");
-		errors.add("clueweb09-en0092-51-03618");
-		errors.add("clueweb09-en0092-51-03620");
-		errors.add("clueweb09-en0092-51-03621");
-		errors.add("clueweb09-en0092-51-03622");
-		errors.add("clueweb09-en0092-51-03623");
-		errors.add("clueweb09-en0092-51-03624");
-		errors.add("clueweb09-en0092-51-03625");
-
-		// part 8
-		errors.add("clueweb09-en0100-01-00311");
-		errors.add("clueweb09-en0100-08-28250");
-		errors.add("clueweb09-en0101-12-07414");
-		errors.add("clueweb09-en0101-95-20336");
-		errors.add("clueweb09-en0105-93-12436");
-		errors.add("clueweb09-en0105-93-12438");
-		errors.add("clueweb09-en0105-93-12439");
-		errors.add("clueweb09-en0105-93-12440");
-		errors.add("clueweb09-en0105-93-12441");
-		errors.add("clueweb09-en0105-93-12442");
-		errors.add("clueweb09-en0105-93-12443");
-		errors.add("clueweb09-en0105-93-12444");
-		errors.add("clueweb09-en0105-93-12445");
-		errors.add("clueweb09-en0105-93-12446");
-		errors.add("clueweb09-en0107-58-21769");
-		errors.add("clueweb09-en0109-88-38443");
-
-		// part 9
-		errors.add("clueweb09-en0110-80-12838"); //
-		errors.add("clueweb09-en0112-59-06118");
-		errors.add("clueweb09-en0113-08-03899"); //
-		errors.add("clueweb09-en0115-33-02340"); //
-		errors.add("clueweb09-en0117-48-12547");
-		errors.add("clueweb09-en0117-89-14585"); //
-		errors.add("clueweb09-en0119-41-43728"); //
-		errors.add("clueweb09-en0119-41-43730"); //
-		errors.add("clueweb09-en0119-41-43731"); //
-		errors.add("clueweb09-en0119-41-43732"); //
-		errors.add("clueweb09-en0119-41-43733"); //
-		errors.add("clueweb09-en0121-89-41649"); //
-
-		// part 10
-		//errors.add("clueweb09-en0126-33-37391");
-		errors.add("clueweb09-en0126-37-13778"); //
-		errors.add("clueweb09-en0126-87-37931"); //
-		//errors.add("clueweb09-en0126-88-10049");
-		errors.add("clueweb09-en0126-92-38225"); //
-		errors.add("clueweb09-en0127-16-00160"); //
-		errors.add("clueweb09-en0127-29-01098"); //
-		errors.add("clueweb09-en0129-86-14453"); //
-		errors.add("clueweb09-en0130-16-28129"); //
-		errors.add("clueweb09-en0130-54-25838"); //
-		errors.add("clueweb09-en0130-58-50061"); //
-		errors.add("clueweb09-en0130-58-50063"); //
-		errors.add("clueweb09-en0130-58-50065"); //
-		errors.add("clueweb09-en0130-92-39888"); //
-		errors.add("clueweb09-en0130-92-39999"); //
-		errors.add("clueweb09-en0130-92-40090"); //
-		errors.add("clueweb09-en0130-92-40700"); //
-		errors.add("clueweb09-en0131-66-26013"); //
-		errors.add("clueweb09-en0131-66-26014"); //
-		errors.add("clueweb09-en0131-66-26015"); //
-		errors.add("clueweb09-en0131-66-26016"); //
-		errors.add("clueweb09-en0131-66-26017"); //
-		errors.add("clueweb09-en0132-87-39267"); //
-	}
-
 	/**
 	 * The actual heavy lifting of reading in the next WARC record
 	 * 
@@ -372,68 +184,25 @@ public class ClueWarcRecord implements Writable, Indexable {
 			return null;
 		}
 
-		boolean ignoreFirstEmptyLine = false;
-		boolean ignoreSecondEmptyLine = false;
-		boolean ignoreThirdEmptyLine = false;
-		
-		if (previousTrecid != null && errors.contains(previousTrecid)) {
-			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 1)");
-			ignoreFirstEmptyLine = true;
-		}
-
-		if (previousTrecid != null && errors2.contains(previousTrecid)) {
-			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 2)");
-			ignoreFirstEmptyLine = true;
-			ignoreSecondEmptyLine = true;
-		}
-
-		if (previousTrecid != null && previousTrecid.equals("clueweb09-en0112-59-06118")) {
-			sLogger.info("Special handling of errors following record " + previousTrecid + " (case 3)");
-			ignoreFirstEmptyLine = true;
-			ignoreSecondEmptyLine = true;
-			ignoreThirdEmptyLine = true;
-		}
-
 		// then read to the first newline
-		// get the content length and set our retContent
-		while (inHeader && ((line = readLineFromInputStream(in)) != null)) {
-			//System.out.println(line);
-			if (line.trim().length() == 0 && ignoreFirstEmptyLine) {
-				ignoreFirstEmptyLine = false;
-				continue;
-			}
-
-			if (line.trim().length() == 0 && ignoreSecondEmptyLine) {
-				ignoreSecondEmptyLine = false;
-				continue;
-			}
-
-			if (line.trim().length() == 0 && ignoreThirdEmptyLine) {
-				ignoreThirdEmptyLine = false;
-				continue;
-			}
-			
-			if (line.trim().length() == 0) {
+		// make sure we get the content length here
+		int contentLength = -1;
+		boolean foundContentLength = false;
+		while (!foundContentLength && inHeader && ((line = readLineFromInputStream(in)) != null)) {
+			if ((line.trim().length() == 0) && foundContentLength) {
 				inHeader = false;
 			} else {
-				// System.out.println("appending");
 				headerBuffer.append(line);
 				headerBuffer.append(NEWLINE);
-			}
-		}
-
-		// ok - we've got our header - find the content length
-		// designated by Content-Length: <length>
-		String[] headerPieces = headerBuffer.toString().split(NEWLINE);
-		int contentLength = -1;
-		for (int i = 0; (i < headerPieces.length) && (contentLength < 0); i++) {
-			String[] thisHeaderPieceParts = headerPieces[i].split(":", 2);
-			if (thisHeaderPieceParts.length == 2) {
-				if (thisHeaderPieceParts[0].equals("Content-Length")) {
-					try {
-						contentLength = Integer.parseInt(thisHeaderPieceParts[1].trim());
-					} catch (NumberFormatException nfEx) {
-						contentLength = -1;
+				String[] thisHeaderPieceParts = line.split(":", 2);
+				if (thisHeaderPieceParts.length == 2) {
+					if (thisHeaderPieceParts[0].toLowerCase().startsWith("content-length")) {
+						foundContentLength = true;
+						try {
+							contentLength = Integer.parseInt(thisHeaderPieceParts[1].trim());
+						} catch (NumberFormatException nfEx) {
+							contentLength = -1;
+						}
 					}
 				}
 			}
@@ -517,11 +286,8 @@ public class ClueWarcRecord implements Writable, Indexable {
 		// set the content
 		retRecord.setContent(recordContent);
 
-		previousTrecid = retRecord.getDocid();
 		return retRecord;
 	}
-
-	private static String previousTrecid;
 
 	/**
 	 * Warc header class
@@ -665,7 +431,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 	public void set(ClueWarcRecord o) {
 		this.warcHeader = new WarcHeader(o.warcHeader);
 		this.warcContent = o.warcContent;
-		this.mCachedCleanedContent = null;
 	}
 
 	/**
@@ -855,15 +620,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 	public void write(DataOutput out) throws IOException {
 		warcHeader.write(out);
 		out.write(warcContent);
-
-		if (mCachedCleanedContent == null)
-			mCachedCleanedContent = getContent();
-
-		byte[] bytes = mCachedCleanedContent.getBytes();
-		// sLogger.info("writing: " + this.getDocid() + ", " + bytes.length);
-
-		out.writeInt(bytes.length);
-		out.write(bytes);
 	}
 
 	/**
@@ -877,69 +633,13 @@ public class ClueWarcRecord implements Writable, Indexable {
 		int contentLengthBytes = warcHeader.contentLength;
 		warcContent = new byte[contentLengthBytes];
 		in.readFully(warcContent);
-
-		int cz = in.readInt();
-		byte[] bytes = new byte[cz];
-		in.readFully(bytes);
-		mCachedCleanedContent = new String(bytes);
-
 	}
 
 	public String getDocid() {
 		return getHeaderMetadataItem("WARC-TREC-ID");
 	}
 
-	private static Pattern PATTERN_BODY = Pattern.compile("<[Bb][Oo][Dd][Yy](.*)", Pattern.DOTALL);
-	private static Pattern PATTERN_JAVASCRIPT = Pattern.compile("<script(.*?)</script>",
-			Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-	private static Pattern PATTERN_STYLE = Pattern.compile("<style(.*?)</style>", Pattern.DOTALL
-			| Pattern.CASE_INSENSITIVE);
-	private static Pattern PATTERN_COMMENTS = Pattern.compile("<!--(.*?)-->", Pattern.DOTALL);
-	private static Pattern PATTERN_ALL_HTML_TAGS = Pattern.compile("<(.*?)>", Pattern.DOTALL);
-	private static Pattern PATTERN_NBSP = Pattern
-			.compile("(&nbsp;|&gt;|&lt;|&quot;|&raquo;|&laquo;|&lsaquo;|&rsaquo;|&mdidot;|&mdash;|&amp;)");
-
-	private static Pattern PATTERN_APOSTROPHE = Pattern.compile("&#0?39;");
-
-	private static Pattern PATTERN_CRLF = Pattern.compile("\\n\\r");
-	private static Pattern PATTERN_MULTIPLE_BLANK_LINES = Pattern.compile("\\n{3,}");
-	private static Pattern PATTERN_SPACES = Pattern.compile("[\\t ]+");
-	private static Pattern PATTERN_LEADING_SPACES = Pattern.compile("^[ \\t]+", Pattern.MULTILINE);
-
 	public String getContent() {
-		if (mCachedCleanedContent != null)
-			return mCachedCleanedContent;
-
-		// return getContentUTF8();
-		Matcher m = PATTERN_BODY.matcher(getContentUTF8());
-
-		if (!m.find())
-			return "";
-
-		String s = null;
-		s = m.group();
-
-		s = PATTERN_JAVASCRIPT.matcher(s).replaceAll(" ");
-		s = PATTERN_STYLE.matcher(s).replaceAll(" ");
-		// strip comments before all HTML tags because you can comment out
-		// multiple HTML tags
-		s = PATTERN_COMMENTS.matcher(s).replaceAll(" ");
-		s = PATTERN_ALL_HTML_TAGS.matcher(s).replaceAll(" ");
-		s = PATTERN_NBSP.matcher(s).replaceAll(" ");
-		s = PATTERN_APOSTROPHE.matcher(s).replaceAll("'");
-		s = PATTERN_SPACES.matcher(s).replaceAll(" ");
-		s = PATTERN_LEADING_SPACES.matcher(s).replaceAll("");
-		s = PATTERN_CRLF.matcher(s).replaceAll("\n");
-		s = PATTERN_MULTIPLE_BLANK_LINES.matcher(s).replaceAll("\n\n");
-
-		return s;
-
-	}
-
-	private String mCachedCleanedContent = null;
-
-	public String getHTML() {
-		String s = getContentUTF8();
-		return getContentUTF8().substring(s.indexOf("\n\n"));
+		return getContentUTF8();
 	}
 }
