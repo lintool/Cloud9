@@ -145,8 +145,12 @@ public class WarcRecord {
    * @throws java.io.IOException
    */
   private static byte[] readNextRecord(DataInputStream in, StringBuffer headerBuffer) throws IOException {
-    if (in==null) { return null; }
-    if (headerBuffer==null) { return null; }
+    if (in==null) { 
+      return null;
+    }
+    if (headerBuffer==null) { 
+      return null;
+    }
 
     String line=null;
     boolean foundMark=false;
@@ -166,34 +170,32 @@ public class WarcRecord {
     if (!foundMark) { return null; }
     
     // then read to the first newline
-    // get the content length and set our retContent
-    while (inHeader && ((line=readLineFromInputStream(in))!=null)) {
-      if (line.trim().length()==0) {
+    // make sure we get the content length here
+    int contentLength=-1;
+    boolean foundContentLength=false;
+    while (!foundContentLength && inHeader && ((line=readLineFromInputStream(in))!=null)) {
+      if ((line.trim().length()==0) && foundContentLength) {
         inHeader=false;
       } else {
         headerBuffer.append(line);
         headerBuffer.append(NEWLINE);
-      }
-    }
-
-    // ok - we've got our header - find the content length
-    // designated by Content-Length: <length>
-    String[] headerPieces=headerBuffer.toString().split(NEWLINE);
-    int contentLength=-1;
-    for (int i=0; (i < headerPieces.length) && (contentLength < 0); i++) {
-      String[] thisHeaderPieceParts=headerPieces[i].split(":", 2);
-      if (thisHeaderPieceParts.length==2) {
-        if (thisHeaderPieceParts[0].equals("Content-Length")) {
-          try {
-            contentLength=Integer.parseInt(thisHeaderPieceParts[1].trim());
-          } catch (NumberFormatException nfEx) {
-            contentLength=-1;
+        String[] thisHeaderPieceParts=line.split(":", 2);
+        if (thisHeaderPieceParts.length==2) {
+          if (thisHeaderPieceParts[0].toLowerCase().startsWith("content-length")) {
+            foundContentLength=true;
+            try {
+              contentLength=Integer.parseInt(thisHeaderPieceParts[1].trim());
+            } catch (NumberFormatException nfEx) {
+              contentLength=-1;
+            }
           }
         }
       }
     }
 
-    if (contentLength < 0) { return null; }
+    if (contentLength < 0) {
+      return null;
+    }
     
     // now read the bytes of the content
     retContent=new byte[contentLength];
