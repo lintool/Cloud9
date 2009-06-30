@@ -397,7 +397,7 @@ public class ClueWarcRecord implements Writable, Indexable {
 		// then read to the first newline
 		// get the content length and set our retContent
 		while (inHeader && ((line = readLineFromInputStream(in)) != null)) {
-			System.out.println(line);
+			//System.out.println(line);
 			if (line.trim().length() == 0 && ignoreFirstEmptyLine) {
 				ignoreFirstEmptyLine = false;
 				continue;
