@@ -106,7 +106,10 @@ public class NumberTrecDocuments extends Configured implements Tool {
 		}
 	}
 
-	private NumberTrecDocuments() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public NumberTrecDocuments() {
 	}
 
 	private static int printUsage() {
@@ -164,7 +167,8 @@ public class NumberTrecDocuments extends Configured implements Tool {
 	}
 
 	/**
-	 * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new NumberTrecDocuments(), args);
