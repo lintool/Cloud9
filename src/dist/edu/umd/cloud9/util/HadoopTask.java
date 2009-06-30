@@ -18,12 +18,20 @@ package edu.umd.cloud9.util;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.Tool;
 
 /**
  * <p>
- * An abstract class representing a generic Hadoop task. This class provides
- * a way to package together one or more MapReduce job in a common
- * parameter-passing interface. The standard way to invoke a HadoopTask is:
+ * An abstract class representing a generic Hadoop task. <b>NOTE:</b> I wrote
+ * this class a long time ago, before I fully understood the Hadoop API (and
+ * this class has hung around since); similar functionality is already provided
+ * by Hadoop's {@link Tool} interface. Use {@link PowerTool} instead.
+ * </p>
+ * 
+ * <p>
+ * This class provides a way to package together one or more MapReduce job in a
+ * common parameter-passing interface. The standard way to invoke a HadoopTask
+ * is:
  * </p>
  * 
  * <pre>
@@ -56,7 +64,10 @@ import org.apache.hadoop.conf.Configuration;
  * Code in the abstract HadoopTask class will handle checking to make sure all
  * required parameters are present.
  * </p>
+ * 
+ * @author Jimmy Lin
  */
+@Deprecated
 public abstract class HadoopTask implements Configurable {
 
 	private Configuration mConf;
@@ -115,8 +126,8 @@ public abstract class HadoopTask implements Configurable {
 	}
 
 	/**
-	 * Called by <code>run()</code> after verifying that required parameters are
-	 * present. This is an abstract method that must be implemented by the
+	 * Called by <code>run()</code> after verifying that required parameters
+	 * are present. This is an abstract method that must be implemented by the
 	 * concrete class.
 	 * 
 	 * @throws Exception
