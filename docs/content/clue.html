@@ -9,8 +9,8 @@
 
 <center><table width="80%"><tbody><tr><td align="left">
 
-<h2>Cloud<sup><small>9</small></sup>: Working with the Clue Web
-English Collection</h2>
+<h2>Cloud<sup><small>9</small></sup>: Working with the ClueWeb09
+Collection</h2>
 
 <p>by Jimmy Lin</p>
 
@@ -30,21 +30,22 @@ document.writeln (LastUpdated);
 
 <h3>Introduction</h3>
 
-<p>The <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=ClueWeb09%20Wiki">Clue
-Web collection</a> (ClueWeb09) consists of one billion web pages (5 TB
-compressed, 25 TB uncompressed), in ten languages, crawled in January
-and February 2009.  Its creation, supported by U.S. National Science
-Foundation (NSF), was led
-by <a href="http://www.cs.cmu.edu/~callan/">Jamie Callan</a> of the
-<a href="http://www.lti.cs.cmu.edu/">Language Technologies
-Institute</a> at <a href="http://www.cmu.edu/index.shtml">Carnegie
-Mellon University</a> to support research on information retrieval and
-related human language technologies.  The entire collection is
-available <a href="http://boston.lti.cs.cmu.edu/Data/clueweb09/">for
-research purposes</a>.  This guide provides instructions on processing
-the English portion of the Clue Web collection using Hadoop with
-Cloud<sup><small>9</small></sup>, building
-on <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Working+with+WARC+Files">code</a>
+<p>The <a
+href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=ClueWeb09%20Wiki">ClueWeb09
+collection</a> consists of one billion web pages (5 TB compressed, 25
+TB uncompressed), in ten languages, crawled in January and February
+2009.  Its creation, supported by U.S. National Science Foundation
+(NSF), was led by <a href="http://www.cs.cmu.edu/~callan/">Jamie
+Callan</a> of the <a href="http://www.lti.cs.cmu.edu/">Language
+Technologies Institute</a> at <a
+href="http://www.cmu.edu/index.shtml">Carnegie Mellon University</a>
+to support research on information retrieval and related human
+language technologies.  The entire collection is available <a
+href="http://boston.lti.cs.cmu.edu/Data/clueweb09/">for research
+purposes</a>.  This guide provides instructions on processing the
+English portion of the Clue Web collection using Hadoop with
+Cloud<sup><small>9</small></sup>, building on <a
+href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Working+with+WARC+Files">code</a>
 developed by Mark Hoy at CMU.  For now, this page deal exclusively
 with the English portion of the collection.</p>
 
@@ -68,9 +69,10 @@ of the collection.  Some content on this page simply mirrors
 information on that page for convenience.</p>
 
 <p>In total, there are 503,903,810 pages in the English portion of the
-Clue Web collection.  The English data is distributed in ten parts
-(called segments), each corresponding to a directory.  Here are the
-page counts for each segment:</p>
+ClueWeb09 collection (2.08 TB compressed, 13.4 TB uncompressed).  The
+English data is distributed in ten parts (called segments), each
+corresponding to a directory.  Here are the page counts for each
+segment:</p>
 
 <pre>
 ClueWeb09_English_1    50,220,423 pages
