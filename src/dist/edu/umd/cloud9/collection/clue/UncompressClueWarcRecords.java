@@ -20,8 +20,30 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Program to uncompress the Clue Web collection from the original distribution (<code>war.gz</code>
- * files). Output is written as <code>SequenceFile</code>s.
+ * <p>
+ * Program to uncompress the ClueWeb09 collection from the original distribution
+ * WARC files into <code>SequenceFiles</code>.
+ * </p>
+ * 
+ * <p>
+ * The program takes three command-line arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[base-path] base path of the ClueWeb09 distribution</li>
+ * <li>[output-path] output path</li>
+ * <li>[segment-num] segment number (1 through 10)</li>
+ * </ul>
+ * 
+ * <p>
+ * Here's a sample invocation:
+ * </p>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.UncompressClueWarcRecords \
+ *  /umd/collections/ClueWeb09 /umd/collection/clue.en.segment.01 1
+ * </pre>
+ * 
  * 
  * @author Jimmy Lin
  * 
