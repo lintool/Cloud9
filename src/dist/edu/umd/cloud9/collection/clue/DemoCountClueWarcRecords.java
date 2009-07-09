@@ -21,8 +21,27 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Simple demo program to count the number of records in the Clue Web
- * collection, from the original distribution (<code>war.gz</code> files).
+ * <p>
+ * Simple demo program to count the number of records in the ClueWeb09
+ * collection, from the original distribution WARC files.
+ * </p>
+ * 
+ * <p>
+ * The program takes two command-line arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[base-path] base path of the ClueWeb09 distribution</li>
+ * <li>[segment-num] segment number (1 through 10)</li>
+ * </ul>
+ * 
+ * <p>
+ * Here's a sample invocation:
+ * </p>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.DemoCountClueWarcRecords /umd/collections/ClueWeb09 1
+ * </pre>
  * 
  * @author Jimmy Lin
  * 
