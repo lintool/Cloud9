@@ -640,6 +640,10 @@ public class ClueWarcRecord implements Writable, Indexable {
 	}
 
 	public String getContent() {
-		return getContentUTF8();
+		String str = getContentUTF8();
+		int i = str.indexOf("Content-Length:");
+		int j = str.indexOf("\n", i);
+		
+		return str.substring(j+1);
 	}
 }
