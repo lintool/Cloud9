@@ -19,6 +19,8 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -34,6 +36,9 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -59,16 +64,17 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.NumberWikipediaArticles \
  * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
  * /user/jimmylin/wikipedia-docid-tmp \
- * /user/jimmylin/docno.mapping 100 *
+ * /user/jimmylin/docno.mapping 100
  * </pre>
  * 
  * </blockquote>
  * 
  * @author Jimmy Lin
  */
-public class NumberWikipediaArticles {
-
-	protected static enum PageTypes {
+public class NumberWikipediaArticles extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(NumberWikipediaArticles.class);
+	
+	private static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
@@ -114,30 +120,36 @@ public class NumberWikipediaArticles {
 		}
 	}
 
-	private NumberWikipediaArticles() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public NumberWikipediaArticles() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the program
-	 * 
-	 * @param args
-	 *            command-line arguments
-	 * @throws IOException
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
-			System.exit(-1);
-
+			printUsage();
+			return -1;
 		}
+
 		String inputPath = args[0];
 		String outputPath = args[1];
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input: " + inputPath);
-		System.out.println("output: " + outputPath);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("input: " + inputPath);
+		sLogger.info("output path: " + outputPath);
+		sLogger.info("output file: " + outputFile);
+		sLogger.info("number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(NumberWikipediaArticles.class);
 		conf.setJobName("NumberWikipediaArticles");
@@ -163,5 +175,16 @@ public class NumberWikipediaArticles {
 		JobClient.runJob(conf);
 
 		WikipediaDocnoMapping.writeArticleTitlesData(outputPath + "/part-00000", outputFile);
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new NumberWikipediaArticles(), args);
+		System.exit(res);
 	}
 }

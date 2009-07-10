@@ -18,8 +18,9 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -34,6 +35,8 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 
@@ -43,14 +46,13 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * XML dump file. This program keeps track of total number of pages, redirect
  * pages, disambiguation pages, empty pages, actual articles (including stubs),
  * and stubs. This also provides a skeleton for MapReduce programs to process
- * the collection. The program takes four command-line arguments:
+ * the collection. The program takes three command-line arguments:
  * </p>
  * 
  * <ul>
  * <li>[input] path to the Wikipedia XML dump file
  * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the mappings file
- * <li>[num-mappers] number of mappers to run
+ * <li>[mappings-file] path to the docno mappings file
  * </ul>
  * 
  * <p>
@@ -63,16 +65,16 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPageTypes \
  * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
  * /user/jimmylin/count-tmp \
- * /user/jimmylin/docno.mapping 100
+ * /user/jimmylin/docno.mapping
  * </pre>
  * 
  * </blockquote>
  * 
  * @author Jimmy Lin
  */
-public class DemoCountWikipediaPageTypes {
+public class DemoCountWikipediaPageTypes extends Configured implements Tool {
 
-	protected static enum PageTypes {
+	private static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
@@ -127,16 +129,25 @@ public class DemoCountWikipediaPageTypes {
 		}
 	}
 
-	protected DemoCountWikipediaPageTypes() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoCountWikipediaPageTypes() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input] [output-dir] [mappings-file]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [mappings-file] [num-mappers]");
-			System.exit(-1);
+			printUsage();
+			return -1;
 		}
 
 		String inputPath = args[0];
@@ -178,5 +189,16 @@ public class DemoCountWikipediaPageTypes {
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoCountWikipediaPageTypes(), args);
+		System.exit(res);
 	}
 }

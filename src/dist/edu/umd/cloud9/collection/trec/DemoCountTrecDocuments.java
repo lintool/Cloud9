@@ -18,8 +18,9 @@ package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -34,6 +35,9 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 
@@ -41,14 +45,13 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * <p>
  * Simple demo program that counts all the documents in the TREC collection.
  * This provides a skeleton for MapReduce programs to process the collection.
- * The program takes four command-line arguments:
+ * The program takes three command-line arguments:
  * </p>
  * 
  * <ul>
  * <li>[input] path to the document collection
  * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the mappings file
- * <li>[num-mappers] number of mappers to run
+ * <li>[mappings-file] path to the docno mappings file
  * </ul>
  * 
  * <p>
@@ -61,14 +64,16 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
  * /umd/collections/trec/trec4-5_noCR.xml \
  * /user/jimmylin/count-tmp \
- * /user/jimmylin/docno.mapping 100
+ * /user/jimmylin/docno.mapping
  * </pre>
  * 
  * </blockquote>
  * 
  * @author Jimmy Lin
  */
-public class DemoCountTrecDocuments {
+public class DemoCountTrecDocuments extends Configured implements Tool {
+
+	private static final Logger sLogger = Logger.getLogger(DemoCountTrecDocuments.class);
 
 	private static enum Count {
 		DOCS
@@ -110,35 +115,41 @@ public class DemoCountTrecDocuments {
 		}
 	}
 
-	private DemoCountTrecDocuments() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoCountTrecDocuments() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input] [output-dir] [mappings-file]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException, URISyntaxException {
-		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [mappings-file] [num-mappers]");
-			System.exit(-1);
+	public int run(String[] args) throws Exception {
+		if (args.length != 3) {
+			printUsage();
+			return -1;
 		}
 
 		String inputPath = args[0];
 		String outputPath = args[1];
 		String mappingFile = args[2];
-		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input dir: " + inputPath);
-		System.out.println("output dir: " + outputPath);
-		System.out.println("mapping file: " + mappingFile);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("input: " + inputPath);
+		sLogger.info("output dir: " + outputPath);
+		sLogger.info("docno mapping file: " + mappingFile);
 
 		JobConf conf = new JobConf(DemoCountTrecDocuments.class);
 		conf.setJobName("DemoCountTrecDocuments");
 
-		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
-		// pass in the class name as a String; this is makes the mapper general
+		// Pass in the class name as a String; this is makes the mapper general
 		// in being able to load any collection of Indexable objects that has
 		// docid/docno mapping specified by a DocnoMapping object
 		conf.set("DocnoMappingClass", "edu.umd.cloud9.collection.trec.TrecDocnoMapping");
@@ -162,5 +173,15 @@ public class DemoCountTrecDocuments {
 
 		JobClient.runJob(conf);
 
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
+		System.exit(res);
 	}
 }
