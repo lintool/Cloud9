@@ -113,6 +113,10 @@ public class TrecDocument implements Indexable {
 
 		return mText;
 	}
+	
+	public String getRawContent() {
+		return mRawDoc;
+	}
 
 	/**
 	 * Reads a raw XML string into a <code>TrecDocument</code> object.
