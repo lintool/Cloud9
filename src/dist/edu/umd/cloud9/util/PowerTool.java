@@ -6,10 +6,15 @@ import org.apache.hadoop.util.Tool;
 
 public abstract class PowerTool extends Configured implements Tool {
 
-	public PowerTool(Configuration conf){
+	public PowerTool(Configuration conf) {
 		super(conf);
 	}
-	
+
+	public int run() throws Exception {
+		checkRequiredParametersPresent();
+		return runTool();
+	}
+
 	public int run(String[] args) throws Exception {
 		checkRequiredParametersPresent();
 		return runTool();
