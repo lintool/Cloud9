@@ -54,6 +54,8 @@ public class XMLInputFormat extends TextInputFormat {
 		private FSDataInputStream fsin;
 		private DataOutputBuffer buffer = new DataOutputBuffer();
 
+		private long recordStartPos;
+		
 		public XMLRecordReader(FileSplit split, JobConf jobConf) throws IOException {
 			if (jobConf.get(START_TAG_KEY) == null || jobConf.get(END_TAG_KEY) == null)
 				throw new RuntimeException("Error! XML start and end tags unspecified!");
@@ -68,15 +70,18 @@ public class XMLInputFormat extends TextInputFormat {
 			FileSystem fs = file.getFileSystem(jobConf);
 			fsin = fs.open(split.getPath());
 			fsin.seek(start);
+			recordStartPos = start;
 		}
 
 		public boolean next(LongWritable key, Text value) throws IOException {
 			if (fsin.getPos() < end) {
 				if (readUntilMatch(startTag, false)) {
+					recordStartPos = fsin.getPos()- startTag.length;
+
 					try {
 						buffer.write(startTag);
 						if (readUntilMatch(endTag, true)) {
-							key.set(fsin.getPos());
+							key.set(recordStartPos);
 							value.set(buffer.getData(), 0, buffer.getLength());
 							return true;
 						}
