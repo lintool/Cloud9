@@ -19,7 +19,6 @@ package edu.umd.cloud9.collection.trec;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.WritableUtils;
 
@@ -44,9 +43,6 @@ public class TrecDocument implements Indexable {
 
 	private String mRawDoc;
 	private String mDocid;
-	private String mText;
-
-	private static Pattern sTags = Pattern.compile("<[^>]+>");
 
 	/**
 	 * Creates an empty <code>TrecDocument</code> object.
@@ -93,28 +89,9 @@ public class TrecDocument implements Indexable {
 	}
 
 	/**
-	 * Returns the content of the document. For this collection, the content is
-	 * everything between &lt;<code>TEXT</code>&gt; and &lt;<code>/TEXT</code>&gt;
-	 * tags, with all XML tags stripped (i.e., everything in angle brackets).
+	 * Returns the content of the document.
 	 */
 	public String getContent() {
-		if (mText == null) {
-			int start = mRawDoc.indexOf("<TEXT>");
-
-			if (start == -1) {
-				mText = "";
-			} else {
-				int end = mRawDoc.indexOf("</TEXT>", start);
-				mText = mRawDoc.substring(start + 6, end).trim();
-
-				mText = sTags.matcher(mText).replaceAll("");
-			}
-		}
-
-		return mText;
-	}
-	
-	public String getRawContent() {
 		return mRawDoc;
 	}
 
@@ -133,6 +110,5 @@ public class TrecDocument implements Indexable {
 
 		doc.mRawDoc = s;
 		doc.mDocid = null;
-		doc.mText = null;
 	}
 }
