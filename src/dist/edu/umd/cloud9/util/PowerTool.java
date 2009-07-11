@@ -27,7 +27,7 @@ public abstract class PowerTool extends Configured implements Tool {
 		Configuration conf = getConf();
 		for (String param : getRequiredParameters()) {
 			if (conf.get(param) == null) {
-				throw new RuntimeException("Error: required parameter '" + param + "' not defined");
+				throw new RuntimeException("Error: required parameter \"" + param + "\" not defined");
 			}
 		}
 	}
