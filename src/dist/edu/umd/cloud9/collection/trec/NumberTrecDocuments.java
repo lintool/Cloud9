@@ -132,7 +132,7 @@ public class NumberTrecDocuments extends Configured implements Tool {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		sLogger.info("Tool name: NumberTrecDocuments");
+		sLogger.info("Tool: NumberTrecDocuments");
 		sLogger.info(" - Input path: " + inputPath);
 		sLogger.info(" - Output path: " + outputPath);
 		sLogger.info(" - Output file: " + outputFile);
@@ -161,7 +161,7 @@ public class NumberTrecDocuments extends Configured implements Tool {
 
 		JobClient.runJob(conf);
 
-		TrecDocnoMapping.writeDocnoData(outputPath + "/part-00000", outputFile);
+		TrecDocnoMapping.writeDocnoData(outputPath + "/part-00000", outputFile, FileSystem.get(getConf()));
 
 		return 0;
 	}

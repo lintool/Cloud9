@@ -85,11 +85,14 @@ public class TrecDocnoMapping implements DocnoMapping {
 	 *            flat text file containing docid to docno mappings
 	 * @param outputFile
 	 *            output mappings file
+	 * @param fs
+	 *            FileSystem to write to
 	 * @throws IOException
 	 */
-	static public void writeDocnoData(String inputFile, String outputFile) throws IOException {
+	static public void writeDocnoData(String inputFile, String outputFile, FileSystem fs)
+			throws IOException {
 		sLogger.info("Writing docno data to " + outputFile);
-		FSLineReader reader = new FSLineReader(inputFile);
+		FSLineReader reader = new FSLineReader(inputFile, fs);
 		List<String> list = new ArrayList<String>();
 
 		sLogger.info("Reading " + inputFile);
@@ -108,8 +111,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 
 		cnt = 0;
 		sLogger.info("Writing " + outputFile);
-		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(outputFile),
-				true);
+		FSDataOutputStream out = fs.create(new Path(outputFile), true);
 		out.writeInt(list.size());
 		for (int i = 0; i < list.size(); i++) {
 			out.writeUTF(list.get(i));
