@@ -161,7 +161,8 @@ public class NumberTrecDocuments extends Configured implements Tool {
 
 		JobClient.runJob(conf);
 
-		TrecDocnoMapping.writeDocnoData(outputPath + "/part-00000", outputFile, FileSystem.get(getConf()));
+		String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
+		TrecDocnoMapping.writeDocnoData(input, outputFile, FileSystem.get(getConf()));
 
 		return 0;
 	}
