@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 
 import edu.umd.cloud9.io.JSONObjectWritable;
@@ -44,6 +45,8 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * @see DemoPackTuples2
  */
 public class DemoPackJSON {
+	private static final Logger sLogger = Logger.getLogger(DemoPackJSON.class);
+
 	private DemoPackJSON() {
 	}
 
@@ -51,9 +54,17 @@ public class DemoPackJSON {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException, JSONException {
-		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
-		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.json.packed";
+		if (args.length != 2) {
+			System.out.println("usage: [input] [output]");
+			System.exit(-1);
+		}
+				
+		String infile = args[0];
+		String outfile = args[1];
 
+		sLogger.info("input: " + infile);
+		sLogger.info("output: " + outfile);
+		
 		Configuration conf = new JobConf();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
@@ -81,6 +92,6 @@ public class DemoPackJSON {
 		data.close();
 		writer.close();
 
-		System.out.println("Wrote " + cnt + " records.");
+		sLogger.info("Wrote " + cnt + " records.");
 	}
 }

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -36,6 +38,9 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 
 import edu.umd.cloud9.io.JSONObjectWritable;
@@ -43,9 +48,21 @@ import edu.umd.cloud9.io.JSONObjectWritable;
 /**
  * <p>
  * Demo that illustrates use of {@link JSONObjectWritable} objects as
- * intermediate keys in a MapReduce job. Input comes from the Bible+Shakespeare
- * sample collection, packed into a SequenceFile with {@link DemoPackJSON}.
- * Output shows the count of words on even- and odd-length lines.
+ * intermediate keys in a MapReduce job. This Hadoop Tool takes the following
+ * command-line arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[input-path] input path</li>
+ * <li>[output-path] output path</li>
+ * <li>[num-mappers] number of mappers</li>
+ * <li>[num-reducers] number of reducers</li>
+ * </ul>
+ * 
+ * <p>
+ * Input comes from a flat text collection packed into a SequenceFile with
+ * {@link DemoPackJSON}. Output shows the count of words on even- and
+ * odd-length lines.
  * </p>
  * 
  * <p>
@@ -57,11 +74,14 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * 
  * @see DemoWordCountTuple1
  * @see DemoWordCountTuple2
+ * 
+ * @author Jimmy Lin
  */
-public class DemoWordCountJSON {
+public class DemoWordCountJSON extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(DemoWordCountJSON.class);
 
 	// define custom intermediate key; must specify sort order
-	private static class MyKey extends JSONObjectWritable implements WritableComparable {
+	public static class MyKey extends JSONObjectWritable implements WritableComparable {
 		public int compareTo(Object obj) {
 			try {
 				MyKey that = (MyKey) obj;
@@ -160,18 +180,38 @@ public class DemoWordCountJSON {
 		}
 	}
 
-	// dummy constructor
-	private DemoWordCountJSON() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoWordCountJSON() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc.json.packed";
-		String outputPath = "DemoWordCountJSON";
-		int numMapTasks = 20;
-		int numReduceTasks = 20;
+	public int run(String[] args) throws Exception {
+		if (args.length != 4) {
+			printUsage();
+			return -1;
+		}
+
+		String inputPath = args[0];
+		String outputPath = args[1];
+
+		int numMapTasks = Integer.parseInt(args[2]);
+		int numReduceTasks = Integer.parseInt(args[3]);
+
+		sLogger.info("Tool: DemoWordCountJSON");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - number of mappers: " + numMapTasks);
+		sLogger.info(" - number of reducers: " + numReduceTasks);
 
 		JobConf conf = new JobConf(DemoWordCountTuple1.class);
 		conf.setJobName("DemoWordCountJSON");
@@ -196,6 +236,20 @@ public class DemoWordCountJSON {
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
+		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoWordCountJSON(), args);
+		System.exit(res);
 	}
 }

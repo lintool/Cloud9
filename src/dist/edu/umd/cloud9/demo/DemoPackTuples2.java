@@ -29,6 +29,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.Schema;
@@ -61,6 +62,8 @@ import edu.umd.cloud9.io.Tuple;
  * @see DemoPackJSON
  */
 public class DemoPackTuples2 {
+	private static final Logger sLogger = Logger.getLogger(DemoPackTuples2.class);
+
 	private DemoPackTuples2() {
 	}
 
@@ -78,8 +81,16 @@ public class DemoPackTuples2 {
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		String infile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc";
-		String outfile = "../umd-hadoop-dist/sample-input/bible+shakes.nopunc.tuple2.packed";
+		if (args.length != 2) {
+			System.out.println("usage: [input] [output]");
+			System.exit(-1);
+		}
+
+		String infile = args[0];
+		String outfile = args[1];
+
+		sLogger.info("input: " + infile);
+		sLogger.info("output: " + outfile);
 
 		Configuration conf = new JobConf();
 		FileSystem fs = FileSystem.get(conf);
@@ -112,6 +123,6 @@ public class DemoPackTuples2 {
 		data.close();
 		writer.close();
 
-		System.out.println("Wrote " + cnt + " records.");
+		sLogger.info("Wrote " + cnt + " records.");
 	}
 }

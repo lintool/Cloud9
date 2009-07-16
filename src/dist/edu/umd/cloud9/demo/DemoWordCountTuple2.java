@@ -19,6 +19,8 @@ package edu.umd.cloud9.demo;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -35,6 +37,9 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.Schema;
@@ -43,14 +48,31 @@ import edu.umd.cloud9.io.Tuple;
 /**
  * <p>
  * Another demo that illustrates use of {@link Tuple} objects as intermediate
- * keys in a MapReduce job. Input comes from the Bible+Shakespeare sample
- * collection, packed into a SequenceFile with {@link DemoPackTuples2}; the
- * tuples have complex internal structure. Output shows the count of words on
- * even- and odd-length lines. This demo does exactly the same thing as
- * {@link DemoWordCountTuple1}.
+ * keys in a MapReduce job. This Hadoop Tool takes the following command-line
+ * arguments:
  * </p>
+ * 
+ * <ul>
+ * <li>[input-path] input path</li>
+ * <li>[output-path] output path</li>
+ * <li>[num-mappers] number of mappers</li>
+ * <li>[num-reducers] number of reducers</li>
+ * </ul>
+ * 
+ * <p>
+ * Input comes from a flat text collection packed into a SequenceFile with
+ * {@link DemoPackTuples2}; the tuples have complex internal structure. Output
+ * shows the count of words on even- and odd-length lines. This demo does
+ * exactly the same thing as {@link DemoWordCountTuple1}.
+ * </p>
+ * 
+ * @see DemoWordCountTuple1
+ * @see DemoWordCountJSON
+ * 
+ * @author Jimmy Lin
  */
-public class DemoWordCountTuple2 {
+public class DemoWordCountTuple2 extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(DemoWordCountTuple2.class);
 
 	// create the schema for the tuple that will serve as the key
 	private static final Schema KEY_SCHEMA = new Schema();
@@ -112,18 +134,38 @@ public class DemoWordCountTuple2 {
 		}
 	}
 
-	// dummy constructor
-	private DemoWordCountTuple2() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoWordCountTuple2() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc.tuple2.packed";
-		String outputPath = "DemoWordCountTuple2";
-		int numMapTasks = 20;
-		int numReduceTasks = 20;
+	public int run(String[] args) throws Exception {
+		if (args.length != 4) {
+			printUsage();
+			return -1;
+		}
+
+		String inputPath = args[0];
+		String outputPath = args[1];
+
+		int numMapTasks = Integer.parseInt(args[2]);
+		int numReduceTasks = Integer.parseInt(args[3]);
+
+		sLogger.info("Tool: DemoWordCountTuple2");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - number of mappers: " + numMapTasks);
+		sLogger.info(" - number of reducers: " + numReduceTasks);
 
 		JobConf conf = new JobConf(DemoWordCountTuple2.class);
 		conf.setJobName("DemoWordCountTuple2");
@@ -148,6 +190,20 @@ public class DemoWordCountTuple2 {
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
+		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoWordCountTuple2(), args);
+		System.exit(res);
 	}
 }
