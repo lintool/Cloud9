@@ -435,8 +435,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	/**
 	 * Gets the file path from this WARC file (if set)
-	 * 
-	 * @return
 	 */
 	public String getWarcFilePath() {
 		return warcFilePath;
@@ -524,8 +522,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	/**
 	 * Gets the set of metadata items from the header
-	 * 
-	 * @return
 	 */
 	public Set<Entry<String, String>> getHeaderMetadata() {
 		return warcHeader.metadata.entrySet();
@@ -535,7 +531,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 	 * Gets a value for a specific header metadata key
 	 * 
 	 * @param key
-	 * @return
 	 */
 	public String getHeaderMetadataItem(String key) {
 		return warcHeader.metadata.get(key);
@@ -561,9 +556,7 @@ public class ClueWarcRecord implements Writable, Indexable {
 	}
 
 	/**
-	 * Restrieves the byte content for this record
-	 * 
-	 * @return
+	 * Retrieves the byte content for this record
 	 */
 	public byte[] getByteContent() {
 		return warcContent;
@@ -571,8 +564,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	/**
 	 * Retrieves the bytes content as a UTF-8 string
-	 * 
-	 * @return
 	 */
 	public String getContentUTF8() {
 		String retString = null;
@@ -586,8 +577,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	/**
 	 * Gets the header record type string
-	 * 
-	 * @return
 	 */
 	public String getHeaderRecordType() {
 		return warcHeader.recordType;
@@ -604,8 +593,6 @@ public class ClueWarcRecord implements Writable, Indexable {
 
 	/**
 	 * Gets the WARC header as a string
-	 * 
-	 * @return
 	 */
 	public String getHeaderString() {
 		return warcHeader.toString();

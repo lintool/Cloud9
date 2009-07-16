@@ -59,7 +59,7 @@ public class Gov2Document implements Writable, Indexable {
 		byte[] bytes = new byte[length];
 		in.readFully(bytes, 0, length);
 		mContent = new String(bytes);
-		//Gov2Document.readDocument(this, new String(bytes));
+		// Gov2Document.readDocument(this, new String(bytes));
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class Gov2Document implements Writable, Indexable {
 	/**
 	 * Reads a raw XML string into a <code>Gov2Document</code> object.
 	 * 
-	 * @param citation
+	 * @param doc
 	 *            the <code>Gov2Document</code> object
 	 * @param s
 	 *            raw XML string
@@ -97,7 +97,7 @@ public class Gov2Document implements Writable, Indexable {
 			int end = s.indexOf("</DOCNO>", start);
 
 			doc.mDocid = s.substring(start + 7, end);
-			//System.out.println("docid: " + doc.mDocid);
+			// System.out.println("docid: " + doc.mDocid);
 		}
 
 		start = s.indexOf("</DOCHDR>");
@@ -108,7 +108,7 @@ public class Gov2Document implements Writable, Indexable {
 			int end = s.indexOf("</DOC>", start);
 
 			doc.mContent = scrubHTML(s.substring(start + 9, end));
-			//System.out.println("content: " + doc.mContent);
+			// System.out.println("content: " + doc.mContent);
 		}
 
 	}
@@ -133,14 +133,14 @@ public class Gov2Document implements Writable, Indexable {
 
 					// key.set(fsin.getPos());
 					// value.set(buffer.getData(), 0, buffer.getLength());
-					
+
 					return true;
 				}
 			} finally {
 				buffer.reset();
 			}
 		}
-		
+
 		return false;
 	}
 
