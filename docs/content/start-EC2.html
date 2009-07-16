@@ -30,12 +30,14 @@ document.writeln (LastUpdated);
 <h3>Introduction</h3>
 
 <p>This tutorial will get you started with
-Cloud<sup><small>9</small></sup> on Amazon's EC2.  By the end of this
-tutorial, you will have successful run a word count demo in
-Cloud<sup><small>9</small></sup>.  For a gentler introduction to
-Hadoop, or if you don't feel like experimenting with EC2, try my
-tutorial on <a href="start-standalone.html">getting started with
-Cloud<sup><small>9</small></sup> in standalone mode</a>.</p>
+Cloud<sup><small>9</small></sup> on Amazon's EC2 (running the simple
+word count demo).  For a gentler introduction to Hadoop, or if you
+don't feel like experimenting with EC2, try my tutorial
+on <a href="start-standalone.html">getting started with
+Cloud<sup><small>9</small></sup> in standalone mode</a>.  This
+tutorial assumes you've already downloaded
+Cloud<sup><small>9</small></sup> and gotten it set up.  Otherwise, see
+my tutorial on <a href="start.html">that</a>.</p>
 
 <p>Before we begin, a few notes:</p>
 
@@ -80,86 +82,19 @@ Cloud<sup><small>9</small></sup> in standalone mode</a>.</p>
 
 <ul>
 
-  <li><a href="#step0">Step 0:</a> Download various software packages</li>
-  <li><a href="#step1">Step 1:</a> Check out Subversion repository</li>
-  <li><a href="#step2">Step 2:</a> Setting up Amazon EC2</li>
-  <li><a href="#step3">Step 3:</a> Fire up a Hadoop cluster in the clouds!</li>
-  <li><a href="#step4">Step 4:</a> Test drive the cluster</li>
-  <li><a href="#step5">Step 5:</a> Transfer some data</li>
-  <li><a href="#step6">Step 6:</a> Transfer some code and run the word count demo</li>
-  <li><a href="#step7">Step 7:</a> Clean up!</li>
+  <li><a href="#step1">Step 1:</a> Setting up Amazon EC2</li>
+  <li><a href="#step2">Step 2:</a> Fire up a Hadoop cluster in the clouds!</li>
+  <li><a href="#step3">Step 3:</a> Test drive the cluster</li>
+  <li><a href="#step4">Step 4:</a> Transfer some data</li>
+  <li><a href="#step5">Step 5:</a> Transfer some code and run the word count demo</li>
+  <li><a href="#step6">Step 6:</a> Clean up!</li>
   <li><a href="#ps">Postscript</a></li>
 
 </ul>
 
 <p>Let's get started!</p>
 
-<h3><a name="step0">Step 0: Download various software packages</a></h3>
-
-<p>Download and install the following software packages:</p>
-
-<ul>
-
-<li><a href="http://java.sun.com">Java</a>: (if you don't know what
-Java is you probably shouldn't be here...)</li>
-
-<li><a href="http://www.eclipse.org/">Eclipse</a>: an IDE for
-Java</li>
-
-<li><a href="http://subclipse.tigris.org/">Subclipse</a>: a Subversion
-client plug-in for Eclipse</li>
-
-<li><a href="http://ant.apache.org/">Apache Ant</a>: a build system
-for Java</li>
-
-</ul>
-
-<p>Note that you technically do not need Ant for this tutorial to
-work, but it's a nice thing to have anyway for later.</p>
-
-<h3><a name="step1">Step 1: Check out Subversion repositories</a></h3>
-
-<p>Start Eclipse.  You'll to have tweak Subclipse options.  Open
-Eclipse preferences (under Windows: Window &gt; Preferences; under
-Mac: Eclipse &gt; Preferences).  Select option Team &gt; SVN. Change
-SVN interface to "SVNKit".</p>
-
-<p>Switch to repository exploring mode.  To do so, select menu option:
-Window &gt; Open Perspective &gt; Other &gt; SVN Repository
-Exploring.</p>
-
-<p>Add repository by right clicking on left panel &gt; New &gt;
-Repository Location.  The repository location you want to add is:</p>
-
-<blockquote>
-<code>umd-hadoop-core</code>: <a href="https://subversion.umiacs.umd.edu/umd-hadoop/core">https://subversion.umiacs.umd.edu/umd-hadoop/core</a>
-</blockquote>
-
-<p>Once you've added the repository, expand the tree.  You should see
-"branches", "tags", and "trunk".  Right click on trunk &gt;
-Checkout...  Follow dialog to check out repository.  When the checkout
-process is complete, open a shell and go
-to <code>umd-hadoop-core/hadoop/</code>.  Unpack the latest Hadoop
-0.17.2 distribution:</p>
-
-<pre>
-$ tar xvfz hadoop-0.17.2.tar.gz
-</pre>
-
-<p>After Hadoop has been unpacked, go back to Eclipse, and switch back
-to the Java perspective.  You should have the project
-<code>umd-hadoop-core</code>.  If you're still getting errors, you
-might need to recompile the projects.  Select menu option: Project
-&gt; Clean...</p>
-
-<p>You'll note that Hadoop itself is checked in the
-repository <code>umd-hadoop-core</code>.  This is intentional, to
-ensure everyone is using the same version of Hadoop (makes debugging
-easier).  In the future, newer versions can be seamlessly rolled out
-by checking in a newer version in Subversion and having everyone
-update their sandboxes.</p>
-
-<h3><a name="step2">Step 2: Setting up Amazon EC2</a></h3>
+<h3><a name="step1">Step 1: Setting up Amazon EC2</a></h3>
 
 <p>Go to the <a href="http://aws.amazon.com">Amazon AWS site</a> to
 set up an AWS account.  Follow the steps
@@ -173,16 +108,16 @@ because some tools cannot properly parse the slash and treats it as a
 path.  If you get an access key that has a slash, just
 regenerate.</p>
 
-<h3><a name="step3">Step 3: Fire up a Hadoop cluster in the clouds!</a></h3>
+<h3><a name="step2">Step 2: Fire up a Hadoop cluster in the clouds!</a></h3>
 
 <p>You'll want to
 consult <a href="http://wiki.apache.org/hadoop/AmazonEC2">Running
 Hadoop on Amazon EC2</a> for reference, but I'll summarize the
 instructions below.  To begin, make sure you're working with Hadoop
 0.17.2 and have the EC2 environment variables properly set (see
-previous step).  Note that all the Amazon tools begin
-with <code>ec2-</code>, which distinguishes them from tools bundle in
-the Hadoop distribution.</p>
+previous step).  Note that all the Amazon tools begin with "ec2-",
+which distinguishes them from tools bundle in the Hadoop
+distribution.</p>
 
 <p>In case you are curious, here's how you find all available Hadoop
 images with the Amazon EC2 tool.</p>
@@ -203,17 +138,19 @@ IMAGE   ami-7f7f9a16    radlab-hadoop-4/image.manifest.xml [...]
 
 <p>Note that at the time these instructions were initially written,
 there was no AMI for Hadoop 0.17.2; 0.17.0 is the closet and will do
-just fine.</p>
+just fine.  Feel free also to substitute for a new Hadoop
+distribution.</p>
 
-<p>Open the
-file <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2/bin/hadoop-ec2-env.sh</code>.
-Fill in the following variables with information from you own account:</p>
+<p>Open the file
+umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2/bin/hadoop-ec2-env.sh.
+Fill in the following variables with information from you own
+account:</p>
 
 <ul>
 
-  <li><code>AWS_ACCOUNT_ID</code> (no dashes)</li>
-  <li><code>AWS_ACCESS_KEY_ID</code></li>
-  <li><code>AWS_SECRET_ACCESS_KEY</code></li>
+  <li>AWS_ACCOUNT_ID (no dashes)</li>
+  <li>AWS_ACCESS_KEY_ID</li>
+  <li>AWS_SECRET_ACCESS_KEY</li>
 
 </ul>
 
@@ -222,9 +159,9 @@ following variables:</p>
 
 <ul>
 
-  <li><code>MASTER_PRIVATE_IP_PATH</code></li>
-  <li><code>MASTER_IP_PATH</code></li>
-  <li><code>MASTER_ZONE_PATH</code></li>
+  <li>MASTER_PRIVATE_IP_PATH</li>
+  <li>MASTER_IP_PATH</li>
+  <li>MASTER_ZONE_PATH</li>
 
 </ul>
 
@@ -233,14 +170,13 @@ something like "C:\Documents and Settings\...".  That's a path
 containing spaces, which breaks some of the Hadoop EC2 scripts.</p>
 
 
-<p>Open a shell and go
-to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>.
-Launch a EC2 cluster and start Hadoop with the following command. You
-must supply a cluster name (test-cluster) and the number of slaves (2
-in my case). At this point, it makes no sense to start up a large
-cluster (even if you can!)&mdash;one or two nodes is sufficient.
-After the cluster boots, the public DNS name will be printed to the
-console.</p>
+<p>Open a shell and go to
+umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2.  Launch a EC2
+cluster and start Hadoop with the following command. You must supply a
+cluster name (test-cluster) and the number of slaves (2 in my
+case). At this point, it makes no sense to start up a large cluster
+(even if you can!)&mdash;one or two nodes is sufficient.  After the
+cluster boots, the public DNS name will be printed to the console.</p>
 
 <pre>
 $ bin/hadoop-ec2 launch-cluster test-cluster 2
@@ -266,7 +202,7 @@ usage starting now.  After a little bit, you should be able to access
 the job track on port 50030 of the master, which in my case is:</p>
 
 <blockquote>
-<code>http://ec2-75-101-238-212.compute-1.amazonaws.com:50030/</code>
+http://ec2-75-101-238-212.compute-1.amazonaws.com:50030/
 </blockquote>
 
 <p>Congratulations, you've just started a Hadoop cluster in the
@@ -285,12 +221,12 @@ INSTANCE        i-cef22da7      ami-ee53b687    ec2-75-101-236-71.compute-1.amaz
 
 <p>Pretty cool, huh?</p>
 
-<h3><a name="step4">Step 4: Test drive the cluster</a></h3>
+<h3><a name="step3">Step 3: Test drive the cluster</a></h3>
 
 <p>Let's log into the cluster and poke around.  Open a shell on your
-local machine and go
-to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>.
-Log into the master:</p>
+local machine and go to
+umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2.  Log into the
+master:</p>
 
 <pre>
 $ bin/hadoop-ec2 login test-cluster
@@ -320,7 +256,7 @@ should see the run.</p>
 <p>Note that Hadoop 0.17.0 may complain about deprecated filesystem
 name.  Don't worry about it.</p>
 
-<h3><a name="step5">Step 5: Transfer some data</a></h3>
+<h3><a name="step4">Step 4: Transfer some data</a></h3>
 
 <p>Now we're getting ready to run the word count demo.  Before doing
 that, you have to first transfer some data over to the cloud (those
@@ -335,20 +271,20 @@ Found 2 items
 </pre>
 
 <p>Right now, not much, but we're going to put some stuff there.  Open
-a shell on your local machine and go to <code>umd-hadoop-core/</code>.
-Now scp the sample data over to the master.</p>
+a shell on your local machine and go to umd-hadoop-core/.  Now scp the
+sample data over to the master.</p>
 
 <pre>
 $ scp -i YOUR_PATH/id_rsa-gsg-keypair sample-input/bible+shakes.* root@ec2-75-101-238-212.compute-1.amazonaws.com:/tmp
 </pre>
 
-<p>Of course, substitute <code>YOUR_PATH</code> and the name of your
-master accordingly.  As a convention, I like to copy things over
-to <code>/tmp</code> on the master.  Note that you're being charged
-for bandwidth usage in moving data into the clouds.  Another note: you
-actually only need one of the files to run the word count demo, but it
-makes sense just to copy everything over anyway, in case you want to
-play with the other demos.</p>
+<p>Of course, substitute YOUR_PATH and the name of your master
+accordingly.  As a convention, I like to copy things over to /tmp/ on
+the master.  Note that you're being charged for bandwidth usage in
+moving data into the clouds.  Another note: you actually only need one
+of the files to run the word count demo, but it makes sense just to
+copy everything over anyway, in case you want to play with the other
+demos.</p>
 
 <p>So now the data is on the local drive of the master.  Next, we have
 to put the data into HDFS, i.e., distribute the data across all nodes
@@ -377,19 +313,18 @@ Found 3 items
 
 <p>Data's there... now for the code.</p>
 
-<h3><a name="step6">Step 6: Transfer some code and run the word count demo</a></h3>
+<h3><a name="step5">Step 5: Transfer some code and run the word count demo</a></h3>
 
-<p>Back on your machine, open a shell and go
-to <code>umd-hadoop-core/build/</code> (which is where Eclipse
-automatically puts compiled class files).  Jar up the class files:</p>
+<p>Back on your machine, open a shell and go to umd-hadoop-core/build/
+(which is where Eclipse automatically puts compiled class files).  Jar
+up the class files:</p>
 
 <pre>
 $ jar cvf cloud9.jar edu/
 </pre>
 
-<p>If there's nothing in <code>build/</code>, go back to Step 1 and
-make sure the code compiled okay.  Once you have created the jar, copy
-it over:</p>
+<p>If there's nothing in build/, go back in Eclipse and make sure the
+code compiled okay.  Once you have created the jar, copy it over:</p>
 
 <pre>
 $ scp -i YOUR_PATH/id_rsa-gsg-keypair cloud9.jar root@ec2-75-101-238-212.compute-1.amazonaws.com:/tmp
@@ -427,12 +362,11 @@ $ scp -i YOUR_PATH/id_rsa-gsg-keypair cloud9.jar root@ec2-75-101-238-212.compute
 </pre>
 
 <p>Congratulations!  You have now learned the basics of Hadoop on EC2.
-For future reference, steps 0-2 need only be done once.  Step 3 starts
-your cluster in the clouds, so you have to do it before you start
-working, every time.  Step 5 is required every time you want to
-process a new dataset&mdash;you have to copy it into the clouds.  Step
-6 represents your typical debug cycle: write code, pack it up, scp it
-over to the cluster, and submit the job.</p>
+Step 1 starts your cluster in the clouds, so you have to do it before
+you start working every time.  Step 4 is required every time you want
+to process a new dataset&mdash;you have to copy it into the clouds.
+Step 5 represents your typical debug cycle: write code, pack it up,
+scp it over to the cluster, and submit the job.</p>
 
 <p>You might be wondering, how do you see the actual output of the
 program?  Word counts are stored in a directory in HDFS specified in
@@ -487,7 +421,7 @@ guide to HDFS shell commands</a>.</p>
 <p>And that's it!  If you're feeling up to it, you might want to
 continue on directly to my next tutorial, <a
 href="start-S3.html">getting started with S3</a>.  Otherwise, remember
-the most important thing of all... continute to step 7.</p>
+the most important thing of all... continute to step 6.</p>
 
 <p>So what's the "elastic" part of the cloud?  If you need more
 processing power, you can grow your cluster dynamically with the
@@ -504,13 +438,13 @@ HDFS data is stored in S3, I've found it easiest to simply remove all
 files from HDFS and recopy over from S3 (in essence, forcing proper
 redistribution of the blocks).</p>
 
-<h3><a name="step7">Step 7: Clean up!</a></h3>
+<h3><a name="step6">Step 6: Clean up!</a></h3>
 
 <p>You'll want to clean up after you're done.  Remember, the meter
 doesn't stop (i.e., the bill continues to accumulate, dime by dime)
 until you shut down your Hadoop cluster.  To do so, open a shell on
-your local machine and go
-to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2</code>:</p>
+your local machine and go to
+umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2:</p>
 
 <pre>
 $ bin/hadoop-ec2 terminate-cluster test-cluster
@@ -558,8 +492,8 @@ writing at the same time...</p>
 <p><b>In Windows, avoid paths with ~ and paths with space</b></p>
 
 <p>Paths with spaces break the EC2 scripts.  Avoid using ~ in paths
-also since it (depending on setup) maps to <code>C:\Document and
-Settings\...</code>, which has spaces in it.</p>
+also since it (depending on setup) maps to C:\Document and
+Settings\..., which has spaces in it.</p>
 
 <p><b>EC2 Authentication errors</b></p>
 
