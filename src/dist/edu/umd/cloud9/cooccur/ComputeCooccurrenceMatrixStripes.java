@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -33,9 +34,11 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.OHMapSIW;
-import edu.umd.cloud9.util.HadoopTask;
 
 /**
  * <p>
@@ -47,13 +50,22 @@ import edu.umd.cloud9.util.HadoopTask;
  * Masses: A Case Study in Computing Word Co-occurrence Matrices with MapReduce.</b>
  * <i>Proceedings of the 2008 Conference on Empirical Methods in Natural
  * Language Processing (EMNLP 2008).</i></blockquote>
+ * 
+ * @author Jimmy Lin
  */
-public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
-
-	private static int mWindow = 2;
+public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, Text, Text, OHMapSIW> {
+
+		private int window = 2;
+		private OHMapSIW map = new OHMapSIW();
+		private Text textKey = new Text();
+
+		public void configure(JobConf job) {
+			window = job.getInt("window", 2);
+		}
 
 		public void map(LongWritable key, Text line, OutputCollector<Text, OHMapSIW> output,
 				Reporter reporter) throws IOException {
@@ -68,9 +80,9 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 				if (term.length() == 0)
 					continue;
 
-				OHMapSIW map = new OHMapSIW();
+				map.clear();
 
-				for (int j = i - mWindow; j < i + mWindow + 1; j++) {
+				for (int j = i - window; j < i + window + 1; j++) {
 					if (j == i || j < 0)
 						continue;
 
@@ -88,7 +100,8 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 					}
 				}
 
-				output.collect(new Text(term), map);
+				textKey.set(term);
+				output.collect(textKey, map);
 			}
 		}
 	}
@@ -99,39 +112,51 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 		public void reduce(Text key, Iterator<OHMapSIW> values,
 				OutputCollector<Text, OHMapSIW> output, Reporter reporter) throws IOException {
 
-			OHMapSIW map = null;
+			OHMapSIW map = new OHMapSIW();
 
 			while (values.hasNext()) {
-				if (map == null) {
-					map = values.next();
-				} else {
-					map.plus(values.next());
-				}
+				map.plus(values.next());
 			}
 
 			output.collect(key, map);
 		}
 	}
 
-	public ComputeCooccurrenceMatrixStripes(Configuration conf) {
-		super(conf);
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public ComputeCooccurrenceMatrixStripes() {
 	}
 
-	public static final String[] RequiredParameters = { "CollectionName", "InputPath",
-			"OutputPath", "NumMapTasks", "NumReduceTasks", "Window" };
-
-	public String[] getRequiredParameters() {
-		return RequiredParameters;
+	private static int printUsage() {
+		System.out
+				.println("usage: [input-path] [output-path] [window] [num-mappers] [num-reducers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
-	public void runTask() throws Exception {
-		String collection = getConf().get("CollectionName");
-		String inputPath = getConf().get("InputPath");
-		String outputPath = getConf().get("OutputPath");
+	/**
+	 * Runs this tool.
+	 */
+	public int run(String[] args) throws Exception {
+		if (args.length != 5) {
+			printUsage();
+			return -1;
+		}
 
-		int mapTasks = getConf().getInt("NumMapTasks", 0);
-		int reduceTasks = getConf().getInt("NumReduceTasks", 0);
-		mWindow = getConf().getInt("Window", 0);
+		String inputPath = args[0];
+		String outputPath = args[1];
+
+		int window = Integer.parseInt(args[2]);
+		int mapTasks = Integer.parseInt(args[3]);
+		int reduceTasks = Integer.parseInt(args[4]);
+
+		sLogger.info("Tool: ComputeCooccurrenceMatrixStripes");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - window: " + window);
+		sLogger.info(" - number of mappers: " + mapTasks);
+		sLogger.info(" - number of reducers: " + reduceTasks);
 
 		JobConf conf = new JobConf(ComputeCooccurrenceMatrixStripes.class);
 
@@ -139,8 +164,9 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
-		conf.setJobName("CooccurrenceMatrixStripes-" + collection);
+		conf.setJobName("CooccurrenceMatrixStripes");
 
+		conf.setInt("window", window);
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
@@ -161,6 +187,15 @@ public class ComputeCooccurrenceMatrixStripes extends HadoopTask {
 		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 
+		return 0;
 	}
 
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new ComputeCooccurrenceMatrixStripes(), args);
+		System.exit(res);
+	}
 }
