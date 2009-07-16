@@ -152,7 +152,7 @@ public class DemoWordCount extends Configured implements Tool {
 
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 
 		return 0;
