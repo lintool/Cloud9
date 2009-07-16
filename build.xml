@@ -36,12 +36,10 @@
 
 	<target name="compile" depends="init" description="compile the source ">
 		<javac classpathref="classpath" srcdir="${src}/dist" destdir="${build}" optimize="on" debug="on">
-			<!-- compilerarg value="-Xlint:unchecked"/ 
-        uncomment this to check for generics -->
+			<!-- compilerarg value="-Xlint:unchecked"/ uncomment this to check for generics -->
 		</javac>
 		<javac classpathref="classpath" srcdir="${src}/sandbox" destdir="${build}" optimize="on" debug="on">
-			<!-- compilerarg value="-Xlint:unchecked"/ 
-        uncomment this to check for generics -->
+			<!-- compilerarg value="-Xlint:unchecked"/ uncomment this to check for generics -->
 		</javac>
 
 		<copy todir="${build}">
@@ -57,7 +55,6 @@
 	<target name="clean" description="clean up">
 		<delete dir="${regression_results}" />
 		<delete dir="${build}" />
-		<delete file="${lib}/ura.jar" />
 	</target>
 
 	<target name="test" depends="lib" description="Execute Unit Tests">
