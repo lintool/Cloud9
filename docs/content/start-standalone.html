@@ -32,33 +32,30 @@ document.writeln (LastUpdated);
 <p>This tutorial will get you started with
 Cloud<sup><small>9</small></sup> in standalone mode.  In standalone
 mode, you run Hadoop directly on your local machine.  Of course, you
-don't get the benefit of distributing the code across multiple
-machines... but it's a good start for learning about Hadoop.  Also,
-see companion tutorial on <a href="start-EC2.html">getting started
-with Cloud<sup><small>9</small></sup> on EC2</a>.</p>
+don't get the benefit of distributing your code across multiple
+machines... but it's a good start for learning about Hadoop.  This
+tutorial assumes you've already downloaded
+Cloud<sup><small>9</small></sup> and gotten it set up.  Otherwise, see
+my tutorial on <a href="start.html">that</a>.  Also, see companion
+tutorial on <a href="start-EC2.html">getting started with
+Cloud<sup><small>9</small></sup> on EC2</a>.</p>
 
 <p><b>For Windows users:</b> If you are using Windows,
 use <a href="http://www.cygwin.com">Cygwin</a>.  That's what I mean
 when I say, "open up a shell".</p>
 
+<h3>Step 1: Configure Hadoop for standalone mode</h3>
 
-<h3>Step 0: Download various software packages</h3>
+<p>I'm using Hadoop 0.18.3 for this tutorial.  Make sure you've
+unpacked the Hadoop distribution.  To do so, open a shell, go to
+umd-hadoop-core/hadoop/, and type in the following command:</p>
 
-<p>This is the same as step 0 in the
-<a href="start-EC2.html#step0">getting started with
-Cloud<sup><small>9</small></sup> on EC2</a> page.</p>
+<pre>
+$ tar xvfz hadoop-0.18.3.tar.gz
+</pre>
 
-<h3>Step 1: Check out Subversion repositories</h3>
-
-<p>This is the same as step 1 in the
-<a href="start-EC2.html#step1">getting started with
-Cloud<sup><small>9</small></sup> on EC2</a> page.</p>
-
-<h3>Step 2: Configure Hadoop for standalone mode</h3>
-
-<p>Open a shell and go
-to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/conf</code>.  Make sure
-<code>hadoop-site.xml</code> has the following contents:</p>
+<p>In the shell, go to umd-hadoop-core/hadoop/hadoop-0.18.3/conf/.
+Make sure hadoop-site.xml has the following contents:</p>
 
 <pre>
 &lt;?xml version="1.0"?&gt;
@@ -75,14 +72,13 @@ to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/conf</code>.  Make sure
 something else...  This configuration ensures that your Hadoop now
 runs in standalone mode.</p>
 
-<h3>Step 3: Run pi</h3>
+<h3>Step 2: Run pi</h3>
 
-<p>Open a shell and go
-to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code>. Now run the pi
-demo:</p>
+<p>Open a shell and go to umd-hadoop-core/hadoop/hadoop-0.18.3/. Now
+run the pi demo:</p>
 
 <pre>
-$ bin/hadoop jar hadoop-0.17.2-examples.jar pi 10 1000
+$ bin/hadoop jar hadoop-0.18.3-examples.jar pi 10 100
 Number of Maps = 10 Samples per Map = 1000
 Wrote input for Map #0
 Wrote input for Map #1
@@ -95,122 +91,97 @@ Wrote input for Map #7
 Wrote input for Map #8
 Wrote input for Map #9
 Starting Job
-09/05/31 00:04:50 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
-09/05/31 00:04:50 INFO mapred.FileInputFormat: Total input paths to process : 10
-09/05/31 00:04:51 INFO mapred.JobClient: Running job: job_local_1
-09/05/31 00:04:51 INFO mapred.MapTask: numReduceTasks: 1
-09/05/31 00:04:51 INFO mapred.LocalJobRunner: Generated 1 samples.
-09/05/31 00:04:51 INFO mapred.TaskRunner: Task 'job_local_1_map_0000' done.
-09/05/31 00:04:51 INFO mapred.TaskRunner: Saved output of task 'job_local_1_map_0000' ...
 [...]
-09/05/31 00:04:52 INFO mapred.LocalJobRunner: reduce > reduce
-09/05/31 00:04:52 INFO mapred.TaskRunner: Task 'reduce_r781hl' done.
-09/05/31 00:04:52 INFO mapred.TaskRunner: Saved output of task 'reduce_r781hl' to ...
-09/05/31 00:04:53 INFO mapred.JobClient: Job complete: job_local_1
-09/05/31 00:04:53 INFO mapred.JobClient: Counters: 11
-09/05/31 00:04:53 INFO mapred.JobClient:   File Systems
-09/05/31 00:04:53 INFO mapred.JobClient:     Local bytes read=1159787
-09/05/31 00:04:53 INFO mapred.JobClient:     Local bytes written=1355306
-09/05/31 00:04:53 INFO mapred.JobClient:   Map-Reduce Framework
-09/05/31 00:04:53 INFO mapred.JobClient:     Map input records=10
-09/05/31 00:04:53 INFO mapred.JobClient:     Map output records=20
-09/05/31 00:04:53 INFO mapred.JobClient:     Map input bytes=240
-09/05/31 00:04:53 INFO mapred.JobClient:     Map output bytes=320
-09/05/31 00:04:53 INFO mapred.JobClient:     Combine input records=0
-09/05/31 00:04:53 INFO mapred.JobClient:     Combine output records=0
-09/05/31 00:04:53 INFO mapred.JobClient:     Reduce input groups=2
-09/05/31 00:04:53 INFO mapred.JobClient:     Reduce input records=20
-09/05/31 00:04:53 INFO mapred.JobClient:     Reduce output records=0
-Job Finished in 2.578 seconds
-Estimated value of PI is 3.1108
+09/07/16 14:58:38 INFO mapred.JobClient: Job complete: job_local_0001
+09/07/16 14:58:38 INFO mapred.JobClient: Counters: 11
+09/07/16 14:58:38 INFO mapred.JobClient:   File Systems
+09/07/16 14:58:38 INFO mapred.JobClient:     Local bytes read=1165512
+09/07/16 14:58:38 INFO mapred.JobClient:     Local bytes written=1363366
+09/07/16 14:58:38 INFO mapred.JobClient:   Map-Reduce Framework
+09/07/16 14:58:38 INFO mapred.JobClient:     Reduce input groups=2
+09/07/16 14:58:38 INFO mapred.JobClient:     Combine output records=0
+09/07/16 14:58:38 INFO mapred.JobClient:     Map input records=10
+09/07/16 14:58:38 INFO mapred.JobClient:     Reduce output records=0
+09/07/16 14:58:38 INFO mapred.JobClient:     Map output bytes=320
+09/07/16 14:58:38 INFO mapred.JobClient:     Map input bytes=240
+09/07/16 14:58:38 INFO mapred.JobClient:     Combine input records=0
+09/07/16 14:58:38 INFO mapred.JobClient:     Map output records=20
+09/07/16 14:58:38 INFO mapred.JobClient:     Reduce input records=20
+Job Finished in 3.797 seconds
+Estimated value of PI is 3.1464
 </pre>
 
 <p>Okay, so the value of pi is a bit off... but at least Hadoop
 works!</p>
 
-<h3>Step 4: "Transfer" some data into HDFS</h3>
+<h3>Step 3: Unpack some data and build the job jar</h3>
 
-<p>Now we're getting ready to run the word count demo.  Normally, you
-have to transfer data into HDFS before you can run any Hadoop jobs,
-but in standalone mode, the "HDFS" is your actual hard drive, so this
-isn't strictly necessary.  Nevertheless, it's a good opportunity to
-learn some HDFS commands.</p>
-
-<p>Open a shell and go to <code>umd-hadoop-core/data/</code>.
-Uncompress the sample data file:</p>
+<p>Now we're getting ready to run the word count demo.  Open a shell
+and go to umd-hadoop-core/data/.  Uncompress the sample text
+collection (Bible and the complete works of Shakespeare):</p>
 
 <pre>
 $ gunzip bible+shakes.nopunc.gz
 </pre>
 
-<p>Go to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code>.  Create
-the appropriate directories:</p>
-
-<pre>
-$ bin/hadoop dfs -mkdir /shared
-$ bin/hadoop dfs -mkdir /shared/sample-input
-</pre>
-
-<p>Note that in actuality, Hadoop creates a normal directory on your
-local disk.  Next, copy the data to the appropriate place:</p>
-
-<pre>
-$ bin/hadoop dfs -put ../../data/bible+shakes.nopunc /shared/sample-input
-</pre>
-
-<h3>Step 5: Build and run the word count demo</h3>
-
-<p>Now let's actually run the word count demo.  Open a shell and go
-to <code>umd-hadoop-core/build/</code> (which is where Eclipse
-automatically puts compiled class files).  Jar up the class files:</p>
+<p>Now let's build a job jar for running the word count demo.  Open a
+shell and go to umd-hadoop-core/build/ (which is where
+Eclipse automatically puts compiled class files).  Jar up the class
+files:</p>
 
 <pre>
 $ jar cvf cloud9.jar *
 </pre>
 
-<p>If there's nothing in <code>build/</code>, go back to Step 1 and
-make sure the code compiled okay.  Once you have created the jar, go
-back to <code>umd-hadoop-core/hadoop/hadoop-0.17.2/</code> and run the
-code:</p>
+<p>If there's nothing in build/, go back to Eclipse and make sure the
+code compiles without error.</p>
+
+<h3>Step 4: Build and run the word count demo</h3>
+
+<p>Once you have created the jar, go back to
+umd-hadoop-core/hadoop/hadoop-0.18.3/ and submit the job in standalone
+mode.  Run the class to find out its command-line arguments:</p>
 
 <pre>
 $ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount
-09/05/31 00:24:28 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
-09/05/31 00:24:28 INFO mapred.FileInputFormat: Total input paths to process : 1
-09/05/31 00:24:29 INFO mapred.JobClient: Running job: job_local_1
-09/05/31 00:24:30 INFO mapred.MapTask: numReduceTasks: 1
-09/05/31 00:24:30 INFO mapred.JobClient:  map 0% reduce 0%
-09/05/31 00:24:36 INFO mapred.LocalJobRunner: file:/shared/sample-input/bible+shakes.nopunc:0+9068074
-09/05/31 00:24:36 INFO mapred.LocalJobRunner: file:/shared/sample-input/bible+shakes.nopunc:0+9068074
-09/05/31 00:24:36 INFO mapred.TaskRunner: Task 'job_local_1_map_0000' done.
-09/05/31 00:24:36 INFO mapred.TaskRunner: Saved output of task 'job_local_1_map_0000' to ...
-09/05/31 00:24:37 INFO mapred.JobClient:  map 100% reduce 0%
-09/05/31 00:24:37 INFO mapred.LocalJobRunner: reduce > reduce
-09/05/31 00:24:37 INFO mapred.TaskRunner: Task 'reduce_di9aal' done.
-09/05/31 00:24:37 INFO mapred.TaskRunner: Saved output of task 'reduce_di9aal' to ...
-09/05/31 00:24:38 INFO mapred.JobClient: Job complete: job_local_1
-09/05/31 00:24:38 INFO mapred.JobClient: Counters: 11
-09/05/31 00:24:38 INFO mapred.JobClient:   File Systems
-09/05/31 00:24:38 INFO mapred.JobClient:     Local bytes read=24663546
-09/05/31 00:24:38 INFO mapred.JobClient:     Local bytes written=8784276
-09/05/31 00:24:38 INFO mapred.JobClient:   Map-Reduce Framework
-09/05/31 00:24:38 INFO mapred.JobClient:     Map input records=156215
-09/05/31 00:24:38 INFO mapred.JobClient:     Map output records=1734298
-09/05/31 00:24:38 INFO mapred.JobClient:     Map input bytes=9068074
-09/05/31 00:24:38 INFO mapred.JobClient:     Map output bytes=15919397
-09/05/31 00:24:38 INFO mapred.JobClient:     Combine input records=1734298
-09/05/31 00:24:38 INFO mapred.JobClient:     Combine output records=86460
-09/05/31 00:24:38 INFO mapred.JobClient:     Reduce input groups=41788
-09/05/31 00:24:38 INFO mapred.JobClient:     Reduce input records=86460
-09/05/31 00:24:38 INFO mapred.JobClient:     Reduce output records=41788
+usage: [input-path] [output-path] [num-mappers] [num-reducers]
+</pre>
+
+<p>Now run the code with on the sample text collection:</p>
+
+<pre>
+$ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount ../../data/bible+shakes.nopunc demo 5 1
+09/07/16 15:09:17 INFO demo.DemoWordCount: Tool: DemoWordCount
+09/07/16 15:09:17 INFO demo.DemoWordCount:  - input path: ../../data/bible+shakes.nopunc
+09/07/16 15:09:17 INFO demo.DemoWordCount:  - output path: demo
+09/07/16 15:09:17 INFO demo.DemoWordCount:  - number of mappers: 5
+09/07/16 15:09:17 INFO demo.DemoWordCount:  - number of reducers: 1
+[...]
+09/07/16 15:09:25 INFO mapred.JobClient: Job complete: job_local_0001
+09/07/16 15:09:25 INFO mapred.JobClient: Counters: 11
+09/07/16 15:09:25 INFO mapred.JobClient:   File Systems
+09/07/16 15:09:25 INFO mapred.JobClient:     Local bytes read=22503580
+09/07/16 15:09:25 INFO mapred.JobClient:     Local bytes written=5466434
+09/07/16 15:09:25 INFO mapred.JobClient:   Map-Reduce Framework
+09/07/16 15:09:25 INFO mapred.JobClient:     Reduce input groups=41788
+09/07/16 15:09:25 INFO mapred.JobClient:     Combine output records=128253
+09/07/16 15:09:25 INFO mapred.JobClient:     Map input records=156215
+09/07/16 15:09:25 INFO mapred.JobClient:     Reduce output records=41788
+09/07/16 15:09:25 INFO mapred.JobClient:     Map output bytes=15919397
+09/07/16 15:09:25 INFO mapred.JobClient:     Map input bytes=9068074
+09/07/16 15:09:25 INFO mapred.JobClient:     Combine input records=1820763
+09/07/16 15:09:25 INFO mapred.JobClient:     Map output records=1734298
+09/07/16 15:09:25 INFO mapred.JobClient:     Reduce input records=41788
+09/07/16 15:09:25 INFO demo.DemoWordCount: Job Finished in 7.469 seconds
+09/07/16 15:09:25 INFO mapred.LocalJobRunner: file:/c:/workspace/umd-hadoop-core/data/bible+shakes.nopunc:0+9068074
 </pre>
 
 <p>There should now be a new sub-directory in your current directory
-called <code>sample-counts</code> that contains the output of the word
+called demo/ that contains the output of the word
 count demo:</p>
 
 <pre>
-$ head sample-counts/part-00000
+$ head demo/part-00000
 &amp;c      70
 &amp;c'     1
 ''all   1
@@ -222,7 +193,7 @@ $ head sample-counts/part-00000
 ''look  1
 ''my    1
 
-$ tail sample-counts/part-00000
+$ tail demo/part-00000
 zorites 1
 zorobabel       3
 zounds  20
@@ -234,8 +205,8 @@ zurishaddai     5
 zuzims  1
 zwaggered       1
 
-$ wc sample-counts/part-00000
- 41788  83576 447180 sample-counts/part-00000
+$ wc demo/part-00000
+ 41788  83576 447180 demo/part-00000
 </pre>
 
 <p>And that's it!  Now you're ready to run a <i>real</i> MapReduce
