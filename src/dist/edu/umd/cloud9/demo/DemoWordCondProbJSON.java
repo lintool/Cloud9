@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -40,6 +42,9 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,23 +53,21 @@ import edu.umd.cloud9.io.JSONObjectWritable;
 /**
  * <p>
  * Demo of how to compute conditional probabilities using JSON objects as
- * intermediate keys. Input comes from Bible+Shakespeare sample collection. See
- * also {@link DemoWordCondProbTuple}. Expected output:
+ * intermediate keys. See also {@link DemoWordCondProbTuple}. This Hadoop Tool
+ * takes the following command-line arguments:
  * </p>
  * 
- * <pre>
- * Map input records=156215
- * Map output records=3468596
- * Map input bytes=9068074
- * Map output bytes=123756588
- * Combine input records=3468596
- * Combine output records=324085
- * Reduce input groups=101013
- * Reduce input records=3468596
- * Reduce output records=101013
- * </pre>
+ * <ul>
+ * <li>[input-path] input path</li>
+ * <li>[output-path] output path</li>
+ * <li>[num-mappers] number of mappers</li>
+ * <li>[num-reducers] number of reducers</li>
+ * </ul>
+ * 
+ * @author Jimmy Lin
  */
-public class DemoWordCondProbJSON {
+public class DemoWordCondProbJSON extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(DemoWordCondProbJSON.class);
 
 	// define custom intermediate key; must specify sort order
 	private static class MyTuple extends JSONObjectWritable implements WritableComparable {
@@ -212,24 +215,44 @@ public class DemoWordCondProbJSON {
 		}
 	}
 
-	// dummy constructor
-	private DemoWordCondProbJSON() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoWordCondProbJSON() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc";
-		String outputPath = "condprob";
-		int numMapTasks = 20;
-		int numReduceTasks = 10;
+	public int run(String[] args) throws Exception {
+		if (args.length != 4) {
+			printUsage();
+			return -1;
+		}
+
+		String inputPath = args[0];
+		String outputPath = args[1];
+
+		int mapTasks = Integer.parseInt(args[2]);
+		int reduceTasks = Integer.parseInt(args[3]);
+
+		sLogger.info("Tool: DemoWordCondProbJSON");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - number of mappers: " + mapTasks);
+		sLogger.info(" - number of reducers: " + reduceTasks);
 
 		JobConf conf = new JobConf(DemoWordCondProbJSON.class);
 		conf.setJobName("DemoWordCondProbJSON");
 
-		conf.setNumMapTasks(numMapTasks);
-		conf.setNumReduceTasks(numReduceTasks);
+		conf.setNumMapTasks(mapTasks);
+		conf.setNumReduceTasks(reduceTasks);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
@@ -251,6 +274,20 @@ public class DemoWordCondProbJSON {
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoWordCondProbJSON(), args);
+		System.exit(res);
 	}
 }

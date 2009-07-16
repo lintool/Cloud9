@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -34,27 +36,27 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Simple word count demo. Counts words in the Bible+Shakespeare sample
- * collection. Expected trace of MapReduce operation:
+ * Simple word count demo. This Hadoop Tool counts words in flat text file, and
+ * takes the following command-line arguments:
  * </p>
  * 
- * <pre>
- * Map input records=156215
- * Map output records=1734298
- * Map input bytes=9068074
- * Map output bytes=15919397
- * Combine input records=1734298
- * Combine output records=135372
- * Reduce input groups=41788
- * Reduce input records=135372
- * Reduce output records=41788
- * </pre>
+ * <ul>
+ * <li>[input-path] input path</li>
+ * <li>[output-path] output path</li>
+ * <li>[num-mappers] number of mappers</li>
+ * <li>[num-reducers] number of reducers</li>
+ * </ul>
  * 
+ * @author Jimmy Lin
  */
-public class DemoWordCount {
+public class DemoWordCount extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(DemoWordCount.class);
 
 	// mapper: emits (token, 1) for every word occurrence
 	private static class MyMapper extends MapReduceBase implements
@@ -94,18 +96,38 @@ public class DemoWordCount {
 		}
 	}
 
-	protected DemoWordCount() {
+	/**
+	 * Creates an instance of this tool.
+	 */
+	public DemoWordCount() {
+	}
+
+	private static int printUsage() {
+		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
 	}
 
 	/**
-	 * Runs the demo.
+	 * Runs this tool.
 	 */
-	public static void main(String[] args) throws IOException {
-		String inputPath = "/shared/sample-input/bible+shakes.nopunc";
-		String outputPath = "sample-counts";
+	public int run(String[] args) throws Exception {
+		if (args.length != 4) {
+			printUsage();
+			return -1;
+		}
 
-		int mapTasks = 20;
-		int reduceTasks = 1;
+		String inputPath = args[0];
+		String outputPath = args[1];
+
+		int mapTasks = Integer.parseInt(args[2]);
+		int reduceTasks = Integer.parseInt(args[3]);
+
+		sLogger.info("Tool: DemoWordCount");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - number of mappers: " + mapTasks);
+		sLogger.info(" - number of reducers: " + reduceTasks);
 
 		JobConf conf = new JobConf(DemoWordCount.class);
 		conf.setJobName("DemoWordCount");
@@ -128,6 +150,20 @@ public class DemoWordCount {
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
+		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
+
+		return 0;
+	}
+
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new DemoWordCount(), args);
+		System.exit(res);
 	}
 }
