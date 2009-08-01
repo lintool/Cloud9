@@ -33,7 +33,7 @@ import edu.umd.cloud9.util.ArrayListOfInts;
  *
  */
 public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable {
-	
+
 	/**
 	 * Constructs an ArrayListOfIntsWritable object.
 	 */
@@ -57,7 +57,7 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 			this.add(j++, i);
 		}	
 	}
-	
+
 	/**
 	 * Constructs an empty list with the specified initial capacity.
 	 * 
@@ -67,7 +67,7 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	public ArrayListOfIntsWritable(int initialCapacity) {
 		super(initialCapacity);
 	}
-	
+
 	/**
 	 * Constructs a deep copy of the ArrayListOfIntsWritable object 
 	 * given as parameter.
@@ -80,6 +80,13 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		for(int i=0;i<other.size();i++){
 			add(i, other.get(i));
 		}
+	}
+
+	public ArrayListOfIntsWritable(int[] perm) {
+		super();
+		for(int i=0;i<perm.length;i++){
+			add(i, perm[i]);
+		}	
 	}
 
 	/**
@@ -109,7 +116,7 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 			out.writeInt(get(i));
 		}
 	}
-	
+
 	/**
 	 * Generates human-readable String representation of this ArrayList.
 	 * 
@@ -123,7 +130,7 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		if(size==0){
 			return "[]";
 		}
-		
+
 		String s="[";
 		for(int i=0;i<size-1;i++){
 			s+=get(i)+",";
