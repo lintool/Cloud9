@@ -17,11 +17,9 @@
 package edu.umd.cloud9.io;
 
 import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
 import junit.framework.JUnit4TestAdapter;
 
 import org.apache.hadoop.conf.Configuration;
@@ -32,7 +30,6 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
-
 import edu.umd.cloud9.util.KeyValuePair;
 import edu.umd.cloud9.util.SequenceFileUtils;
 
