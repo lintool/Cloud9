@@ -18,11 +18,15 @@ package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.JobConfigurable;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
@@ -37,13 +41,24 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
  * @author Jimmy Lin
  */
 public class MedlineCitationInputFormat extends
-		IndexableFileInputFormat<LongWritable, MedlineCitation> {
+		IndexableFileInputFormat<LongWritable, MedlineCitation> implements JobConfigurable {
+	
+	private CompressionCodecFactory compressionCodecs = null;
+
 	/**
 	 * Creates a <code>MedlineCitationInputFormat</code>.
 	 */
 	public MedlineCitationInputFormat() {
 	}
-	
+
+	public void configure(JobConf conf) {
+		compressionCodecs = new CompressionCodecFactory(conf);
+	}
+
+	protected boolean isSplitable(FileSystem fs, Path file) {
+		return compressionCodecs.getCodec(file) == null;
+	}
+
 	/**
 	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
 	 */
