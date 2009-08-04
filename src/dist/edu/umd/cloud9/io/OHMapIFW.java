@@ -85,13 +85,27 @@ public class OHMapIFW extends OHMapIF implements Writable {
 	 * 
 	 * @throws IOException
 	 */
-	public void decode() throws IOException {
+	public void decode() {
 		if (mKeys == null)
 			return;
 
 		for (int i = 0; i < mKeys.length; i++) {
 			put(mKeys[i], mValues[i]);
 		}
+
+		mKeys = null;
+		mValues = null;
+	}
+
+	/**
+	 * Returns whether or not this map has been decoded. If not in lazy decoding
+	 * mode, this method always return <i>true</i>.
+	 */
+	public boolean isDecoded() {
+		if (getLazyDecodeFlag() == false)
+			return true;
+
+		return mKeys == null;
 	}
 
 	/**
@@ -196,23 +210,44 @@ public class OHMapIFW extends OHMapIF implements Writable {
 	}
 
 	/**
-	 * In lazy decoding mode, adds values from keys of another map to this map.
-	 * This map must have already been decoded, but the other map must not have
-	 * been already decoded.
+	 * Adds values from keys of another map to this map. This map will be
+	 * decoded if it hasn't already been decode. The other map need not be
+	 * decoded.
 	 * 
 	 * @param m
 	 *            the other map
 	 */
-	public void lazyplus(OHMapIFW m) {
-		int[] k = m.getKeys();
-		float[] v = m.getValues();
+	public void plus(OHMapIFW m) {
+		// this map must be decoded, so decode if it isn't already
+		if (!this.isDecoded())
+			this.decode();
 
-		for (int i = 0; i < k.length; i++) {
-			if (this.containsKey(k[i])) {
-				this.put(k[i], this.get(k[i]) + v[i]);
-			} else {
-				this.put(k[i], v[i]);
+		if (!m.isDecoded()) {
+			// if the other map hasn't been decoded, we can iterate through the
+			// arrays
+			int[] k = m.getKeys();
+			float[] v = m.getValues();
+
+			for (int i = 0; i < k.length; i++) {
+				if (this.containsKey(k[i])) {
+					this.put(k[i], this.get(k[i]) + v[i]);
+				} else {
+					this.put(k[i], v[i]);
+				}
 			}
+		} else {
+			// if the other map has already been decoded, the superclass plus
+			// method can handle it.
+
+			super.plus(m);
 		}
+	}
+
+	@Override
+	public int size() {
+		if (!isDecoded())
+			return mKeys.length;
+
+		return super.size();
 	}
 }
