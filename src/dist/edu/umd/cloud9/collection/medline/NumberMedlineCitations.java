@@ -171,7 +171,7 @@ public class NumberMedlineCitations extends Configured implements Tool {
 				"edu.umd.cloud9.collection.medline.NumberMedlineCitations$Citations", 0, "");
 
 		int numdocs = (int) counter.getCounter();
-		System.out.println("number of docs: " + numdocs);
+		sLogger.info("total number of docs: " + numdocs);
 
 		MedlineDocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
 		
