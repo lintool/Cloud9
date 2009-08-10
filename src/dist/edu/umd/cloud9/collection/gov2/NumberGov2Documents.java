@@ -3,6 +3,8 @@ package edu.umd.cloud9.collection.gov2;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -19,8 +21,12 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
-public class NumberGov2Documents {
+import edu.umd.cloud9.collection.gov2.NumberGov2Documents;
+
+public class NumberGov2Documents extends Configured implements Tool {
 
 	protected static enum Documents {
 		Total
@@ -54,17 +60,10 @@ public class NumberGov2Documents {
 		}
 	}
 
-	private NumberGov2Documents() {
+	public NumberGov2Documents() {
 	}
 
-	/**
-	 * Runs the program
-	 * 
-	 * @param args
-	 *            command-line arguments
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
 			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
 			System.exit(-1);
@@ -79,7 +78,7 @@ public class NumberGov2Documents {
 		System.out.println("output: " + outputPath);
 		System.out.println("number of mappers: " + mapTasks);
 
-		JobConf conf = new JobConf(NumberGov2Documents.class);
+		JobConf conf = new JobConf(getConf(), NumberGov2Documents.class);
 		conf.setJobName("NumberGov2Documents");
 
 		conf.setNumMapTasks(mapTasks);
@@ -103,5 +102,16 @@ public class NumberGov2Documents {
 		JobClient.runJob(conf);
 
 		Gov2DocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
+		
+		return 0;
+	}
+	
+	/**
+	 * Dispatches command-line arguments to the tool via the
+	 * <code>ToolRunner</code>.
+	 */
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new NumberGov2Documents(), args);
+		System.exit(res);
 	}
 }

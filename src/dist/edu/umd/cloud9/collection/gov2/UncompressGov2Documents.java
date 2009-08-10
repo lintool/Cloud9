@@ -43,7 +43,7 @@ public class UncompressGov2Documents {
 	public static void main(String[] args) throws IOException {
 		int mapTasks = 10;
 
-		String outputPath = "/umd/collections/gov2.uncompressed/";
+		String outputPath = "/user/metzler/gov2.uncompressed/";
 
 		JobConf conf = new JobConf(UncompressGov2Documents.class);
 		conf.setJobName("UncompressGov2Documents");
@@ -51,17 +51,26 @@ public class UncompressGov2Documents {
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
-		FileInputFormat.addInputPath(conf, new Path("/umd/collections/gov2"));
+		for(int i = 0; i <= 272; i++ ) {
+			String pathName = "/user/metzler/gov2/GX";
+			String indexNum = Integer.toString(i);
+			if(indexNum.length() == 1) { pathName += "00"; }
+			if(indexNum.length() == 2) { pathName += "0"; }
+			pathName += indexNum;
+			FileInputFormat.addInputPath(conf, new Path(pathName));
+		}
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
-		conf.setInputFormat(Gov2InputFormat.class);
+		conf.setInputFormat(Gov2DocumentInputFormat.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 		conf.setOutputKeyClass(LongWritable.class);
 		conf.setOutputValueClass(Gov2Document.class);
 
 		conf.setMapperClass(MyMapper.class);
 
+		conf.set("mapred.job.queue.name", "search");
+		
 		// delete the output directory if it exists already
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 

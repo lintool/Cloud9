@@ -1,6 +1,8 @@
 package edu.umd.cloud9.collection.gov2;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +22,12 @@ import edu.umd.cloud9.util.FSLineReader;
 public class Gov2DocnoMapping implements DocnoMapping {
 	private static final Logger sLogger = Logger.getLogger(Gov2DocnoMapping.class);
 
-	private String[] mTitles;
+	private int [][] mDocIds;
+	private int [] mOffsets;
+
+	private static final NumberFormat sFormatW2 = new DecimalFormat("00");
+	private static final NumberFormat sFormatW3 = new DecimalFormat("000");
+	private static final NumberFormat sFormatW8 = new DecimalFormat("00000000");
 
 	/**
 	 * Creates a <code>WikipediaDocnoMapping</code> object
@@ -29,15 +36,81 @@ public class Gov2DocnoMapping implements DocnoMapping {
 	}
 
 	public int getDocno(String docid) {
-		return Arrays.binarySearch(mTitles, docid);
+		int dirNum = Integer.parseInt(docid.substring(2,5));
+		int subdirNum = Integer.parseInt(docid.substring(6,8));
+		int num = Integer.parseInt(docid.substring(9));
+		int offset = Arrays.binarySearch(mDocIds[dirNum*100 + subdirNum], num);
+		sLogger.info("Document name: " + docid + ", id: " + (mOffsets[dirNum*100+subdirNum] + offset + 1));
+		return mOffsets[dirNum*100 + subdirNum] + offset + 1;
 	}
 
 	public String getDocid(int docno) {
-		return mTitles[docno];
+		docno--;
+		
+		int i = 0;
+		for(i = 0; i < mDocIds.length; i++) {
+			if(docno < mOffsets[i]) {
+				break;
+			}
+		}
+		i--;
+
+		int subdirNum = i % 100;
+		int dirNum = (i - subdirNum) / 100;
+		int num = mDocIds[i][docno - mOffsets[i]];
+		
+		return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW8.format(num);
 	}
 
 	public void loadMapping(Path p, FileSystem fs) throws IOException {
-		mTitles = Gov2DocnoMapping.readDocidData(p, fs);
+		FSDataInputStream in = fs.open(p);
+
+		List<Integer> ids = null;
+		int lastOffset = -1;
+
+		int sz = in.readInt();
+		mDocIds = new int[273*100][];
+		mOffsets = new int[273*100];
+
+		for (int i = 0; i < sz; i++) {
+			String docName = in.readUTF();
+
+			// GX243-38-13543987
+			int dirNum = Integer.parseInt(docName.substring(2,5));
+			int subdirNum = Integer.parseInt(docName.substring(6,8));
+			int num = Integer.parseInt(docName.substring(9));
+
+			int curOffset = dirNum*100 + subdirNum;
+
+			if(num == 0) {
+				mOffsets[curOffset] = i;
+			}
+			
+			if(curOffset != lastOffset) {
+				if(ids != null) {
+					int [] idArray = new int[ids.size()];
+					for(int j = 0; j < ids.size(); j++) {
+						idArray[j] = ids.get(j);
+					}
+					Arrays.sort(idArray);
+					mDocIds[lastOffset] = idArray;
+				}
+				lastOffset = curOffset;
+				ids = new ArrayList<Integer>();
+			}
+			ids.add(num);
+		}
+		
+		if(ids != null) {
+			int [] idArray = new int[ids.size()];
+			for(int j = 0; j < ids.size(); j++) {
+				idArray[j] = ids.get(j);
+			}
+			Arrays.sort(idArray);
+			mDocIds[lastOffset] = idArray;
+		}
+
+		in.close();
 	}
 
 	/**
@@ -54,67 +127,33 @@ public class Gov2DocnoMapping implements DocnoMapping {
 	static public void writeDocidData(String inputFile, String outputFile) throws IOException {
 		sLogger.info("Writing docids to " + outputFile);
 		FSLineReader reader = new FSLineReader(inputFile);
-		List<String> list = new ArrayList<String>();
 
 		sLogger.info("Reading " + inputFile);
 		int cnt = 0;
 		Text line = new Text();
 		while (reader.readLine(line) > 0) {
+			cnt++;
+		}
+		reader.close();
+		sLogger.info("Done!");
+		
+		sLogger.info("Writing " + outputFile);
+		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(outputFile),
+				true);
+		reader = new FSLineReader(inputFile);
+		out.writeInt(cnt);
+		cnt = 0;
+		while(reader.readLine(line) > 0) {
 			String[] arr = line.toString().split("\\t");
-			list.add(arr[0]);
+			out.writeUTF(arr[0]);
 			cnt++;
 			if (cnt % 100000 == 0) {
 				sLogger.info(cnt + " articles");
 			}
 		}
 		reader.close();
-		sLogger.info("Done!");
-
-		cnt = 0;
-		sLogger.info("Writing " + outputFile);
-		FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(outputFile),
-				true);
-		out.writeInt(list.size());
-		for (int i = 0; i < list.size(); i++) {
-			out.writeUTF(list.get(i));
-			cnt++;
-			if (cnt % 100000 == 0) {
-				sLogger.info(cnt + " articles");
-			}
-		}
 		out.close();
 		sLogger.info("Done!\n");
-	}
-
-	/**
-	 * Reads a mappings file into memory.
-	 * 
-	 * @param p
-	 *            path to the mappings file
-	 * @param fs
-	 *            appropriate FileSystem
-	 * @return an array of docids (article titles); the index position of each
-	 *         docid is its docno
-	 * @throws IOException
-	 */
-	static public String[] readDocidData(Path p, FileSystem fs) throws IOException {
-		FSDataInputStream in = fs.open(p);
-
-		// docnos start at one, so we need an array that's one larger than
-		// number of docs
-		int sz = in.readInt() + 1;
-		String[] arr = new String[sz];
-
-		for (int i = 1; i < sz; i++) {
-			arr[i] = in.readUTF();
-		}
-		in.close();
-
-		// can't leave the zero'th entry null, or else we might get a null
-		// pointer exception during a binary search on the array
-		arr[0] = "";
-
-		return arr;
 	}
 
 	/**
@@ -138,9 +177,9 @@ public class Gov2DocnoMapping implements DocnoMapping {
 		mapping.loadMapping(new Path(args[1]), fs);
 
 		if (args[0].equals("list")) {
-			for (int i = 1; i < mapping.mTitles.length; i++) {
-				System.out.println(i + "\t" + mapping.mTitles[i]);
-			}
+			//for (int i = 1; i < mapping.mTitles.length; i++) {
+			//	System.out.println(i + "\t" + mapping.mTitles[i]);
+			//}
 		} else if (args[0].equals("getDocno")) {
 			System.out.println("looking up docno for \"" + args[2] + "\"");
 			int idx = mapping.getDocno(args[2]);
