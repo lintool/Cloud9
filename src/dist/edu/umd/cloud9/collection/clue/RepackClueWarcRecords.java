@@ -6,6 +6,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapred.JobClient;
@@ -33,6 +34,7 @@ import org.apache.log4j.Logger;
  * <li>[base-path] base path of the ClueWeb09 distribution</li>
  * <li>[output-path] output path</li>
  * <li>[part-num] part number (1 through 10)</li>
+ * <li>[docno-mapping-data-file] docno mapping data file</li>
  * </ul>
  * 
  * <p>
@@ -42,6 +44,7 @@ import org.apache.log4j.Logger;
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.RepackClueWarcRecords \
  *  /umd/collections/ClueWeb09 /umd/collections/ClueWeb09.repacked/en.01 1
+ *  /umd/collections/ClueWeb09.repacked/docno-mapping.dat
  * </pre>
  * 
  * 
@@ -57,9 +60,10 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, ClueWarcRecord, LongWritable, ClueWarcRecord> {
+			Mapper<LongWritable, ClueWarcRecord, IntWritable, ClueWarcRecord> {
 
-		ClueWarcDocnoMapping mDocnoMapping = new ClueWarcDocnoMapping();
+		private static final IntWritable sDocno = new IntWritable();
+		private ClueWarcDocnoMapping mDocnoMapping = new ClueWarcDocnoMapping();
 
 		public void configure(JobConf job) {
 			try {
@@ -71,7 +75,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		}
 
 		public void map(LongWritable key, ClueWarcRecord doc,
-				OutputCollector<LongWritable, ClueWarcRecord> output, Reporter reporter)
+				OutputCollector<IntWritable, ClueWarcRecord> output, Reporter reporter)
 				throws IOException {
 			reporter.incrCounter(Records.TOTAL, 1);
 
@@ -79,7 +83,9 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 
 			if (id != null) {
 				reporter.incrCounter(Records.PAGES, 1);
-				output.collect(key, doc);
+
+				sDocno.set(mDocnoMapping.getDocno(id));
+				output.collect(sDocno, doc);
 			}
 		}
 	}
@@ -113,7 +119,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		JobConf conf = new JobConf(RepackClueWarcRecords.class);
 		conf.setJobName("RepackClueWarcRecords:part" + part);
 
-		// this is the default size
+		// this is the default block size
 		int blocksize = 1000000;
 		conf.setInt("io.seqfile.compress.blocksize", blocksize);
 		conf.set("DocnoMappingDataFile", data);
@@ -138,7 +144,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 
 		conf.setInputFormat(ClueWarcInputFormat.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
-		conf.setOutputKeyClass(LongWritable.class);
+		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(ClueWarcRecord.class);
 
 		conf.setMapperClass(MyMapper.class);
