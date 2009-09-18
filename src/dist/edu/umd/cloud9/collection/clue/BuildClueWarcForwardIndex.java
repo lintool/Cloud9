@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -24,6 +25,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
+import edu.umd.cloud9.util.FSLineReader;
 
 /**
  * <p>
@@ -142,9 +144,45 @@ public class BuildClueWarcForwardIndex extends Configured implements Tool {
 		RunningJob job = JobClient.runJob(conf);
 
 		Counters counters = job.getCounters();
-		long blocks = counters.findCounter(Blocks.Total).getCounter();
+		int blocks = (int) counters.findCounter(Blocks.Total).getCounter();
 
 		sLogger.info("number of blocks: " + blocks);
+
+		sLogger.info("Writing index file...");
+		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
+		FSDataOutputStream out = fs.create(new Path(indexFile), true);
+
+		out.writeInt(blocks);
+
+		int cnt = 0;
+		Text line = new Text();
+		while (reader.readLine(line) > 0) {
+			String[] arr = line.toString().split("\\s+");
+
+			int docno = Integer.parseInt(arr[0]);
+			int offset = Integer.parseInt(arr[1]);
+			short fileno = Short.parseShort(arr[2]);
+
+			// System.out.println(docno + "#" + offset + "#" + fileno);
+
+			out.writeInt(docno);
+			out.writeInt(offset);
+			out.writeShort(fileno);
+
+			cnt++;
+
+			if (cnt % 100000 == 0) {
+				sLogger.info(cnt + " blocks written");
+			}
+
+		}
+
+		reader.close();
+		out.close();
+
+		if (cnt != blocks) {
+			throw new RuntimeException("Error: mismatch in block count!");
+		}
 
 		return 0;
 	}
