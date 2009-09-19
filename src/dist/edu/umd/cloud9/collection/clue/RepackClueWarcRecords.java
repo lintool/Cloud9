@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
  * <ul>
  * <li>[base-path] base path of the ClueWeb09 distribution</li>
  * <li>[output-path] output path</li>
- * <li>[part-num] part number (1 through 10)</li>
+ * <li>[segment-num] segment number (1 through 10)</li>
  * <li>[docno-mapping-data-file] docno mapping data file</li>
  * </ul>
  * 
@@ -97,7 +97,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [base-path] [output-path] [part-num] [docno-mapping-data-file]");
+		System.out.println("usage: [base-path] [output-path] [segment-num] [docno-mapping-data-file]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -113,11 +113,11 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 
 		String basePath = args[0];
 		String outputPath = args[1];
-		int part = Integer.parseInt(args[2]);
+		int segment = Integer.parseInt(args[2]);
 		String data = args[3];
 
 		JobConf conf = new JobConf(RepackClueWarcRecords.class);
-		conf.setJobName("RepackClueWarcRecords:part" + part);
+		conf.setJobName("RepackClueWarcRecords:segment" + segment);
 
 		// this is the default block size
 		int blocksize = 1000000;
@@ -127,7 +127,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		sLogger.info("Tool name: RepackClueWarcRecords");
 		sLogger.info(" - Base path: " + basePath);
 		sLogger.info(" - Output path: " + outputPath);
-		sLogger.info(" - Segement number: " + part);
+		sLogger.info(" - Segement number: " + segment);
 		sLogger.info(" - Docno mapping data file: " + data);
 		sLogger.info(" - block size: " + blocksize);
 
@@ -136,7 +136,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(0);
 
-		ClueCollectionPathConstants.addEnglishCollectionPart(conf, basePath, part);
+		ClueCollectionPathConstants.addEnglishCollectionPart(conf, basePath, segment);
 
 		SequenceFileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		SequenceFileOutputFormat.setCompressOutput(conf, true);
