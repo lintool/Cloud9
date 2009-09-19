@@ -254,14 +254,8 @@ of files plus number of pages.</p>
 
 <h3><a name="uncompressing">Uncompressing the Records</a></h3>
 
-<p>I've found it much more convenient to work with WARC records in
-uncompressed format.  This is because gzip files aren't inherently
-splittable, which causes two issues: first, each WARC file represents
-the smallest map task in MapReduce (which might be too
-coarse-grained); second, it is costly to seek to a record in the
-middle of a WARC file.</p>
-
-<p>Cloud<sup><small>9</small></sup> provides
+<p>In some cases, you might want to uncompress the records.
+Cloud<sup><small>9</small></sup> provides
 a <a href="../api/edu/umd/cloud9/collection/clue/UncompressClueWarcRecords.html">program</a>
 to uncompress WARC files into a SequenceFile of ClueWarcRecords.  The
 uncompressed WARC records take up a lot of space, but space is
@@ -352,8 +346,13 @@ number (1 through 10).</p>
 </tr>
 </table>
 
-<p>The second column is exactly the same as the third column in the
-table above.  The third column lists the size of the output.</p>
+<p>The second above column is exactly the same as the third column in
+the previous table.  The third column lists the size of the
+output.</p>
+
+<p>An alternative to uncompressing the entire collection is to repack
+the records in <a href="clue-access.html">a block-compressed
+format</a>.</p>
 
 <h3><a name="docnos">Sequentially-numbered docnos</a></h3>
 
