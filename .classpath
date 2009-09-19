@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
 	<classpathentry kind="lib" path="hadoop/hadoop-0.17.2/hadoop-0.17.2-core.jar"/>
+	<classpathentry kind="lib" path="hadoop/hadoop-0.17.2/lib/jetty-5.1.4.jar"/>
+	<classpathentry kind="lib" path="hadoop/hadoop-0.17.2/lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
