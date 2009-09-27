@@ -43,8 +43,8 @@ import org.apache.log4j.Logger;
  * 
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.RepackClueWarcRecords \
- *  /umd/collections/ClueWeb09 /umd/collections/ClueWeb09.repacked/en.01 1
- *  /umd/collections/ClueWeb09.repacked/docno-mapping.dat
+ *  /umd/collections/ClueWeb09 /umd/collections/ClueWeb09.repacked.block/en.01 1 \
+ *  /umd/collections/ClueWeb09.repacked.block/docno-mapping.dat block
  * </pre>
  * 
  * 
@@ -53,7 +53,7 @@ import org.apache.log4j.Logger;
  */
 public class RepackClueWarcRecords extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(UncompressClueWarcRecords.class);
+	private static final Logger sLogger = Logger.getLogger(RepackClueWarcRecords.class);
 
 	private static enum Records {
 		TOTAL, PAGES
@@ -97,7 +97,8 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [base-path] [output-path] [segment-num] [docno-mapping-data-file]");
+		System.out
+				.println("usage: [base-path] [output-path] [segment-num] [docno-mapping-data-file] (block|record|none)");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -106,7 +107,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
+		if (args.length != 5) {
 			printUsage();
 			return -1;
 		}
@@ -115,21 +116,32 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		String outputPath = args[1];
 		int segment = Integer.parseInt(args[2]);
 		String data = args[3];
+		String compressionType = args[4];
+
+		if (!compressionType.equals("block") && !compressionType.equals("record")
+				&& !compressionType.equals("none")) {
+			System.err.println("Error: \"" + compressionType + "\" unknown compression type!");
+			System.exit(-1);
+		}
+
+		// this is the default block size
+		int blocksize = 1000000;
 
 		JobConf conf = new JobConf(RepackClueWarcRecords.class);
 		conf.setJobName("RepackClueWarcRecords:segment" + segment);
 
-		// this is the default block size
-		int blocksize = 1000000;
-		conf.setInt("io.seqfile.compress.blocksize", blocksize);
 		conf.set("DocnoMappingDataFile", data);
 
 		sLogger.info("Tool name: RepackClueWarcRecords");
-		sLogger.info(" - Base path: " + basePath);
-		sLogger.info(" - Output path: " + outputPath);
-		sLogger.info(" - Segement number: " + segment);
-		sLogger.info(" - Docno mapping data file: " + data);
-		sLogger.info(" - block size: " + blocksize);
+		sLogger.info(" - base path: " + basePath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - segement number: " + segment);
+		sLogger.info(" - docno mapping data file: " + data);
+		sLogger.info(" - compression type: " + compressionType);
+
+		if (compressionType.equals("block")) {
+			sLogger.info(" - block size: " + blocksize);
+		}
 
 		int mapTasks = 10;
 
@@ -139,8 +151,21 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		ClueCollectionPathConstants.addEnglishCollectionPart(conf, basePath, segment);
 
 		SequenceFileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		SequenceFileOutputFormat.setCompressOutput(conf, true);
-		SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.BLOCK);
+
+		if (compressionType.equals("none")) {
+			SequenceFileOutputFormat.setCompressOutput(conf, true);
+		} else {
+			SequenceFileOutputFormat.setCompressOutput(conf, true);
+
+			if (compressionType.equals("record")) {
+				SequenceFileOutputFormat.setOutputCompressionType(conf,
+						SequenceFile.CompressionType.RECORD);
+			} else {
+				SequenceFileOutputFormat.setOutputCompressionType(conf,
+						SequenceFile.CompressionType.BLOCK);
+				conf.setInt("io.seqfile.compress.blocksize", blocksize);
+			}
+		}
 
 		conf.setInputFormat(ClueWarcInputFormat.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
