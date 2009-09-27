@@ -67,23 +67,28 @@ properties:</p>
 
 <pre>
 &lt;property&gt;
-&lt;name&gt;fs.default.name&lt;/name&gt;
-&lt;value&gt;hdfs://NAMENODE:9000&lt;/value&gt;
+  &lt;name&gt;fs.default.name&lt;/name&gt;
+  &lt;value&gt;hdfs://NAMENODE:9000&lt;/value&gt;
 &lt;/property&gt;
 
 &lt;property&gt;
-&lt;name&gt;mapred.job.tracker&lt;/name&gt;
-&lt;value&gt;JOBTRACKER:9001&lt;/value&gt;
+  &lt;name&gt;mapred.job.tracker&lt;/name&gt;
+  &lt;value&gt;JOBTRACKER:9001&lt;/value&gt;
 &lt;/property&gt;
 
 &lt;property&gt;
-&lt;name&gt;hadoop.rpc.socket.factory.class.default&lt;/name&gt;
-&lt;value&gt;org.apache.hadoop.net.SocksSocketFactory&lt;/value&gt;
+  &lt;name&gt;hadoop.rpc.socket.factory.class.default&lt;/name&gt;
+  &lt;value&gt;org.apache.hadoop.net.SocksSocketFactory&lt;/value&gt;
 &lt;/property&gt;
 
 &lt;property&gt;
-&lt;name&gt;hadoop.socks.server&lt;/name&gt;
-&lt;value&gt;localhost:6789&lt;/value&gt;
+  &lt;name&gt;hadoop.socks.server&lt;/name&gt;
+  &lt;value&gt;localhost:6789&lt;/value&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;
+  &lt;value&gt;/tmp/hadoop&lt;/value&gt;
 &lt;/property&gt;
 
 </pre>
@@ -121,9 +126,13 @@ a direct connection to the Hadoop cluster via a SOCKS proxy.</p>
 hadoop dfs -ls /
 </pre>
 
-<p>If this works, then you're basically all set.  You have access to
-all the hadoop commands from your local machine, e.g., <code>hadoop
-jar...</code> to submit a job, etc.</p>
+<p>Also, try submitting a job by running the pi demo:</p>
+
+<pre>
+$ hadoop jar hadoop-0.17.2-examples.jar pi 10 100
+</pre>
+
+<p>If this works, then you're basically all set!</p>
 
 <p><b>Note:</b> Hadoop only works with SOCKS v5, so if you have an
 older version of ssh that only supports SOCKS v4, then you should
@@ -131,7 +140,25 @@ upgrade (or get your admin to).  This is a known problem with CLIP
 machines (as of September 2008)!  This issue manifests in really
 unhelpful error messages.</p>
 
-<h3>5. Connect to the Webapps</h3>
+<p><b>Note:</b> Windows users under Cygwin might get the following
+error:</p>
+
+<pre>
+javax.security.auth.login.LoginException: Login failed: Expect one token as the result of whoami: Jimmy Lin
+</pre>
+
+<p>The reason for this is that Cygwin uses your Windows username when
+trying to connect to the cluster, which may have a space in it, e.g.,
+"Jimmy Lin" (which causes the above login error).  To fix this, edit
+<code>/etc/password</code>, which in actuality would
+be <code>c:\cygwin\etc\password</code> if your Cygwin install path
+was <code>c:\cygwin\</code>.  Find the entry for your username and
+remove the space (first field); following standard conventions I also
+like to downcase my entire username, e.g., "jimmylin".  While you're
+at it you might want to rename your home directory also (second to
+last field).</p>
+
+<h3>5. Connect to the webapps</h3>
 
 <p>To access the jobtracker Webapp, you'll have to get your browser to
 use the SOCKS proxy.  The preferred solution is FoxyProxy for Firefox.
