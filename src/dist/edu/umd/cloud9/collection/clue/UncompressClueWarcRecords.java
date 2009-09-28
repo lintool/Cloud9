@@ -48,6 +48,7 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  * 
  */
+@Deprecated
 public class UncompressClueWarcRecords extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(UncompressClueWarcRecords.class);
