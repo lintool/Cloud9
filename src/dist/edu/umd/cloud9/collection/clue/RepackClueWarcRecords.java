@@ -153,7 +153,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		SequenceFileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
 		if (compressionType.equals("none")) {
-			SequenceFileOutputFormat.setCompressOutput(conf, true);
+			SequenceFileOutputFormat.setCompressOutput(conf, false);
 		} else {
 			SequenceFileOutputFormat.setCompressOutput(conf, true);
 
