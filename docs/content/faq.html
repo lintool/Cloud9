@@ -54,6 +54,8 @@ Think of this as a curated FAQ with answers from the mailing list.</p>
 
   <li>What's the issue with processing gzipped files? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200708.mbox/%3CC2FC782A.1B185%25tdunning@veoh.com%3E">Aug 30, 2007</a>]</li>
 
+  <li>If a file is one byte in size, does it still take up a full HDFS block? (short answer, no; common misconception) [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200803.mbox/%3C47EBED47.2070607@apache.org%3E">Mar 27, 2008</a>]</li>
+
   <li>What's the precise semantics of combiner execution?
   [<a href="https://issues.apache.org/jira/browse/HADOOP-3226">JIRA
   3326</a>, resolved May 07, 2008]</li>
@@ -109,10 +111,7 @@ Think of this as a curated FAQ with answers from the mailing list.</p>
 <h3>HDFS</h3>
 
 <ul>
-  <li>How do I know which replica is being accessed when reading
-  something from HDFS?
-  [<a href="http://www.nabble.com/Which-replica--to20783298.html">Dec
-  01, 2008</a>]</li>
+  <li>How do I know which replica is being accessed when reading something from HDFS? [<a href="http://www.nabble.com/Which-replica--to20783298.html">Dec  01, 2008</a>]</li>
 
  <li>How do I "mount" HDFS as a "standard" file system?
  [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200812.mbox/%3C623d9cf40812081631m3a99ca2an47f39cda766b28ce@mail.gmail.com%3E">Dec
@@ -138,6 +137,8 @@ Think of this as a curated FAQ with answers from the mailing list.</p>
   <li>How easy is it to bypass user authentication in HDFS? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200904.mbox/%3C3f8297b20904050330g29d67b29t6dacd2faf5326efe@mail.gmail.com%3E">Apr 05, 2009</a>]</li>
 
   <li>What's the random access performance of HDFS? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-core-user/200906.mbox/%3C4A464BC1.6060605@yahoo-inc.com%3E">Jun 27, 2009</a>]</li>
+
+  <li>How do I configure HDFS as to not use up all available disk space? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200909.mbox/%3CC6DEBE23.12827%25rphulari@yahoo-inc.com%3E">Sep 23, 2009</a>] Follow up: What about for intermediate output of MapReduce jobs? [<a href="http://mail-archives.apache.org/mod_mbox/hadoop-common-user/200909.mbox/%3CC6DECA87.760%25awittenauer@linkedin.com%3E">Sep 23, 2009</a>]</li>
 
 </ul>
 
