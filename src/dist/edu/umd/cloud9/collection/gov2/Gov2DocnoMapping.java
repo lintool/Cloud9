@@ -27,6 +27,7 @@ public class Gov2DocnoMapping implements DocnoMapping {
 
 	private static final NumberFormat sFormatW2 = new DecimalFormat("00");
 	private static final NumberFormat sFormatW3 = new DecimalFormat("000");
+	private static final NumberFormat sFormatW7 = new DecimalFormat("0000000");
 	private static final NumberFormat sFormatW8 = new DecimalFormat("00000000");
 
 	/**
@@ -59,7 +60,10 @@ public class Gov2DocnoMapping implements DocnoMapping {
 		int dirNum = (i - subdirNum) / 100;
 		int num = mDocIds[i][docno - mOffsets[i]];
 		
-		return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW8.format(num);
+		if( num >= 10000000 )
+			return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW8.format(num);
+
+		return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW7.format(num);
 	}
 
 	public void loadMapping(Path p, FileSystem fs) throws IOException {
