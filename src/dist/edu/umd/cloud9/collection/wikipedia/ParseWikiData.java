@@ -20,43 +20,46 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class ParseWikiData {
-	private static final Logger sLogger = Logger.getLogger(ParseWikiData.class);
+	public static final Logger sLogger = Logger.getLogger(ParseWikiData.class);
 
 
 	public ParseWikiData(){
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * 
 	 * @author ferhanture
 	 *
 	 */
-	private static class MyMapper extends MapReduceBase implements
+	static class MyMapper extends MapReduceBase implements
 	Mapper<LongWritable, WikipediaPage, LongWritable, Text> {
 
 
 		public void configure(JobConf job) {
-
+			sLogger.setLevel(Level.DEBUG);
 		}
 
 		public void map(LongWritable key, WikipediaPage doc,
 				OutputCollector<LongWritable, Text> output, Reporter reporter)
 		throws IOException {
 			String rawtext = doc.getText();
-			sLogger.debug("@RAW");
-			sLogger.debug(rawtext);
-			
-			String parsed = WikipediaPage.parseAndCleanPage(rawtext);
-			parsed = WikipediaPage.parseAndCleanPage2(parsed);
-			String[] sentences = parsed.split("\n");
-			sLogger.debug("@SENTENCES");
-			int i=0;
-			for(String sentence : sentences){
-				sLogger.debug(sentence);
-				output.collect(new LongWritable(key.get()+i), new Text(sentence));
-				i++;
+			if(rawtext!=null){
+				sLogger.debug("@RAW");
+				sLogger.debug(rawtext);
+				String parsed = WikipediaPage.parseAndCleanPage(rawtext);
+				String[] sentences = WikipediaPage.parseAndCleanPage2(parsed);
+				sLogger.debug("@SENTENCES");
+				int i=0;
+				for(String sentence : sentences){
+					if(sentence!=null){
+						/*made-up scale factor 100, to avoid two sentences have the same key. this assumes that each page will have less than 100 sentences, which works for the German wikipedia.*/
+						sLogger.debug((100*key.get()+i)+":"+sentence);
+						output.collect(new LongWritable(100*key.get()+i), new Text(sentence));
+						i++;
+					}
+				}
 			}
 		}
 	}
@@ -70,7 +73,12 @@ public class ParseWikiData {
 
 		public void reduce(LongWritable sentno, Iterator<Text> text, OutputCollector<Text, Text> output,
 				Reporter reporter) throws IOException {
+			int count=0;
 			while(text.hasNext()){
+				count++;
+				if(count>1){
+					throw new RuntimeException("two sentences with same id");
+				}
 				output.collect(new Text(""), text.next());
 			}
 		}
@@ -80,7 +88,7 @@ public class ParseWikiData {
 
 	public static void main(String[] args) throws Exception {
 		sLogger.setLevel(Level.DEBUG);
-		
+
 		sLogger.info("Parsing wiki data...");
 
 		int mapTasks = 100;
@@ -90,7 +98,7 @@ public class ParseWikiData {
 		FileSystem fs = FileSystem.get(conf);
 
 		String collectionPath = "/umd/collections/wikipedia.raw/dewiki-20081206-pages-articles.xml";
-		String outputPath = "/user/ferhan/mt/wiki.parsed/";
+		String outputPath = "/user/ferhan/mt/wiki.parsed2/";
 
 		sLogger.info("Document vectors to be stored in " + outputPath);
 		sLogger.info("CollectionPath: " + collectionPath);

@@ -16,6 +16,8 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -218,6 +220,166 @@ public class WikipediaPage implements Indexable {
 				"#REDIRECT") == 0;
 		page.mIsStub = s.indexOf("stub}}", page.mTextStart) != -1;
 
+	}
+	
+	 
+	public static String[] parseAndCleanPage2(String raw){
+
+		//		# delete lines in between {{...}}
+		//		# delete part of line [[ or ]]
+		//		# delete line starting with *
+		//
+		//		# keep track of open and closed parantheses/brackets for parsing
+		int isSkip = 0, count1, count2;
+
+		String[] lines = raw.split("\n");
+		String[] parsed = new String[lines.length];
+		boolean isFlag;
+
+		int counter=0;
+		for(String line : lines){
+			isFlag = false;
+			// Create a pattern to match cat
+			Pattern p1 = Pattern.compile("\\{\\|");
+			Matcher m1 = p1.matcher(line);
+			Pattern p2 = Pattern.compile("\\|\\}");
+			Matcher m2 = p2.matcher(line);
+
+			// Create a matcher with an input string
+			if(isSkip==0){
+				count1 = getCount(m1);
+
+				//isSkip = difference between number of {{s and number of }}s
+				if(count1>0){
+					count2 = getCount(m2);
+					isSkip=count1-count2;
+					isFlag = true;	
+				}
+			}else{
+				count1 = getCount(m1);
+				count2 = getCount(m2);
+				isSkip += (count1-count2);
+				isFlag = true;
+			}
+
+			if(isSkip==0 && !isFlag){
+//				$_=~s/=+//g;
+				line = Pattern.compile("```").matcher(line).replaceAll("");
+				line = Pattern.compile("\\'\\'\\'").matcher(line).replaceAll("");
+				line = Pattern.compile("``").matcher(line).replaceAll("");
+				line = Pattern.compile("\\'\\'").matcher(line).replaceAll("");
+				line = Pattern.compile("&quot").matcher(line).replaceAll("");
+				line = Pattern.compile("\\[http.+\\]").matcher(line).replaceAll("");
+				line = Pattern.compile("!--.+--").matcher(line).replaceAll("");
+
+				line = Pattern.compile(" (\\S)+\\|(\\S)+ ").matcher(line).replaceAll(" $2 ");
+
+//				$_=~s/(\w)\s{1}'(\w)/$1'$2/g;
+//				$_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
+
+				if(!Pattern.compile("^\\*.*").matcher(line).matches() && !Pattern.compile("&lt;.*").matcher(line).matches()
+						&& !Pattern.compile("&gt;.*").matcher(line).matches()
+						&& !Pattern.compile("1\\s+").matcher(line).matches()
+						&& !Pattern.compile("\\w\\w:").matcher(line).matches()
+						&& !Pattern.compile("^\\s*").matcher(line).matches()
+						&& !Pattern.compile("\\=+.+\\=+").matcher(line).matches()
+						&& !Pattern.compile("^\\|\\-.+").matcher(line).matches()	
+						&& !Pattern.compile("Kategorie:.+").matcher(line).matches()	
+						&& !Pattern.compile("\\w\\w:.+").matcher(line).matches()	
+					){
+					String[] sentences = line.split("[\\.\\?\\!]");				//do this more cleverly. distinguish cases like Mr. X where Mr and X are not 2 sentences
+					for(String sentence : sentences){
+						parsed[counter++]=sentence.trim();
+					}
+				}
+			}
+		}
+
+		return parsed;
+	}
+	public static String parseAndCleanPage(String raw){
+		String parsed = "";
+
+		//		# delete lines in between {{...}}
+		//		# delete part of line [[ or ]]
+		//		# delete line starting with *
+		//
+		//		# keep track of open and closed parantheses/brackets for parsing
+		int isSkip = 0, count1, count2;
+
+		String[] lines = raw.split("\n");
+		boolean isFlag;
+
+		for(String line : lines){
+			isFlag = false;
+			// Create a pattern to match cat
+			Pattern p1 = Pattern.compile("\\{\\{");
+			Matcher m1 = p1.matcher(line);
+			Pattern p2 = Pattern.compile("\\}\\}");
+			Matcher m2 = p2.matcher(line);
+
+			// Create a matcher with an input string
+			if(isSkip==0){
+				count1 = getCount(m1);
+				if(count1==0 && line.contains("{{")){
+					throw new RuntimeException();
+				}
+
+				//isSkip = difference between number of {{s and number of }}s
+				if(count1>0){
+					count2 = getCount(m2);
+					isSkip=count1-count2;
+					isFlag = true;	
+				}
+			}else{
+				count1 = getCount(m1);
+				count2 = getCount(m2);
+
+				isSkip += (count1-count2);
+				isFlag = true;
+			}
+
+			if(isSkip==0 && !isFlag){
+//				$_=~s/\[\[//g;
+				Pattern p3 = Pattern.compile("\\[\\[");
+				Matcher m3 = p3.matcher(line);
+				line = m3.replaceAll("");
+//
+//				$_=~s/\]\]//g;
+				Pattern p4 = Pattern.compile("\\]\\]");
+				Matcher m4 = p4.matcher(line);
+				line = m4.replaceAll("");
+//				$_=~s/=+//g;
+//				Pattern p5 = Pattern.compile("\\=+");
+//				Matcher m5 = p5.matcher(line);
+//				line = m5.replaceAll("");
+				
+				//separate sentences #	$_=~s/([,;:.)(-])/\n$1\n/g;
+//				Pattern p6 = Pattern.compile("([,;.:\\)\\(-])");
+//				Matcher m6 = p6.matcher(line);
+//				line = m6.replaceAll(" $1");
+				
+//				if($_!~/\*/){
+//					print $_;
+//				}
+				Pattern p7 = Pattern.compile("\\*");
+				Matcher m7 = p7.matcher(line);
+				if(!m7.matches()){
+					parsed+=line+"\n";
+				}
+			}
+		}
+
+		return parsed;
+
+	}
+	
+	static int getCount(Matcher m){
+		int count=0;
+		while(m.find()) {
+	         count++;
+		}
+		return count;
 	}
 
 }
