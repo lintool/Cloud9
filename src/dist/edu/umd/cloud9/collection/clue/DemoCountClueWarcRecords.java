@@ -99,7 +99,7 @@ public class DemoCountClueWarcRecords extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [original|repacked][base-path] [segment-num] [mapping-file]");
+		System.out.println("usage: [original|repacked] [base-path] [segment-num] [mapping-file]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -132,7 +132,7 @@ public class DemoCountClueWarcRecords extends Configured implements Tool {
 		sLogger.info("Tool name: DemoCountClueWarcRecords");
 		sLogger.info(" - version: " + args[0]);
 		sLogger.info(" - base path: " + basePath);
-		sLogger.info(" - segement number: " + segment);
+		sLogger.info(" - segment number: " + segment);
 		sLogger.info(" - mapping file: " + mappingFile);
 
 		int mapTasks = 10;
