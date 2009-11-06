@@ -121,6 +121,7 @@ public class BuildClueWarcForwardIndex extends Configured implements Tool {
 		sLogger.info(" - collection path: " + collectionPath);
 		sLogger.info(" - output path: " + outputPath);
 		sLogger.info(" - index file: " + indexFile);
+		sLogger.info("Note: This tool only works on block-compressed SequenceFiles!");
 
 		conf.setJobName("BuildClueForwardIndex:" + collectionPath);
 

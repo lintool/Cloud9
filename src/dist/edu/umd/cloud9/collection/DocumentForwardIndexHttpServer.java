@@ -14,10 +14,9 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.log4j.Logger;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpServer;
-import org.mortbay.http.SocketListener;
-import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
 
 import edu.umd.cloud9.mapred.NullInputFormat;
 import edu.umd.cloud9.mapred.NullMapper;
@@ -39,7 +38,7 @@ public class DocumentForwardIndexHttpServer {
 	private static String collectionPath;
 
 	@SuppressWarnings("unchecked")
-	private static class Server extends NullMapper {
+	private static class ServerMapper extends NullMapper {
 		public void run(JobConf conf, Reporter reporter) throws IOException {
 			int port = 8888;
 
@@ -62,24 +61,11 @@ public class DocumentForwardIndexHttpServer {
 				throw new RuntimeException("Error initializing forward index!");
 			}
 
-			HttpServer server = new HttpServer();
-			SocketListener listener = new SocketListener();
-			listener.setPort(port);
-			server.addListener(listener);
-
-			try {
-				HttpContext context = server.getContext("/");
-				ServletHandler handler = new ServletHandler();
-				handler.addServlet("FetchDocid", "/fetch_docid", FetchDocid.class.getName());
-				handler.addServlet("FetchDocno", "/fetch_docno", FetchDocno.class.getName());
-				handler.addServlet("Home", "/", Home.class.getName());
-				handler.addServlet("Dump", "/dump/*", "org.mortbay.servlet.Dump");
-
-				context.addHandler(handler);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Server server = new Server(port);
+			Context root = new Context(server, "/", Context.SESSIONS);
+			root.addServlet(new ServletHolder(new FetchDocidServlet()), "/fetch_docid");
+			root.addServlet(new ServletHolder(new FetchDocnoServlet()), "/fetch_docno");
+			root.addServlet(new ServletHolder(new HomeServlet()), "/");
 
 			try {
 				server.start();
@@ -96,15 +82,15 @@ public class DocumentForwardIndexHttpServer {
 	}
 
 	// this has to be public
-	public static class Home extends HttpServlet {
+	public static class HomeServlet extends HttpServlet {
 
 		static final long serialVersionUID = 8253865405L;
 		static final Random r = new Random();
 
-		protected void doGet(HttpServletRequest httpServletRequest,
-				HttpServletResponse httpServletResponse) throws ServletException, IOException {
-			httpServletResponse.setContentType("text/html");
-			PrintWriter out = httpServletResponse.getWriter();
+		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+				IOException {
+			res.setContentType("text/html");
+			PrintWriter out = res.getWriter();
 
 			out.println("<html><head><title>Collection Access: " + collectionPath
 					+ "</title><head>");
@@ -175,7 +161,7 @@ public class DocumentForwardIndexHttpServer {
 	}
 
 	// this has to be public
-	public static class FetchDocid extends HttpServlet {
+	public static class FetchDocidServlet extends HttpServlet {
 		static final long serialVersionUID = 3986721097L;
 
 		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
@@ -216,7 +202,7 @@ public class DocumentForwardIndexHttpServer {
 	}
 
 	// this has to be public
-	public static class FetchDocno extends HttpServlet {
+	public static class FetchDocnoServlet extends HttpServlet {
 		static final long serialVersionUID = 5970126341L;
 
 		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
@@ -285,7 +271,7 @@ public class DocumentForwardIndexHttpServer {
 
 		conf.setInputFormat(NullInputFormat.class);
 		conf.setOutputFormat(NullOutputFormat.class);
-		conf.setMapperClass(Server.class);
+		conf.setMapperClass(ServerMapper.class);
 
 		conf.set("CollectionPath", collectionPath);
 		conf.set("IndexFile", indexFile);
