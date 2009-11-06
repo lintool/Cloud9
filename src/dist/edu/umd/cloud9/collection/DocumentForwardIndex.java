@@ -24,8 +24,10 @@ public interface DocumentForwardIndex<T extends Indexable> {
 	
 	public int getLastDocno();
 		
-	public void loadIndex(String indexFile, String collectionPath, String mappingDataFile)
+	public void loadIndex(String indexFile, String mappingDataFile)
 			throws IOException;
 
 	public String getContentType();
+	
+	public String getCollectionPath();
 }

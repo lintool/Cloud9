@@ -153,6 +153,8 @@ public class BuildClueWarcForwardIndex extends Configured implements Tool {
 		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
+		out.writeUTF("edu.umd.cloud9.collection.clue.ClueWarcForwardIndex");
+		out.writeUTF(collectionPath);
 		out.writeInt(blocks);
 
 		int cnt = 0;

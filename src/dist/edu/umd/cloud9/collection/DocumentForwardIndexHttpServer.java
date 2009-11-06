@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
@@ -35,27 +38,27 @@ public class DocumentForwardIndexHttpServer {
 	private static final Logger sLogger = Logger.getLogger(DocumentForwardIndexHttpServer.class);
 
 	private static DocumentForwardIndex<Indexable> sForwardIndex;
-	private static String collectionPath;
 
 	@SuppressWarnings("unchecked")
 	private static class ServerMapper extends NullMapper {
 		public void run(JobConf conf, Reporter reporter) throws IOException {
 			int port = 8888;
 
-			collectionPath = conf.get("CollectionPath");
 			String indexFile = conf.get("IndexFile");
-			String indexClass = conf.get("IndexClass");
 			String mappingFile = conf.get("DocnoMappingDataFile");
 
 			sLogger.info("host: " + InetAddress.getLocalHost().toString());
 			sLogger.info("port: " + port);
 			sLogger.info("forward index: " + indexFile);
-			sLogger.info("base path of collection: " + collectionPath);
+
+			FSDataInputStream in = FileSystem.get(conf).open(new Path(indexFile));
+			String indexClass = in.readUTF();
+			in.close();
 
 			try {
 				sForwardIndex = (DocumentForwardIndex<Indexable>) Class.forName(indexClass)
 						.newInstance();
-				sForwardIndex.loadIndex(indexFile, collectionPath, mappingFile);
+				sForwardIndex.loadIndex(indexFile, mappingFile);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error initializing forward index!");
@@ -92,11 +95,11 @@ public class DocumentForwardIndexHttpServer {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
 
-			out.println("<html><head><title>Collection Access: " + collectionPath
-					+ "</title><head>");
+			out.println("<html><head><title>Collection Access: "
+					+ sForwardIndex.getCollectionPath() + "</title><head>");
 			out.println("<body>");
 
-			out.println("<h3>Collection Access: " + collectionPath + "</h3>");
+			out.println("<h3>Collection Access: " + sForwardIndex.getCollectionPath() + "</h3>");
 
 			int firstDocno = sForwardIndex.getFirstDocno();
 			int lastDocno = sForwardIndex.getLastDocno();
@@ -243,26 +246,21 @@ public class DocumentForwardIndexHttpServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length != 4) {
-			System.out
-					.println("usage: [collection-path] [index-file] [index-class] [docno-mapping-data-file]");
+		if (args.length != 2) {
+			System.out.println("usage: [index-file] [docno-mapping-data-file]");
 			System.exit(-1);
 		}
 
-		String collectionPath = args[0];
-		String indexFile = args[1];
-		String indexClass = args[2];
-		String mappingFile = args[3];
+		String indexFile = args[0];
+		String mappingFile = args[1];
 
 		sLogger.info("Launching DocumentForwardIndexHttpServer");
-		sLogger.info(" - collection path: " + collectionPath);
 		sLogger.info(" - index file: " + indexFile);
-		sLogger.info(" - index class: " + indexClass);
 		sLogger.info(" - docno mapping data file: " + mappingFile);
 
 		JobConf conf = new JobConf(DocumentForwardIndexHttpServer.class);
 
-		conf.setJobName("ForwardIndexServer:" + collectionPath);
+		conf.setJobName("ForwardIndexServer:" + indexFile);
 
 		conf.set("mapred.child.java.opts", "-Xmx1024m");
 
@@ -273,9 +271,7 @@ public class DocumentForwardIndexHttpServer {
 		conf.setOutputFormat(NullOutputFormat.class);
 		conf.setMapperClass(ServerMapper.class);
 
-		conf.set("CollectionPath", collectionPath);
 		conf.set("IndexFile", indexFile);
-		conf.set("IndexClass", indexClass);
 		conf.set("DocnoMappingDataFile", mappingFile);
 
 		JobClient client = new JobClient(conf);

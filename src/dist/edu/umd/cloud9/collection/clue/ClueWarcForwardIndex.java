@@ -31,11 +31,8 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 	public ClueWarcForwardIndex() {
 	}
 
-	public void loadIndex(String indexFile, String collectionPath, String mappingDataFile)
-			throws IOException {
+	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
 		sLogger.info("Loading forward index: " + indexFile);
-
-		mCollectionPath = collectionPath;
 
 		mConf = new Configuration();
 		mFS = FileSystem.get(mConf);
@@ -43,6 +40,10 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 		mDocnoMapping.loadMapping(new Path(mappingDataFile), mFS);
 
 		FSDataInputStream in = mFS.open(new Path(indexFile));
+
+		// class name; throw away
+		in.readUTF();
+		mCollectionPath = in.readUTF();
 
 		int blocks = in.readInt();
 
@@ -61,6 +62,10 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 		}
 
 		in.close();
+	}
+
+	public String getCollectionPath() {
+		return mCollectionPath;
 	}
 
 	public ClueWarcRecord getDocument(int docno) {
@@ -156,7 +161,7 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 	public static void main(String[] args) throws Exception {
 		ClueWarcForwardIndex f = new ClueWarcForwardIndex();
 
-		f.loadIndex("/user/jimmylin/en.01.findex", "/umd/collections/ClueWeb09.repacked/en.01/",
+		f.loadIndex("/user/jimmylin/en.01.findex",
 				"/umd/collections/ClueWeb09.repacked/docno-mapping.dat");
 
 		ClueWarcRecord record;
