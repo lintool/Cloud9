@@ -135,7 +135,7 @@ public class RepackClueWarcRecords extends Configured implements Tool {
 		sLogger.info("Tool name: RepackClueWarcRecords");
 		sLogger.info(" - base path: " + basePath);
 		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - segement number: " + segment);
+		sLogger.info(" - segment number: " + segment);
 		sLogger.info(" - docno mapping data file: " + data);
 		sLogger.info(" - compression type: " + compressionType);
 
