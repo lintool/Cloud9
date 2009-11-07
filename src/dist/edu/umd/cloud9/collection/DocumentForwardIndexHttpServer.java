@@ -174,32 +174,38 @@ public class DocumentForwardIndexHttpServer {
 
 		public void doPost(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching docids");
-
-			res.setContentType(sForwardIndex.getContentType());
-
-			PrintWriter out = res.getWriter();
-
+			sLogger.info("triggered servlet for fetching document by docid");
 			String docid = null;
-			if (req.getParameterValues("docid") != null)
-				docid = req.getParameterValues("docid")[0];
 
-			Indexable doc = sForwardIndex.getDocument(docid);
+			try {
+				if (req.getParameterValues("docid") != null)
+					docid = req.getParameterValues("docid")[0];
 
-			if (doc != null) {
-				sLogger.info("fetched: " + doc.getDocid());
-				out.print(doc.getContent());
-			} else {
+				Indexable doc = sForwardIndex.getDocument(docid);
+
+				if (doc != null) {
+					sLogger.info("fetched: " + doc.getDocid());
+					res.setContentType(sForwardIndex.getContentType());
+
+					PrintWriter out = res.getWriter();
+					out.print(doc.getContent());
+					out.close();
+				} else {
+					throw new Exception();
+				}
+			} catch (Exception e) {
+				// catch-all, in case anything goes wrong
 				sLogger.info("trapped error fetching " + docid);
+				res.setContentType("text/html");
 
+				PrintWriter out = res.getWriter();
 				out.print("<html><head><title>Invalid docid!</title><head>\n");
 				out.print("<body>\n");
 				out.print("<h1>Error!</h1>\n");
-				out.print("<h3>Invalid doc: " + docid + "</h3>\n");
+				out.print("<h3>Invalid docid: " + docid + "</h3>\n");
 				out.print("</body></html>\n");
+				out.close();
 			}
-
-			out.close();
 		}
 
 	}
@@ -215,34 +221,38 @@ public class DocumentForwardIndexHttpServer {
 
 		public void doPost(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching docids");
-
-			res.setContentType(sForwardIndex.getContentType());
-
-			PrintWriter out = res.getWriter();
+			sLogger.info("triggered servlet for fetching document by docno");
 
 			int docno = 0;
-			if (req.getParameterValues("docno") != null)
-				docno = Integer.parseInt(req.getParameterValues("docno")[0]);
+			try {
+				if (req.getParameterValues("docno") != null)
+					docno = Integer.parseInt(req.getParameterValues("docno")[0]);
 
-			Indexable doc = sForwardIndex.getDocument(docno);
+				Indexable doc = sForwardIndex.getDocument(docno);
 
-			if (doc != null) {
-				sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
-				out.print(doc.getContent());
-			} else {
+				if (doc != null) {
+					sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
+					res.setContentType(sForwardIndex.getContentType());
+
+					PrintWriter out = res.getWriter();
+					out.print(doc.getContent());
+					out.close();
+				} else {
+					throw new Exception();
+				}
+			} catch (Exception e) {
 				sLogger.info("trapped error fetching " + docno);
+				res.setContentType("text/html");
 
+				PrintWriter out = res.getWriter();
 				out.print("<html><head><title>Invalid docno!</title><head>\n");
 				out.print("<body>\n");
 				out.print("<h1>Error!</h1>\n");
-				out.print("<h3>Invalid doc: " + docno + "</h3>\n");
+				out.print("<h3>Invalid docno: " + docno + "</h3>\n");
 				out.print("</body></html>\n");
+				out.close();
 			}
-
-			out.close();
 		}
-
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -276,6 +286,6 @@ public class DocumentForwardIndexHttpServer {
 
 		JobClient client = new JobClient(conf);
 		client.submitJob(conf);
-		System.out.println("server started!");
+		sLogger.info("Server started!");
 	}
 }
