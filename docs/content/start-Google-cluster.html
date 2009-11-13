@@ -41,39 +41,51 @@ projects.</p>
 <p>In these instructions, I will refer to the following machines:</p>
 
 <ul>
-  <li>GATEWAY: the gateway machine</li>
-  <li>JOBTRACKER: the node that runs the jobtracker</li>
-  <li>NAMENODE: the HDFS name node</li>
+  <li>GATEWAY: the gateway machine (IP address)</li>
+  <li>JOBTRACKER: the node that runs the jobtracker (IP address)</li>
+  <li>NAMENODE: the HDFS name node (actual host name)</li>
 </ul>
 
-<p>In all cases, replace the references with the actual IP addresses
-of the machines (which you should have received separately).  I am not
-publishing the IP addresses of these machines as a security
+<p>You should have received this information separately.  I'm not
+publishing this information on the public web as a security
 measure.</p>
 
-<h3>1. Unpack Hadoop</h3>
+<h3>1. Download and unpack Hadoop</h3>
 
-<p>Unpack Hadoop on your local machine.  The release running on the
-cluster is 0.17.2, a copy of which is located
-in <code>umd-hadoop-core/hadoop/</code>, the core distribution of
-Cloud<sup><small>9</small></sup>.  Unpack the
-tarball <code>hadoop-0.17.2.tar.gz</code>.</p>
+<p>If you're using Cloud<sup><small>9</small></sup>, go through this
+guide to <a href="start-standalone.html">getting started in standalone
+mode</a> to make sure you're comfortable with the basics of Hadoop.</p>
+
+<p>The cluster is currently running a Cloudera distribution of Hadoop
+0.20.1; the actual tarball are
+available <a href="http://archive.cloudera.com/cdh/testing/">here</a>.
+The exact release (i.e., patch level) isn't too important, and even if
+I list it here, it'll probably get out of date quickly (if it is
+important to find out exactly what's running on the server, the
+jobtracker will tell you).  For the most part, a slight mistmatch in
+the release on the client and server won't cause any problems, so you
+could just pick the latest release.  You can even use
+the <a href="http://hadoop.apache.org/">stock Hadoop
+distribution</a>.</p>
 
 <h3>2. Site up configuration files</h3>
 
-<p>On your local machine, open up <code>hadoop-site.xml</code>
-in <code>hadoop-0.17.2/conf</code> and add the following
-properties:</p>
+<p>We have to configure Hadoop.  Configuration parameters are stored
+in the conf directory under your base distribution path, in three
+separate files: core-site.xml, hdfs-site.xml, mapred-site.xml.</p>
+
+<p>The following configuration information goes
+in <b>core-site.xml</b>:</p>
 
 <pre>
 &lt;property&gt;
   &lt;name&gt;fs.default.name&lt;/name&gt;
-  &lt;value&gt;hdfs://NAMENODE:9000&lt;/value&gt;
+  &lt;value&gt;NAMENODE&lt;/value&gt;
 &lt;/property&gt;
 
 &lt;property&gt;
-  &lt;name&gt;mapred.job.tracker&lt;/name&gt;
-  &lt;value&gt;JOBTRACKER:9001&lt;/value&gt;
+  &lt;name&gt;hadoop.job.ugi&lt;/name&gt;
+  &lt;value&gt;UGI&lt;/value&gt;
 &lt;/property&gt;
 
 &lt;property&gt;
@@ -90,11 +102,38 @@ properties:</p>
   &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;
   &lt;value&gt;/tmp/hadoop&lt;/value&gt;
 &lt;/property&gt;
-
 </pre>
 
-<p>Make sure you substitute the actual IP address for NAMENODE and
-JOBTRACKER.</p>
+<p>For NAMENODE, substitute the fully-qualified hostname of the
+namenode.  This should begin with "hdfs://" and end with a port
+number.  The UGI property specifies file permissions you have in HDFS
+and will vary by user.  Ask me what this should be, or otherwise just
+put in your username twice separated by a comma.  So if your username
+is "foo", put "foo,foo" here.</p>
+
+<p>The following configuration information goes
+in <b>hdfs-site.xml</b>:</p>
+
+
+<pre>
+&lt;property&gt;
+  &lt;name&gt;fs.default.name&lt;/name&gt;
+  &lt;value&gt;NAMENODE&lt;/value&gt;
+&lt;/property&gt;
+</pre>
+
+<p>Finally, the following configuration information goes
+in <b>mapred-site.xml</b>:</p>
+
+<pre>
+&lt;property&gt;
+  &lt;name&gt;mapred.job.tracker&lt;/name&gt;
+  &lt;value&gt;JOBTRACKER:8021&lt;/value&gt;
+&lt;/property&gt;
+</pre>
+
+<p>Here, substitute JOBTRACKER for its actual IP address.  Port 8021
+is a commonly-used port for the jobtracker.
 
 <h3>3. Open up a SOCKS proxy</h3>
 
@@ -117,28 +156,29 @@ package.</p>
 <h3>4. Test drive the cluster</h3>
 
 <p>With the above steps and bit of luck, you should be able to access
-the Hadoop cluster from your local machine!  Basically, you've set up
-a direct connection to the Hadoop cluster via a SOCKS proxy.</p>
+the Hadoop cluster from <b>your local machine</b>!  Basically, you've
+set up a direct connection to the Hadoop cluster via a SOCKS
+proxy.</p>
 
 <p>Try things out with a simple command (from your local machine):</p>
 
 <pre>
-hadoop dfs -ls /
+hadoop fs -ls /
 </pre>
 
 <p>Also, try submitting a job by running the pi demo:</p>
 
 <pre>
-$ hadoop jar hadoop-0.17.2-examples.jar pi 10 100
+$ hadoop jar hadoop-0.20.1-examples.jar pi 10 100
 </pre>
 
 <p>If this works, then you're basically all set!</p>
 
 <p><b>Note:</b> Hadoop only works with SOCKS v5, so if you have an
 older version of ssh that only supports SOCKS v4, then you should
-upgrade (or get your admin to).  This is a known problem with CLIP
-machines (as of September 2008)!  This issue manifests in really
-unhelpful error messages.</p>
+upgrade (or get your admin to).  This is a known problem with some
+CLIP machines.  This issue manifests in really unhelpful error
+messages.</p>
 
 <p><b>Note:</b> Windows users under Cygwin might get the following
 error:</p>
@@ -150,13 +190,12 @@ javax.security.auth.login.LoginException: Login failed: Expect one token as the 
 <p>The reason for this is that Cygwin uses your Windows username when
 trying to connect to the cluster, which may have a space in it, e.g.,
 "Jimmy Lin" (which causes the above login error).  To fix this, edit
-<code>/etc/password</code>, which in actuality would
-be <code>c:\cygwin\etc\password</code> if your Cygwin install path
-was <code>c:\cygwin\</code>.  Find the entry for your username and
-remove the space (first field); following standard conventions I also
-like to downcase my entire username, e.g., "jimmylin".  While you're
-at it you might want to rename your home directory also (second to
-last field).</p>
+/etc/password, which in actuality would be c:\cygwin\etc\password if
+your Cygwin install path was c:\cygwin\.  Find the entry for your
+username and remove the space (first field); following standard
+conventions I also like to downcase my entire username, e.g.,
+"jimmylin".  While you're at it you might want to rename your home
+directory also (second to last field).</p>
 
 <h3>5. Connect to the webapps</h3>
 
@@ -198,25 +237,24 @@ up.</li>
 
 </ol>
 
-<p>If you navigate to <code>http://JOBTRACKER:50030/</code> in your
+<p>If you navigate to http://JOBTRACKER:50030/ in your
 browser, you should be able to access the jobtracker!</p>
 
 <h3>6. Accessing Task Logs</h3>
 
 <p>You'll want to access the task logs on the individual cluster
 workers for debugging, but the problem is that the Webapp gives you
-URLs that contain references to Xen virtual machines, something
-like <code>http://xenhost-XXXXXXXXXXXX-X:50060/tasklog...</code>,
-which isn't very helpful because you need the actual IP addresses of
-the individual workers.  The easiest solution is to hack your hosts
-file.</p>
+URLs that contain references to Xen virtual machines, something like
+http://xenhost-XXXXXXXXXXXX-X:50060/tasklog..., which isn't very
+helpful because you need the actual IP addresses of the individual
+workers.  The easiest solution is to hack your hosts file.</p>
 
 <p>Email me or the admins for the Xen host to IP mappings (I'm not
 posting publicly for obvious security reasons).  Add them to your
-hosts file, the location of which varies by operating system:
-usually <code>%SystemRoot%\system32\drivers\etc\</code> for Windows
-NT/2000/XP/2003/Vista/7, and <code>/etc/</code> for Linux and other
-Unix-like operating systems.  For more information, consult this
+hosts file, the location of which varies by operating system: usually
+%SystemRoot%\system32\drivers\etc\ for Windows
+NT/2000/XP/2003/Vista/7, and /etc/ for Linux and other Unix-like
+operating systems.  For more information, consult this
 helpful <a href="http://en.wikipedia.org/wiki/Hosts_file">Wikipedia
 article</a>.</p>
 
