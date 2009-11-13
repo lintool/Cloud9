@@ -3,12 +3,12 @@ package edu.umd.cloud9.util;
 import java.util.RandomAccess;
 
 /**
- * Object representing a list of ints, backed by an resizable-array.
+ * Object representing a list of shorts, backed by an resizable-array.
  */
 
-public class ArrayListOfInts implements RandomAccess, Cloneable {
-	protected transient int[] mArray;
-	protected int size;
+public class ArrayListOfShorts implements RandomAccess, Cloneable {
+	private transient short[] mArray;
+	private int size;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
@@ -18,16 +18,16 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 * @exception IllegalArgumentException
 	 *                if the specified initial capacity is negative
 	 */
-	public ArrayListOfInts(int initialCapacity) {
+	public ArrayListOfShorts(int initialCapacity) {
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
-		this.mArray = new int[initialCapacity];
+		this.mArray = new short[initialCapacity];
 	}
 
 	/**
 	 * Constructs an empty list with an initial capacity of ten.
 	 */
-	public ArrayListOfInts() {
+	public ArrayListOfShorts() {
 		this(10);
 	}
 
@@ -43,7 +43,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 			// TODO: this is a Java 1.6 feature
 			// mArray = Arrays.copyOf(mArray, size);
 			
-			int[] arr = new int[size];
+			short[] arr = new short[size];
 			System.arraycopy(mArray, 0, arr, 0, size);
 			mArray = arr;
 			
@@ -68,7 +68,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 			// TODO: this is a Java 1.6 feature
 			//mArray = Arrays.copyOf(mArray, newCapacity);
 			
-			int[] arr = new int[newCapacity];
+			short[] arr = new short[newCapacity];
 			System.arraycopy(mArray, 0, arr, 0, mArray.length);
 			mArray = arr;
 		}
@@ -99,7 +99,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 *            element whose presence in this list is to be tested
 	 * @return <tt>true</tt> if this list contains the specified element
 	 */
-	public boolean contains(int n) {
+	public boolean contains(short n) {
 		return indexOf(n) >= 0;
 	}
 
@@ -107,7 +107,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 * Returns the index of the first occurrence of the specified element in
 	 * this list, or -1 if this list does not contain the element.
 	 */
-	public int indexOf(int n) {
+	public int indexOf(short n) {
 		for (int i = 0; i < size; i++)
 			if (n == mArray[i])
 				return i;
@@ -118,7 +118,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 * Returns the index of the last occurrence of the specified element in this
 	 * list, or -1 if this list does not contain the element.
 	 */
-	public int lastIndexOf(int n) {
+	public int lastIndexOf(short n) {
 		for (int i = size - 1; i >= 0; i--)
 			if (n == mArray[i])
 				return i;
@@ -141,7 +141,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 *            index of the element to return
 	 * @return the element at the specified position in this list
 	 */
-	public int get(int index) {
+	public short get(int index) {
 		return mArray[index];
 	}
 
@@ -155,8 +155,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 *            element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 */
-	public int set(int index, int element) {
-		int oldValue = mArray[index];
+	public short set(int index, short element) {
+		short oldValue = mArray[index];
 		mArray[index] = element;
 		return oldValue;
 	}
@@ -167,7 +167,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 * @param e
 	 *            element to be appended to this list
 	 */
-	public void add(int e) {
+	public void add(short e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		mArray[size++] = e;
 	}
@@ -182,7 +182,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 * @param element
 	 *            element to be inserted
 	 */
-	public void add(int index, int element) {
+	public void add(int index, short element) {
 		if (index > size || index < 0)
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 
@@ -200,8 +200,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 *            the index of the element to be removed
 	 * @return the element that was removed from the list
 	 */
-	public int remove(int index) {
-		int oldValue = mArray[index];
+	public short remove(int index) {
+		short oldValue = mArray[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0)
@@ -218,7 +218,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 		size = 0;
 	}
 
-	public int[] getArray() {
+	public short[] getArray() {
 		return mArray;
 	}
 }

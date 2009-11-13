@@ -63,6 +63,14 @@ public class OHMapII extends HMapII {
 			this.put(key, 1);
 		}
 	}
+	
+	public void increment(int key, int value) {
+		if (this.containsKey(key)) {
+			this.put(key, this.get(key) + value);
+		} else {
+			this.put(key, value);
+		}
+	}
 
 	/**
 	 * Returns entries sorted by descending value. Ties broken by the key.
@@ -147,4 +155,15 @@ public class OHMapII extends HMapII {
 		return r;
 	}
 
+	/*public OHMapII(int initialCapacity) {
+		super(initialCapacity);
+	}*/
+	
+	public OHMapII(int initialCapacity, float loadFactor) {
+		super(initialCapacity, loadFactor);
+	}
+	
+	public OHMapII() {
+		super();
+	}
 }

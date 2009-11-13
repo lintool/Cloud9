@@ -204,7 +204,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		throw new NoSuchElementException("key: "+key);
 	}
 
 	// doc copied from interface
