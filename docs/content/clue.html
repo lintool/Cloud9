@@ -55,7 +55,7 @@ with the English portion of the collection.</p>
 
   <li><a href="#counting">Counting the records</a></li>
 
-  <li><a href="#uncompressing">Uncompressing the records</a></li>
+  <li><a href="#repacking">Repacking the records</a></li>
 
   <li><a href="#docnos">Sequentially-numbered docnos</a></li>
 
@@ -120,13 +120,18 @@ program</a> in Cloud<sup><small>9</small></sup>.  Here's the
 command-line invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.DemoCountClueWarcRecords /umd/collections/ClueWeb09 1
+hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.DemoCountClueWarcRecords \
+original /shared/ClueWeb09/collection.raw 1 /shared/ClueWeb09/docno-mapping.dat
 </pre>
 
-<p>The first command-line argument is the base path of your ClueWeb09
-distribution; the second command-line argument is the segment number
-(1 through 10).  If you run the demo program on all ten segments, you
-should get the following results:</p>
+<p>The first command-line argument indicates whether your counting
+records in the original distribution ("original") or repacked
+SequenceFiles ("repacked"); for the second condition, see details
+below.  The second argument is the base path of your ClueWeb09
+distribution.  The third command-line argument is the segment number
+(1 through 10).  The final argument is the location of the docno
+mapping (see details below). If you run the demo program on all ten
+segments, you should get the following results:</p>
 
 <table>
 <tr><td class="myheader"><b>segment</b></td>
@@ -252,107 +257,14 @@ should get the following results:</p>
 the actual HTML pages, so number of records should be equal to number
 of files plus number of pages.</p>
 
-<h3><a name="uncompressing">Uncompressing the Records</a></h3>
+<h3><a name="repacking">Repacking the Records</a></h3>
 
-<p>In some cases, you might want to uncompress the records.
-Cloud<sup><small>9</small></sup> provides
-a <a href="../api/edu/umd/cloud9/collection/clue/UncompressClueWarcRecords.html">program</a>
-to uncompress WARC files into a SequenceFile of ClueWarcRecords.  The
-uncompressed WARC records take up a lot of space, but space is
-relatively cheap!  On the upside, having all the records in
-SequenceFiles makes processing by Hadoop a breeze.  Note that
-SequenceFiles can be block- or value-compressed, which allows one to
-enjoy the best of both worlds (although the program doesn't use
-compression by default).</p>
-
-<p>Sample invocation:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.UncompressClueWarcRecords \
-/umd/collections/ClueWeb09 /umd/collection/clue.en.segment.01 1
-</pre>
-
-<p>The first command-line argument is the base path of your ClueWeb09
-distribution; the second is the output path; the third is the segment
-number (1 through 10).</p>
-
-<p>If you uncompress all 10 segments, here are the results you'll get
-(for sanity-checking purposes):</p>
-
-<table>
-<tr><td class="myheader"><b>segment</b></td>
-    <td class="myheader"><b>bytes off disk</b></td>
-    <td class="myheader"><b>bytes written</b></td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">1</td>
-<td class="mycell" align="right">246,838,508,311</td>
-<td class="mycell" align="right">1,525,554,716,021</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">2</td>
-<td class="mycell" align="right">224,505,694,289</td>
-<td class="mycell" align="right">1,433,771,764,817</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">3</td>
-<td class="mycell" align="right">217,428,760,570</td>
-<td class="mycell" align="right">1,390,623,590,780</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">4</td>
-<td class="mycell" align="right">213,615,715,952</td>
-<td class="mycell" align="right">1,377,396,825,545</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">5</td>
-<td class="mycell" align="right">205,092,621,204</td>
-<td class="mycell" align="right">1,331,525,473,462</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">6</td>
-<td class="mycell" align="right">203,616,661,324</td>
-<td class="mycell" align="right">1,312,617,780,539</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">7</td>
-<td class="mycell" align="right">213,335,482,896</td>
-<td class="mycell" align="right">1,365,103,234,854</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">8</td>
-<td class="mycell" align="right">199,607,688,405</td>
-<td class="mycell" align="right">1,306,854,552,419</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">9</td>
-<td class="mycell" align="right">204,295,706,812</td>
-<td class="mycell" align="right">1,330,305,871,511</td>
-</tr>
-
-<tr>
-<td class="mycell" align="right">10</td>
-<td class="mycell" align="right">150,042,155,900</td>
-<td class="mycell" align="right">981,660,357,458</td>
-</tr>
-</table>
-
-<p>The second above column is exactly the same as the third column in
-the previous table.  The third column lists the size of the
-output.</p>
-
-<p>An alternative to uncompressing the entire collection is to repack
-the records in <a href="clue-access.html">a block-compressed
-format</a>.</p>
+<p>In some ways, the original WARC files are awkward to work with.
+There is, for example, no simple way to quickly access an individual
+record that lies in the middle of a gzipped file.  A good solution is
+to repack the collection into block-compressed SequenceFiles.  This is
+described in a separate page on <a href="clue-access.html">providing
+random access to the WARC records</a>.</p>
 
 <h3><a name="docnos">Sequentially-numbered docnos</a></h3>
 

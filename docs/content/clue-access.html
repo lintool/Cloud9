@@ -50,10 +50,9 @@ Obviously, this isn't going to work for interactive retrieval.</p>
 
 <p>Another solution is to simply uncompress the collection, which
 works well if you have lots of disk space&mdash;in fact, that's how
-we've previously worked with the collection, as described in guide
-above.  However, this seems like an awful waste of space, especially
-since the WARC files achieve about a five to one compression
-ratio.</p>
+we've previously worked with the collection.  However, this seems like
+an awful waste of space, especially since the WARC files achieve about
+a five to one compression ratio.</p>
 
 <h3>Compression Schemes</h3>
 
@@ -169,21 +168,24 @@ SequenceFiles.  Sample invocation:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.RepackClueWarcRecords \
-/umd/collections/ClueWeb09 /umd/collections/ClueWeb09.repacked/en.01 1 \
-/umd/collections/ClueWeb09.repacked/docno-mapping.dat
+/shared/ClueWeb09/collection.raw /shared/ClueWeb09/collection.compressed.block/en.01 1 \
+/shared/ClueWeb09/docno-mapping.dat block
 </pre>
 
 <p>The first argument is the path of the collection, the second is the
 output directory, the third is the segment number, the fourth is the
 docno mapping data file (which is required since the keys in the
-SequenceFiles contain docnos).  Since we have the luxury of a large
-cluster (a few hundred machines), repacking the first English segment
-of ClueWeb09 takes about twenty minutes (with Java built-in
-compression; with native libraries this should be even faster).</p>
+SequenceFiles contain docnos), and the final argument is the string
+"block" (for block-level compression), "record" (for record-level
+compression), and "none" (for no compression).  Since we have the
+luxury of a large cluster (a few hundred machines), repacking the
+first English segment of ClueWeb09 takes about twenty minutes (with
+Java built-in compression; with native libraries this should be even
+faster).</p>
 
 <p>A sample result: the first English segment of ClueWeb09 weighs in
 at 247,363,677,391 bytes in its original distribution.  After
-repacking, the size expands ever so slightly to 250,058,813,981 byte.
+repacking, the size expands ever so slightly to 250,062,048,064 byte.
 For a tiny cost in space, we get random access...</p>
 
 <h3>Supporting Random Access</h3>
@@ -195,7 +197,8 @@ Sample invocation:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.BuildClueWarcForwardIndex \
-/umd/collections/ClueWeb09.repacked/en.01/ /user/jimmylin/en.01.tmp /umd/collections/ClueWeb09.repacked/en.01.findex
+/shared/ClueWeb09/collection.compressed.block/en.01 /tmp/findex/ \
+/shared/ClueWeb09/collection.compressed.block/findex.en.01.dat
 </pre>
 
 <p>The first argument is the location of the repacked block-compressed
@@ -214,44 +217,51 @@ edu.umd.cloud9.collection.clue, which implements exactly the algorithm
 sketched above and provides an abstraction for fetching ClueWeb09 web
 pages.</p>
 
-<p>Finally, some empirical results: on our cluster, with
-block-compressed SequenceFiles stored in HDFS, we get random access
-latencies in the 200-300ms range (with built-in Java compression; once
-again, with native libraries this should be substantially faster).
-This appears to be acceptable for interactive retrieval, especially
-considering that end-to-end latency is dominated by other things like
-fetching page images remotely.</p>
+<p>Finally, some empirical results: on our cluster running Hadoop
+0.20.1, with block-compressed SequenceFiles stored in HDFS, we get
+random access latencies in the 100-150ms range.  The configuration of
+the cluster at the time of the experiment was 99 nodes, 198 cores, two
+400 GB disks per node.  In a bandwidth saturated scenario (e.g., while
+the cluster is running a distcp) latency drops to the 150-200ms range,
+which is still acceptable.  Note that in these experiments we were
+using built-in Java compression; once again, with native libraries
+this should be substantially faster).  This appears to be acceptable
+for interactive retrieval, especially considering that end-to-end
+latency is dominated by other things like fetching page images
+remotely.</p>
 
 <h3>Random Access Webapp</h3>
 
 <p>Finally, as a "cute" hack, we've developed a webapp for accessing
 ClueWeb09 pages within Hadoop itself.  The lightweight HTTP
 server <a href="http://www.mortbay.org/jetty/">Jetty</a> is already
-included in the Hadoop distribution (it's what runs the jobtracker and
-namenode webapp).  What we've done is folded a Jetty server into a
-mapper, so you can fire up the webapp in the same way you start a
-Hadoop job.  In this case, the Hadoop job has only one mapper, and the
-mapper starts up a Jetty server.  To find out where the server is
-running, access the tasktracker logs, as it's in the logging output.
-You'll find the hostname and port, and then you should be able to
-directly connect to the server.  The webapp support fetching pages by
-both docno and docid.  Here's a sample invocation of this:</p>
+included in the Hadoop distribution (it's what runs the jobtracker,
+namenode, and other webapps).  What we've done is folded a Jetty
+server into a mapper, so you can fire up the webapp in the same way
+you start a Hadoop job.  In this case, the Hadoop job has only one
+mapper, and the mapper starts up a Jetty server.  To find out where
+the server is running, access the tasktracker logs, as it's in the
+logging output.  You'll find the hostname and port, and then you
+should be able to directly connect to the server.  The webapp support
+fetching pages by both docno and docid.  Here's a sample invocation of
+this:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
-/umd/collections/ClueWeb09.repacked/en.01/ /umd/collections/ClueWeb09.repacked/en.01.findex \
-edu.umd.cloud9.collection.clue.ClueWarcForwardIndex /umd/collections/ClueWeb09.repacked/docno-mapping.dat
+/shared/ClueWeb09/collection.compressed.block/findex.en.01.dat \
+/shared/ClueWeb09/docno-mapping.dat
 </pre>
 
-<p>The first argument is the location of the collection, the second is
-the index file, the third is the name of the index class, and the
-fourth is the docno mapping data.  As a note, Hadoop 0.20 uses Jetty6,
-while previous versions use Jetty5.  The two versions of Jetty have
-slightly different, and incompatible APIs (unfortunately).  The code
-here is designed to work with Jetty5, and therefore won't work with
-Hadoop 0.20 at the present time.</p>
+<p>The first argument is the location of the collection and the second
+is the index file.  This webapp has been tested on Hadoop 0.20.1 and
+is known to issues with pre-20 Hadoop versions (since they used a
+different version of Jetty with an incompatible API).  The interface
+will look something like this:</p>
 
-<p>And that's it!  Have fun!</p>
+<img src="clue-webapp-screenshot.png"/>
+
+<p>And that's it!  Have fun!  Please give us feedback if you find any
+issues, find any bugs, etc.</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 
