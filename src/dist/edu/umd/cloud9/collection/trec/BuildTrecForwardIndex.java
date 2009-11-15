@@ -123,7 +123,11 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
 		conf.set("mapred.child.java.opts", "-Xmx1024m");
 		conf.setNumReduceTasks(1);
 
-		DistributedCache.addCacheFile(new URI(mappingFile), conf);
+		if (conf.get("mapred.job.tracker").equals("local")) {
+			conf.set("DocnoMappingFile", mappingFile);
+		} else {
+			DistributedCache.addCacheFile(new URI(mappingFile), conf);
+		}
 
 		FileInputFormat.setInputPaths(conf, new Path(collectionPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));

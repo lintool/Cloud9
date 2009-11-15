@@ -10,12 +10,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
@@ -255,37 +257,41 @@ public class DocumentForwardIndexHttpServer {
 		}
 	}
 
+	// TODO: this should probably be made into a "Tool"
 	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
+		Configuration conf = new Configuration();
+		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+
+		if (otherArgs.length != 2) {
 			System.out.println("usage: [index-file] [docno-mapping-data-file]");
 			System.exit(-1);
 		}
 
-		String indexFile = args[0];
-		String mappingFile = args[1];
+		String indexFile = otherArgs[0];
+		String mappingFile = otherArgs[1];
 
 		sLogger.info("Launching DocumentForwardIndexHttpServer");
 		sLogger.info(" - index file: " + indexFile);
 		sLogger.info(" - docno mapping data file: " + mappingFile);
 
-		JobConf conf = new JobConf(DocumentForwardIndexHttpServer.class);
+		JobConf job = new JobConf(conf, DocumentForwardIndexHttpServer.class);
 
-		conf.setJobName("ForwardIndexServer:" + indexFile);
+		job.setJobName("ForwardIndexServer:" + indexFile);
 
-		conf.set("mapred.child.java.opts", "-Xmx1024m");
+		job.set("mapred.child.java.opts", "-Xmx1024m");
 
-		conf.setNumMapTasks(1);
-		conf.setNumReduceTasks(0);
+		job.setNumMapTasks(1);
+		job.setNumReduceTasks(0);
 
-		conf.setInputFormat(NullInputFormat.class);
-		conf.setOutputFormat(NullOutputFormat.class);
-		conf.setMapperClass(ServerMapper.class);
+		job.setInputFormat(NullInputFormat.class);
+		job.setOutputFormat(NullOutputFormat.class);
+		job.setMapperClass(ServerMapper.class);
 
-		conf.set("IndexFile", indexFile);
-		conf.set("DocnoMappingDataFile", mappingFile);
+		job.set("IndexFile", indexFile);
+		job.set("DocnoMappingDataFile", mappingFile);
 
-		JobClient client = new JobClient(conf);
-		client.submitJob(conf);
+		JobClient client = new JobClient(job);
+		client.submitJob(job);
 		sLogger.info("Server started!");
 	}
 }
