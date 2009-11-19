@@ -36,7 +36,7 @@ don't get the benefit of distributing your code across multiple
 machines... but it's a good start for learning about Hadoop.  This
 tutorial assumes you've already downloaded
 Cloud<sup><small>9</small></sup> and gotten it set up.  Otherwise, see
-my tutorial on <a href="start.html">that</a>.  Also, see companion
+<a href="start.html">my tutorial on that</a>.  Also, see companion
 tutorial on <a href="start-EC2.html">getting started with
 Cloud<sup><small>9</small></sup> on EC2</a>.</p>
 
@@ -46,16 +46,13 @@ when I say, "open up a shell".</p>
 
 <h3>Step 1: Configure Hadoop for standalone mode</h3>
 
-<p>I'm using Hadoop 0.18.3 for this tutorial.  Make sure you've
-unpacked the Hadoop distribution.  To do so, open a shell, go to
-umd-hadoop-core/hadoop/, and type in the following command:</p>
+<p>This tutorial assumes Hadoop 0.20.1.  Make sure you've downloaded
+and unpacked the Hadoop distribution in umd-hadoop-core/hadoop/.
+See <a href="start.html">this guide</a> for more details.</p>
 
-<pre>
-$ tar xvfz hadoop-0.18.3.tar.gz
-</pre>
-
-<p>In the shell, go to umd-hadoop-core/hadoop/hadoop-0.18.3/conf/.
-Make sure hadoop-site.xml has the following contents:</p>
+<p>Open up a shell and go to
+umd-hadoop-core/hadoop/hadoop-0.20.1/conf/.  Make sure the file
+core-site.xml doesn't actually specify configuration parameters:</p>
 
 <pre>
 &lt;?xml version="1.0"?&gt;
@@ -68,18 +65,30 @@ Make sure hadoop-site.xml has the following contents:</p>
 &lt;/configuration&gt;
 </pre>
 
-<p>This should be the default, but in case you've made edits doing
-something else...  This configuration ensures that your Hadoop now
-runs in standalone mode.</p>
+<p>Verify the same for hdfs-site.xml and mapred-site.xml.  This should
+be the case for a clean distribution.  This configuration ensures that
+your Hadoop now runs in standalone mode.</p>
+
+<p>Later on you will actually specify configuration parameters here to
+connect to a cluster.  In that case, you can override those parameters
+and force standalone mode from the command line.  Like this:</p>
+
+<pre>
+hadoop fs -D mapred.job.tracker=local -D fs.default.name=file:/// -ls .
+</pre>
+
+<p>The above example performs a directory listing in standalone mode
+(which corresponds to a directory listing of the local disk).</p>
 
 <h3>Step 2: Run pi</h3>
 
-<p>Open a shell and go to umd-hadoop-core/hadoop/hadoop-0.18.3/. Now
+<p>Open a shell and go to umd-hadoop-core/hadoop/hadoop-0.20.1/. Now
 run the pi demo:</p>
 
 <pre>
-$ bin/hadoop jar hadoop-0.18.3-examples.jar pi 10 100
-Number of Maps = 10 Samples per Map = 1000
+$ bin/hadoop jar hadoop-0.20.1-examples.jar pi 10 100
+Number of Maps  = 10
+Samples per Map = 100
 Wrote input for Map #0
 Wrote input for Map #1
 Wrote input for Map #2
@@ -92,23 +101,25 @@ Wrote input for Map #8
 Wrote input for Map #9
 Starting Job
 [...]
-09/07/16 14:58:38 INFO mapred.JobClient: Job complete: job_local_0001
-09/07/16 14:58:38 INFO mapred.JobClient: Counters: 11
-09/07/16 14:58:38 INFO mapred.JobClient:   File Systems
-09/07/16 14:58:38 INFO mapred.JobClient:     Local bytes read=1165512
-09/07/16 14:58:38 INFO mapred.JobClient:     Local bytes written=1363366
-09/07/16 14:58:38 INFO mapred.JobClient:   Map-Reduce Framework
-09/07/16 14:58:38 INFO mapred.JobClient:     Reduce input groups=2
-09/07/16 14:58:38 INFO mapred.JobClient:     Combine output records=0
-09/07/16 14:58:38 INFO mapred.JobClient:     Map input records=10
-09/07/16 14:58:38 INFO mapred.JobClient:     Reduce output records=0
-09/07/16 14:58:38 INFO mapred.JobClient:     Map output bytes=320
-09/07/16 14:58:38 INFO mapred.JobClient:     Map input bytes=240
-09/07/16 14:58:38 INFO mapred.JobClient:     Combine input records=0
-09/07/16 14:58:38 INFO mapred.JobClient:     Map output records=20
-09/07/16 14:58:38 INFO mapred.JobClient:     Reduce input records=20
-Job Finished in 3.797 seconds
-Estimated value of PI is 3.1464
+09/11/18 19:51:57 INFO mapred.JobClient: Job complete: job_local_0001
+09/11/18 19:51:57 INFO mapred.JobClient: Counters: 13
+09/11/18 19:51:57 INFO mapred.JobClient:   FileSystemCounters
+09/11/18 19:51:57 INFO mapred.JobClient:     FILE_BYTES_READ=1725357
+09/11/18 19:51:57 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=1926195
+09/11/18 19:51:57 INFO mapred.JobClient:   Map-Reduce Framework
+09/11/18 19:51:57 INFO mapred.JobClient:     Reduce input groups=20
+09/11/18 19:51:57 INFO mapred.JobClient:     Combine output records=0
+09/11/18 19:51:57 INFO mapred.JobClient:     Map input records=10
+09/11/18 19:51:57 INFO mapred.JobClient:     Reduce shuffle bytes=0
+09/11/18 19:51:57 INFO mapred.JobClient:     Reduce output records=0
+09/11/18 19:51:57 INFO mapred.JobClient:     Spilled Records=40
+09/11/18 19:51:57 INFO mapred.JobClient:     Map output bytes=180
+09/11/18 19:51:57 INFO mapred.JobClient:     Map input bytes=240
+09/11/18 19:51:57 INFO mapred.JobClient:     Combine input records=0
+09/11/18 19:51:57 INFO mapred.JobClient:     Map output records=20
+09/11/18 19:51:57 INFO mapred.JobClient:     Reduce input records=20
+Job Finished in 2.625 seconds
+Estimated value of Pi is 3.14800000000000000000
 </pre>
 
 <p>Okay, so the value of pi is a bit off... but at least Hadoop
@@ -151,29 +162,30 @@ usage: [input-path] [output-path] [num-mappers] [num-reducers]
 
 <pre>
 $ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount ../../data/bible+shakes.nopunc demo 5 1
-09/07/16 15:09:17 INFO demo.DemoWordCount: Tool: DemoWordCount
-09/07/16 15:09:17 INFO demo.DemoWordCount:  - input path: ../../data/bible+shakes.nopunc
-09/07/16 15:09:17 INFO demo.DemoWordCount:  - output path: demo
-09/07/16 15:09:17 INFO demo.DemoWordCount:  - number of mappers: 5
-09/07/16 15:09:17 INFO demo.DemoWordCount:  - number of reducers: 1
+09/11/18 19:53:18 INFO demo.DemoWordCount: Tool: DemoWordCount
+09/11/18 19:53:18 INFO demo.DemoWordCount:  - input path: ../../data/bible+shakes.nopunc
+09/11/18 19:53:18 INFO demo.DemoWordCount:  - output path: demo
+09/11/18 19:53:18 INFO demo.DemoWordCount:  - number of mappers: 5
+09/11/18 19:53:18 INFO demo.DemoWordCount:  - number of reducers: 1
 [...]
-09/07/16 15:09:25 INFO mapred.JobClient: Job complete: job_local_0001
-09/07/16 15:09:25 INFO mapred.JobClient: Counters: 11
-09/07/16 15:09:25 INFO mapred.JobClient:   File Systems
-09/07/16 15:09:25 INFO mapred.JobClient:     Local bytes read=22503580
-09/07/16 15:09:25 INFO mapred.JobClient:     Local bytes written=5466434
-09/07/16 15:09:25 INFO mapred.JobClient:   Map-Reduce Framework
-09/07/16 15:09:25 INFO mapred.JobClient:     Reduce input groups=41788
-09/07/16 15:09:25 INFO mapred.JobClient:     Combine output records=128253
-09/07/16 15:09:25 INFO mapred.JobClient:     Map input records=156215
-09/07/16 15:09:25 INFO mapred.JobClient:     Reduce output records=41788
-09/07/16 15:09:25 INFO mapred.JobClient:     Map output bytes=15919397
-09/07/16 15:09:25 INFO mapred.JobClient:     Map input bytes=9068074
-09/07/16 15:09:25 INFO mapred.JobClient:     Combine input records=1820763
-09/07/16 15:09:25 INFO mapred.JobClient:     Map output records=1734298
-09/07/16 15:09:25 INFO mapred.JobClient:     Reduce input records=41788
-09/07/16 15:09:25 INFO demo.DemoWordCount: Job Finished in 7.469 seconds
-09/07/16 15:09:25 INFO mapred.LocalJobRunner: file:/c:/workspace/umd-hadoop-core/data/bible+shakes.nopunc:0+9068074
+09/11/18 19:53:25 INFO mapred.JobClient: Job complete: job_local_0001
+09/11/18 19:53:25 INFO mapred.JobClient: Counters: 13
+09/11/18 19:53:25 INFO mapred.JobClient:   FileSystemCounters
+09/11/18 19:53:25 INFO mapred.JobClient:     FILE_BYTES_READ=22537334
+09/11/18 19:53:25 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=5495288
+09/11/18 19:53:25 INFO mapred.JobClient:   Map-Reduce Framework
+09/11/18 19:53:25 INFO mapred.JobClient:     Reduce input groups=41788
+09/11/18 19:53:25 INFO mapred.JobClient:     Combine output records=128253
+09/11/18 19:53:25 INFO mapred.JobClient:     Map input records=156215
+09/11/18 19:53:25 INFO mapred.JobClient:     Reduce shuffle bytes=0
+09/11/18 19:53:25 INFO mapred.JobClient:     Reduce output records=41788
+09/11/18 19:53:25 INFO mapred.JobClient:     Spilled Records=170041
+09/11/18 19:53:25 INFO mapred.JobClient:     Map output bytes=15919397
+09/11/18 19:53:25 INFO mapred.JobClient:     Map input bytes=9068074
+09/11/18 19:53:25 INFO mapred.JobClient:     Combine input records=1820763
+09/11/18 19:53:25 INFO mapred.JobClient:     Map output records=1734298
+09/11/18 19:53:25 INFO mapred.JobClient:     Reduce input records=41788
+09/11/18 19:53:25 INFO demo.DemoWordCount: Job Finished in 7.406 seconds
 </pre>
 
 <p>There should now be a new sub-directory in your current directory

@@ -79,29 +79,34 @@ Repository Location.  The repository location you want to add is:</p>
 
 <p>Once you've added the repository, expand the tree.  You should see
 "branches", "tags", and "trunk".  Right click on trunk &gt;
-Checkout...  Follow dialog to check out repository.  When the checkout
-process is complete, open a shell and go to umd-hadoop-core/hadoop/.
-Unpack the Hadoop 0.17.2 distribution:</p>
+Checkout...  Follow dialog to check out repository.</p>
+
+<p>Go to the <a href="http://hadoop.apache.org/">Hadoop homepage</a>
+and download the latest release of Hadoop (currently 0.20.1);
+alternatively, you may want to play
+with <a href="http://archive.cloudera.com/cdh/testing/">Cloudera's
+distribution</a>, which is released more frequently and contains
+patches since the latest main trunk release.  For the most part, you
+shouldn't notice a difference between the two.</p>
+
+<p>Copy the tarball to umd-hadoop-core/hadoop/ and unpack
+distribution:</p>
 
 <pre>
-$ tar xvfz hadoop-0.17.2.tar.gz
+$ tar xvfz hadoop-0.20.1.tar.gz
 </pre>
 
-<p>Why Hadoop 0.17.2?  See <a href="version.html">my guide to various
-Hadoop versions</a>.  In umd-hadoop-core/hadoop/ you'll also find
-tarballs for Hadoop 0.18.3 and 0.20.0&mdash;feel free to play with the
-newer versions if you wish.</p>
+<p>In reality, you can put Hadoop where ever you want.  This guide
+simply assumes the above location for convenience&mdash;the build
+configuration of the repository (for Eclipse and Ant) assumes that
+location, but this should be asy enough to change.</p>
 
 <p>After Hadoop has been unpacked, go back to Eclipse, and switch back
 to the Java perspective.  You should have the project umd-hadoop-core.
 If you're still getting errors, you might need to recompile the
 projects.  Select menu option: Project &gt; Clean...</p>
 
-<p>You'll note that Hadoop itself is checked in the repository
-umd-hadoop-core.  This is intentional, to ensure everyone is using the
-same version of Hadoop (makes debugging easier).  In the future, newer
-versions can be seamlessly rolled out by checking in a newer version
-in Subversion and having everyone update their sandboxes.</p>
+<p>That should do it!</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 
