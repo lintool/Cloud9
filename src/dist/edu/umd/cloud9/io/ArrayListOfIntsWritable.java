@@ -190,4 +190,20 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		return intDomain;
 	}
 
+	/**
+	 * Add all ints in the specified array into this object. Check for duplicates.
+	 * @param arr
+	 * 		array of ints to add to this object
+	 */
+	public void addAll(int[] arr) {
+
+		for(int i=0;i<arr.length;i++){
+			int elt = arr[i];
+			if(!contains(elt)){
+				add(elt);
+			}
+		}
+	}
+
+
 }
