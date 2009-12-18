@@ -8,6 +8,8 @@
 package edu.umd.cloud9.util;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -71,17 +73,17 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	final float loadFactor;
 
 	/**
-	 * The number of times this HMapIF has been structurally modified
-	 * Structural modifications are those that change the number of mappings in
-	 * the HMapIF or otherwise modify its internal structure (e.g., rehash).
-	 * This field is used to make iterators on Collection-views of the HMapIF
-	 * fail-fast. (See ConcurrentModificationException).
+	 * The number of times this HMapIF has been structurally modified Structural
+	 * modifications are those that change the number of mappings in the HMapIF
+	 * or otherwise modify its internal structure (e.g., rehash). This field is
+	 * used to make iterators on Collection-views of the HMapIF fail-fast. (See
+	 * ConcurrentModificationException).
 	 */
 	transient volatile int modCount;
 
 	/**
-	 * Constructs an empty <tt>HMapIF</tt> with the specified initial
-	 * capacity and load factor.
+	 * Constructs an empty <tt>HMapIF</tt> with the specified initial capacity
+	 * and load factor.
 	 * 
 	 * @param initialCapacity
 	 *            the initial capacity
@@ -111,8 +113,8 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	}
 
 	/**
-	 * Constructs an empty <tt>HMapIF</tt> with the specified initial
-	 * capacity and the default load factor (0.75).
+	 * Constructs an empty <tt>HMapIF</tt> with the specified initial capacity
+	 * and the default load factor (0.75).
 	 * 
 	 * @param initialCapacity
 	 *            the initial capacity.
@@ -155,8 +157,8 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 
 	/**
 	 * Initialization hook for subclasses. This method is called in all
-	 * constructors and pseudo-constructors (clone, readObject) after HMapIF
-	 * has been initialized but before any entries have been inserted. (In the
+	 * constructors and pseudo-constructors (clone, readObject) after HMapIF has
+	 * been initialized but before any entries have been inserted. (In the
 	 * absence of this method, readObject would require explicit knowledge of
 	 * subclasses.)
 	 */
@@ -165,10 +167,10 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 
 	/**
 	 * Applies a supplemental hash function to a given hashCode, which defends
-	 * against poor quality hash functions. This is critical because HMapIF
-	 * uses power-of-two length hash tables, that otherwise encounter collisions
-	 * for hashCodes that do not differ in lower bits. Note: Null keys always
-	 * map to hash 0, thus index 0.
+	 * against poor quality hash functions. This is critical because HMapIF uses
+	 * power-of-two length hash tables, that otherwise encounter collisions for
+	 * hashCodes that do not differ in lower bits. Note: Null keys always map to
+	 * hash 0, thus index 0.
 	 */
 	static int hash(int h) {
 		// This function ensures that hashCodes that differ only by
@@ -750,7 +752,7 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	 *             (Object) and value (Object) for each key-value mapping. The
 	 *             key-value mappings are emitted in no particular order.
 	 */
-	private void writeObject(java.io.ObjectOutputStream s) throws IOException {
+	private void writeObject(ObjectOutputStream s) throws IOException {
 		Iterator<MapIF.Entry> i = (size > 0) ? entrySet0().iterator() : null;
 
 		// Write out the threshold, loadfactor, and any hidden stuff
@@ -778,7 +780,7 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	 * Reconstitute the <tt>HMapIF</tt> instance from a stream (i.e.,
 	 * deserialize it).
 	 */
-	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+	private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
 		// Read in the threshold, loadfactor, and any hidden stuff
 		s.defaultReadObject();
 
@@ -807,7 +809,7 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	float loadFactor() {
 		return loadFactor;
 	}
-	
+
 	public String toString() {
 		Iterator<MapIF.Entry> i = entrySet().iterator();
 		if (!i.hasNext())

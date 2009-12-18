@@ -8,6 +8,8 @@
 package edu.umd.cloud9.util;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -204,7 +206,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException("key: "+key);
+		throw new NoSuchElementException("key: " + key);
 	}
 
 	// doc copied from interface
@@ -750,7 +752,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	 *             (Object) and value (Object) for each key-value mapping. The
 	 *             key-value mappings are emitted in no particular order.
 	 */
-	private void writeObject(java.io.ObjectOutputStream s) throws IOException {
+	private void writeObject(ObjectOutputStream s) throws IOException {
 		Iterator<MapII.Entry> i = (size > 0) ? entrySet0().iterator() : null;
 
 		// Write out the threshold, loadfactor, and any hidden stuff
@@ -778,7 +780,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	 * Reconstitute the <tt>HMapII</tt> instance from a stream (i.e.,
 	 * deserialize it).
 	 */
-	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+	private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
 		// Read in the threshold, loadfactor, and any hidden stuff
 		s.defaultReadObject();
 

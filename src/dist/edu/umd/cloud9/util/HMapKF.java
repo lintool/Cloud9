@@ -22,10 +22,10 @@ import java.util.Set;
 /**
  * Hash-based implementation of the <tt>MapKF</tt> interface. {@link MapKF} is
  * a specialized variant the standard Java {@link Map} interface, except that
- * the values is hard coded as floats for efficiency reasons. This
- * implementation was adapted from {@link HashMap} version 1.73, 03/13/07. See
- * <a href="{@docRoot}/../content/map.html">this benchmark</a> for an
- * efficiency comparison.
+ * the values are hard coded as floats for efficiency reasons (keys can be
+ * arbitrary objects). This implementation was adapted from {@link HashMap}
+ * version 1.73, 03/13/07. See <a href="{@docRoot}/../content/map.html">this
+ * benchmark</a> for an efficiency comparison.
  * 
  * @param <K>
  *            the type of keys maintained by this map
