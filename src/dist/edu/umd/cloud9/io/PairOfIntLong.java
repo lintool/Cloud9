@@ -176,7 +176,7 @@ public class PairOfIntLong implements WritableComparable<PairOfIntLong> {
 		return new PairOfIntLong(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfInts</code>. */
+	/** Comparator optimized for <code>PairOfIntLong</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
@@ -194,8 +194,8 @@ public class PairOfIntLong implements WritableComparable<PairOfIntLong> {
 			int thatLeftValue = readInt(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				int thisRightValue = readInt(b1, s1 + 4);
-				int thatRightValue = readInt(b2, s2 + 4);
+				long thisRightValue = readLong(b1, s1 + 4);
+				long thatRightValue = readLong(b2, s2 + 4);
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));

@@ -37,9 +37,7 @@ public class PairOfFloatIntTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfFloatInt pair = new PairOfFloatInt();
-
-		pair.set(3.14f, 2);
+		PairOfFloatInt pair = new PairOfFloatInt(3.14f, 2);
 
 		assertTrue(pair.getLeftElement() == 3.14f);
 		assertEquals(2, pair.getRightElement());
@@ -47,9 +45,7 @@ public class PairOfFloatIntTest {
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfFloatInt origPair = new PairOfFloatInt();
-
-		origPair.set(3.14f, 2);
+		PairOfFloatInt origPair = new PairOfFloatInt(3.14f, 2);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -66,20 +62,11 @@ public class PairOfFloatIntTest {
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfFloatInt pair1 = new PairOfFloatInt();
-		pair1.set(3.14f, 2);
-
-		PairOfFloatInt pair2 = new PairOfFloatInt();
-		pair2.set(3.14f, 2);
-
-		PairOfFloatInt pair3 = new PairOfFloatInt();
-		pair3.set(3.14f, 1);
-
-		PairOfFloatInt pair4 = new PairOfFloatInt();
-		pair4.set(0.3f, 9);
-
-		PairOfFloatInt pair5 = new PairOfFloatInt();
-		pair5.set(9.9f, 0);
+		PairOfFloatInt pair1 = new PairOfFloatInt(3.14f, 2);
+		PairOfFloatInt pair2 = new PairOfFloatInt(3.14f, 2);
+		PairOfFloatInt pair3 = new PairOfFloatInt(3.14f, 1);
+		PairOfFloatInt pair4 = new PairOfFloatInt(0.3f, 9);
+		PairOfFloatInt pair5 = new PairOfFloatInt(9.9f, 0);
 
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -96,20 +83,11 @@ public class PairOfFloatIntTest {
 	public void testComparison2() throws IOException {
 		WritableComparator comparator = new PairOfFloatInt.Comparator();
 
-		PairOfFloatInt pair1 = new PairOfFloatInt();
-		pair1.set(3.14f, 2);
-
-		PairOfFloatInt pair2 = new PairOfFloatInt();
-		pair2.set(3.14f, 2);
-
-		PairOfFloatInt pair3 = new PairOfFloatInt();
-		pair3.set(3.14f, 1);
-
-		PairOfFloatInt pair4 = new PairOfFloatInt();
-		pair4.set(0.3f, 9);
-
-		PairOfFloatInt pair5 = new PairOfFloatInt();
-		pair5.set(9.9f, 0);
+		PairOfFloatInt pair1 = new PairOfFloatInt(3.14f, 2);
+		PairOfFloatInt pair2 = new PairOfFloatInt(3.14f, 2);
+		PairOfFloatInt pair3 = new PairOfFloatInt(3.14f, 1);
+		PairOfFloatInt pair4 = new PairOfFloatInt(0.3f, 9);
+		PairOfFloatInt pair5 = new PairOfFloatInt(9.9f, 0);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertFalse(WritableComparatorTestHarness.compare(comparator, pair1, pair3) == 0);

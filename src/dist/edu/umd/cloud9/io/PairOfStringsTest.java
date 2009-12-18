@@ -37,19 +37,15 @@ public class PairOfStringsTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfStrings pair = new PairOfStrings();
+		PairOfStrings pair = new PairOfStrings("hi", "there");
 
-		pair.set("hi", "there");
-
-		assertEquals(pair.getLeftElement(), "hi");
-		assertEquals(pair.getRightElement(), "there");
+		assertEquals("hi", pair.getLeftElement());
+		assertEquals("there", pair.getRightElement());
 	}
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfStrings origPair = new PairOfStrings();
-
-		origPair.set("hi", "there");
+		PairOfStrings origPair = new PairOfStrings("hi", "there");
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -61,26 +57,17 @@ public class PairOfStringsTest {
 		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut
 				.toByteArray())));
 
-		assertEquals(pair.getLeftElement(), "hi");
-		assertEquals(pair.getRightElement(), "there");
+		assertEquals("hi", pair.getLeftElement());
+		assertEquals("there", pair.getRightElement());
 	}
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfStrings pair1 = new PairOfStrings();
-		pair1.set("hi", "there");
-
-		PairOfStrings pair2 = new PairOfStrings();
-		pair2.set("hi", "there");
-
-		PairOfStrings pair3 = new PairOfStrings();
-		pair3.set("hi", "howdy");
-
-		PairOfStrings pair4 = new PairOfStrings();
-		pair4.set("a", "howdy");
-
-		PairOfStrings pair5 = new PairOfStrings();
-		pair5.set("hi", "z");
+		PairOfStrings pair1 = new PairOfStrings("hi", "there");
+		PairOfStrings pair2 = new PairOfStrings("hi", "there");
+		PairOfStrings pair3 = new PairOfStrings("hi", "howdy");
+		PairOfStrings pair4 = new PairOfStrings("a", "howdy");
+		PairOfStrings pair5 = new PairOfStrings("hi", "z");
 		
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -97,20 +84,11 @@ public class PairOfStringsTest {
 	public void testComparison2() throws IOException {
 		WritableComparator comparator = new PairOfStrings.Comparator();
 
-		PairOfStrings pair1 = new PairOfStrings();
-		pair1.set("hi", "there");
-
-		PairOfStrings pair2 = new PairOfStrings();
-		pair2.set("hi", "there");
-
-		PairOfStrings pair3 = new PairOfStrings();
-		pair3.set("hi", "howdy");
-
-		PairOfStrings pair4 = new PairOfStrings();
-		pair4.set("a", "howdy");
-
-		PairOfStrings pair5 = new PairOfStrings();
-		pair5.set("hi", "z");
+		PairOfStrings pair1 = new PairOfStrings("hi", "there");
+		PairOfStrings pair2 = new PairOfStrings("hi", "there");
+		PairOfStrings pair3 = new PairOfStrings("hi", "howdy");
+		PairOfStrings pair4 = new PairOfStrings("a", "howdy");
+		PairOfStrings pair5 = new PairOfStrings("hi", "z");
 		
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));

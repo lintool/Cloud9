@@ -16,6 +16,7 @@
 
 package edu.umd.cloud9.io;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,40 +33,40 @@ import org.junit.Test;
 
 import edu.umd.cloud9.debug.WritableComparatorTestHarness;
 
-public class PairOfFloatsTest {
+public class PairOfIntLongTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfFloats pair = new PairOfFloats(3.14f, 2.0f);
+		PairOfIntLong pair = new PairOfIntLong(1, 2L);
 
-		assertTrue(pair.getLeftElement() == 3.14f);
-		assertTrue(pair.getRightElement() == 2.0f);
+		assertEquals(1L, pair.getLeftElement());
+		assertEquals(2L, pair.getRightElement());
 	}
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfFloats origPair = new PairOfFloats(3.14f, 2.0f);
+		PairOfIntLong origPair = new PairOfIntLong(1, 2L);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
 		origPair.write(dataOut);
 
-		PairOfFloats pair = new PairOfFloats();
+		PairOfIntLong pair = new PairOfIntLong();
 
 		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
-		assertTrue(pair.getLeftElement() == 3.14f);
-		assertTrue(pair.getRightElement() == 2.0f);
+		assertEquals(1L, pair.getLeftElement());
+		assertEquals(2L, pair.getRightElement());
 	}
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfFloats pair1 = new PairOfFloats(3.14f, 2.0f);
-		PairOfFloats pair2 = new PairOfFloats(3.14f, 2.0f);
-		PairOfFloats pair3 = new PairOfFloats(3.14f, 1.0f);
-		PairOfFloats pair4 = new PairOfFloats(0.3f, 9.0f);
-		PairOfFloats pair5 = new PairOfFloats(9.9f, 0.0f);
+		PairOfIntLong pair1 = new PairOfIntLong(1, 2L);
+		PairOfIntLong pair2 = new PairOfIntLong(1, 2L);
+		PairOfIntLong pair3 = new PairOfIntLong(1, 1L);
+		PairOfIntLong pair4 = new PairOfIntLong(0, 9L);
+		PairOfIntLong pair5 = new PairOfIntLong(9, 0L);
 
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -80,16 +81,13 @@ public class PairOfFloatsTest {
 
 	@Test
 	public void testComparison2() throws IOException {
-		WritableComparator comparator = new PairOfFloats.Comparator();
+		WritableComparator comparator = new PairOfIntLong.Comparator();
 
-		PairOfFloats pair1 = new PairOfFloats(3.14f, 2.0f);
-		PairOfFloats pair2 = new PairOfFloats(3.14f, 2.0f);
-		PairOfFloats pair3 = new PairOfFloats(3.14f, 1.0f);
-		PairOfFloats pair4 = new PairOfFloats(0.3f, 9.0f);
-		PairOfFloats pair5 = new PairOfFloats(9.9f, 0.0f);
-
-		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
-		assertFalse(WritableComparatorTestHarness.compare(comparator, pair1, pair3) == 0);
+		PairOfIntLong pair1 = new PairOfIntLong(1, 2L);
+		PairOfIntLong pair2 = new PairOfIntLong(1, 2L);
+		PairOfIntLong pair3 = new PairOfIntLong(1, 1L);
+		PairOfIntLong pair4 = new PairOfIntLong(0, 9L);
+		PairOfIntLong pair5 = new PairOfIntLong(9, 0L);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);
@@ -100,7 +98,7 @@ public class PairOfFloatsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(PairOfFloatsTest.class);
+		return new JUnit4TestAdapter(PairOfIntLongTest.class);
 	}
 
 }

@@ -37,9 +37,7 @@ public class PairOfLongsTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfLongs pair = new PairOfLongs();
-
-		pair.set(1L, 2L);
+		PairOfLongs pair = new PairOfLongs(1L, 2L);
 
 		assertEquals(1L, pair.getLeftElement());
 		assertEquals(2L, pair.getRightElement());
@@ -47,9 +45,7 @@ public class PairOfLongsTest {
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfLongs origPair = new PairOfLongs();
-
-		origPair.set(1L, 2L);
+		PairOfLongs origPair = new PairOfLongs(1L, 2L);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -66,20 +62,11 @@ public class PairOfLongsTest {
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfLongs pair1 = new PairOfLongs();
-		pair1.set(1L, 2L);
-
-		PairOfLongs pair2 = new PairOfLongs();
-		pair2.set(1L, 2L);
-
-		PairOfLongs pair3 = new PairOfLongs();
-		pair3.set(1L, 1L);
-
-		PairOfLongs pair4 = new PairOfLongs();
-		pair4.set(0L, 9L);
-
-		PairOfLongs pair5 = new PairOfLongs();
-		pair5.set(9L, 0L);
+		PairOfLongs pair1 = new PairOfLongs(1L, 2L);
+		PairOfLongs pair2 = new PairOfLongs(1L, 2L);
+		PairOfLongs pair3 = new PairOfLongs(1L, 1L);
+		PairOfLongs pair4 = new PairOfLongs(0L, 9L);
+		PairOfLongs pair5 = new PairOfLongs(9L, 0L);
 
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -96,20 +83,11 @@ public class PairOfLongsTest {
 	public void testComparison2() throws IOException {
 		WritableComparator comparator = new PairOfLongs.Comparator();
 
-		PairOfLongs pair1 = new PairOfLongs();
-		pair1.set(1L, 2L);
-
-		PairOfLongs pair2 = new PairOfLongs();
-		pair2.set(1L, 2L);
-
-		PairOfLongs pair3 = new PairOfLongs();
-		pair3.set(1L, 1L);
-
-		PairOfLongs pair4 = new PairOfLongs();
-		pair4.set(0L, 9L);
-
-		PairOfLongs pair5 = new PairOfLongs();
-		pair5.set(9L, 0L);
+		PairOfLongs pair1 = new PairOfLongs(1L, 2L);
+		PairOfLongs pair2 = new PairOfLongs(1L, 2L);
+		PairOfLongs pair3 = new PairOfLongs(1L, 1L);
+		PairOfLongs pair4 = new PairOfLongs(0L, 9L);
+		PairOfLongs pair5 = new PairOfLongs(9L, 0L);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);

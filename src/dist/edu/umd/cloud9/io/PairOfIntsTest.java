@@ -37,9 +37,7 @@ public class PairOfIntsTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		PairOfInts pair = new PairOfInts();
-
-		pair.set(1, 2);
+		PairOfInts pair = new PairOfInts(1, 2);
 
 		assertEquals(pair.getLeftElement(), 1);
 		assertEquals(pair.getRightElement(), 2);
@@ -47,9 +45,7 @@ public class PairOfIntsTest {
 
 	@Test
 	public void testSerialize() throws IOException {
-		PairOfInts origPair = new PairOfInts();
-
-		origPair.set(1, 2);
+		PairOfInts origPair = new PairOfInts(1, 2);
 
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(bytesOut);
@@ -66,20 +62,11 @@ public class PairOfIntsTest {
 
 	@Test
 	public void testComparison1() throws IOException {
-		PairOfInts pair1 = new PairOfInts();
-		pair1.set(1, 2);
-
-		PairOfInts pair2 = new PairOfInts();
-		pair2.set(1, 2);
-
-		PairOfInts pair3 = new PairOfInts();
-		pair3.set(1, 1);
-
-		PairOfInts pair4 = new PairOfInts();
-		pair4.set(0, 9);
-
-		PairOfInts pair5 = new PairOfInts();
-		pair5.set(9, 0);
+		PairOfInts pair1 = new PairOfInts(1, 2);
+		PairOfInts pair2 = new PairOfInts(1, 2);
+		PairOfInts pair3 = new PairOfInts(1, 1);
+		PairOfInts pair4 = new PairOfInts(0, 9);
+		PairOfInts pair5 = new PairOfInts(9, 0);
 
 		assertTrue(pair1.equals(pair2));
 		assertFalse(pair1.equals(pair3));
@@ -96,20 +83,11 @@ public class PairOfIntsTest {
 	public void testComparison2() throws IOException {
 		WritableComparator comparator = new PairOfInts.Comparator();
 
-		PairOfInts pair1 = new PairOfInts();
-		pair1.set(1, 2);
-
-		PairOfInts pair2 = new PairOfInts();
-		pair2.set(1, 2);
-
-		PairOfInts pair3 = new PairOfInts();
-		pair3.set(1, 1);
-
-		PairOfInts pair4 = new PairOfInts();
-		pair4.set(0, 9);
-
-		PairOfInts pair5 = new PairOfInts();
-		pair5.set(9, 0);
+		PairOfInts pair1 = new PairOfInts(1, 2);
+		PairOfInts pair2 = new PairOfInts(1, 2);
+		PairOfInts pair3 = new PairOfInts(1, 1);
+		PairOfInts pair4 = new PairOfInts(0, 9);
+		PairOfInts pair5 = new PairOfInts(9, 0);
 
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair2) == 0);
 		assertTrue(WritableComparatorTestHarness.compare(comparator, pair1, pair3) > 0);

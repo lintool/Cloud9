@@ -175,7 +175,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 		return new PairOfLongFloat(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfLongs</code>. */
+	/** Comparator optimized for <code>PairOfLongFloat</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
@@ -190,10 +190,10 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 		 */
 		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
 			long thisLeftValue = readLong(b1, s1);
-			float thatLeftValue = readFloat(b2, s2);
+			long thatLeftValue = readLong(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				long thisRightValue = readLong(b1, s1 + 8);
+				float thisRightValue = readFloat(b1, s1 + 8);
 				float thatRightValue = readFloat(b2, s2 + 8);
 
 				return (thisRightValue < thatRightValue ? -1
