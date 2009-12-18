@@ -23,7 +23,7 @@ import java.util.Comparator;
  * Subclass of <code>HMapKF</code> that provides access to entries sorted by
  * value and other convenience methods.
  */
-public class OHMapKF<K extends Comparable> extends HMapKF<K> {
+public class OHMapKF<K extends Comparable<?>> extends HMapKF<K> {
 
 	private static final long serialVersionUID = 6590482318L;
 
@@ -98,6 +98,7 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 	 * 
 	 * @return entries sorted by descending value
 	 */
+	@SuppressWarnings("unchecked")
 	public Entry<K>[] getEntriesSortedByValue() {
 		if (this.size() == 0)
 			return null;
@@ -140,7 +141,7 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 				if (e1.getKey() == e2.getKey())
 					return 0;
 
-				return e1.getKey().compareTo(e2.getKey());
+				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
 			}
 		});
 
@@ -164,15 +165,6 @@ public class OHMapKF<K extends Comparable> extends HMapKF<K> {
 		if (entries.length < n)
 			return entries;
 
-		// return Arrays.copyOfRange(entries, 0, n);
-
-		// copyOfRange isn't available until Java 1.6, so it doesn't run on the
-		// Google/IBM cluster.
-		Entry[] r = new Entry[n];
-		for (int i = 0; i < n; i++) {
-			r[i] = entries[i];
-		}
-
-		return r;
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 }

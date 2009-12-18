@@ -23,7 +23,7 @@ import java.util.Comparator;
  * Subclass of <code>HMapKI</code> that provides access to entries sorted by
  * value and other convenience methods.
  */
-public class OHMapKI<K extends Comparable> extends HMapKI<K> {
+public class OHMapKI<K extends Comparable<?>> extends HMapKI<K> {
 
 	private static final long serialVersionUID = 8726031451L;
 
@@ -85,6 +85,7 @@ public class OHMapKI<K extends Comparable> extends HMapKI<K> {
 	 * 
 	 * @return entries sorted by descending value
 	 */
+	@SuppressWarnings("unchecked")
 	public Entry<K>[] getEntriesSortedByValue() {
 		if (this.size() == 0)
 			return null;
@@ -127,7 +128,7 @@ public class OHMapKI<K extends Comparable> extends HMapKI<K> {
 				if (e1.getKey() == e2.getKey())
 					return 0;
 
-				return e1.getKey().compareTo(e2.getKey());
+				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
 			}
 		});
 
@@ -151,16 +152,7 @@ public class OHMapKI<K extends Comparable> extends HMapKI<K> {
 		if (entries.length < n)
 			return entries;
 
-		// return Arrays.copyOfRange(entries, 0, n);
-
-		// copyOfRange isn't available until Java 1.6, so it doesn't run on the
-		// Google/IBM cluster.
-		Entry<K>[] r = new Entry[n];
-		for (int i = 0; i < n; i++) {
-			r[i] = entries[i];
-		}
-
-		return r;
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 
 }

@@ -164,16 +164,7 @@ public class OHMapIF extends HMapIF {
 		if (entries.length < n)
 			return entries;
 
-		// return Arrays.copyOfRange(entries, 0, n);
-
-		// copyOfRange isn't available until Java 1.6, so it doesn't run on the
-		// Google/IBM cluster.
-		Entry[] r = new Entry[n];
-		for (int i = 0; i < n; i++) {
-			r[i] = entries[i];
-		}
-
-		return r;
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 
 }

@@ -159,27 +159,6 @@ public class OHMapII extends HMapII {
 		if (entries.length < n)
 			return entries;
 
-		// return Arrays.copyOfRange(entries, 0, n);
-
-		// copyOfRange isn't available until Java 1.6, so it doesn't run on the
-		// Google/IBM cluster.
-		Entry[] r = new Entry[n];
-		for (int i = 0; i < n; i++) {
-			r[i] = entries[i];
-		}
-
-		return r;
-	}
-
-	/*public OHMapII(int initialCapacity) {
-		super(initialCapacity);
-	}*/
-	
-	public OHMapII(int initialCapacity, float loadFactor) {
-		super(initialCapacity, loadFactor);
-	}
-	
-	public OHMapII() {
-		super();
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 }
