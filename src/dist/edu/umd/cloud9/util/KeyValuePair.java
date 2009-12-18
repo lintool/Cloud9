@@ -27,7 +27,7 @@ import org.apache.hadoop.io.WritableComparable;
  * @param <V>
  *            type of the value
  */
-public class KeyValuePair<K extends WritableComparable, V extends Writable> {
+public class KeyValuePair<K extends WritableComparable<?>, V extends Writable> {
 
 	private K mKey;
 	private V mValue;
