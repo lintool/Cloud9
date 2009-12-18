@@ -32,7 +32,7 @@ import edu.umd.cloud9.util.MapKF;
 import edu.umd.cloud9.util.OHMapKF;
 
 /**
- * Writable representing a map where values are floats.
+ * Writable representing a map from keys of arbitrary type to floats.
  * 
  * @param <K>
  *            type of key

@@ -32,7 +32,7 @@ import edu.umd.cloud9.util.MapKI;
 import edu.umd.cloud9.util.OHMapKI;
 
 /**
- * Writable representing a map where values are floats.
+ * Writable representing a map from keys of arbitrary type to ints.
  * 
  * @param <K>
  *            type of key
@@ -74,7 +74,7 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
-				Integer s = in.readInt();
+				int s = in.readInt();
 				put(objK, s);
 			}
 
@@ -128,7 +128,7 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 
 		return bytesOut.toByteArray();
 	}
-	
+
 	/**
 	 * Creates a <code>OHMapKIW</code> object from a <code>DataInput</code>.
 	 * 
