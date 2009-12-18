@@ -32,7 +32,7 @@ import org.apache.hadoop.io.WritableComparator;
  * 
  * @author Jimmy Lin
  */
-public class PairOfFloats implements WritableComparable {
+public class PairOfFloats implements WritableComparable<PairOfFloats> {
 	private float leftElement;
 	private float rightElement;
 
@@ -128,7 +128,7 @@ public class PairOfFloats implements WritableComparable {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
+	public int compareTo(PairOfFloats obj) {
 		PairOfFloats pair = (PairOfFloats) obj;
 
 		float pl = pair.getLeftElement();

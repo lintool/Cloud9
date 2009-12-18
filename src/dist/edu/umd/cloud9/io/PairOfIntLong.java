@@ -25,14 +25,14 @@ import org.apache.hadoop.io.WritableComparator;
 
 /**
  * <p>
- * WritableComparable representing a pair of integer and long. The elements in the pair
- * are referred to as the left and right elements. The natural sort order is:
- * first by the left element, and then by the right element.
+ * WritableComparable representing a pair of integer and long. The elements in
+ * the pair are referred to as the left and right elements. The natural sort
+ * order is: first by the left element, and then by the right element.
  * </p>
  * 
  * @author Jimmy Lin
  */
-public class PairOfIntLong implements WritableComparable {
+public class PairOfIntLong implements WritableComparable<PairOfIntLong> {
 
 	private int leftElement;
 	private long rightElement;
@@ -129,7 +129,7 @@ public class PairOfIntLong implements WritableComparable {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
+	public int compareTo(PairOfIntLong obj) {
 		PairOfIntLong pair = (PairOfIntLong) obj;
 
 		int pl = pair.getLeftElement();

@@ -19,10 +19,6 @@ package edu.umd.cloud9.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
@@ -65,13 +61,7 @@ public class OHMapKFWTest {
 		m1.put(new Text("hi"), 5.0f);
 		m1.put(new Text("there"), 22.0f);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapKFW<Text> n2 = OHMapKFW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
+		OHMapKFW<Text> n2 = OHMapKFW.<Text> create(m1.serialize());
 
 		Text key;
 		float value;
@@ -92,36 +82,24 @@ public class OHMapKFWTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		OHMapKFW<WritableComparable> m1 = new OHMapKFW<WritableComparable>();
+		OHMapKFW<WritableComparable<?>> m1 = new OHMapKFW<WritableComparable<?>>();
 
 		m1.put(new Text("hi"), 4.0f);
 		m1.put(new IntWritable(0), 76.0f);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
+		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(m1.serialize());
 
 		m2.size();
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapKFW<WritableComparable> m1 = new OHMapKFW<WritableComparable>();
+		OHMapKFW<WritableComparable<?>> m1 = new OHMapKFW<WritableComparable<?>>();
 
 		assertTrue(m1.size() == 0);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(m1.serialize());
 
-		m1.write(dataOut);
-
-		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
 		assertTrue(m2.size() == 0);
 	}
 

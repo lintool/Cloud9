@@ -19,10 +19,6 @@ package edu.umd.cloud9.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
@@ -65,13 +61,7 @@ public class OHMapKIWTest {
 		m1.put(new Text("hi"), 5);
 		m1.put(new Text("there"), 22);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(m1.serialize());
 
 		Text key;
 		int value;
@@ -92,35 +82,23 @@ public class OHMapKIWTest {
 
 	@Test(expected = IOException.class)
 	public void testTypeSafety() throws IOException {
-		OHMapKIW<WritableComparable> m1 = new OHMapKIW<WritableComparable>();
+		OHMapKIW<WritableComparable<?>> m1 = new OHMapKIW<WritableComparable<?>>();
 
 		m1.put(new Text("hi"), 4);
 		m1.put(new IntWritable(0), 76);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(m1.serialize());
 
-		m1.write(dataOut);
-
-		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
-		
 		m2.size();
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapKIW<WritableComparable> m1 = new OHMapKIW<WritableComparable>();
+		OHMapKIW<WritableComparable<?>> m1 = new OHMapKIW<WritableComparable<?>>();
 
 		assertTrue(m1.size() == 0);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(new DataInputStream(
-				new ByteArrayInputStream(bytesOut.toByteArray())));
+		OHMapKIW<Text> m2 = OHMapKIW.<Text> create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}

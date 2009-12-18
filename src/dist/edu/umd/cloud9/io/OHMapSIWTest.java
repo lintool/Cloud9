@@ -19,10 +19,6 @@ package edu.umd.cloud9.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
@@ -62,13 +58,7 @@ public class OHMapSIWTest {
 		m1.put("hi", 5);
 		m1.put("there", 22);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapSIW n2 = OHMapSIW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		OHMapSIW n2 = OHMapSIW.create(m1.serialize());
 
 		String key;
 		float value;
@@ -93,13 +83,7 @@ public class OHMapSIWTest {
 
 		assertTrue(m1.size() == 0);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-
-		m1.write(dataOut);
-
-		OHMapSIW m2 = OHMapSIW.create(new DataInputStream(new ByteArrayInputStream(bytesOut
-				.toByteArray())));
+		OHMapSIW m2 = OHMapSIW.create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}

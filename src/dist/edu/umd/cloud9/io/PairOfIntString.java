@@ -32,7 +32,7 @@ import org.apache.hadoop.io.WritableComparable;
  * 
  * @author Jimmy Lin
  */
-public class PairOfIntString implements WritableComparable {
+public class PairOfIntString implements WritableComparable<PairOfIntString> {
 
 	private int leftElement;
 	private String rightElement;
@@ -129,7 +129,7 @@ public class PairOfIntString implements WritableComparable {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
+	public int compareTo(PairOfIntString obj) {
 		PairOfIntString pair = (PairOfIntString) obj;
 
 		int pl = pair.getLeftElement();

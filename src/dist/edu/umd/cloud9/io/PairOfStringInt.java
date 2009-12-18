@@ -16,7 +16,7 @@ import org.apache.hadoop.io.WritableComparable;
  * 
  * @author Jimmy Lin
  */
-public class PairOfStringInt implements WritableComparable {
+public class PairOfStringInt implements WritableComparable<PairOfStringInt> {
 
 	private String leftElement;
 	private int rightElement;
@@ -113,7 +113,7 @@ public class PairOfStringInt implements WritableComparable {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
+	public int compareTo(PairOfStringInt obj) {
 		PairOfStringInt pair = (PairOfStringInt) obj;
 
 		String pl = pair.getLeftElement();

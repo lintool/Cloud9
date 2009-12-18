@@ -1,25 +1,23 @@
 package edu.umd.cloud9.io;
 
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
 
-import edu.umd.cloud9.io.PairOfStringInt;
-
 /**
  * <p>
- * WritableComparable representing a pair consisting of a String and a floating point number.
- * The elements in the pair are referred to as the left and right elements. The
- * natural sort order is: first by the left element, and then by the right
- * element.
+ * WritableComparable representing a pair consisting of a String and a floating
+ * point number. The elements in the pair are referred to as the left and right
+ * elements. The natural sort order is: first by the left element, and then by
+ * the right element.
  * </p>
+ * 
  * @author ferhanture
- *
+ * 
  */
-public class PairOfStringFloat implements WritableComparable {
+public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> {
 
 	private String leftElement;
 	private float rightElement;
@@ -117,7 +115,7 @@ public class PairOfStringFloat implements WritableComparable {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
+	public int compareTo(PairOfStringFloat obj) {
 		PairOfStringFloat pair = (PairOfStringFloat) obj;
 
 		String pl = pair.getLeftElement();
@@ -140,7 +138,7 @@ public class PairOfStringFloat implements WritableComparable {
 	 */
 	@Override
 	public int hashCode() {
-		return leftElement.hashCode() + (int)rightElement;
+		return leftElement.hashCode() + (int) rightElement;
 	}
 
 	/**
