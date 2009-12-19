@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.gov2;
 
 import java.io.IOException;
@@ -23,10 +39,11 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
-import edu.umd.cloud9.collection.gov2.NumberGov2Documents;
+import org.apache.log4j.Logger;
 
 public class NumberGov2Documents extends Configured implements Tool {
+
+	private static final Logger sLogger = Logger.getLogger(NumberGov2Documents.class);
 
 	protected static enum Documents {
 		Total
@@ -74,9 +91,11 @@ public class NumberGov2Documents extends Configured implements Tool {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		System.out.println("input: " + inputPath);
-		System.out.println("output: " + outputPath);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("Tool name: RepackGov2Documents");
+		sLogger.info(" - input path: " + inputPath);
+		sLogger.info(" - output path: " + outputPath);
+		sLogger.info(" - output file: " + outputFile);
+		sLogger.info(" - number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(getConf(), NumberGov2Documents.class);
 		conf.setJobName("NumberGov2Documents");
@@ -102,10 +121,10 @@ public class NumberGov2Documents extends Configured implements Tool {
 		JobClient.runJob(conf);
 
 		Gov2DocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
-		
+
 		return 0;
 	}
-	
+
 	/**
 	 * Dispatches command-line arguments to the tool via the
 	 * <code>ToolRunner</code>.

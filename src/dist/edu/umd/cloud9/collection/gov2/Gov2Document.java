@@ -1,11 +1,25 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.gov2;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.Writable;
@@ -97,7 +111,6 @@ public class Gov2Document implements Writable, Indexable {
 			int end = s.indexOf("</DOCNO>", start);
 
 			doc.mDocid = s.substring(start + 7, end);
-			// System.out.println("docid: " + doc.mDocid);
 		}
 
 		start = s.indexOf("</DOCHDR>");
@@ -105,10 +118,9 @@ public class Gov2Document implements Writable, Indexable {
 		if (start == -1) {
 			throw new RuntimeException("Unable to find DOCHDR tag!");
 		} else {
-			int end = s.indexOf("</DOC>", start);
+			int end = s.length() - 6;
 
-			doc.mContent = scrubHTML(s.substring(start + 9, end));
-			// System.out.println("content: " + doc.mContent);
+			doc.mContent = s.substring(start + 9, end);
 		}
 
 	}
@@ -128,11 +140,7 @@ public class Gov2Document implements Writable, Indexable {
 				if (readUntilMatch(endTag, true)) {
 					String s = new String(buffer.getData());
 
-					// System.out.println("DOC: " + contents);
 					readDocument(doc, s);
-
-					// key.set(fsin.getPos());
-					// value.set(buffer.getData(), 0, buffer.getLength());
 
 					return true;
 				}
@@ -166,48 +174,5 @@ public class Gov2Document implements Writable, Indexable {
 			// if (!withinBlock && i == 0 && fsin.getPos() >= end)
 			// return false;
 		}
-	}
-
-	private static Pattern PATTERN_BODY = Pattern.compile("<[Bb][Oo][Dd][Yy](.*)", Pattern.DOTALL);
-	private static Pattern PATTERN_JAVASCRIPT = Pattern.compile("<script(.*?)</script>",
-			Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-	private static Pattern PATTERN_STYLE = Pattern.compile("<style(.*?)</style>", Pattern.DOTALL
-			| Pattern.CASE_INSENSITIVE);
-	private static Pattern PATTERN_COMMENTS = Pattern.compile("<!--(.*?)-->", Pattern.DOTALL);
-	private static Pattern PATTERN_ALL_HTML_TAGS = Pattern.compile("<(.*?)>", Pattern.DOTALL);
-	private static Pattern PATTERN_NBSP = Pattern
-			.compile("(&nbsp;|&gt;|&lt;|&quot;|&raquo;|&laquo;|&lsaquo;|&rsaquo;|&mdidot;|&mdash;|&amp;)");
-
-	private static Pattern PATTERN_APOSTROPHE = Pattern.compile("&#0?39;");
-
-	private static Pattern PATTERN_CRLF = Pattern.compile("\\n\\r");
-	private static Pattern PATTERN_MULTIPLE_BLANK_LINES = Pattern.compile("\\n{3,}");
-	private static Pattern PATTERN_SPACES = Pattern.compile("[\\t ]+");
-	private static Pattern PATTERN_LEADING_SPACES = Pattern.compile("^[ \\t]+", Pattern.MULTILINE);
-
-	static private String scrubHTML(String raw) {
-		Matcher m = PATTERN_BODY.matcher(raw);
-
-		if (!m.find())
-			return "";
-
-		String s = null;
-		s = m.group();
-
-		s = PATTERN_JAVASCRIPT.matcher(s).replaceAll(" ");
-		s = PATTERN_STYLE.matcher(s).replaceAll(" ");
-		// strip comments before all HTML tags because you can comment out
-		// multiple HTML tags
-		s = PATTERN_COMMENTS.matcher(s).replaceAll(" ");
-		s = PATTERN_ALL_HTML_TAGS.matcher(s).replaceAll(" ");
-		s = PATTERN_NBSP.matcher(s).replaceAll(" ");
-		s = PATTERN_APOSTROPHE.matcher(s).replaceAll("'");
-		s = PATTERN_SPACES.matcher(s).replaceAll(" ");
-		s = PATTERN_LEADING_SPACES.matcher(s).replaceAll("");
-		s = PATTERN_CRLF.matcher(s).replaceAll("\n");
-		s = PATTERN_MULTIPLE_BLANK_LINES.matcher(s).replaceAll("\n\n");
-
-		return s;
-
 	}
 }

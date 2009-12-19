@@ -18,6 +18,8 @@ package edu.umd.cloud9.collection.gov2;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileSplit;
@@ -36,6 +38,13 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
  * @author Jimmy Lin
  */
 public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritable, Gov2Document> {
+
+	// Don't allow the files to be split!
+	@Override
+	protected boolean isSplitable(FileSystem fs, Path filename) {
+		// ensure the input files are not splittable!
+		return false;
+	}
 
 	/**
 	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
