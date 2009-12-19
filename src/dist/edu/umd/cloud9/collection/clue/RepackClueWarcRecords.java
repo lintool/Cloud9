@@ -23,11 +23,11 @@ import org.apache.log4j.Logger;
 /**
  * <p>
  * Program to uncompress the ClueWeb09 collection from the original distribution
- * WARC files and repack as block compressed <code>SequenceFiles</code>.
+ * WARC files and repack as <code>SequenceFiles</code>.
  * </p>
  * 
  * <p>
- * The program takes three command-line arguments:
+ * The program takes the following command-line arguments:
  * </p>
  * 
  * <ul>
@@ -35,6 +35,8 @@ import org.apache.log4j.Logger;
  * <li>[output-path] output path</li>
  * <li>[segment-num] segment number (1 through 10)</li>
  * <li>[docno-mapping-data-file] docno mapping data file</li>
+ * <li>(block|record|none) to indicate block-compression, record-compression,
+ * or no compression</li>
  * </ul>
  * 
  * <p>
