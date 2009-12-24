@@ -212,14 +212,28 @@ public class SequenceFileUtils {
 		return list;
 	}
 
+	
+	/**
+	 * Use max=-1 for no limit on number of entries
+	 * 
+	 * @param s
+	 * 		path to file
+	 * @param max
+	 * 		maximum number of entries to read into HashMap object
+	 * @return
+	 * 		HashMap object
+	 */
 	public static HashMap<Writable,Writable> readFileIntoMap(String s, int max) {
+		return readFileIntoMap(new Configuration(), s, max);
+	}
+
+	public static HashMap<Writable,Writable> readFileIntoMap(Configuration config, String s, int max) {
 		Path path = new Path(s);
 		HashMap<Writable,Writable> list = new HashMap<Writable,Writable>();
 
 		try {
 			int k = 0;
 
-			Configuration config = new Configuration();
 			FileSystem fs = FileSystem.get(config);
 			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
 
@@ -229,7 +243,6 @@ public class SequenceFileUtils {
 			while (reader.next(key, value)) {
 				k++;
 				list.put(key, value);
-				
 				if (max!=-1 && k >= max)
 					break;
 
@@ -238,12 +251,13 @@ public class SequenceFileUtils {
 			}
 			reader.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Exception reading file "+s);
+//			e.printStackTrace();
 		}
 
 		return list;	
 	}
-
+	
 	public static List<Writable> readLocalFile(Path path) {
 		List<Writable> list = new ArrayList<Writable>();
 
