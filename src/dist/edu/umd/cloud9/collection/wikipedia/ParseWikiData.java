@@ -49,10 +49,11 @@ public class ParseWikiData {
 				sLogger.debug("@RAW");
 				sLogger.debug(rawtext);
 				String parsed = WikipediaPage.parseAndCleanPage(rawtext);
-				String[] sentences = WikipediaPage.parseAndCleanPage2(parsed);
+				String[] sentences = (WikipediaPage.parseAndCleanPage2(parsed)).split("[\\.\\?\\!]");
 				sLogger.debug("@SENTENCES");
 				int i=0;
 				for(String sentence : sentences){
+					sentence = sentence.trim();
 					if(sentence!=null){
 						/*made-up scale factor 100, to avoid two sentences have the same key. this assumes that each page will have less than 100 sentences, which works for the German wikipedia.*/
 						sLogger.debug((100*key.get()+i)+":"+sentence);

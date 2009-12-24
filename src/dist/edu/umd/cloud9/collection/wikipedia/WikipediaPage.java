@@ -87,7 +87,7 @@ public class WikipediaPage implements Indexable {
 	 * Returns the contents of this page (title + text).
 	 */
 	public String getContent() {
-		return getTitle() + "\n" + getText();
+		return parseAndCleanPage2(parseAndCleanPage((getTitle() + "\n" + getText())));
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class WikipediaPage implements Indexable {
 	}
 	
 	 
-	public static String[] parseAndCleanPage2(String raw){
+	public static String parseAndCleanPage2(String raw){
 
 		//		# delete lines in between {{...}}
 		//		# delete part of line [[ or ]]
@@ -233,7 +233,8 @@ public class WikipediaPage implements Indexable {
 		int isSkip = 0, count1, count2;
 
 		String[] lines = raw.split("\n");
-		String[] parsed = new String[lines.length];
+//		String[] parsed = new String[lines.length];
+		String parsed="";
 		boolean isFlag;
 
 		int counter=0;
@@ -287,10 +288,7 @@ public class WikipediaPage implements Indexable {
 						&& !Pattern.compile("Kategorie:.+").matcher(line).matches()	
 						&& !Pattern.compile("\\w\\w:.+").matcher(line).matches()	
 					){
-					String[] sentences = line.split("[\\.\\?\\!]");				//do this more cleverly. distinguish cases like Mr. X where Mr and X are not 2 sentences
-					for(String sentence : sentences){
-						parsed[counter++]=sentence.trim();
-					}
+					parsed+=line+"\n";
 				}
 			}
 		}

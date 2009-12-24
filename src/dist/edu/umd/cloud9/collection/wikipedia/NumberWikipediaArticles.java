@@ -38,6 +38,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -85,12 +86,11 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 		private final static IntWritable sInt = new IntWritable(1);
 
 		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {			
 			reporter.incrCounter(PageTypes.TOTAL, 1);
 
 			if (p.isRedirect()) {
 				reporter.incrCounter(PageTypes.REDIRECT, 1);
-
 			} else if (p.isDisambiguation()) {
 				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
 			} else if (p.isEmpty()) {
@@ -116,7 +116,12 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 		public void reduce(Text key, Iterator<IntWritable> values,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			output.collect(key, sCnt);
+
+			sLogger.setLevel(Level.DEBUG);
+			sLogger.debug(key.toString()+" --> "+sCnt.get());
+
 			sCnt.set(sCnt.get() + 1);
+
 		}
 	}
 
