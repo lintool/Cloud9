@@ -17,6 +17,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("deprecation")
 public class CombineSequenceFiles  extends Configured implements Tool{
 	private static final Logger sLogger = Logger.getLogger(CombineSequenceFiles.class);
 
@@ -31,11 +32,10 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 	}
 	
 	public int run(String[] args) throws Exception {
-		if (args.length != 5) {
+		if (args.length != 5 && args.length!=6) {
 			printUsage();
 			return -1;
 		}
-		
 		String inputPath = args[0];
 		String outputPath = args[1];
 		int N = Integer.parseInt(args[2]);
@@ -53,7 +53,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		
 		JobConf job = new JobConf(CombineSequenceFiles.class);
 		job.setJobName("CombineSequenceFiles");
-
+			
 		int numMappers = N;
 		int numReducers = 1;
 
@@ -66,7 +66,10 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		job.setInt("mapred.map.max.attempts", 100);
 		job.setInt("mapred.reduce.max.attempts", 100);
 		job.setInt("mapred.task.timeout", 600000000);
-				
+		if(args.length==6){
+			job.set("mapred.job.tracker", "local");
+			job.set("fs.default.name", "file:///");
+		}
 		sLogger.setLevel(Level.INFO);
 		
 		sLogger.info("Running job "+job.getJobName());
