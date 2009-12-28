@@ -8,7 +8,7 @@ import java.util.RandomAccess;
 
 public class ArrayListOfInts implements RandomAccess, Cloneable {
 	protected transient int[] mArray;
-	protected int size;
+	protected int size = 0;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
