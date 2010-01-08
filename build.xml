@@ -62,7 +62,6 @@
 		<junit printsummary="yes" fork="yes" maxmemory="1024m">
 			<sysproperty key="java.library.path" path="${lib}" />
 			<sysproperty key="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser" />
-			<sysproperty key="ura.resource.base" value="../ura-resources/" />
 			<classpath refid="classpath" />
 
 			<formatter type="xml" />
