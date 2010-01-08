@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.gov2;
+package edu.umd.cloud9.collection.trecweb;
 
 import java.io.IOException;
 
@@ -37,7 +37,7 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
  * 
  * @author Jimmy Lin
  */
-public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritable, Gov2Document> {
+public class TrecWebDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecWebDocument> {
 
 	// Don't allow the files to be split!
 	@Override
@@ -49,7 +49,7 @@ public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritab
 	/**
 	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
 	 */
-	public RecordReader<LongWritable, Gov2Document> getRecordReader(InputSplit inputSplit,
+	public RecordReader<LongWritable, TrecWebDocument> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
 		return new Gov2DocumentRecordReader((FileSplit) inputSplit, conf);
 	}
@@ -58,7 +58,7 @@ public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritab
 	 * Hadoop <code>RecordReader</code> for reading TREC-formatted documents.
 	 */
 	public static class Gov2DocumentRecordReader implements
-			RecordReader<LongWritable, Gov2Document> {
+			RecordReader<LongWritable, TrecWebDocument> {
 
 		private XMLRecordReader mReader;
 		private Text mText = new Text();
@@ -68,8 +68,8 @@ public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		 * Creates a <code>TrecDocumentRecordReader</code>.
 		 */
 		public Gov2DocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
-			conf.set(XMLInputFormat.START_TAG_KEY, Gov2Document.XML_START_TAG);
-			conf.set(XMLInputFormat.END_TAG_KEY, Gov2Document.XML_END_TAG);
+			conf.set(XMLInputFormat.START_TAG_KEY, TrecWebDocument.XML_START_TAG);
+			conf.set(XMLInputFormat.END_TAG_KEY, TrecWebDocument.XML_END_TAG);
 
 			mReader = new XMLRecordReader(split, conf);
 		}
@@ -77,11 +77,11 @@ public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		/**
 		 * Reads the next key-value pair.
 		 */
-		public boolean next(LongWritable key, Gov2Document value) throws IOException {
+		public boolean next(LongWritable key, TrecWebDocument value) throws IOException {
 			if (mReader.next(mLong, mText) == false)
 				return false;
 			key.set(mLong.get());
-			Gov2Document.readDocument(value, mText.toString());
+			TrecWebDocument.readDocument(value, mText.toString());
 			return true;
 		}
 
@@ -95,8 +95,8 @@ public class Gov2DocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		/**
 		 * Creates an object for the value.
 		 */
-		public Gov2Document createValue() {
-			return new Gov2Document();
+		public TrecWebDocument createValue() {
+			return new TrecWebDocument();
 		}
 
 		/**

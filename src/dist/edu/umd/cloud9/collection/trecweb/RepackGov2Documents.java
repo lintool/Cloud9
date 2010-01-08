@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.gov2;
+package edu.umd.cloud9.collection.trecweb;
 
 import java.io.IOException;
 
@@ -65,9 +65,9 @@ public class RepackGov2Documents extends Configured implements Tool {
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Gov2Document, LongWritable, Gov2Document> {
-		public void map(LongWritable key, Gov2Document doc,
-				OutputCollector<LongWritable, Gov2Document> output, Reporter reporter)
+			Mapper<LongWritable, TrecWebDocument, LongWritable, TrecWebDocument> {
+		public void map(LongWritable key, TrecWebDocument doc,
+				OutputCollector<LongWritable, TrecWebDocument> output, Reporter reporter)
 				throws IOException {
 			reporter.incrCounter(Documents.Count, 1);
 
@@ -157,10 +157,10 @@ public class RepackGov2Documents extends Configured implements Tool {
 			}
 		}
 
-		conf.setInputFormat(Gov2DocumentInputFormat.class);
+		conf.setInputFormat(TrecWebDocumentInputFormat.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 		conf.setOutputKeyClass(LongWritable.class);
-		conf.setOutputValueClass(Gov2Document.class);
+		conf.setOutputValueClass(TrecWebDocument.class);
 
 		conf.setMapperClass(MyMapper.class);
 

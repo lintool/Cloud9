@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.gov2;
+package edu.umd.cloud9.collection.trecweb;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -27,7 +27,7 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
-public class Gov2Document implements Writable, Indexable {
+public class TrecWebDocument implements Writable, Indexable {
 
 	/**
 	 * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.
@@ -45,7 +45,7 @@ public class Gov2Document implements Writable, Indexable {
 	/**
 	 * Creates an empty <code>Doc2Document</code> object.
 	 */
-	public Gov2Document() {
+	public TrecWebDocument() {
 		try {
 			startTag = XML_START_TAG.getBytes("utf-8");
 			endTag = XML_END_TAG.getBytes("utf-8");
@@ -98,7 +98,7 @@ public class Gov2Document implements Writable, Indexable {
 	 * @param s
 	 *            raw XML string
 	 */
-	public static void readDocument(Gov2Document doc, String s) {
+	public static void readDocument(TrecWebDocument doc, String s) {
 		if (s == null) {
 			throw new RuntimeException("Error, can't read null string!");
 		}
@@ -130,7 +130,7 @@ public class Gov2Document implements Writable, Indexable {
 	private static byte[] endTag;
 	private static DataOutputBuffer buffer = new DataOutputBuffer();
 
-	public static boolean readNextGov2Document(Gov2Document doc, DataInputStream stream)
+	public static boolean readNextGov2Document(TrecWebDocument doc, DataInputStream stream)
 			throws IOException {
 		fsin = stream;
 

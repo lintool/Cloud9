@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.gov2;
+package edu.umd.cloud9.collection.trecweb;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -35,30 +35,28 @@ import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.wikipedia.NumberWikipediaArticles;
 import edu.umd.cloud9.util.FSLineReader;
 
-public class Gov2DocnoMapping implements DocnoMapping {
-	private static final Logger sLogger = Logger.getLogger(Gov2DocnoMapping.class);
+public class Wt10gDocnoMapping implements DocnoMapping {
+	private static final Logger sLogger = Logger.getLogger(Wt10gDocnoMapping.class);
 
 	private int [][] mDocIds;
 	private int [] mOffsets;
 
 	private static final NumberFormat sFormatW2 = new DecimalFormat("00");
 	private static final NumberFormat sFormatW3 = new DecimalFormat("000");
-	private static final NumberFormat sFormatW7 = new DecimalFormat("0000000");
-	private static final NumberFormat sFormatW8 = new DecimalFormat("00000000");
 
 	/**
 	 * Creates a <code>WikipediaDocnoMapping</code> object
 	 */
-	public Gov2DocnoMapping() {
+	public Wt10gDocnoMapping() {
 	}
 
 	public int getDocno(String docid) {
-		int dirNum = Integer.parseInt(docid.substring(2,5));
-		int subdirNum = Integer.parseInt(docid.substring(6,8));
-		int num = Integer.parseInt(docid.substring(9));
-		int offset = Arrays.binarySearch(mDocIds[dirNum*100 + subdirNum], num);
-		sLogger.info("Document name: " + docid + ", id: " + (mOffsets[dirNum*100+subdirNum] + offset + 1));
-		return mOffsets[dirNum*100 + subdirNum] + offset + 1;
+		int dirNum = Integer.parseInt(docid.substring(3,6));
+		int subdirNum = Integer.parseInt(docid.substring(8,10));
+		int num = Integer.parseInt(docid.substring(11));
+		int offset = Arrays.binarySearch(mDocIds[dirNum*50 + subdirNum], num);
+		sLogger.info("Document name: " + docid + ", id: " + (mOffsets[dirNum*50+subdirNum] + offset + 1));
+		return mOffsets[dirNum*50 + subdirNum] + offset + 1;
 	}
 
 	public String getDocid(int docno) {
@@ -69,17 +67,15 @@ public class Gov2DocnoMapping implements DocnoMapping {
 			if(docno < mOffsets[i]) {
 				break;
 			}
-		}
+		}		
 		i--;
+		while( mOffsets[i] == -1 ) { i--; }
 
-		int subdirNum = i % 100;
-		int dirNum = (i - subdirNum) / 100;
+		int subdirNum = i % 50;
+		int dirNum = (i - subdirNum) / 50;
 		int num = mDocIds[i][docno - mOffsets[i]];
 		
-		if( num >= 10000000 )
-			return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW8.format(num);
-
-		return "GX" + sFormatW3.format(dirNum) + "-" + sFormatW2.format(subdirNum) + "-" + sFormatW7.format(num);
+		return "WTX" + sFormatW3.format(dirNum) + "-B" + sFormatW2.format(subdirNum) + "-" + num;
 	}
 
 	public void loadMapping(Path p, FileSystem fs) throws IOException {
@@ -89,22 +85,22 @@ public class Gov2DocnoMapping implements DocnoMapping {
 		int lastOffset = -1;
 
 		int sz = in.readInt();
-		mDocIds = new int[273*100][];
-		mOffsets = new int[273*100];
+		mDocIds = new int[105*50][];
+		mOffsets = new int[105*50];
 
+		for(int i = 0; i < 105*50; i++) {
+			mOffsets[i] = -1;
+		}
+		
 		for (int i = 0; i < sz; i++) {
 			String docName = in.readUTF();
 
-			// GX243-38-13543987
-			int dirNum = Integer.parseInt(docName.substring(2,5));
-			int subdirNum = Integer.parseInt(docName.substring(6,8));
-			int num = Integer.parseInt(docName.substring(9));
+			// WTX082-B50-226
+			int dirNum = Integer.parseInt(docName.substring(3,6));
+			int subdirNum = Integer.parseInt(docName.substring(8,10));
+			int num = Integer.parseInt(docName.substring(11));
 
-			int curOffset = dirNum*100 + subdirNum;
-
-			if(num == 0) {
-				mOffsets[curOffset] = i;
-			}
+			int curOffset = dirNum*50 + subdirNum;
 			
 			if(curOffset != lastOffset) {
 				if(ids != null) {
@@ -117,6 +113,7 @@ public class Gov2DocnoMapping implements DocnoMapping {
 				}
 				lastOffset = curOffset;
 				ids = new ArrayList<Integer>();
+				mOffsets[curOffset] = i;
 			}
 			ids.add(num);
 		}
@@ -193,7 +190,7 @@ public class Gov2DocnoMapping implements DocnoMapping {
 		FileSystem fs = FileSystem.get(conf);
 
 		System.out.println("loading mapping file " + args[1]);
-		Gov2DocnoMapping mapping = new Gov2DocnoMapping();
+		Wt10gDocnoMapping mapping = new Wt10gDocnoMapping();
 		mapping.loadMapping(new Path(args[1]), fs);
 
 		if (args[0].equals("list")) {

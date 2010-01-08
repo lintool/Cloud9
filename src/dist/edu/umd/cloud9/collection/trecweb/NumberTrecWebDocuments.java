@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.gov2;
+package edu.umd.cloud9.collection.trecweb;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -41,21 +41,21 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-public class NumberGov2Documents extends Configured implements Tool {
+public class NumberTrecWebDocuments extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(NumberGov2Documents.class);
+	private static final Logger sLogger = Logger.getLogger(NumberTrecWebDocuments.class);
 
 	protected static enum Documents {
 		Total
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Gov2Document, Text, IntWritable> {
+			Mapper<LongWritable, TrecWebDocument, Text, IntWritable> {
 
 		private final static Text sText = new Text();
 		private final static IntWritable sInt = new IntWritable(1);
 
-		public void map(LongWritable key, Gov2Document doc,
+		public void map(LongWritable key, TrecWebDocument doc,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(Documents.Total, 1);
 
@@ -77,7 +77,7 @@ public class NumberGov2Documents extends Configured implements Tool {
 		}
 	}
 
-	public NumberGov2Documents() {
+	public NumberTrecWebDocuments() {
 	}
 
 	public int run(String[] args) throws Exception {
@@ -91,13 +91,13 @@ public class NumberGov2Documents extends Configured implements Tool {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		sLogger.info("Tool name: RepackGov2Documents");
+		sLogger.info("Tool name: NumberTrecWebDocuments");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
 		sLogger.info(" - output file: " + outputFile);
 		sLogger.info(" - number of mappers: " + mapTasks);
 
-		JobConf conf = new JobConf(getConf(), NumberGov2Documents.class);
+		JobConf conf = new JobConf(getConf(), NumberTrecWebDocuments.class);
 		conf.setJobName("NumberGov2Documents");
 
 		conf.setNumMapTasks(mapTasks);
@@ -130,7 +130,7 @@ public class NumberGov2Documents extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new NumberGov2Documents(), args);
+		int res = ToolRunner.run(new Configuration(), new NumberTrecWebDocuments(), args);
 		System.exit(res);
 	}
 }
