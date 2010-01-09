@@ -98,7 +98,7 @@ public class NumberTrecWebDocuments extends Configured implements Tool {
 		sLogger.info(" - number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(getConf(), NumberTrecWebDocuments.class);
-		conf.setJobName("NumberGov2Documents");
+		conf.setJobName("NumberTrecWebDocuments");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(1);

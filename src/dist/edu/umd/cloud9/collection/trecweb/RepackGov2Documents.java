@@ -127,7 +127,7 @@ public class RepackGov2Documents extends Configured implements Tool {
 		conf.setNumReduceTasks(0);
 
 		// 272
-		for (int i = 0; i <= 0; i++) {
+		for (int i = 0; i <= 272; i++) {
 			String path = basePath + "/GX";
 			String indexNum = Integer.toString(i);
 			if (indexNum.length() == 1) {
@@ -163,7 +163,7 @@ public class RepackGov2Documents extends Configured implements Tool {
 		conf.setOutputValueClass(TrecWebDocument.class);
 
 		conf.setMapperClass(MyMapper.class);
-
+		
 		// delete the output directory if it exists already
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 

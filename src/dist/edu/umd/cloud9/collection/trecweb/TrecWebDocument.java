@@ -91,10 +91,10 @@ public class TrecWebDocument implements Writable, Indexable {
 	}
 
 	/**
-	 * Reads a raw XML string into a <code>Gov2Document</code> object.
+	 * Reads a raw XML string into a <code>TrecWebDocument</code> object.
 	 * 
 	 * @param doc
-	 *            the <code>Gov2Document</code> object
+	 *            the <code>TrecWebDocument</code> object
 	 * @param s
 	 *            raw XML string
 	 */
@@ -130,7 +130,7 @@ public class TrecWebDocument implements Writable, Indexable {
 	private static byte[] endTag;
 	private static DataOutputBuffer buffer = new DataOutputBuffer();
 
-	public static boolean readNextGov2Document(TrecWebDocument doc, DataInputStream stream)
+	public static boolean readNextTrecWebDocument(TrecWebDocument doc, DataInputStream stream)
 			throws IOException {
 		fsin = stream;
 

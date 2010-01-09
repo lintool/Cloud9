@@ -51,13 +51,13 @@ public class TrecWebDocumentInputFormat extends IndexableFileInputFormat<LongWri
 	 */
 	public RecordReader<LongWritable, TrecWebDocument> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
-		return new Gov2DocumentRecordReader((FileSplit) inputSplit, conf);
+		return new TrecWebRecordReader((FileSplit) inputSplit, conf);
 	}
 
 	/**
 	 * Hadoop <code>RecordReader</code> for reading TREC-formatted documents.
 	 */
-	public static class Gov2DocumentRecordReader implements
+	public static class TrecWebRecordReader implements
 			RecordReader<LongWritable, TrecWebDocument> {
 
 		private XMLRecordReader mReader;
@@ -67,7 +67,7 @@ public class TrecWebDocumentInputFormat extends IndexableFileInputFormat<LongWri
 		/**
 		 * Creates a <code>TrecDocumentRecordReader</code>.
 		 */
-		public Gov2DocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
+		public TrecWebRecordReader(FileSplit split, JobConf conf) throws IOException {
 			conf.set(XMLInputFormat.START_TAG_KEY, TrecWebDocument.XML_START_TAG);
 			conf.set(XMLInputFormat.END_TAG_KEY, TrecWebDocument.XML_END_TAG);
 
