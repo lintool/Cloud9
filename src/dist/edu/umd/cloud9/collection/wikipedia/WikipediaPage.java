@@ -223,7 +223,7 @@ public class WikipediaPage implements Indexable {
 	}
 	
 	 
-	public static String parseAndCleanPage2(String raw){
+	private static String parseAndCleanPage2(String raw){
 
 		//		# delete lines in between {{...}}
 		//		# delete part of line [[ or ]]
@@ -273,8 +273,10 @@ public class WikipediaPage implements Indexable {
 				line = Pattern.compile("\\[http.+\\]").matcher(line).replaceAll("");
 				line = Pattern.compile("!--.+--").matcher(line).replaceAll("");
 
-				line = Pattern.compile(" (\\S)+\\|(\\S)+ ").matcher(line).replaceAll(" $2 ");
-
+				Matcher mm = Pattern.compile(" (\\S)+\\|(\\S)+ ").matcher(line);
+				if(mm.matches()){
+					line = mm.replaceAll(" $2 ");
+				}
 //				$_=~s/(\w)\s{1}'(\w)/$1'$2/g;
 //				$_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
 
@@ -295,6 +297,7 @@ public class WikipediaPage implements Indexable {
 
 		return parsed;
 	}
+	
 	public static String parseAndCleanPage(String raw){
 		String parsed = "";
 
@@ -368,7 +371,7 @@ public class WikipediaPage implements Indexable {
 			}
 		}
 
-		return parsed;
+		return parseAndCleanPage2(parsed);
 
 	}
 	
