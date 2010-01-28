@@ -27,9 +27,6 @@ document.writeln (LastUpdated);
 
 <div class="main">
 
-<p><b>Note:</b> This tutorial is a bit out of date, written for Hadoop
-0.17.2.  The latest version of Hadoop is 0.20.1.</p>
-
 <h3>Introduction</h3>
 
 <p>This tutorial will get you started with
@@ -46,12 +43,12 @@ my tutorial on <a href="start.html">that</a>.</p>
 
 <ul>
 
-  <li>For writing these instructions I used Hadoop 0.17.2 and Sun's
-  Java JDK 1.6.0_06 on Windows XP (with Cygwin).  However, these
-  instructions should be applicable to other operating systems.  We're
-  a bit behind on the Hadoop release because this is the version that
-  the Google/IBM CLuE cluster is running, and it's nice to have
-  consistency across all our various Hadoop clusters.</li>
+  <li>For writing these instructions I used Hadoop 0.20.1 (stock
+  distribution available from Apache) and Sun's Java JDK 1.6.0_06 on
+  Windows XP (with Cygwin).  However, these instructions should be
+  applicable to other operating systems.  In fact, the Hadoop EC2
+  scripts are not very Windows-friendly at all (I'll describe several
+  workarounds below).</li>
 
   <li><b>For Windows users:</b> If you are using Windows, you must
   use <a href="http://www.cygwin.com">Cygwin</a>, as the EC2 tools
@@ -103,12 +100,13 @@ my tutorial on <a href="start.html">that</a>.</p>
 set up an AWS account.  Follow the steps
 at <a href="http://docs.amazonwebservices.com/AmazonEC2/gsg/2007-01-03/">Amazon's
 EC2 Getting Started Guide</a>, up through the "Generating a Keypair"
-section of the "Running an Instance" page (page 5).</p>
+section of the "Running an Instance" page (page 5).  The current
+version of the EC2 API tools is 1.3-46266.</p>
 
-<p>Helpful tip: when you generate an access key, try to avoid one that
-has a slash (/) in it&mdash;this will save you some effort later,
-because some tools cannot properly parse the slash and treats it as a
-path.  If you get an access key that has a slash, just
+<p><b>Helpful tip:</b> when you generate an access key, try to avoid
+one that has a slash (/) in it&mdash;this will save you some effort
+later, because some tools cannot properly parse the slash and treats
+it as a path.  If you get an access key that has a slash, just
 regenerate.</p>
 
 <h3><a name="step2">Step 2: Fire up a Hadoop cluster in the clouds!</a></h3>
@@ -117,35 +115,22 @@ regenerate.</p>
 consult <a href="http://wiki.apache.org/hadoop/AmazonEC2">Running
 Hadoop on Amazon EC2</a> for reference, but I'll summarize the
 instructions below.  To begin, make sure you're working with Hadoop
-0.17.2 and have the EC2 environment variables properly set (see
-previous step).  Note that all the Amazon tools begin with "ec2-",
-which distinguishes them from tools bundle in the Hadoop
-distribution.</p>
+0.20.1 (stock Apache distribution) and have the EC2 environment
+variables properly set (see previous step).  Note that all the Amazon
+tools begin with "ec2-", which distinguishes them from tools bundle in
+the Hadoop distribution.</p>
 
 <p>In case you are curious, here's how you find all available Hadoop
 images with the Amazon EC2 tool.</p>
 
 <pre>
 $ ec2-describe-images -x all | grep hadoop
-IMAGE   ami-f73adf9e    cs345-hadoop-EC2-0.15.3/hadoop-0.15.3.manifest.xml [...]
-IMAGE   ami-c55db8ac    fedora8-hypertable-hadoop-kfs/image.manifest.xml [...]
-IMAGE   ami-64f6130d    hadoop-ec2-images/hadoop-0.14.1.manifest.xml [...]
-IMAGE   ami-381df851    hadoop-ec2-images/hadoop-0.15.3.manifest.xml [...]
-IMAGE   ami-461df82f    hadoop-ec2-images/hadoop-0.16.1.manifest.xml [...]
-IMAGE   ami-ee53b687    hadoop-ec2-images/hadoop-0.17.0-i386.manifest.xml [...]
-IMAGE   ami-f853b691    hadoop-ec2-images/hadoop-0.17.0-x86_64.manifest.xml [...]
-IMAGE   ami-1220c57b    hadoop-ec2-images/hadoop-20071220.manifest.xml [...]
-IMAGE   ami-fe7c9997    radlab-hadoop-4-large/image.manifest.xml [...]
-IMAGE   ami-7f7f9a16    radlab-hadoop-4/image.manifest.xml [...]
 </pre>
 
-<p>Note that at the time these instructions were initially written,
-there was no AMI for Hadoop 0.17.2; 0.17.0 is the closet and will do
-just fine.  Feel free also to substitute for a new Hadoop
-distribution.</p>
+<p>You'll be surprised at how many Hadoop AMIs there are!</p>
 
 <p>Open the file
-umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2/bin/hadoop-ec2-env.sh.
+hadoop-0.20.1/src/contrib/ec2/bin/hadoop-ec2-env.sh.
 Fill in the following variables with information from you own
 account:</p>
 
@@ -157,8 +142,8 @@ account:</p>
 
 </ul>
 
-<p>If you're using Windows, you may also want to tweak the
-following variables:</p>
+<p>If you're using Cygwin, you may also want to tweak the following
+variables:</p>
 
 <ul>
 
@@ -168,58 +153,109 @@ following variables:</p>
 
 </ul>
 
-<p>Those variables have ~ as default, which in Windows will map to
+<p>These files store information about the cluster you've started up.
+The variables have paths containing ~, which in Windows will map to
 something like "C:\Documents and Settings\...".  That's a path
 containing spaces, which breaks some of the Hadoop EC2 scripts.</p>
 
+<p><b>For Cygwin users only:</b> As previously mentioned, the Hadoop
+EC2 scripts are not very Windows-friendly.  If you don't implement the
+below workaround, you'll get the following error.</p>
 
-<p>Open a shell and go to
-umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2.  Launch a EC2
+<pre>
+Invalid argument for option '-f, --user-data-file DATA-FILE': '/cygdrive/c/...' (-h for usage)
+</pre>
+
+<p>The issue is that USER_DATA_FILE, defined in hadoop-ec2-env.sh,
+needs to be passed in as a parameter to the EC2 startup scripts.
+Something strange about Cygwin screws that up.  To fix the problem,
+you'll need to go into hadoop-0.20.1/src/contrib/ec2/bin.  On line 88
+of launch-hadoop-master, you'll see this following line:</p>
+
+<pre>
+INSTANCE=`ec2-run-instances ... -f "$bin"/$USER_DATA_FILE ...
+</pre>
+
+<p>Remove the "$bin" so that it reads:</p>
+
+<pre>
+INSTANCE=`ec2-run-instances ... -f $USER_DATA_FILE ...
+</pre>
+
+<p>On line 53, of launch-hadoop-slaves, you'll see this following line:</p>
+
+<pre>
+ec2-run-instances ... -f "$bin"/$USER_DATA_FILE.slave ...
+</pre>
+
+<p>Remove the "$bin" so that it reads:</p>
+
+<pre>
+ec2-run-instances ... -f $USER_DATA_FILE.slave ...
+</pre>
+
+<p><b>&lt;end Cygwin workaround&gt;</b></p>
+
+<p>Open a shell and go to hadoop-0.20.1/src/contrib/ec2/bin.  Launch a EC2
 cluster and start Hadoop with the following command. You must supply a
 cluster name (test-cluster) and the number of slaves (2 in my
 case). At this point, it makes no sense to start up a large cluster
 (even if you can!)&mdash;one or two nodes is sufficient.  After the
 cluster boots, the public DNS name will be printed to the console.</p>
 
+
 <pre>
-$ bin/hadoop-ec2 launch-cluster test-cluster 2
+$ ./hadoop-ec2 launch-cluster test-cluster 2
 Testing for existing master in group: test-cluster
-Starting master with AMI ami-ee53b687
-Waiting for instance i-f6f22d9f to start
-..........Started as ip-10-250-10-132.ec2.internal
-[...]
-Master is ec2-75-101-238-212.compute-1.amazonaws.com, ip is , zone is us-east-1b.
-Adding test-cluster node(s) to cluster group test-cluster with AMI ami-ee53b687
-i-cff22da6
-i-cef22da7
+Starting master with AMI ami-fa6a8e93
+Waiting for instance i-961a15fe to start
+..................Started as domU-12-31-39-02-61-03.compute-1.internal
+Warning: Permanently added 'ec2-75-101-178-200.compute-1.amazonaws.com,75.101.178.200' (RSA) to the list of known hosts.
+Copying private key to master
+id_rsa-gsg-keypair                                                                   100% 1694     1.7KB/s   00:00
+/cygdrive/c/ec2/hadoop-0.20.1/src/contrib/ec2/bin/launch-hadoop-master: line 119: dig: command not found
+Master is ec2-75-101-178-200.compute-1.amazonaws.com, ip is , zone is us-east-1c.
+Adding test-cluster node(s) to cluster group test-cluster with AMI ami-fa6a8e93
+i-ec191684
+i-ee191686
 </pre>
 
-<p>Note: In Cygwin, the script may complain about not being able to
-find the dig DNS utility.  There doesn't appear to be a standard
-Cygwin package that contains the utility, but not having it is okay
-(you'll notice that the actual IP address for the cluster is
-missing).</p>
+<p><b>Note:</b> In Cygwin, the script may complain about not being
+able to find the dig DNS utility (as with above).  There doesn't
+appear to be a standard Cygwin package that contains the utility, but
+not having it is okay (you'll notice that the actual IP address for
+the cluster is missing).  Don't worry about it.</p>
 
 <p>The meter has just started running... so you're being billed for
 usage starting now.  After a little bit, you should be able to access
-the job track on port 50030 of the master, which in my case is:</p>
+the jobtracker webapp on port 50030 of the master, which in my case
+is:</p>
 
 <blockquote>
-http://ec2-75-101-238-212.compute-1.amazonaws.com:50030/
+http://ec2-75-101-178-200.compute-1.amazonaws.com:50030/
 </blockquote>
 
+<p>Obviously, your master will have a different public address.  Now
+navigate to that URL in a browser, and you should see something
+like <a href="start-ec2-cropped.png">this screenshot of the jobtracker
+webapp</a>.</p>
+
 <p>Congratulations, you've just started a Hadoop cluster in the
-clouds!  If it doesn't work at first, the machines are probably
-booting up... wait a bit and then check again.  You can use the EC2
-tools to see the instances you're running:</p>
+clouds!  You'll notice that the cluster is actually running Hadoop
+0.19.0.  Unfortunately, that's the most recently available AMI (as of
+Jan. 2010).  Under "Nodes", you should see 2, since we started up two
+slaves.  If the number of nodes is 0, the slaves are probably booting
+up... wait a bit and then check again.</p>
+
+<p>You can use the EC2 tools to see the instances you're running:</p>
 
 <pre>
 $ ec2-describe-instances
-RESERVATION     r-be3bf3d7      613871172339    test-cluster-master
-INSTANCE        i-f6f22d9f      ami-ee53b687    ec2-75-101-238-212.compute-1.amazonaws.com [...]
-RESERVATION     r-b73bf3de      613871172339    test-cluster
-INSTANCE        i-cff22da6      ami-ee53b687    ec2-75-101-224-162.compute-1.amazonaws.com [...]
-INSTANCE        i-cef22da7      ami-ee53b687    ec2-75-101-236-71.compute-1.amazonaws.com  [...]
+RESERVATION     r-6e5cc706      613871172339    test-cluster-master
+INSTANCE        i-961a15fe      ami-fa6a8e93    ec2-75-101-178-200.compute-1.amazonaws.com  [...]
+RESERVATION     r-ee5cc786      613871172339    test-cluster
+INSTANCE        i-ec191684      ami-fa6a8e93    ec2-204-236-192-146.compute-1.amazonaws.com [...]
+INSTANCE        i-ee191686      ami-fa6a8e93    ec2-75-101-191-132.compute-1.amazonaws.com  [...]
 </pre>
 
 <p>Pretty cool, huh?</p>
@@ -227,37 +263,91 @@ INSTANCE        i-cef22da7      ami-ee53b687    ec2-75-101-236-71.compute-1.amaz
 <h3><a name="step3">Step 3: Test drive the cluster</a></h3>
 
 <p>Let's log into the cluster and poke around.  Open a shell on your
-local machine and go to
-umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2.  Log into the
+local machine and go to hadoop-0.20.1/src/contrib/ec2/bin.  Log into the
 master:</p>
 
 <pre>
-$ bin/hadoop-ec2 login test-cluster
+$ ./hadoop-ec2 login test-cluster
 </pre>
 
 <p>Now run the pi demo:</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# cd /usr/local/hadoop-0.17.0/
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop jar hadoop-0.17.0-examples.jar pi 10 1000
-Number of Maps = 10 Samples per Map = 1000
+[root@domU-12-31-39-02-61-03 ~]# cd /usr/local/hadoop-0.19.0/
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop jar hadoop-0.19.0-examples.jar pi 20 1000
+Number of Maps = 20 Samples per Map = 1000
 Wrote input for Map #0
-[...]
+Wrote input for Map #1
+Wrote input for Map #2
+Wrote input for Map #3
+Wrote input for Map #4
+Wrote input for Map #5
+Wrote input for Map #6
+Wrote input for Map #7
+Wrote input for Map #8
 Wrote input for Map #9
+Wrote input for Map #10
+Wrote input for Map #11
+Wrote input for Map #12
+Wrote input for Map #13
+Wrote input for Map #14
+Wrote input for Map #15
+Wrote input for Map #16
+Wrote input for Map #17
+Wrote input for Map #18
+Wrote input for Map #19
 Starting Job
-08/08/01 19:59:01 INFO mapred.FileInputFormat: Total input paths to process : 10
-08/08/01 19:59:02 INFO mapred.JobClient: Running job: job_200808011938_0001
-[...]
-Job Finished in 32.679 seconds
-Estimated value of PI is 3.1244
+10/01/27 19:05:49 INFO mapred.FileInputFormat: Total input paths to process : 20
+10/01/27 19:05:50 INFO mapred.JobClient: Running job: job_201001271856_0001
+10/01/27 19:05:51 INFO mapred.JobClient:  map 0% reduce 0%
+10/01/27 19:05:58 INFO mapred.JobClient:  map 5% reduce 0%
+10/01/27 19:06:01 INFO mapred.JobClient:  map 10% reduce 0%
+10/01/27 19:06:03 INFO mapred.JobClient:  map 15% reduce 0%
+10/01/27 19:06:04 INFO mapred.JobClient:  map 20% reduce 0%
+10/01/27 19:06:05 INFO mapred.JobClient:  map 25% reduce 0%
+10/01/27 19:06:07 INFO mapred.JobClient:  map 35% reduce 0%
+10/01/27 19:06:09 INFO mapred.JobClient:  map 40% reduce 0%
+10/01/27 19:06:10 INFO mapred.JobClient:  map 45% reduce 0%
+10/01/27 19:06:11 INFO mapred.JobClient:  map 50% reduce 0%
+10/01/27 19:06:13 INFO mapred.JobClient:  map 60% reduce 0%
+10/01/27 19:06:15 INFO mapred.JobClient:  map 70% reduce 0%
+10/01/27 19:06:17 INFO mapred.JobClient:  map 80% reduce 0%
+10/01/27 19:06:19 INFO mapred.JobClient:  map 85% reduce 0%
+10/01/27 19:06:20 INFO mapred.JobClient:  map 90% reduce 0%
+10/01/27 19:06:21 INFO mapred.JobClient:  map 95% reduce 0%
+10/01/27 19:06:22 INFO mapred.JobClient:  map 100% reduce 0%
+10/01/27 19:06:31 INFO mapred.JobClient:  map 100% reduce 10%
+10/01/27 19:06:36 INFO mapred.JobClient:  map 100% reduce 20%
+10/01/27 19:06:41 INFO mapred.JobClient:  map 100% reduce 28%
+10/01/27 19:06:47 INFO mapred.JobClient:  map 100% reduce 100%
+10/01/27 19:06:48 INFO mapred.JobClient: Job complete: job_201001271856_0001
+10/01/27 19:06:48 INFO mapred.JobClient: Counters: 16
+10/01/27 19:06:48 INFO mapred.JobClient:   File Systems
+10/01/27 19:06:48 INFO mapred.JobClient:     HDFS bytes read=2360
+10/01/27 19:06:48 INFO mapred.JobClient:     HDFS bytes written=255
+10/01/27 19:06:48 INFO mapred.JobClient:     Local bytes read=726
+10/01/27 19:06:48 INFO mapred.JobClient:     Local bytes written=2126
+10/01/27 19:06:48 INFO mapred.JobClient:   Job Counters
+10/01/27 19:06:48 INFO mapred.JobClient:     Launched reduce tasks=1
+10/01/27 19:06:48 INFO mapred.JobClient:     Launched map tasks=20
+10/01/27 19:06:48 INFO mapred.JobClient:     Data-local map tasks=20
+10/01/27 19:06:48 INFO mapred.JobClient:   Map-Reduce Framework
+10/01/27 19:06:48 INFO mapred.JobClient:     Reduce input groups=2
+10/01/27 19:06:48 INFO mapred.JobClient:     Combine output records=0
+10/01/27 19:06:48 INFO mapred.JobClient:     Map input records=20
+10/01/27 19:06:48 INFO mapred.JobClient:     Reduce output records=0
+10/01/27 19:06:48 INFO mapred.JobClient:     Map output bytes=640
+10/01/27 19:06:48 INFO mapred.JobClient:     Map input bytes=480
+10/01/27 19:06:48 INFO mapred.JobClient:     Combine input records=0
+10/01/27 19:06:48 INFO mapred.JobClient:     Map output records=40
+10/01/27 19:06:48 INFO mapred.JobClient:     Reduce input records=40
+Job Finished in 59.832 seconds
+Estimated value of PI is 3.1414
 </pre>
 
 <p>Okay, so the value of pi is a bit off... but you've successfully
 submitted your first Hadoop job!  Go back to the job tracker and you
 should see the run.</p>
-
-<p>Note that Hadoop 0.17.0 may complain about deprecated filesystem
-name.  Don't worry about it.</p>
 
 <h3><a name="step4">Step 4: Transfer some data</a></h3>
 
@@ -267,18 +357,18 @@ are the words we're counting).  Make sure you're still logged into the
 master.  The following command shows you what's in HDFS.</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop dfs -ls
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop dfs -ls /
 Found 2 items
-/mnt    &lt;dir&gt;           2008-08-01 19:38        rwxr-xr-x       root    supergroup
-/user   &lt;dir&gt;           2008-08-01 19:58        rwxr-xr-x       root    supergroup
+drwxr-xr-x   - root supergroup          0 2010-01-27 18:56 /mnt
+drwxr-xr-x   - root supergroup          0 2010-01-27 19:05 /user
 </pre>
 
 <p>Right now, not much, but we're going to put some stuff there.  Open
-a shell on your local machine and go to umd-hadoop-core/.  Now scp the
+a shell on your local machine and go to umd-hadoop-core/data.  Now scp the
 sample data over to the master.</p>
 
 <pre>
-$ scp -i YOUR_PATH/id_rsa-gsg-keypair sample-input/bible+shakes.* root@ec2-75-101-238-212.compute-1.amazonaws.com:/tmp
+$ scp -i YOUR_PATH/id_rsa-gsg-keypair bible+shakes.nopunc root@ec2-75-101-178-200.compute-1.amazonaws.com:/tmp
 </pre>
 
 <p>Of course, substitute YOUR_PATH and the name of your master
@@ -294,24 +384,21 @@ to put the data into HDFS, i.e., distribute the data across all nodes
 in the cluster.  Create the appropriate directories in HDFS:</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop dfs -mkdir /shared
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop dfs -mkdir /shared/sample-input
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop fs -mkdir /data
 </pre>
 
 <p>The dump the data into HDFS:</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop dfs -put /tmp/bible+shakes.* /shared/sample-input
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop fs -put /tmp/bible+shakes.nopunc /data
 </pre>
 
 <p>Now you should be able to see the data in HDFS.</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# bin/hadoop dfs -ls /shared/sample-input
-Found 3 items
-/shared/sample-input/bible+shakes.nopunc        &lt;r 3&gt;   9068074 [...]
-/shared/sample-input/bible+shakes.nopunc.packed &lt;r 3&gt;   13117764 [...]
-/shared/sample-input/bible+shakes.nopunc.packed2        &lt;r 3&gt;   24561594 [...]
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop fs -ls /data
+Found 1 items
+-rw-r--r--   3 root supergroup    9068074 2010-01-27 19:12 /data/bible+shakes.nopunc
 </pre>
 
 <p>Data's there... now for the code.</p>
@@ -330,38 +417,55 @@ $ jar cvf cloud9.jar edu/
 code compiled okay.  Once you have created the jar, copy it over:</p>
 
 <pre>
-$ scp -i YOUR_PATH/id_rsa-gsg-keypair cloud9.jar root@ec2-75-101-238-212.compute-1.amazonaws.com:/tmp
+$ scp -i YOUR_PATH/id_rsa-gsg-keypair cloud9.jar root@ec2-75-101-178-200.compute-1.amazonaws.com:/tmp
 </pre>
 
 <p>And finally, submit the job to the cluster:</p>
 
 <pre>
-[root@ip-10-250-10-132 hadoop-0.17.0]# hadoop jar /tmp/cloud9.jar edu.umd.cloud9.demo.DemoWordCount
-08/08/01 20:36:56 INFO mapred.FileInputFormat: Total input paths to process : 1
-08/08/01 20:36:57 INFO mapred.JobClient: Running job: job_200808011938_0002
-[...]
-08/08/01 20:37:45 INFO mapred.JobClient:  map 100% reduce 100%
-08/08/01 20:37:46 INFO mapred.JobClient: Job complete: job_200808011938_0002
-08/08/01 20:37:46 INFO mapred.JobClient: Counters: 16
-08/08/01 20:37:46 INFO mapred.JobClient:   File Systems
-08/08/01 20:37:46 INFO mapred.JobClient:     Local bytes read=2703600
-08/08/01 20:37:46 INFO mapred.JobClient:     Local bytes written=5443371
-08/08/01 20:37:46 INFO mapred.JobClient:     HDFS bytes read=9091882
-08/08/01 20:37:46 INFO mapred.JobClient:     HDFS bytes written=149157
-08/08/01 20:37:46 INFO mapred.JobClient:   Job Counters
-08/08/01 20:37:46 INFO mapred.JobClient:     Launched map tasks=20
-08/08/01 20:37:46 INFO mapred.JobClient:     Launched reduce tasks=1
-08/08/01 20:37:46 INFO mapred.JobClient:     Data-local map tasks=20
-08/08/01 20:37:46 INFO mapred.JobClient:   Map-Reduce Framework
-08/08/01 20:37:46 INFO mapred.JobClient:     Map input records=156215
-08/08/01 20:37:46 INFO mapred.JobClient:     Map output records=1734298
-08/08/01 20:37:46 INFO mapred.JobClient:     Map input bytes=9068074
-08/08/01 20:37:46 INFO mapred.JobClient:     Map output bytes=15919397
-08/08/01 20:37:46 INFO mapred.JobClient:     Combine input records=1734298
-08/08/01 20:37:46 INFO mapred.JobClient:     Combine output records=135372
-08/08/01 20:37:46 INFO mapred.JobClient:     Reduce input groups=41788
-08/08/01 20:37:46 INFO mapred.JobClient:     Reduce input records=135372
-08/08/01 20:37:46 INFO mapred.JobClient:     Reduce output records=41788
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop jar /tmp/cloud9.jar edu.umd.cloud9.demo.DemoWordCount /data/bible+shakes.nopunc /wc 10 1
+10/01/27 19:16:56 INFO demo.DemoWordCount: Tool: DemoWordCount
+10/01/27 19:16:56 INFO demo.DemoWordCount:  - input path: /data/bible+shakes.nopunc
+10/01/27 19:16:56 INFO demo.DemoWordCount:  - output path: /wc
+10/01/27 19:16:56 INFO demo.DemoWordCount:  - number of mappers: 10
+10/01/27 19:16:56 INFO demo.DemoWordCount:  - number of reducers: 1
+10/01/27 19:16:57 WARN mapred.JobClient: Use GenericOptionsParser for parsing the arguments. Applications should implement Tool for the same.
+10/01/27 19:16:58 INFO mapred.FileInputFormat: Total input paths to process : 1
+10/01/27 19:16:58 INFO mapred.JobClient: Running job: job_201001271856_0002
+10/01/27 19:16:59 INFO mapred.JobClient:  map 0% reduce 0%
+10/01/27 19:17:04 INFO mapred.JobClient:  map 10% reduce 0%
+10/01/27 19:17:07 INFO mapred.JobClient:  map 30% reduce 0%
+10/01/27 19:17:11 INFO mapred.JobClient:  map 40% reduce 0%
+10/01/27 19:17:12 INFO mapred.JobClient:  map 50% reduce 0%
+10/01/27 19:17:14 INFO mapred.JobClient:  map 60% reduce 0%
+10/01/27 19:17:16 INFO mapred.JobClient:  map 70% reduce 0%
+10/01/27 19:17:18 INFO mapred.JobClient:  map 80% reduce 0%
+10/01/27 19:17:20 INFO mapred.JobClient:  map 90% reduce 0%
+10/01/27 19:17:21 INFO mapred.JobClient:  map 100% reduce 0%
+10/01/27 19:17:30 INFO mapred.JobClient:  map 100% reduce 20%
+10/01/27 19:17:35 INFO mapred.JobClient:  map 100% reduce 100%
+10/01/27 19:17:37 INFO mapred.JobClient: Job complete: job_201001271856_0002
+10/01/27 19:17:37 INFO mapred.JobClient: Counters: 16
+10/01/27 19:17:37 INFO mapred.JobClient:   File Systems
+10/01/27 19:17:37 INFO mapred.JobClient:     HDFS bytes read=9090620
+10/01/27 19:17:37 INFO mapred.JobClient:     HDFS bytes written=447180
+10/01/27 19:17:37 INFO mapred.JobClient:     Local bytes read=1415836
+10/01/27 19:17:37 INFO mapred.JobClient:     Local bytes written=2832006
+10/01/27 19:17:37 INFO mapred.JobClient:   Job Counters
+10/01/27 19:17:37 INFO mapred.JobClient:     Launched reduce tasks=1
+10/01/27 19:17:37 INFO mapred.JobClient:     Launched map tasks=10
+10/01/27 19:17:37 INFO mapred.JobClient:     Data-local map tasks=10
+10/01/27 19:17:37 INFO mapred.JobClient:   Map-Reduce Framework
+10/01/27 19:17:37 INFO mapred.JobClient:     Reduce input groups=41788
+10/01/27 19:17:37 INFO mapred.JobClient:     Combine output records=101526
+10/01/27 19:17:37 INFO mapred.JobClient:     Map input records=156215
+10/01/27 19:17:37 INFO mapred.JobClient:     Reduce output records=41788
+10/01/27 19:17:37 INFO mapred.JobClient:     Map output bytes=15919397
+10/01/27 19:17:37 INFO mapred.JobClient:     Map input bytes=9068074
+10/01/27 19:17:37 INFO mapred.JobClient:     Combine input records=1734298
+10/01/27 19:17:37 INFO mapred.JobClient:     Map output records=1734298
+10/01/27 19:17:37 INFO mapred.JobClient:     Reduce input records=101526es.
+10/01/27 19:17:37 INFO demo.DemoWordCount: Job Finished in 39.591 seconds
 </pre>
 
 <p>Congratulations!  You have now learned the basics of Hadoop on EC2.
@@ -377,11 +481,10 @@ the MapReduce program.  You can see those files by issuing the
 following command:</p>
 
 <pre>
-[root@domU-12-31-38-00-41-42 hadoop-0.17.0]# hadoop dfs -ls sample-counts
-[...]
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop fs -ls /wc
 Found 2 items
-/user/root/sample-counts/_logs  &lt;dir&gt;           2008-09-16 11:18        rwxr-xr-x       root    supergroup
-/user/root/sample-counts/part-00000     &lt;r 3&gt;   447180  2008-09-16 11:19        rw-r--r--       root    supergroup
+drwxr-xr-x   - root supergroup          0 2010-01-27 19:16 /wc/_logs
+-rw-r--r--   3 root supergroup     447180 2010-01-27 19:17 /wc/part-00000
 </pre>
 
 <p>A file gets created for each reducer, and the final key-value pairs
@@ -391,11 +494,10 @@ whatever you want with it (examine the output, scp back to your local
 machine, etc.):</p>
 
 <pre>
-[root@domU-12-31-38-00-41-42 hadoop-0.17.0]# hadoop dfs -get sample-counts/part-00000 .
-[...]
-[root@domU-12-31-38-00-41-42 hadoop-0.17.0]# head part-00000
-&amp;c      70
-&amp;c'     1
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# bin/hadoop fs -get /wc/part-00000 .
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# head part-00000
+&c      70
+&c'     1
 ''all   1
 ''among 1
 ''and   1
@@ -404,7 +506,7 @@ machine, etc.):</p>
 ''lo    2
 ''look  1
 ''my    1
-[root@domU-12-31-38-00-41-42 hadoop-0.17.0]# tail part-00000
+[root@domU-12-31-39-02-61-03 hadoop-0.19.0]# tail part-00000
 zorites 1
 zorobabel       3
 zounds  20
@@ -447,30 +549,29 @@ redistribution of the blocks).</p>
 doesn't stop (i.e., the bill continues to accumulate, dime by dime)
 until you shut down your Hadoop cluster.  To do so, open a shell on
 your local machine and go to
-umd-hadoop-core/hadoop/hadoop-0.17.2/src/contrib/ec2:</p>
+hadoop-0.20.1/src/contrib/ec2/bin:</p>
 
 <pre>
-$ bin/hadoop-ec2 terminate-cluster test-cluster
+$ ./hadoop-ec2 terminate-cluster test-cluster
 Running Hadoop instances:
-INSTANCE        i-f6f22d9f      ami-ee53b687    ec2-75-101-238-212.compute-1.amazonaws.com [...]
-INSTANCE        i-cff22da6      ami-ee53b687    ec2-75-101-224-162.compute-1.amazonaws.com [...]
-INSTANCE        i-cef22da7      ami-ee53b687    ec2-75-101-236-71.compute-1.amazonaws.com [...]
+INSTANCE        i-961a15fe      ami-fa6a8e93 [...]
+INSTANCE        i-ec191684      ami-fa6a8e93 [...]
+INSTANCE        i-ee191686      ami-fa6a8e93 [...]
 Terminate all instances? [yes or no]: yes
-INSTANCE        i-f6f22d9f      running shutting-down
-INSTANCE        i-cff22da6      running shutting-down
-INSTANCE        i-cef22da7      running shutting-down
+INSTANCE        i-ec191684      running shutting-down
+INSTANCE        i-961a15fe      running shutting-down
+INSTANCE        i-ee191686      running shutting-down
 </pre>
 
 <p>Confirm that the instances have indeed gone away:</p>
 
 <pre>
 $ ec2-describe-instances
-RESERVATION     r-be3bf3d7      613871172339    test-cluster-master
-INSTANCE        i-f6f22d9f      ami-ee53b687                    terminated [...]
-RESERVATION     r-b73bf3de      613871172339    test-cluster
-INSTANCE        i-cff22da6      ami-ee53b687                    terminated [...]
-INSTANCE        i-cef22da7      ami-ee53b687                    terminated [...]
-1b      aki-a71cf9ce    ari-a51cf9cc
+RESERVATION     r-6e5cc706      613871172339    test-cluster-master
+INSTANCE        i-961a15fe      ami-fa6a8e93                    terminated [...]
+RESERVATION     r-ee5cc786      613871172339    test-cluster
+INSTANCE        i-ec191684      ami-fa6a8e93                    terminated [...]
+INSTANCE        i-ee191686      ami-fa6a8e93                    terminated [...]
 </pre>
 
 <p>And this concludes your first adventure in the clouds!</p>
@@ -478,17 +579,9 @@ INSTANCE        i-cef22da7      ami-ee53b687                    terminated [...]
 <h3><a name="ps">Postscript</a></h3>
 
 <p>Log into <a href="http://aws.amazon.com">your AWS account</a> and
-check your bill: right side of your screen, "Your Web Services
-Account" drop-down menu, "AWS Account Activity".  How much cash did
-you burn?</p>
-
-<p>In case you're interested, it cost me $0.82 to initially write this
-tutorial... I know, that's pretty inefficient&mdash;I used a total of
-eight node hours.  In my defense, it took me a couple of tries to
-start up the cluster correctly (due to path problems), and I was
-writing at the same time...</p>
-
-<p>Have fun computing in the clouds!</p>
+check your bill: right side of your screen, "Your Account" drop-down
+menu, "Account Activity".  How much cash did you burn?  Now, is
+utility computing fun or what?</p>
 
 <h3>Common Issues</h3>
 
