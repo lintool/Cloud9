@@ -70,6 +70,11 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 
 	public ClueWarcRecord getDocument(int docno) {
 		long start = System.currentTimeMillis();
+		
+		// trap invalid docnos
+		if ( docno < getFirstDocno() || docno > getLastDocno())
+			return null;
+		
 		int idx = Arrays.binarySearch(mDocnos, docno);
 
 		if (idx < 0)
