@@ -247,9 +247,10 @@ browser, you should be able to access the jobtracker!</p>
 <p>You'll want to access the task logs on the individual cluster
 workers for debugging, but the problem is that the Webapp gives you
 URLs that contain references to Xen virtual machines, something like
-http://xenhost-XXXXXXXXXXXX-X:50060/tasklog..., which isn't very
-helpful because you need the actual IP addresses of the individual
-workers.  The easiest solution is to hack your hosts file.</p>
+http://vm-XX-XXX-X-XXX:50060/tasklog... Although there's a
+straightforward translation from hostname to IP address, you'd like
+the process to be taken care for you automatically.  The easiest
+solution is to hack your hosts file.</p>
 
 <p>Email me or the admins for the Xen host to IP mappings (I'm not
 posting publicly for obvious security reasons).  Add them to your

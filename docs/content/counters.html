@@ -44,12 +44,11 @@ groups and prints out names of counters in each group:</p>
 RunningJob job = JobClient.runJob(conf);
 Counters counters = job.getCounters();
 for (Counters.Group group : counters) {
-	System.out.println("- Counter Group: " + group.getDisplayName() + " ("
-			+ group.getName() + ")");
-	System.out.println("  number of counters in this group: " + group.size());
-	for (Counters.Counter counter : group) {
-		System.out.println("  - " + counter.getDisplayName() + ": " + counter.getName());
-	}
+    System.out.println("- Counter Group: " + group.getDisplayName() + " (" + group.getName() + ")");
+    System.out.println("  number of counters in this group: " + group.size());
+    for (Counters.Counter counter : group) {
+        System.out.println("  - " + counter.getDisplayName() + ": " + counter.getName());
+    }
 }
 </pre>
 
@@ -68,7 +67,7 @@ counters by their string names, which is more verbose.  Here are the
 group names and names of counters within those individual groups:</p>
 
 <table>
-<tr><td class="myheader">Group</td><td class="myheader">Counter Name</td></tr>
+<tr><td class="myheader">Group Name</td><td class="myheader">Counter Name</td></tr>
 <tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_INPUT_RECORDS</td></tr>
 <tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_OUTPUT_RECORDS</td></tr>
 <tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_SKIPPED_RECORDS</td></tr>
@@ -101,30 +100,30 @@ group names and names of counters within those individual groups:</p>
 Counters.Counter counter = null;
 
 String[] taskCounterNames = { "MAP_INPUT_RECORDS", "MAP_OUTPUT_RECORDS",
-		"MAP_SKIPPED_RECORDS", "MAP_INPUT_BYTES", "MAP_OUTPUT_BYTES",
-		"COMBINE_INPUT_RECORDS", "COMBINE_OUTPUT_RECORDS", "REDUCE_INPUT_GROUPS",
-		"REDUCE_SHUFFLE_BYTES", "REDUCE_INPUT_RECORDS", "REDUCE_OUTPUT_RECORDS",
-		"REDUCE_SKIPPED_GROUPS", "REDUCE_SKIPPED_RECORDS", "SPILLED_RECORDS" };
+    "MAP_SKIPPED_RECORDS", "MAP_INPUT_BYTES", "MAP_OUTPUT_BYTES",
+    "COMBINE_INPUT_RECORDS", "COMBINE_OUTPUT_RECORDS", "REDUCE_INPUT_GROUPS",
+    "REDUCE_SHUFFLE_BYTES", "REDUCE_INPUT_RECORDS", "REDUCE_OUTPUT_RECORDS",
+    "REDUCE_SKIPPED_GROUPS", "REDUCE_SKIPPED_RECORDS", "SPILLED_RECORDS" };
 
 for (String c : taskCounterNames) {
-	counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", c);
-	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+    counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", c);
+    System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
 }
 
 String[] jobCounterNames = { "TOTAL_LAUNCHED_MAPS", "RACK_LOCAL_MAPS", "DATA_LOCAL_MAPS",
-		"TOTAL_LAUNCHED_REDUCES" };
+    "TOTAL_LAUNCHED_REDUCES" };
 
 for (String c : jobCounterNames) {
-	counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", c);
-	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+    counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", c);
+    System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
 }
 
 String[] fsCounterNames = { "FILE_BYTES_READ", "HDFS_BYTES_READ", "FILE_BYTES_WRITTEN",
-		"HDFS_BYTES_WRITTEN" };
+    "HDFS_BYTES_WRITTEN" };
 
 for (String c : fsCounterNames) {
-	counter = counters.findCounter("FileSystemCounters", c);
-	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+    counter = counters.findCounter("FileSystemCounters", c);
+    System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
 }
 </pre>
 
