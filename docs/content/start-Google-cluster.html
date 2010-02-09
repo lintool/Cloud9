@@ -145,8 +145,10 @@ ssh -D 6789 username@GATEWAY
 </pre>
 
 <p>Make sure you substitute your real username and the actual IP
-address for GATEWAY.  Enter your password and log in when
-prompted.</p>
+address for GATEWAY.  Enter your password and log in when prompted.
+After you've logged in, minimize this window, as you won't need it
+anymore.  The only purpose of connecting to the gateway is to let you
+tunnel directly to the cluster.</p>
 
 <p>Here, I'm assuming that you have ssh installed.  In Windows, your
 best bet is to install <a href="http://www.cygwin.com">Cygwin</a>; ssh
@@ -156,11 +158,9 @@ package.</p>
 <h3>4. Test drive the cluster</h3>
 
 <p>With the above steps and bit of luck, you should be able to access
-the Hadoop cluster from <b>your local machine</b>!  Basically, you've
-set up a direct connection to the Hadoop cluster via a SOCKS
-proxy.</p>
-
-<p>Try things out with a simple command (from your local machine):</p>
+the Hadoop cluster.  Try things out with a simple command from a new
+shell on your local machine (i.e., <b>not</b> from the ssh shell
+connected to the gateway above):</p>
 
 <pre>
 hadoop fs -ls /
