@@ -27,33 +27,14 @@ document.writeln (LastUpdated+")");
 
 <div class="main">
 
-<p>Before embarking on this exercise, read the following two papers
-(if you haven't already):</p>
-
-<ul>
-
-  <li>Ghemawat, Sanjay, Howard Gobioff, and Shun-Tak
-  Leung. (2003) <a href="../papers/Ghemawat_etal_SOSP2003.pdf">The Google
-  File System</a>. Proceedings of the 19th ACM Symposium on Operating
-  Systems Principles (SOSP-03), pages 29-43. Bolton Landing, New
-  York.</li>
-
-  <li>Dean, Jeffrey and Sanjay
-  Ghemawat. (2004) <a href="../papers/Dean_Ghemawat_OSDI2004.pdf">MapReduce:
-  Simplified Data Processing on Large Clusters</a>. Proceedings of the
-  6th Symposium on Operating System Design and Implementation (OSDI
-  2004), pages 137-150. San Francisco, California.</li>
-
-</ul>
-
-<p>Also, make sure you've gone through
-the <a href="../content/start-EC2.html">downloading
-Cloud<sup><small>9</small></sup> and getting started with EC2</a>
-tutorial.</p>
+<p>This exercise is a simple extension of the word count demo: in the
+first part of the exercise, you'll be counting bigrams, and in the
+second part of the exercise, you'll be computing bigram conditional
+probabilities.</p>
 
 <h3>Part I: Count the bigrams</h3>
 
-<p>This exercise is quite straightforward: take the word count
+<p>Take the word count
 example <code>edu.umd.cloud9.demo.DemoWordCount</code> and extend it
 to count
 bigrams.  <a href="http://en.wikipedia.org/wiki/Bigram">Bigrams</a>
@@ -115,23 +96,19 @@ that start with "A".</p>
 
 <h3>Practical Tips</h3>
 
-<p>Here are some practical tips for doing this exercise with EC2.  The
-easiest way to get started is to write a new class directly inside the
-Cloud<sup><small>9</small></sup> project in Eclipse.  Once you have
-some code you want to run, pull up a shell and change directory
-to <code>umd-hadoop-core/build/</code> (this is where Eclipse
-automatically puts compiled class files).  Then create a jar with the
-following command:</p>
+<p>The easiest way to get started is to write a new class directly
+inside the Cloud<sup><small>9</small></sup> project in Eclipse.  Once
+you have some code you want to run, pull up a shell and change
+directory to <code>umd-hadoop-core/build/</code> (this is where
+Eclipse automatically puts compiled class files).  Then create a jar
+with the following command:</p>
 
 <pre>
 jar cvf cloud9.jar *
 </pre>
 
-<p>You can then scp the jar over to your EC2 cluster and run the job,
-per Step 6 in the
-<a href="../content/start-EC2.html">downloading
-Cloud<sup><small>9</small></sup> and getting started with EC2</a>
-tutorial.</p>
+<p>You can then run the job in standalone mode, on the Google/IBM
+cluster, on EC2, etc.</p>
 
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
