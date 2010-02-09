@@ -32,116 +32,100 @@ document.writeln (LastUpdated+")");
 <p>Counters are lightweight objects in Hadoop that allow you to keep
 track of system progress in both the map and reduce stages of
 processing.  By default, Hadoop defines a number of standard counters
-in "groups"; these show up in the jobtracker Webapp, giving you
-information such as "Map input records", "Map output records", etc.</p>
+in "groups"; these show up in the jobtracker webapp, giving you
+information such as "Map input records", "Map output records", etc.
+This short guide shows you how to programmatically manipulate
+counters, and is up to date as of Hadoop 0.20.1.</p>
 
-<p>Here's some sample code that programmatically iterates through all
-available counters:</p>
+<p>Here's some sample code that iterates through all available counter
+groups and prints out names of counters in each group:</p>
 
 <pre>
-RunningJob job = JobClient.runJob(conf);  // blocks until job completes
+RunningJob job = JobClient.runJob(conf);
 Counters counters = job.getCounters();
 for (Counters.Group group : counters) {
-    System.out.println("- Counter Group: " + group.getDisplayName() + " (" + group.getName() + ")");
-    System.out.println("  number of counters in this group: " + group.size());
-    for (Counters.Counter counter : group) {
-        System.out.println("  - Counter: " + counter.getDisplayName());
-    }
+	System.out.println("- Counter Group: " + group.getDisplayName() + " ("
+			+ group.getName() + ")");
+	System.out.println("  number of counters in this group: " + group.size());
+	for (Counters.Counter counter : group) {
+		System.out.println("  - " + counter.getDisplayName() + ": " + counter.getName());
+	}
 }
 </pre>
 
-<p>The above fragment will generate the following output:</p>
-
-<pre>
-- Counter Group: File Systems (org.apache.hadoop.mapred.Task$FileSystemCounter)
-   number of counters in this group: 4
-  - Counter: Local bytes read
-  - Counter: Local bytes written
-  - Counter: HDFS bytes read
-  - Counter: HDFS bytes written
-- Counter Group: Job Counters  (org.apache.hadoop.mapred.JobInProgress$Counter)
-   number of counters in this group: 4
-  - Counter: Launched map tasks
-  - Counter: Launched reduce tasks
-  - Counter: Data-local map tasks
-  - Counter: Rack-local map tasks
-- Counter Group: Map-Reduce Framework (org.apache.hadoop.mapred.Task$Counter)
-   number of counters in this group: 9
-  - Counter: Map input records
-  - Counter: Map output records
-  - Counter: Map input bytes
-  - Counter: Map output bytes
-  - Counter: Combine input records
-  - Counter: Combine output records
-  - Counter: Reduce input groups
-  - Counter: Reduce input records
-  - Counter: Reduce output records
-</pre>
-
-<p>As of Hadoop 0.18.1, it is a bit awkward to access counter values
+<p>In Hadoop 0.20.1, It is a bit awkward to access counter values
 directly.  The easiest way to look up a counter is by an enum, but
 unfortunately the enums that correspond to the built-in counters are
 not publicly accessible.
 See <a href="http://issues.apache.org/jira/browse/HADOOP-4043">JIRA
-4043</a> for more information about this.  The current working
-solution is to look up counters by their string names, which is more
-verbose.  Here is code that fetches values of all the
-built-in counters:</p>
+HADOOP-4043</a>
+and <a href="http://issues.apache.org/jira/browse/HADOOP-5717">JIRA
+HADOOP-5717</a> for more information about this.  This issue has been
+fixed, and is slated for inclusion in Hadoop 0.21.0</p>
+
+<p>In the meantime, the current working solution is to look up
+counters by their string names, which is more verbose.  Here are the
+group names and names of counters within those individual groups:</p>
+
+<table>
+<tr><td class="myheader">Group</td><td class="myheader">Counter Name</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_INPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_OUTPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_SKIPPED_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_INPUT_BYTES</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">MAP_OUTPUT_BYTES</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">COMBINE_INPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">COMBINE_OUTPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_INPUT_GROUPS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_SHUFFLE_BYTES</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_INPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_OUTPUT_RECORDS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_SKIPPED_GROUPS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.Task$Counter</td><td class="mycell">REDUCE_SKIPPED_RECORDS</td></tr>
+
+<tr><td class="mycell">org.apache.hadoop.mapred.JobInProgress$Counter</td><td class="mycell">TOTAL_LAUNCHED_MAPS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.JobInProgress$Counter</td><td class="mycell">RACK_LOCAL_MAPS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.JobInProgress$Counter</td><td class="mycell">DATA_LOCAL_MAPS</td></tr>
+<tr><td class="mycell">org.apache.hadoop.mapred.JobInProgress$Counter</td><td class="mycell">TOTAL_LAUNCHED_REDUCES</td></tr>
+
+<tr><td class="mycell">FileSystemCounters</td><td class="mycell">FILE_BYTES_READ</td></tr>
+<tr><td class="mycell">FileSystemCounters</td><td class="mycell">HDFS_BYTES_READ</td></tr>
+<tr><td class="mycell">FileSystemCounters</td><td class="mycell">FILE_BYTES_WRITTEN</td></tr>
+<tr><td class="mycell">FileSystemCounters</td><td class="mycell">HDFS_BYTES_WRITTEN</td></tr>
+
+</table>
+
+<p>And here is some boilerplate code to access individual counters:</p>
 
 <pre>
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$FileSystemCounter", 0, "Local bytes read");
-System.out.println("Local bytes read: " + counter.getCounter());
+Counters.Counter counter = null;
 
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$FileSystemCounter", 1, "Local bytes written");
-System.out.println("Local bytes written: " + counter.getCounter());
+String[] taskCounterNames = { "MAP_INPUT_RECORDS", "MAP_OUTPUT_RECORDS",
+		"MAP_SKIPPED_RECORDS", "MAP_INPUT_BYTES", "MAP_OUTPUT_BYTES",
+		"COMBINE_INPUT_RECORDS", "COMBINE_OUTPUT_RECORDS", "REDUCE_INPUT_GROUPS",
+		"REDUCE_SHUFFLE_BYTES", "REDUCE_INPUT_RECORDS", "REDUCE_OUTPUT_RECORDS",
+		"REDUCE_SKIPPED_GROUPS", "REDUCE_SKIPPED_RECORDS", "SPILLED_RECORDS" };
 
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$FileSystemCounter", 2, "HDFS bytes read");
-System.out.println("HDFS bytes read: " + counter.getCounter());
+for (String c : taskCounterNames) {
+	counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", c);
+	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+}
 
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$FileSystemCounter", 3, "HDFS bytes written");
-System.out.println("HDFS bytes written: " + counter.getCounter());
+String[] jobCounterNames = { "TOTAL_LAUNCHED_MAPS", "RACK_LOCAL_MAPS", "DATA_LOCAL_MAPS",
+		"TOTAL_LAUNCHED_REDUCES" };
 
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$FileSystemCounter", 3, "HDFS bytes written");
-System.out.println("HDFS bytes written: " + counter.getCounter());
+for (String c : jobCounterNames) {
+	counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", c);
+	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+}
 
-counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", 2, "Launched map tasks");
-System.out.println("Launched map tasks: " + counter.getCounter());
+String[] fsCounterNames = { "FILE_BYTES_READ", "HDFS_BYTES_READ", "FILE_BYTES_WRITTEN",
+		"HDFS_BYTES_WRITTEN" };
 
-counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", 3, "Launched reduce tasks");
-System.out.println("Launched reduce tasks: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", 4, "Data-local map tasks");
-System.out.println("Data-local map tasks: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.JobInProgress$Counter", 5, "Rack-local map tasks");
-System.out.println("Rack-local map tasks: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 0, "Map input records");
-System.out.println("Map input records: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 1, "Map output records");
-System.out.println("Map output records: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 2, "Map input bytes");
-System.out.println("Map input bytes: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 3, "Map output bytes");
-System.out.println("Map output bytes: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 4, "Combine input records");
-System.out.println("Combine input records: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 5, "Combine output records");
-System.out.println("Combine output records: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 6, "Reduce input groups");
-System.out.println("Reduce input groups: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 7, "Reduce input records");
-System.out.println("Reduce input records: " + counter.getCounter());
-
-counter = counters.findCounter("org.apache.hadoop.mapred.Task$Counter", 8, "Reduce output records");
-System.out.println("Reduce output records: " + counter.getCounter());
+for (String c : fsCounterNames) {
+	counter = counters.findCounter("FileSystemCounters", c);
+	System.out.println(counter.getDisplayName() + ": " + counter.getCounter());
+}
 </pre>
 
 <h3>Custom Counters</h3>
