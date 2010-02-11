@@ -42,11 +42,12 @@ Shakespeare's <i>Merchants of Venice</i>:</p>
 <p>An inverted index consists of a collection of postings lists, one
 associated with each unique term in the collection.  Each postings
 list consists of a number of individual postings.  Each posting holds
-a document identifier and the frequency (i.e., count) of the term in that
-document.</p>
+a document identifier (docno) and the frequency (i.e., count) of the
+term in that document.</p>
 
 <p>Let's treat each line in the above sample data as if it were a
-"document".  The complete inverted index would look like:</p>
+"document".  The complete inverted index would look something like
+this:</p>
 
 <pre>
 and     : 1 : (3, 1)
@@ -89,20 +90,20 @@ appears in the document.  The term <i>if</i> appears once in every
 document.</p>
 
 <p><b>Your task:</b> write a MapReduce program that builds an inverted
-index.  You can choose to store the <i>df</i> explicitly if you wish,
-but that's optional.  Your postings, however, should be exactly as
-described above.</p>
+index.  Each postings list should explicitly store the <i>df</i>, as
+well as all the individual postings.</p>
 
 <p>Run the inverted indexer on the sample input included in
-Cloud<sup><small>9</small></sup>, <a href="../../sample-input/bible+shakes.nopunc">the
-Bible and the complete works of Shakespeare</a>.  As with the above
-case, treat each line as if it were an individual "document".  When
-you map over a plain text file, the key passed to the mapper contains
-the byte offset of the line from the beginning of the file, while the
-value contains the text of the line.  Use this offset value as the
-unique docno.  As part of this exercise you'll also need to write a
-utility that takes a given docno (i.e., the byte offset) and returns
-the associated line.</p>
+Cloud<sup><small>9</small></sup>, <a
+href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
+works of Shakespeare</a>.  As with the above case, treat each line as
+if it were an individual "document".  When you map over a plain text
+file using TextInputFormat in Hadoop, the key passed to the mapper
+contains the byte offset of the line from the beginning of the file,
+while the value contains the text of the line.  Use this offset value
+as the unique docno.  As part of this exercise you'll also need to
+write a utility (outside MapReduce) that takes a given docno (i.e.,
+the byte offset) and returns the associated line.</p>
 
 <p>Questions to answer:</p>
 
@@ -110,7 +111,8 @@ the associated line.</p>
 
   <li>Look up the postings corresponding to the term "starcross'd".
   There should only be one line in the entire collection that contains
-  the term.  What is that line?  What's its docno (byte offset)?</li>
+  the term.  What is that line?  What's its docno (i.e., byte
+  offset)?</li>
 
   <li>Look up the postings corresponding to the term "gold".  Generate
   a histogram of <i>tf</i> values.  That is, in how many lines does
@@ -120,8 +122,65 @@ the associated line.</p>
 
 </ol>
 
+<h3>Practical Tips</h3>
 
+<p>In this exercise, you'll have to create and manipulate postings
+lists, which are complex objects that have their own internal
+structure.  Let's consider this term and its associated postings list
+as an example:</p>
 
+<pre>
+if      : 4 : (1, 1), (2, 1), (3, 1), (4, 1)
+</pre>
+
+<p>You have three choices to represent postings lists.  First, you can
+encode them as Java strings wrapped inside Hadoop Text objects.  The
+string format might look something like this:</p>
+
+<pre>
+4:1,1:2,1:3,1:4,1
+</pre>
+
+<p>The downside is that when manipulating postings, you'll have to do
+a lot of string-based operations (e.g., splits).  This approach will
+work, but it's pretty ugly.</p>
+
+<p>The second approach is to write your own custom Writable.  The
+third is to reuse Writables that are in
+Cloud<sup><small>9</small></sup>.  You'll want to look in the
+edu.umd.cloud9.io package if you decide to go this route.</p>
+
+<p>If you decide to adopt the second or third option, this exercise is
+a good opportunity to learn about different output formats.  An
+OutputFormat (see Hadoop API) describes how output key-value pairs are
+written to HDFS.  By default, Hadoop uses TextOutputFormat, which
+writes out the key-value pairs in human-readable text format.  This is
+good for you, but can be annoying if you want to further manipulate
+the output programmatically&mdash;since you'll have the read in the
+text file and parse the key-value pairs back into Java objects (even
+if you have your own custom Writables).  As an alternative, you might
+want to consider SequenceFileOutputFormat.  You can specify that
+format with a method in JobConf:</p>
+
+<pre>
+conf.setOutputFormat(SequenceFileOutputFormat.class);
+</pre>
+
+<p>If you do this, the output of your MapReduce job will be stored in
+one or more SequenceFiles.  The advantage of SequenceFiles is that
+they store key-value pairs in a machine-readable format, i.e., as
+serialized byte representations of the Java objects (not human
+readable, but can be programmatically manipulated quite easily).  The
+SequenceFile API provides methods for reading key-value
+pairs&mdash;saving you the effort of having to manually parse plain
+text files.  Of course, SequenceFiles aren't very useful if you are
+using Text objects as output values.</p>
+
+<p>Along the same lines, you might also want to take a look at
+MapFileOutputFormat, which writes the output key-value pairs to... as
+you've guessed, MapFiles!  These files have the additional advantage
+of supporting random access to the keys.  Once again, see the API for
+details.</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 

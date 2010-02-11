@@ -39,21 +39,23 @@ the following form:</p>
 
 <p>Your system will need to parse nested Boolean queries.  To make
 query processing simpler, you can choose the notation in which the
-queries are
-expressed: <a href="http://en.wikipedia.org/wiki/Infix_notation">infix
-notation</a> (as above)
-or <a href="http://en.wikipedia.org/wiki/Polish_notation">prefix
-notation</a>, e.g., "(AND slings arrows)".  If you want to be
-particularly clever, write a query parser
-for <a href="http://en.wikipedia.org/wiki/Reverse_Polish_notation">reverse
+queries are expressed: <a
+href="http://en.wikipedia.org/wiki/Infix_notation">infix notation</a>
+(as above) or <a
+href="http://en.wikipedia.org/wiki/Polish_notation">prefix
+notation</a>, e.g., "(AND slings arrows)".  In fact, you can even
+write a query parser that uses <a
+href="http://en.wikipedia.org/wiki/Reverse_Polish_notation">reverse
 polish notation</a>&mdash;it has many advantages, one of which is that
-all expressions can be unambiguously interpreted without
-parentheses.</p>
+all expressions can be unambiguously interpreted without parentheses.
+As a hint, reverse polish notation actually yields the simplest
+implementation.</p>
 
 <p>As with previous exercises, use the sample input included in
-Cloud<sup><small>9</small></sup>, <a href="../../sample-input/bible+shakes.nopunc">the
-Bible and the complete works of Shakespeare</a>.  As a bare minimum,
-your Boolean retrieval engine must be able to:</p>
+Cloud<sup><small>9</small></sup>, <a
+href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
+works of Shakespeare</a>.  As a bare minimum, your Boolean retrieval
+engine must be able to:</p>
 
 <ul>
 
@@ -99,58 +101,15 @@ means AND deceit
 
 <h3>Practical Tips</h3>
 
-<p>This exercise is meant to be completed outside of Hadoop.  I would
-recommend the following steps:</p>
-
-<ol>
-
- <li>Build your inverted index in Hadoop, as per
- the <a href="indexer.html">inverted index construction</a> exercise.
- If you set the number of reducers to one, all the postings will be
- written to a single file.  This will make the index easier to
- manipulate.  Obviously, this isn't a scalable solution, but it will
- suffice for this exercise.</li>
-
- <li>Retrieve your index from HDFS with the <code>hadoop dfs
- -get</code> command.  For more details, see
- this <a href="http://hadoop.apache.org/core/docs/r0.17.0/hdfs_shell.html">guide
- on Hadoop Shell commands</a>.</li>
-
- <li>Scp your inverted index from the Hadoop cluster onto your local
- machine.</li>
-
-</ol>
-
-<p>If you haven't already, this exercise may be a good opportunity to
-learn about different output formats.  An <code>OutputFormat</code>
-(see Hadoop API) describes how output key-value pairs are written to
-HDFS.  By default, Hadoop uses <code>TextOutputFormat</code>, which
-writes out the key-value pairs in human-readable text format.  This is
-good for you, but can be annoying if you want to further manipulate
-the output programmatically&mdash;since you'll have the read in the text
-file and parse the key-value pairs back into Java objects.  As an
-alternative, you might want to
-consider <code>SequenceFileOutputFormat</code>; you can specify that
-format with a method in <code>JobConf</code>:</p>
-
-<pre>
-conf.setOutputFormat(SequenceFileOutputFormat.class);
-</pre>
-
-<p>If you do this, the output of your MapReduce jobs will be stored in
-one or more <code>SequenceFiles</code>.  The advantage
-of <code>SequenceFiles</code> is that they store key-value pairs in a
-machine-readable format, i.e., as serialized byte representations of
-the Java objects (not human readable, but can be programmatically
-manipulated quite easily).  The <code>SequenceFile</code> API provides
-methods for reading key-value pairs&mdash;saving you the effort of
-having to manually parse plain text files.</p>
-
-<p>Along the same lines, you might also want to take a look
-at <code>MapFileOutputFormat</code>, which writes the output key-value
-pairs to... as you've guessed, <code>MapFiles</code>!  These files
-have the additional advantage of supporting random access to the keys.
-Once again, see the API for details.</p>
+<p>This exercise is meant to be completed outside of Hadoop.  Build
+your inverted index in Hadoop, as per the <a
+href="indexer.html">inverted index construction</a> exercise.  If you
+set the number of reducers to one, all the postings will be written to
+a single file.  This will make the index easier to manipulate.
+Obviously, this isn't a scalable solution, but it will suffice for
+this exercise.  Retrieve your index from HDFS with the <code>hadoop fs
+-get</code> command.  Implement your Boolean retrieval engine to
+manipulate the inverted index stored on your local machine.</p>
 
 <h3>Extensions</h3>
 
