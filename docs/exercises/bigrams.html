@@ -62,11 +62,11 @@ StringTokenizer.</p>
 
 </ol>
 
-<h3>Part II: From counts to conditional probabilities</h3>
+<h3>Part II: From bigram counts to bigram probabilities</h3>
 
-<p>Extend your program to compute the conditional probability of a
-word given the preceding word.  That is, the output of the code should
-be a table of values for
+<p>Extend your program to compute bigram probabilities, i.e., the
+conditional probability of observing a word given the preceding word.
+The output of the code should be a table of values for
 P(W<sub><small>n</small></sub>|W<sub><small>n-1</small></sub>).  Hint:
 to compute P(B|A), count up the number of occurrences of the bigram "A
 B", and then divide by the number of occurrences of all the bigrams
