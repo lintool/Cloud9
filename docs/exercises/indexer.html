@@ -86,12 +86,15 @@ number of postings, each of which is a (<i>docno</i>, <i>tf</i>)
 tuple.  The <i>docno</i> is simply a unique identifier for the
 document (one through four, in this case).  The <i>tf</i>, which
 stands for <i>term frequency</i>, is the number of times the term
-appears in the document.  The term <i>if</i> appears once in every
-document.</p>
+appears in the document.  The term
+<i>if</i> appears once in every document.  Typically, postings are
+sorted by ascending docno (as shown above). </p>
 
 <p><b>Your task:</b> write a MapReduce program that builds an inverted
-index.  Each postings list should explicitly store the <i>df</i>, as
-well as all the individual postings.</p>
+index (as described above).  Each postings list should explicitly
+store the <i>df</i>, as well as all the individual postings.  Postings
+should be sorted by ascending docno (postings corresponding to smaller
+docnos should precede postings corresponding to larger docnos).</p>
 
 <p>Run the inverted indexer on the sample input included in
 Cloud<sup><small>9</small></sup>, <a
