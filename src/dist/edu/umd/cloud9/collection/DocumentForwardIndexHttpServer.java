@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
@@ -29,8 +30,15 @@ import edu.umd.cloud9.mapred.NullOutputFormat;
 
 /**
  * <p>
- * Web server for providing access to documents in a collection.
+ * Web server for providing access to documents in a collection. Sample
+ * command-line invocation:
  * </p>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
+ *   /shared/ClueWeb09/collection.compressed.block/findex.en.01.dat \
+ *   /shared/ClueWeb09/docno-mapping.dat
+ * </pre>
  * 
  * @author Jimmy Lin
  * 
@@ -48,14 +56,19 @@ public class DocumentForwardIndexHttpServer {
 
 			String indexFile = conf.get("IndexFile");
 			String mappingFile = conf.get("DocnoMappingDataFile");
+			Path tmpPath = new Path(conf.get("TmpPath"));
 
-			sLogger.info("host: " + InetAddress.getLocalHost().toString());
+			String host = InetAddress.getLocalHost().toString();
+
+			sLogger.info("host: " + host);
 			sLogger.info("port: " + port);
 			sLogger.info("forward index: " + indexFile);
 
 			FSDataInputStream in = FileSystem.get(conf).open(new Path(indexFile));
 			String indexClass = in.readUTF();
 			in.close();
+
+			sLogger.info("index class: " + indexClass);
 
 			try {
 				sForwardIndex = (DocumentForwardIndex<Indexable>) Class.forName(indexClass)
@@ -71,6 +84,10 @@ public class DocumentForwardIndexHttpServer {
 			root.addServlet(new ServletHolder(new FetchDocidServlet()), "/fetch_docid");
 			root.addServlet(new ServletHolder(new FetchDocnoServlet()), "/fetch_docno");
 			root.addServlet(new ServletHolder(new HomeServlet()), "/");
+
+			FSDataOutputStream out = FileSystem.get(conf).create(tmpPath, true);
+			out.writeUTF(host);
+			out.close();
 
 			try {
 				server.start();
@@ -274,6 +291,18 @@ public class DocumentForwardIndexHttpServer {
 		sLogger.info(" - index file: " + indexFile);
 		sLogger.info(" - docno mapping data file: " + mappingFile);
 
+		FileSystem fs = FileSystem.get(conf);
+
+		Random rand = new Random();
+		int r = rand.nextInt();
+		
+		// this tmp file as a rendezvous point
+		Path tmpPath = new Path("/tmp/" + r);
+
+		if (fs.exists(tmpPath)) {
+			fs.delete(tmpPath, true);
+		}
+
 		JobConf job = new JobConf(conf, DocumentForwardIndexHttpServer.class);
 
 		job.setJobName("ForwardIndexServer:" + indexFile);
@@ -289,9 +318,23 @@ public class DocumentForwardIndexHttpServer {
 
 		job.set("IndexFile", indexFile);
 		job.set("DocnoMappingDataFile", mappingFile);
+		job.set("TmpPath", tmpPath.toString());
 
 		JobClient client = new JobClient(job);
 		client.submitJob(job);
-		sLogger.info("Server started!");
+
+		sLogger.info("Waiting for server to start up...");
+
+		while (!fs.exists(tmpPath)) {
+			Thread.sleep(50000);
+			sLogger.info("...");
+		}
+
+		FSDataInputStream in = fs.open(tmpPath);
+		String host = in.readUTF();
+		in.close();
+
+		sLogger.info("host: " + host);
+		sLogger.info("port: 8888");
 	}
 }
