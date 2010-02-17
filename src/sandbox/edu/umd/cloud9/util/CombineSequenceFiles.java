@@ -17,6 +17,19 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * Combine a number of sequence files into a smaller number of sequence files. 
+ * 
+ * Input: Any number of sequence files containing key-value pairs, each of a certain type.
+ * Output: N sequence files containing all key-value pairs given as input.
+ * 
+ * Given the number of desired sequence files, say N, map over a number of sequence files and partition all key-value pairs into N.
+ * 
+ * Usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]
+ * 
+ * @author ferhanture
+ *
+ */
 @SuppressWarnings("deprecation")
 public class CombineSequenceFiles  extends Configured implements Tool{
 	private static final Logger sLogger = Logger.getLogger(CombineSequenceFiles.class);
@@ -26,21 +39,22 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 	}
 	
 	private static int printUsage() {
-		System.out.println("usage: [input] [output-dir] [number-of-mappers] [key-class-name] [value-class-name]");
+		System.out.println("usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
 	
 	public int run(String[] args) throws Exception {
-		if (args.length != 5 && args.length!=6) {
+		if (args.length != 6 && args.length!=7) {
 			printUsage();
 			return -1;
 		}
 		String inputPath = args[0];
 		String outputPath = args[1];
-		int N = Integer.parseInt(args[2]);
-		String keyClassName = args[3];
-		String valueClassName = args[4];
+		int numMappers = Integer.parseInt(args[2]);
+		int numReducers = Integer.parseInt(args[3]);
+		String keyClassName = args[4];
+		String valueClassName = args[5];
 
 		Class keyClass, valueClass;
 		try {
@@ -54,9 +68,6 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		JobConf job = new JobConf(CombineSequenceFiles.class);
 		job.setJobName("CombineSequenceFiles");
 			
-		int numMappers = N;
-		int numReducers = 1;
-
 		FileSystem.get(job).delete(new Path(outputPath), true);
 		FileInputFormat.setInputPaths(job, new Path(inputPath));
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
@@ -66,7 +77,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		job.setInt("mapred.map.max.attempts", 100);
 		job.setInt("mapred.reduce.max.attempts", 100);
 		job.setInt("mapred.task.timeout", 600000000);
-		if(args.length==6){
+		if(args.length==7){
 			job.set("mapred.job.tracker", "local");
 			job.set("fs.default.name", "file:///");
 		}
@@ -75,7 +86,8 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		sLogger.info("Running job "+job.getJobName());
 		sLogger.info("Input directory: "+inputPath);
 		sLogger.info("Output directory: "+outputPath);
-		sLogger.info("Number of mappers: "+N);
+		sLogger.info("Number of mappers: "+numMappers);
+		sLogger.info("Number of reducers: "+numReducers);
 		sLogger.info("Key class: "+keyClass.getName());
 		sLogger.info("Value class: "+valueClass.getName());
 
