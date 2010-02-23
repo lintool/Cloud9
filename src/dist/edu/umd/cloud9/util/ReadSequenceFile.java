@@ -45,7 +45,7 @@ public class ReadSequenceFile {
 	
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
-			System.out.println("args: [path] [max-num-of-records]");
+			System.out.println("args: [path] [max-num-of-records-per-file]");
 			System.exit(-1);
 		}
 
