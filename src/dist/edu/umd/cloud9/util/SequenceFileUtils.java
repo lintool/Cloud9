@@ -258,6 +258,36 @@ public class SequenceFileUtils {
 		return list;	
 	}
 	
+	public static HashMap<Writable,Writable> readFileIntoMap(FileSystem fs, String file, int max) {
+		Path path = new Path(file);
+		HashMap<Writable,Writable> list = new HashMap<Writable,Writable>();
+
+		try {
+			int k = 0;
+
+			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
+
+			Writable key = (Writable) reader.getKeyClass().newInstance();
+			Writable value = (Writable) reader.getValueClass().newInstance();
+
+			while (reader.next(key, value)) {
+				k++;
+				list.put(key, value);
+				if (max!=-1 && k >= max)
+					break;
+
+				key = (Writable) reader.getKeyClass().newInstance();
+				value = (Writable) reader.getValueClass().newInstance();
+			}
+			reader.close();
+		} catch (Exception e) {
+			throw new RuntimeException("Exception reading file "+file);
+//			e.printStackTrace();
+		}
+
+		return list;	
+	}
+	
 	public static List<Writable> readLocalFile(Path path) {
 		List<Writable> list = new ArrayList<Writable>();
 
