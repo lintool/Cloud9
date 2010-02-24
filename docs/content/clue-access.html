@@ -239,12 +239,9 @@ included in the Hadoop distribution (it's what runs the jobtracker,
 namenode, and other webapps).  What we've done is folded a Jetty
 server into a mapper, so you can fire up the webapp in the same way
 you start a Hadoop job.  In this case, the Hadoop job has only one
-mapper, and the mapper starts up a Jetty server.  To find out where
-the server is running, access the tasktracker logs, as it's in the
-logging output.  You'll find the hostname and port, and then you
-should be able to directly connect to the server.  The webapp support
-fetching pages by both docno and docid.  Here's a sample invocation of
-this:</p>
+mapper, and the mapper starts up a Jetty server.  The webapp support
+fetching pages by both docno and docid.  Here's a sample
+invocation:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
@@ -252,11 +249,16 @@ hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
 /shared/ClueWeb09/docno-mapping.dat
 </pre>
 
-<p>The first argument is the location of the collection and the second
-is the index file.  This webapp has been tested on Hadoop 0.20.1 and
-is known to issues with pre-20 Hadoop versions (since they used a
-different version of Jetty with an incompatible API).  The interface
-will look something like this:</p>
+<p>The first argument is the location of the forward index file, and
+the second argument is the location of the docno mapping file.  This
+webapp has been tested on Hadoop 0.20.1 and there are known issues
+earlier Hadoop versions (since they used a different version of Jetty
+with an incompatible API).</p>
+
+<p>When the server starts up, it'll report back the host information
+of the node it's running on (along with the port).  You can then
+direct your browser at the relevant URL.  The webapp looks something
+like this:</p>
 
 <img src="clue-webapp-screenshot.png" alt="Screenshot of interface for accessing documents in ClueWeb09" />
 
