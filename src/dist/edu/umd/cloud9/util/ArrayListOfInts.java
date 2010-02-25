@@ -31,6 +31,11 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 		this(10);
 	}
 
+	public ArrayListOfInts(int[] a) {
+		mArray = a;
+		size = mArray.length;
+	}
+	
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
 	 * application can use this operation to minimize the memory footprint of
@@ -220,5 +225,15 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 
 	public int[] getArray() {
 		return mArray;
+	}
+	
+	public void shiftLastNToTop(int n){
+		if(n>=size) return;
+		int j = 0;
+		for(int i = size-n; i< size; i++){
+			mArray[j] = mArray[i];
+			j++;
+		}
+		size = n;
 	}
 }

@@ -90,7 +90,24 @@ public class ArrayListOfIntsTest {
 		assertEquals(89, lenAfter);
 		assertTrue(lenBefore > lenAfter);
 	}
-	
+
+	@Test
+	public void testShift() {
+		int size = 100;
+		int shift = 10;
+
+		ArrayListOfInts list = new ArrayListOfInts();
+		for(int i = 0; i < size; i++) list.add(i);
+		list.shiftLastNToTop(shift);
+		
+		for (int i = 0; i < list.size(); i++) {
+			assertEquals(size - shift+i, list.get(i));
+		}
+		list.add(size);
+		assertEquals(shift+1, list.size());
+		assertEquals(size, list.get(shift));
+	}
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
 	}
