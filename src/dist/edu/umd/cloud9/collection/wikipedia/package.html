@@ -4,54 +4,7 @@
 </head>
 <body>
 
-<p>Provides classes for working with Wikipedia XML dumps. See the
-<a href="http://en.wikipedia.org/wiki/Wikipedia_database">Wikipedia
-download guide</a> for details on Wikipedia dumps; these classes were
-specifically designed to work
-with <code>pages-articles.xml.bz2</code>.</p>
-
-<p>Here are the two steps for preparing the collection for processing
-with Hadoop:</p>
-
-<ol>
-
-  <li>Uncompresss the dump file and put it in HDFS.  Working with the
-  uncompressed text makes it possible to split processing across many
-  mappers.</li>
-
-  <li>Since many information retrieval algorithms require a sequential
-  numbering of documents (i.e., Wikipedia articles), it is necessary
-  to build a mapping between docids (i.e., article titles) and docnos
-  (sequentially-numbered ints).  The
-  class <code><a href="NumberWikipediaArticles.html">NumberWikipediaArticles</a></code>
-  accomplishes this.  Here is a sample invocation:</li>
-
-<blockquote><pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.NumberWikipediaArticles \
-/umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
-/user/jimmylin/wikipedia-docid-tmp \
-/user/jimmylin/docno.mapping 100
-</pre></blockquote>
-
-</ol>
-
-<p>After the corpus has been prepared, it is ready for processing with
-Hadoop.  The
-class <code><a href="DemoCountWikipediaPageTypes.html">DemoCountWikipediaPageTypes</a></code>
-is a simple demo program that counts all documents in the collection.
-It provides a skeleton for MapReduce programs to process the
-collection.  Here is a sample invocation:</p>
-
-<blockquote><pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPageTypes \
-/umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
-/user/jimmylin/count-tmp \
-/user/jimmylin/docno.mapping 100
-</pre></blockquote>
-
-<p>The output key-value pairs in this sample program are the docid
-(article title) to docno mappings.</p>
-
+<p>Provides classes for working with Wikipedia XML dumps.</p>
 
 </body>
 </html>

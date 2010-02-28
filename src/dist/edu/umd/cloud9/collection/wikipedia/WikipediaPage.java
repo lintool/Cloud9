@@ -16,11 +16,11 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.WritableUtils;
 
@@ -45,6 +45,7 @@ public class WikipediaPage implements Indexable {
 
 	private String mPage;
 	private String mTitle;
+	private String mId;
 	private int mTextStart;
 	private int mTextEnd;
 	private boolean mIsRedirect;
@@ -80,7 +81,7 @@ public class WikipediaPage implements Indexable {
 	 * Returns the article title (i.e., the docid).
 	 */
 	public String getDocid() {
-		return getTitle();
+		return mId;
 	}
 
 	/**
@@ -211,6 +212,10 @@ public class WikipediaPage implements Indexable {
 		int end = s.indexOf("</title>", start);
 		page.mTitle = s.substring(start + 7, end);
 
+		start = s.indexOf("<id>");
+		end = s.indexOf("</id>");
+		page.mId = s.substring(start + 4, end);
+
 		// parse out actual text of article
 		page.mTextStart = s.indexOf("<text xml:space=\"preserve\">");
 		page.mTextEnd = s.indexOf("</text>", page.mTextStart);
@@ -221,24 +226,23 @@ public class WikipediaPage implements Indexable {
 		page.mIsStub = s.indexOf("stub}}", page.mTextStart) != -1;
 
 	}
-	
-	 
-	private static String parseAndCleanPage2(String raw){
 
-		//		# delete lines in between {{...}}
-		//		# delete part of line [[ or ]]
-		//		# delete line starting with *
+	private static String parseAndCleanPage2(String raw) {
+
+		// # delete lines in between {{...}}
+		// # delete part of line [[ or ]]
+		// # delete line starting with *
 		//
-		//		# keep track of open and closed parantheses/brackets for parsing
+		// # keep track of open and closed parantheses/brackets for parsing
 		int isSkip = 0, count1, count2;
 
 		String[] lines = raw.split("\n");
-//		String[] parsed = new String[lines.length];
-		String parsed="";
+		// String[] parsed = new String[lines.length];
+		String parsed = "";
 		boolean isFlag;
 
-		int counter=0;
-		for(String line : lines){
+		int counter = 0;
+		for (String line : lines) {
 			isFlag = false;
 			// Create a pattern to match cat
 			Pattern p1 = Pattern.compile("\\{\\|");
@@ -247,24 +251,24 @@ public class WikipediaPage implements Indexable {
 			Matcher m2 = p2.matcher(line);
 
 			// Create a matcher with an input string
-			if(isSkip==0){
+			if (isSkip == 0) {
 				count1 = getCount(m1);
 
-				//isSkip = difference between number of {{s and number of }}s
-				if(count1>0){
+				// isSkip = difference between number of {{s and number of }}s
+				if (count1 > 0) {
 					count2 = getCount(m2);
-					isSkip=count1-count2;
-					isFlag = true;	
+					isSkip = count1 - count2;
+					isFlag = true;
 				}
-			}else{
+			} else {
 				count1 = getCount(m1);
 				count2 = getCount(m2);
-				isSkip += (count1-count2);
+				isSkip += (count1 - count2);
 				isFlag = true;
 			}
 
-			if(isSkip==0 && !isFlag){
-//				$_=~s/=+//g;
+			if (isSkip == 0 && !isFlag) {
+				// $_=~s/=+//g;
 				line = Pattern.compile("```").matcher(line).replaceAll("");
 				line = Pattern.compile("\\'\\'\\'").matcher(line).replaceAll("");
 				line = Pattern.compile("``").matcher(line).replaceAll("");
@@ -274,44 +278,44 @@ public class WikipediaPage implements Indexable {
 				line = Pattern.compile("!--.+--").matcher(line).replaceAll("");
 
 				Matcher mm = Pattern.compile(" (\\S)+\\|(\\S)+ ").matcher(line);
-				if(mm.matches()){
+				if (mm.matches()) {
 					line = mm.replaceAll(" $2 ");
 				}
-//				$_=~s/(\w)\s{1}'(\w)/$1'$2/g;
-//				$_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
+				// $_=~s/(\w)\s{1}'(\w)/$1'$2/g;
+				// $_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
 
-				if(!Pattern.compile("^\\*.*").matcher(line).matches() && !Pattern.compile("&lt;.*").matcher(line).matches()
+				if (!Pattern.compile("^\\*.*").matcher(line).matches()
+						&& !Pattern.compile("&lt;.*").matcher(line).matches()
 						&& !Pattern.compile("&gt;.*").matcher(line).matches()
 						&& !Pattern.compile("1\\s+").matcher(line).matches()
 						&& !Pattern.compile("\\w\\w:").matcher(line).matches()
 						&& !Pattern.compile("^\\s*").matcher(line).matches()
 						&& !Pattern.compile("\\=+.+\\=+").matcher(line).matches()
-						&& !Pattern.compile("^\\|\\-.+").matcher(line).matches()	
-						&& !Pattern.compile("Kategorie:.+").matcher(line).matches()	
-						&& !Pattern.compile("\\w\\w:.+").matcher(line).matches()	
-					){
-					parsed+=line+"\n";
+						&& !Pattern.compile("^\\|\\-.+").matcher(line).matches()
+						&& !Pattern.compile("Kategorie:.+").matcher(line).matches()
+						&& !Pattern.compile("\\w\\w:.+").matcher(line).matches()) {
+					parsed += line + "\n";
 				}
 			}
 		}
 
 		return parsed;
 	}
-	
-	public static String parseAndCleanPage(String raw){
+
+	public static String parseAndCleanPage(String raw) {
 		String parsed = "";
 
-		//		# delete lines in between {{...}}
-		//		# delete part of line [[ or ]]
-		//		# delete line starting with *
+		// # delete lines in between {{...}}
+		// # delete part of line [[ or ]]
+		// # delete line starting with *
 		//
-		//		# keep track of open and closed parantheses/brackets for parsing
+		// # keep track of open and closed parantheses/brackets for parsing
 		int isSkip = 0, count1, count2;
 
 		String[] lines = raw.split("\n");
 		boolean isFlag;
 
-		for(String line : lines){
+		for (String line : lines) {
 			isFlag = false;
 			// Create a pattern to match cat
 			Pattern p1 = Pattern.compile("\\{\\{");
@@ -320,53 +324,53 @@ public class WikipediaPage implements Indexable {
 			Matcher m2 = p2.matcher(line);
 
 			// Create a matcher with an input string
-			if(isSkip==0){
+			if (isSkip == 0) {
 				count1 = getCount(m1);
-				if(count1==0 && line.contains("{{")){
+				if (count1 == 0 && line.contains("{{")) {
 					throw new RuntimeException();
 				}
 
-				//isSkip = difference between number of {{s and number of }}s
-				if(count1>0){
+				// isSkip = difference between number of {{s and number of }}s
+				if (count1 > 0) {
 					count2 = getCount(m2);
-					isSkip=count1-count2;
-					isFlag = true;	
+					isSkip = count1 - count2;
+					isFlag = true;
 				}
-			}else{
+			} else {
 				count1 = getCount(m1);
 				count2 = getCount(m2);
 
-				isSkip += (count1-count2);
+				isSkip += (count1 - count2);
 				isFlag = true;
 			}
 
-			if(isSkip==0 && !isFlag){
-//				$_=~s/\[\[//g;
+			if (isSkip == 0 && !isFlag) {
+				// $_=~s/\[\[//g;
 				Pattern p3 = Pattern.compile("\\[\\[");
 				Matcher m3 = p3.matcher(line);
 				line = m3.replaceAll("");
-//
-//				$_=~s/\]\]//g;
+				//
+				// $_=~s/\]\]//g;
 				Pattern p4 = Pattern.compile("\\]\\]");
 				Matcher m4 = p4.matcher(line);
 				line = m4.replaceAll("");
-//				$_=~s/=+//g;
-//				Pattern p5 = Pattern.compile("\\=+");
-//				Matcher m5 = p5.matcher(line);
-//				line = m5.replaceAll("");
-				
-				//separate sentences #	$_=~s/([,;:.)(-])/\n$1\n/g;
-//				Pattern p6 = Pattern.compile("([,;.:\\)\\(-])");
-//				Matcher m6 = p6.matcher(line);
-//				line = m6.replaceAll(" $1");
-				
-//				if($_!~/\*/){
-//					print $_;
-//				}
+				// $_=~s/=+//g;
+				// Pattern p5 = Pattern.compile("\\=+");
+				// Matcher m5 = p5.matcher(line);
+				// line = m5.replaceAll("");
+
+				// separate sentences # $_=~s/([,;:.)(-])/\n$1\n/g;
+				// Pattern p6 = Pattern.compile("([,;.:\\)\\(-])");
+				// Matcher m6 = p6.matcher(line);
+				// line = m6.replaceAll(" $1");
+
+				// if($_!~/\*/){
+				// print $_;
+				// }
 				Pattern p7 = Pattern.compile("\\*");
 				Matcher m7 = p7.matcher(line);
-				if(!m7.matches()){
-					parsed+=line+"\n";
+				if (!m7.matches()) {
+					parsed += line + "\n";
 				}
 			}
 		}
@@ -374,11 +378,11 @@ public class WikipediaPage implements Indexable {
 		return parseAndCleanPage2(parsed);
 
 	}
-	
-	static int getCount(Matcher m){
-		int count=0;
-		while(m.find()) {
-	         count++;
+
+	static int getCount(Matcher m) {
+		int count = 0;
+		while (m.find()) {
+			count++;
 		}
 		return count;
 	}

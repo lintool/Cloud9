@@ -25,7 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
@@ -35,15 +35,15 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Program that builds the mapping from Wikipedia article titles (docids) to
+ * Program that builds the mapping between Wikipedia internal ids (docids) and
  * sequentially-numbered ints (docnos). The program takes four command-line
  * arguments:
  * </p>
@@ -62,7 +62,7 @@ import org.apache.log4j.Logger;
  * <blockquote>
  * 
  * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.NumberWikipediaArticles \
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
  * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
  * /user/jimmylin/wikipedia-docid-tmp \
  * /user/jimmylin/docno.mapping 100
@@ -72,21 +72,22 @@ import org.apache.log4j.Logger;
  * 
  * @author Jimmy Lin
  */
-public class NumberWikipediaArticles extends Configured implements Tool {
-	private static final Logger sLogger = Logger.getLogger(NumberWikipediaArticles.class);
-	
+public class BuildWikipediaDocnoMapping extends Configured implements Tool {
+	private static final Logger sLogger = Logger.getLogger(BuildWikipediaDocnoMapping.class);
+
 	private static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
+			Mapper<LongWritable, WikipediaPage, IntWritable, IntWritable> {
 
-		private final static Text sText = new Text();
+		private final static IntWritable sKey = new IntWritable();
 		private final static IntWritable sInt = new IntWritable(1);
 
 		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {			
+				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
+				throws IOException {
 			reporter.incrCounter(PageTypes.TOTAL, 1);
 
 			if (p.isRedirect()) {
@@ -101,34 +102,32 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 				if (p.isStub()) {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
-
-				sText.set(p.getTitle());
-				output.collect(sText, sInt);
 			}
+
+			sKey.set(Integer.parseInt(p.getDocid()));
+			output.collect(sKey, sInt);
+
 		}
 	}
 
 	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, IntWritable, Text, IntWritable> {
+			Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
 		private final static IntWritable sCnt = new IntWritable(1);
 
-		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+		public void reduce(IntWritable key, Iterator<IntWritable> values,
+				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
+				throws IOException {
 			output.collect(key, sCnt);
 
-			sLogger.setLevel(Level.DEBUG);
-			sLogger.debug(key.toString()+" --> "+sCnt.get());
-
 			sCnt.set(sCnt.get() + 1);
-
 		}
 	}
 
 	/**
 	 * Creates an instance of this tool.
 	 */
-	public NumberWikipediaArticles() {
+	public BuildWikipediaDocnoMapping() {
 	}
 
 	private static int printUsage() {
@@ -156,7 +155,7 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 		sLogger.info("output file: " + outputFile);
 		sLogger.info("number of mappers: " + mapTasks);
 
-		JobConf conf = new JobConf(NumberWikipediaArticles.class);
+		JobConf conf = new JobConf(BuildWikipediaDocnoMapping.class);
 		conf.setJobName("NumberWikipediaArticles");
 
 		conf.setNumMapTasks(mapTasks);
@@ -167,7 +166,7 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 		FileOutputFormat.setCompressOutput(conf, false);
 
 		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputKeyClass(Text.class);
+		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(IntWritable.class);
 		conf.setOutputFormat(TextOutputFormat.class);
 
@@ -177,9 +176,12 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 		// delete the output directory if it exists already
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		JobClient.runJob(conf);
+		RunningJob job = JobClient.runJob(conf);
+		Counters c = job.getCounters();
+		long cnt = c.getCounter(PageTypes.TOTAL);
 
-		WikipediaDocnoMapping.writeArticleTitlesData(outputPath + "/part-00000", outputFile);
+		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt,
+				outputFile);
 
 		return 0;
 	}
@@ -189,7 +191,7 @@ public class NumberWikipediaArticles extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new NumberWikipediaArticles(), args);
+		int res = ToolRunner.run(new Configuration(), new BuildWikipediaDocnoMapping(), args);
 		System.exit(res);
 	}
 }

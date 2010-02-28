@@ -17,28 +17,24 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.filecache.DistributedCache;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
-import edu.umd.cloud9.collection.DocnoMapping;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -46,14 +42,9 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * XML dump file. This program keeps track of total number of pages, redirect
  * pages, disambiguation pages, empty pages, actual articles (including stubs),
  * and stubs. This also provides a skeleton for MapReduce programs to process
- * the collection. The program takes three command-line arguments:
+ * the collection. The program takes a single command-line argument, which is
+ * the path to the Wikipedia XML dump file.
  * </p>
- * 
- * <ul>
- * <li>[input] path to the Wikipedia XML dump file
- * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the docno mappings file
- * </ul>
  * 
  * <p>
  * Here's a sample invocation:
@@ -63,29 +54,26 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * 
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPageTypes \
- * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
- * /user/jimmylin/count-tmp \
- * /user/jimmylin/docno.mapping
+ * /shared/Wikipedia/raw/enwiki-20091202-pages-articles.xml
  * </pre>
  * 
  * </blockquote>
  * 
  * @author Jimmy Lin
  */
-public class DumpWikipediaToPlainText extends Configured implements Tool {
+public class DemoCountWikipediaPages extends Configured implements Tool {
+
+	private static final Logger sLogger = Logger.getLogger(DemoCountWikipediaPages.class);
 
 	private static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, Text, Text> {
-
-		private final static Text sTitle = new Text();
-		private final static Text sPage = new Text();
+			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
 		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
+				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(PageTypes.TOTAL, 1);
 
 			if (p.isRedirect()) {
@@ -101,11 +89,6 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 				if (p.isStub()) {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
-
-				sTitle.set(p.getTitle());
-				sPage.set(MarkupStripper.stripEverything(p.getContent()));
-			
-				output.collect(sTitle, sPage);
 			}
 		}
 	}
@@ -113,11 +96,11 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 	/**
 	 * Creates an instance of this tool.
 	 */
-	public DumpWikipediaToPlainText() {
+	public DemoCountWikipediaPages() {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input] [output-dir] [num-mappers]");
+		System.out.println("usage: [input]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -126,37 +109,28 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
+		if (args.length != 1) {
 			printUsage();
 			return -1;
 		}
 
 		String inputPath = args[0];
-		String outputPath = args[1];
-		int mapTasks = Integer.parseInt(args[2]);
 
-		System.out.println("input dir: " + inputPath);
-		System.out.println("output dir: " + outputPath);
-		System.out.println("number of mappers: " + mapTasks);
+		sLogger.info("Tool name: RepackWikipedia");
+		sLogger.info(" - xml dump file: " + inputPath);
 
-		JobConf conf = new JobConf(DumpWikipediaToPlainText.class);
-		conf.setJobName("DumpWikipediaToPlainText");
+		JobConf conf = new JobConf(DemoCountWikipediaPages.class);
+		conf.setJobName("DemoCountWikipediaPages");
 
-		conf.setNumMapTasks(mapTasks);
+		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(0);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
 
 		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(Text.class);
+		conf.setOutputFormat(NullOutputFormat.class);
 
 		conf.setMapperClass(MyMapper.class);
-
-		// delete the output directory if it exists already
-		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
 
@@ -168,7 +142,7 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new DumpWikipediaToPlainText(), args);
+		int res = ToolRunner.run(new Configuration(), new DemoCountWikipediaPages(), args);
 		System.exit(res);
 	}
 }
