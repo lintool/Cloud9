@@ -49,7 +49,7 @@ public class ParseWikiData {
 				sLogger.debug("@RAW");
 				sLogger.debug(rawtext);
 				String parsed = WikipediaPage.parseAndCleanPage(rawtext);
-				String[] sentences = (WikipediaPage.parseAndCleanPage2(parsed)).split("[\\.\\?\\!]");
+				String[] sentences = (WikipediaPage.parseAndCleanPage(parsed)).split("[\\.\\?\\!]");
 				sLogger.debug("@SENTENCES");
 				int i=0;
 				for(String sentence : sentences){
