@@ -17,9 +17,11 @@
 package edu.umd.cloud9.io;
 
 import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
 import junit.framework.JUnit4TestAdapter;
 
 import org.apache.hadoop.conf.Configuration;
@@ -27,9 +29,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
+
 import edu.umd.cloud9.util.KeyValuePair;
 import edu.umd.cloud9.util.SequenceFileUtils;
 
@@ -57,13 +58,12 @@ public class ArrayListOfIntsWritableTest {
 			e.printStackTrace();
 		}
 
-		List<KeyValuePair<WritableComparable, Writable>> listOfKeysPairs = SequenceFileUtils
-				.readFile("test");
+		List<KeyValuePair<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs = SequenceFileUtils
+				.<IntWritable, ArrayListOfIntsWritable> readFile("test");
 		FileSystem.get(conf).delete(new Path("test"), true);
 
 		assertTrue(listOfKeysPairs.size() == 1);
-		ArrayListOfIntsWritable arrRead = (ArrayListOfIntsWritable) listOfKeysPairs.get(0)
-				.getValue();
+		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getValue();
 		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 4);
 		assertTrue(arrRead.get(0) == 1);
 		assertTrue(arrRead.get(1) == 3);

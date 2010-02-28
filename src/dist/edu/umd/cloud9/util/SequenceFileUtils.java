@@ -20,15 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -42,11 +41,13 @@ public class SequenceFileUtils {
 	private SequenceFileUtils() {
 	}
 
-	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readFile(
+			String path) {
 		return readFile(new Path(path), Integer.MAX_VALUE);
 	}
 
-	public static List<KeyValuePair<WritableComparable, Writable>> readFile(Path path) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readFile(
+			Path path) {
 		return readFile(path, Integer.MAX_VALUE);
 	}
 
@@ -59,7 +60,8 @@ public class SequenceFileUtils {
 	 *            maximum of key-value pairs to read
 	 * @return list of key-value pairs
 	 */
-	public static List<KeyValuePair<WritableComparable, Writable>> readFile(String path, int max) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readFile(
+			String path, int max) {
 		return readFile(new Path(path), max);
 	}
 
@@ -72,9 +74,10 @@ public class SequenceFileUtils {
 	 *            maximum of key-value pairs to read
 	 * @return list of key-value pairs
 	 */
-	public static List<KeyValuePair<WritableComparable, Writable>> readFile(Path path, int max) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readFile(
+			Path path, int max) {
 
-		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
+		List<KeyValuePair<K, V>> list = new ArrayList<KeyValuePair<K, V>>();
 
 		try {
 			int k = 0;
@@ -83,27 +86,26 @@ public class SequenceFileUtils {
 			FileSystem fs = FileSystem.get(config);
 			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
 
-			WritableComparable key = (WritableComparable) reader.getKeyClass().newInstance();
-			Writable value = (Writable) reader.getValueClass().newInstance();
-			
+			K key = (K) reader.getKeyClass().newInstance();
+			V value = (V) reader.getValueClass().newInstance();
+
 			while (reader.next(key, value)) {
 				k++;
-				list.add(new KeyValuePair<WritableComparable, Writable>(key, value));
+				list.add(new KeyValuePair<K, V>(key, value));
 				if (k >= max)
 					break;
 
-				key = (WritableComparable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
+				key = (K) reader.getKeyClass().newInstance();
+				value = (V) reader.getValueClass().newInstance();
 			}
 			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		Collections.sort(list, new Comparator<KeyValuePair<WritableComparable, Writable>>() {
+		Collections.sort(list, new Comparator<KeyValuePair<K, V>>() {
 			@SuppressWarnings("unchecked")
-			public int compare(KeyValuePair<WritableComparable, Writable> e1,
-					KeyValuePair<WritableComparable, Writable> e2) {
+			public int compare(KeyValuePair<K, V> e1, KeyValuePair<K, V> e2) {
 				return e1.getKey().compareTo(e2.getKey());
 			}
 		});
@@ -128,10 +130,11 @@ public class SequenceFileUtils {
 
 			while (reader.next(key, value)) {
 				k++;
-				if((theKey.getClass()==Text.class && ((Text)theKey).toString().equals("")) || key.compareTo(theKey)==0){
-					list.add(value);	
+				if ((theKey.getClass() == Text.class && ((Text) theKey).toString().equals(""))
+						|| key.compareTo(theKey) == 0) {
+					list.add(value);
 				}
-				if (max!=-1 && k >= max)
+				if (max != -1 && k >= max)
 					break;
 
 				key = (WritableComparable) reader.getKeyClass().newInstance();
@@ -144,12 +147,14 @@ public class SequenceFileUtils {
 
 		return list;
 	}
-	
-	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(String path) {
+
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readDirectory(
+			String path) {
 		return readDirectory(path, Integer.MAX_VALUE);
 	}
 
-	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(Path path) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readDirectory(
+			Path path) {
 		return readDirectory(path, Integer.MAX_VALUE);
 	}
 
@@ -163,8 +168,8 @@ public class SequenceFileUtils {
 	 *            maximum of key-value pairs to read per file
 	 * @return list of key-value pairs
 	 */
-	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(String path,
-			int max) {
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readDirectory(
+			String path, int max) {
 		return readDirectory(new Path(path), max);
 	}
 
@@ -178,8 +183,9 @@ public class SequenceFileUtils {
 	 *            maximum of key-value pairs to read per file
 	 * @return list of key-value pairs
 	 */
-	public static List<KeyValuePair<WritableComparable, Writable>> readDirectory(Path path, int max) {
-		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readDirectory(
+			Path path, int max) {
+		List<KeyValuePair<K, V>> list = new ArrayList<KeyValuePair<K, V>>();
 
 		try {
 			FileSystem fileSys = FileSystem.get(new Configuration());
@@ -191,8 +197,7 @@ public class SequenceFileUtils {
 					continue;
 
 				System.out.println("Reading " + stat[i].getPath().getName() + "...");
-				List<KeyValuePair<WritableComparable, Writable>> pairs = readFile(
-						stat[i].getPath(), max);
+				List<KeyValuePair<K, V>> pairs = readFile(stat[i].getPath(), max);
 
 				list.addAll(pairs);
 
@@ -201,10 +206,9 @@ public class SequenceFileUtils {
 			e.printStackTrace();
 		}
 
-		Collections.sort(list, new Comparator<KeyValuePair<WritableComparable, Writable>>() {
+		Collections.sort(list, new Comparator<KeyValuePair<K, V>>() {
 			@SuppressWarnings("unchecked")
-			public int compare(KeyValuePair<WritableComparable, Writable> e1,
-					KeyValuePair<WritableComparable, Writable> e2) {
+			public int compare(KeyValuePair<K, V> e1, KeyValuePair<K, V> e2) {
 				return e1.getKey().compareTo(e2.getKey());
 			}
 		});
@@ -212,82 +216,60 @@ public class SequenceFileUtils {
 		return list;
 	}
 
-	
 	/**
 	 * Use max=-1 for no limit on number of entries
 	 * 
 	 * @param s
-	 * 		path to file
+	 *            path to file
 	 * @param max
-	 * 		maximum number of entries to read into HashMap object
-	 * @return
-	 * 		HashMap object
+	 *            maximum number of entries to read into HashMap object
+	 * @return HashMap object
 	 */
-	public static HashMap<Writable,Writable> readFileIntoMap(String s, int max) {
+	public static <K extends WritableComparable, V extends Writable> SortedMap<K, V> readFileIntoMap(
+			String s, int max) {
 		return readFileIntoMap(new Configuration(), s, max);
 	}
 
-	public static HashMap<Writable,Writable> readFileIntoMap(Configuration config, String s, int max) {
-		Path path = new Path(s);
-		HashMap<Writable,Writable> list = new HashMap<Writable,Writable>();
-
+	public static <K extends WritableComparable, V extends Writable> SortedMap<K, V> readFileIntoMap(
+			Configuration config, String s, int max) {
 		try {
-			int k = 0;
-
-			FileSystem fs = FileSystem.get(config);
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
-
-			Writable key = (Writable) reader.getKeyClass().newInstance();
-			Writable value = (Writable) reader.getValueClass().newInstance();
-
-			while (reader.next(key, value)) {
-				k++;
-				list.put(key, value);
-				if (max!=-1 && k >= max)
-					break;
-
-				key = (Writable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
-			}
-			reader.close();
+			return readFileIntoMap(FileSystem.get(config), s, max);
 		} catch (Exception e) {
-			throw new RuntimeException("Exception reading file "+s);
-//			e.printStackTrace();
+			throw new RuntimeException("Exception reading file " + s);
 		}
-
-		return list;	
 	}
-	
-	public static HashMap<Writable,Writable> readFileIntoMap(FileSystem fs, String file, int max) {
-		Path path = new Path(file);
-		HashMap<Writable,Writable> list = new HashMap<Writable,Writable>();
+
+	public static <K extends WritableComparable, V extends Writable> SortedMap<K, V> readFileIntoMap(
+			FileSystem fs, String s, int max) {
+		Path path = new Path(s);
+		SortedMap<K, V> list = new TreeMap<K, V>();
 
 		try {
 			int k = 0;
 
 			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
 
-			Writable key = (Writable) reader.getKeyClass().newInstance();
-			Writable value = (Writable) reader.getValueClass().newInstance();
+			K key = (K) reader.getKeyClass().newInstance();
+			V value = (V) reader.getValueClass().newInstance();
 
 			while (reader.next(key, value)) {
 				k++;
 				list.put(key, value);
-				if (max!=-1 && k >= max)
+				if (max != -1 && k >= max)
 					break;
 
-				key = (Writable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
+				key = (K) reader.getKeyClass().newInstance();
+				value = (V) reader.getValueClass().newInstance();
 			}
 			reader.close();
 		} catch (Exception e) {
-			throw new RuntimeException("Exception reading file "+file);
-//			e.printStackTrace();
+			throw new RuntimeException("Exception reading file " + s);
+			// e.printStackTrace();
 		}
 
-		return list;	
+		return list;
 	}
-	
+
 	public static List<Writable> readLocalFile(Path path) {
 		List<Writable> list = new ArrayList<Writable>();
 
@@ -298,10 +280,10 @@ public class SequenceFileUtils {
 
 			WritableComparable key = (WritableComparable) reader.getKeyClass().newInstance();
 			Writable value = (Writable) reader.getValueClass().newInstance();
-			
+
 			while (reader.next(key, value)) {
 				list.add(value);
-				
+
 				key = (WritableComparable) reader.getKeyClass().newInstance();
 				value = (Writable) reader.getValueClass().newInstance();
 			}
@@ -313,9 +295,10 @@ public class SequenceFileUtils {
 		return list;
 	}
 
-	public static List<KeyValuePair<WritableComparable, Writable>> readLocalFileInPairs(Path path){
+	public static <K extends WritableComparable, V extends Writable> List<KeyValuePair<K, V>> readLocalFileInPairs(
+			Path path) {
 
-		List<KeyValuePair<WritableComparable, Writable>> list = new ArrayList<KeyValuePair<WritableComparable, Writable>>();
+		List<KeyValuePair<K, V>> list = new ArrayList<KeyValuePair<K, V>>();
 
 		try {
 
@@ -323,24 +306,23 @@ public class SequenceFileUtils {
 			FileSystem fs = FileSystem.getLocal(config);
 			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
 
-			WritableComparable key = (WritableComparable) reader.getKeyClass().newInstance();
-			Writable value = (Writable) reader.getValueClass().newInstance();
-			
+			K key = (K) reader.getKeyClass().newInstance();
+			V value = (V) reader.getValueClass().newInstance();
+
 			while (reader.next(key, value)) {
-				list.add(new KeyValuePair<WritableComparable, Writable>(key, value));
-		
-				key = (WritableComparable) reader.getKeyClass().newInstance();
-				value = (Writable) reader.getValueClass().newInstance();
+				list.add(new KeyValuePair<K, V>(key, value));
+
+				key = (K) reader.getKeyClass().newInstance();
+				value = (V) reader.getValueClass().newInstance();
 			}
 			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		Collections.sort(list, new Comparator<KeyValuePair<WritableComparable, Writable>>() {
+		Collections.sort(list, new Comparator<KeyValuePair<K, V>>() {
 			@SuppressWarnings("unchecked")
-			public int compare(KeyValuePair<WritableComparable, Writable> e1,
-					KeyValuePair<WritableComparable, Writable> e2) {
+			public int compare(KeyValuePair<K, V> e1, KeyValuePair<K, V> e2) {
 				return e1.getKey().compareTo(e2.getKey());
 			}
 		});
