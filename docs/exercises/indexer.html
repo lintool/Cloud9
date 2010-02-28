@@ -94,7 +94,11 @@ sorted by ascending docno (as shown above). </p>
 index (as described above).  Each postings list should explicitly
 store the <i>df</i>, as well as all the individual postings.  Postings
 should be sorted by ascending docno (postings corresponding to smaller
-docnos should precede postings corresponding to larger docnos).</p>
+docnos should precede postings corresponding to larger docnos).  Note
+that the description above only specifies the logical structure of the
+inverted index&mdash;you are free in your choice of data structures
+for the actual implementation (e.g., each posting does not literally
+need to be a tuple denoted by parentheses).</p>
 
 <p>Run the inverted indexer on the sample input included in
 Cloud<sup><small>9</small></sup>, <a
