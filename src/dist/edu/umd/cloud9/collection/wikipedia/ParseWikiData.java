@@ -33,7 +33,7 @@ public class ParseWikiData {
 	 * @author ferhanture
 	 *
 	 */
-	static class MyMapper extends MapReduceBase implements
+	private static class MyMapper extends MapReduceBase implements
 	Mapper<LongWritable, WikipediaPage, LongWritable, Text> {
 
 
@@ -65,7 +65,7 @@ public class ParseWikiData {
 		}
 	}
 
-	public static class MyReducer extends MapReduceBase implements
+	private static class MyReducer extends MapReduceBase implements
 	Reducer<LongWritable, Text, Text, Text> {
 
 		public void configure(JobConf conf){
