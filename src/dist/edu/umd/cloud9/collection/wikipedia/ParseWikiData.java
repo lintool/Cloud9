@@ -71,7 +71,7 @@ public class ParseWikiData {
 	 * @author ferhanture
 	 *
 	 */
-	static class MyMapper extends MapReduceBase implements
+	public static class MyMapper extends MapReduceBase implements
 	Mapper<LongWritable, WikipediaPage, PairOfInts, Text> {
 
 		private DocnoMapping mDocMapping;
