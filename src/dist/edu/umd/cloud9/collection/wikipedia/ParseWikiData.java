@@ -378,7 +378,7 @@ public class ParseWikiData {
 
 	}
 
-	public static SentenceDetectorME createSentenceDetector(FileSystem fs, Path path) {
+	public static GISModel createMaxentModel(FileSystem fs, Path path) {
 		GISModel model = null;
 		try {
 			FSDataInputStream in = fs.open(path);
@@ -432,9 +432,7 @@ public class ParseWikiData {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
-
-
-		return new SentenceDetectorME(model);
+		return model;
 	}
 
 }
