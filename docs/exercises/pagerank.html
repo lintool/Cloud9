@@ -49,18 +49,17 @@ source node id).</p>
 
 <p>To make your lives easier, I've created a small demo program that
 computes PageRank using
-the <a href="http://jung.sourceforge.net/">JUNG</a> package (2.0
-alpha1).  The relevant class
+the <a href="http://jung.sourceforge.net/">JUNG</a> package (2.0.1).
+The relevant class
 is <code>edu.umd.cloud9.demo.SequentialPageRank</code>, which takes
 two command-line arguments: the first is a file containing the graph
 (one of the ones above), and the second is the random jump factor (a
 typical setting is 0.15).</p>
 
 <p>If you run the program on the small network, with a random jump
-factor of 0.15, these will be your command-line
-arguments (relative to <code>umd-hadoop-core</code>):</p>
+factor of 0.15, these will be your command-line arguments:</p>
 
-<pre>../umd-hadoop-dist/cloud9-docs/exercises/sample-small.txt 0.15</pre>
+<pre>docs/exercises/sample-small.txt 0.15</pre>
 
 <p>And here's the sample output:</p>
 
@@ -71,13 +70,11 @@ Number of nodes: 93
 Random jump factor: 0.15
 
 PageRank of nodes, in descending order:
-8709207 0.04821883130281773
-11287582 0.03471311923002198
-9650960 0.034389246806747764
-12610128 0.03394520471428961
-8553535 0.03237815039961933
-12518224 0.030345338942444594
-11044077 0.028403133546904703
+0.04821884416235794	8709207
+0.03471312258467498	11287582
+0.03438927990335218	9650960
+0.033945207898198146	12610128
+0.032378178767292154	8553535
 ...
 </pre>
 

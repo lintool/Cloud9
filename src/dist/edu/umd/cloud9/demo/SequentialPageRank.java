@@ -20,14 +20,13 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Set;
 
-import edu.uci.ics.jung.algorithms.cluster.WeakComponentGraphClusterer;
-import edu.uci.ics.jung.algorithms.importance.PageRank;
+import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.algorithms.importance.Ranking;
+import edu.uci.ics.jung.algorithms.scoring.PageRank;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * <p>
@@ -67,8 +66,7 @@ public class SequentialPageRank {
 		int edgeCnt = 0;
 		DirectedSparseGraph<String, Integer> graph = new DirectedSparseGraph<String, Integer>();
 
-		BufferedReader data = new BufferedReader(new InputStreamReader(
-				new FileInputStream(infile)));
+		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
 		String line;
 		while ((line = data.readLine()) != null) {
@@ -82,26 +80,32 @@ public class SequentialPageRank {
 
 		data.close();
 
-		WeakComponentGraphClusterer<String, Integer> clusterer = new WeakComponentGraphClusterer<String, Integer>();
+		WeakComponentClusterer<String, Integer> clusterer = new WeakComponentClusterer<String, Integer>();
 
-		Collection<Graph<String, Integer>> components = clusterer
-				.transform(graph);
+		Set<Set<String>> components = clusterer.transform(graph);
 		int numComponents = components.size();
 		System.out.println("Number of components: " + numComponents);
 		System.out.println("Number of edges: " + graph.getEdgeCount());
 		System.out.println("Number of nodes: " + graph.getVertexCount());
 		System.out.println("Random jump factor: " + alpha);
 
-		PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph,
-				alpha);
+		// compute PageRank
+		PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph, alpha);
 		ranker.evaluate();
 
-		System.out.println("\nPageRank of nodes, in descending order:");
-		for (Ranking<?> s : (List<Ranking<?>>) ranker.getRankings()) {
-			String pmid = s.getRanked().toString();
-
-			System.out.println(pmid + " " + s.rankScore);
+		// use priority queue to sort vertices by PageRank values
+		PriorityQueue<Ranking<String>> q = new PriorityQueue<Ranking<String>>();
+		int i = 0;
+		for (String pmid : graph.getVertices()) {
+			q.add(new Ranking<String>(i++, ranker.getVertexScore(pmid), pmid));
 		}
-	}
 
+		// print the PageRank value
+		System.out.println("\nPageRank of nodes, in descending order:");
+		Ranking<String> r = null;
+		while ((r = q.poll()) != null) {
+			System.out.println(r.rankScore + "\t" + r.getRanked());
+		}
+
+	}
 }
