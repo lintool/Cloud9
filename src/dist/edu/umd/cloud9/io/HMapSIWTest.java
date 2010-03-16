@@ -25,11 +25,11 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class OHMapSIWTest {
+public class HMapSIWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapSIW m = new OHMapSIW();
+		HMapSIW m = new HMapSIW();
 
 		m.put("hi", 5);
 		m.put("there", 22);
@@ -53,12 +53,12 @@ public class OHMapSIWTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		OHMapSIW m1 = new OHMapSIW();
+		HMapSIW m1 = new HMapSIW();
 
 		m1.put("hi", 5);
 		m1.put("there", 22);
 
-		OHMapSIW n2 = OHMapSIW.create(m1.serialize());
+		HMapSIW n2 = HMapSIW.create(m1.serialize());
 
 		String key;
 		float value;
@@ -79,17 +79,17 @@ public class OHMapSIWTest {
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapSIW m1 = new OHMapSIW();
+		HMapSIW m1 = new HMapSIW();
 
 		assertTrue(m1.size() == 0);
 
-		OHMapSIW m2 = OHMapSIW.create(m1.serialize());
+		HMapSIW m2 = HMapSIW.create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OHMapSFWTest.class);
+		return new JUnit4TestAdapter(HMapSFWTest.class);
 	}
 
 }

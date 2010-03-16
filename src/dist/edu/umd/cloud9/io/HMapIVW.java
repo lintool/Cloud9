@@ -28,25 +28,25 @@ import java.util.Set;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import edu.umd.cloud9.util.MapKI;
-import edu.umd.cloud9.util.OHMapKI;
+import edu.umd.cloud9.util.HMapIV;
+import edu.umd.cloud9.util.MapIV;
 
 /**
- * Writable representing a map from keys of arbitrary type to ints.
+ * Writable representing a map from ints to values of arbitrary type.
  * 
- * @param <K>
- *            type of key
+ * @param <V>
+ *            type of value
  * 
  * @author Jimmy Lin
  */
-public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implements Writable {
+public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implements Writable {
 
-	private static final long serialVersionUID = 295863243L;
+	private static final long serialVersionUID = 1089251365L;
 
 	/**
-	 * Creates a <code>OFMapKIW</code> object.
+	 * Creates a <code>OFMapIVW</code> object.
 	 */
-	public OHMapKIW() {
+	public HMapIVW() {
 		super();
 	}
 
@@ -65,17 +65,19 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 		if (numEntries == 0)
 			return;
 
-		String keyClassName = in.readUTF();
+		String valueClassName = in.readUTF();
 
-		K objK;
+		V objV;
 
 		try {
-			Class keyClass = Class.forName(keyClassName);
+			Class valueClass = Class.forName(valueClassName);
 			for (int i = 0; i < numEntries; i++) {
-				objK = (K) keyClass.newInstance();
-				objK.readFields(in);
-				int s = in.readInt();
-				put(objK, s);
+				int k = in.readInt();
+
+				objV = (V) valueClass.newInstance();
+				objV.readFields(in);
+
+				put(k, objV);
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -102,15 +104,15 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<MapKI.Entry<K>> entries = entrySet();
-		MapKI.Entry<K> first = entries.iterator().next();
-		K objK = first.getKey();
-		out.writeUTF(objK.getClass().getCanonicalName());
+		Set<MapIV.Entry<V>> entries = entrySet();
+		MapIV.Entry<V> first = entries.iterator().next();
+		V objV = first.getValue();
+		out.writeUTF(objV.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (MapKI.Entry<K> e : entrySet()) {
-			e.getKey().write(out);
-			out.writeInt(e.getValue());
+		for (MapIV.Entry<V> e : entrySet()) {
+			out.writeInt(e.getKey());
+			e.getValue().write(out);
 		}
 	}
 
@@ -138,9 +140,9 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 	 * @return a newly-created <code>OHMapKIW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> OHMapKIW<T> create(DataInput in)
+	public static <T extends WritableComparable<?>> HMapIVW<T> create(DataInput in)
 			throws IOException {
-		OHMapKIW<T> m = new OHMapKIW<T>();
+		HMapIVW<T> m = new HMapIVW<T>();
 		m.readFields(in);
 
 		return m;
@@ -153,7 +155,7 @@ public class OHMapKIW<K extends WritableComparable<?>> extends OHMapKI<K> implem
 	 *         object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> OHMapKIW<T> create(byte[] bytes)
+	public static <T extends WritableComparable<?>> HMapIVW<T> create(byte[] bytes)
 			throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}

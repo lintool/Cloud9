@@ -29,8 +29,8 @@ import org.apache.hadoop.io.Writable;
 /**
  * <p>
  * Writable extension of a Java HashMap. This generic class supports the use of
- * any type as either key or value. For a feature vector, {@link OHMapKIW},
- * {@link OHMapKFW}, and a family of related classes provides a more efficient
+ * any type as either key or value. For a feature vector, {@link HMapKIW},
+ * {@link HMapKFW}, and a family of related classes provides a more efficient
  * implementation.
  * </p>
  * 

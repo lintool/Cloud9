@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,7 +33,7 @@ import java.util.Set;
  *            the type of keys maintained by this map
  */
 
-public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
+public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Serializable {
 
 	/**
 	 * The default initial capacity - MUST be a power of two.
@@ -571,13 +573,13 @@ public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
 		 * by an invocation of put(k,v) for a key k that's already in the
 		 * HMapKI.
 		 */
-		void recordAccess(HMapKI<K> m) {
+		void recordAccess(MapKI<K> m) {
 		}
 
 		/**
 		 * This method is invoked whenever the entry is removed from the table.
 		 */
-		void recordRemoval(HMapKI<K> m) {
+		void recordRemoval(MapKI<K> m) {
 		}
 	}
 
@@ -877,5 +879,135 @@ public class HMapKI<K> implements MapKI<K>, Cloneable, Serializable {
 				return sb.append('}').toString();
 			sb.append(", ");
 		}
+	}
+	
+	// methods not part of a standard HashMap
+
+	/**
+	 * Adds values of keys from another map to this map.
+	 * 
+	 * @param m
+	 *            the other map
+	 */
+	public void plus(MapKI<K> m) {
+		for (MapKI.Entry<K> e : m.entrySet()) {
+			K key = e.getKey();
+
+			if (this.containsKey(key)) {
+				this.put(key, this.get(key) + e.getValue());
+			} else {
+				this.put(key, e.getValue());
+			}
+		}
+	}
+
+	/**
+	 * Computes the dot product of this map with another map.
+	 * 
+	 * @param m
+	 *            the other map
+	 */
+	public int dot(MapKI<K> m) {
+		int s = 0;
+
+		for (MapKI.Entry<K> e : m.entrySet()) {
+			K key = e.getKey();
+
+			if (this.containsKey(key)) {
+				s += this.get(key) * e.getValue();
+			}
+		}
+
+		return s;
+	}
+
+	/**
+	 * Increments the key. If the key does not exist in the map, its value is
+	 * set to one.
+	 * 
+	 * @param key
+	 *            key to increment
+	 */
+	public void increment(K key) {
+		if (this.containsKey(key)) {
+			this.put(key, this.get(key) + 1);
+		} else {
+			this.put(key, 1);
+		}
+	}
+
+	/**
+	 * Returns entries sorted by descending value. Ties broken by the key.
+	 * 
+	 * @return entries sorted by descending value
+	 */
+	@SuppressWarnings("unchecked")
+	public MapKI.Entry<K>[] getEntriesSortedByValue() {
+		if (this.size() == 0)
+			return null;
+
+		// for storing the entries
+		MapKI.Entry<K>[] entries = new Entry[this.size()];
+		int i = 0;
+		Entry<K> next = null;
+
+		int index = 0;
+		// advance to first entry
+		while (index < table.length && (next = table[index++]) == null)
+			;
+
+		while (next != null) {
+			// current entry
+			Entry<K> e = next;
+
+			// advance to next entry
+			next = e.next;
+			if ((next = e.next) == null) {
+				while (index < table.length && (next = table[index++]) == null)
+					;
+			}
+
+			// add entry to array
+			entries[i++] = e;
+		}
+
+		// sort the entries
+		Arrays.sort(entries, new Comparator<MapKI.Entry<K>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
+				if (e1.getValue() > e2.getValue()) {
+					return -1;
+				} else if (e1.getValue() < e2.getValue()) {
+					return 1;
+				}
+
+				if (e1.getKey() == e2.getKey())
+					return 0;
+
+				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
+			}
+		});
+
+		return entries;
+	}
+
+	/**
+	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * the key.
+	 * 
+	 * @param n
+	 *            number of entries to return
+	 * @return top <i>n</i> entries sorted by descending value
+	 */
+	public MapKI.Entry<K>[] getEntriesSortedByValue(int n) {
+		MapKI.Entry<K>[] entries = getEntriesSortedByValue();
+
+		if (entries == null)
+			return null;
+
+		if (entries.length < n)
+			return entries;
+
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 }

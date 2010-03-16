@@ -26,24 +26,24 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.util.MapKI;
-import edu.umd.cloud9.util.OHMapKI;
+import edu.umd.cloud9.util.HMapKF;
+import edu.umd.cloud9.util.MapKF;
 
 /**
- * Writable representing a map where keys are Strings and values are ints. This
- * class is specialized for String objects to avoid the overhead that comes with
- * wrapping Strings inside <code>Text</code> objects.
+ * Writable representing a map where keys are Strings and values are floats.
+ * This class is specialized for String objects to avoid the overhead that comes
+ * with wrapping Strings inside <code>Text</code> objects.
  * 
  * @author Jimmy Lin
  */
-public class OHMapSIW extends OHMapKI<String> implements Writable {
+public class HMapSFW extends HMapKF<String> implements Writable {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a <code>OHMapSIW</code> object.
+	 * Creates a <code>OHMapSFW</code> object.
 	 */
-	public OHMapSIW() {
+	public HMapSFW() {
 		super();
 	}
 
@@ -53,7 +53,9 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 	 * @param in
 	 *            source for raw byte representation
 	 */
+	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
+
 		this.clear();
 
 		int numEntries = in.readInt();
@@ -62,7 +64,7 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 
 		for (int i = 0; i < numEntries; i++) {
 			String k = in.readUTF();
-			int v = in.readInt();
+			float v = in.readFloat();
 			put(k, v);
 		}
 	}
@@ -80,9 +82,9 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 			return;
 
 		// Then write out each key/value pair
-		for (MapKI.Entry<String> e : entrySet()) {
+		for (MapKF.Entry<String> e : entrySet()) {
 			out.writeUTF(e.getKey());
-			out.writeInt(e.getValue());
+			out.writeFloat(e.getValue());
 		}
 	}
 
@@ -102,16 +104,16 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
+	 * Creates a <code>OHMapSFW</code> object from a <code>DataInput</code>.
 	 * 
 	 * @param in
 	 *            <code>DataInput</code> for reading the serialized
 	 *            representation
-	 * @return a newly-created <code>OHMapSIW</code> object
+	 * @return a newly-created <code>OHMapSFW</code> object
 	 * @throws IOException
 	 */
-	public static OHMapSIW create(DataInput in) throws IOException {
-		OHMapSIW m = new OHMapSIW();
+	public static HMapSFW create(DataInput in) throws IOException {
+		HMapSFW m = new HMapSFW();
 		m.readFields(in);
 
 		return m;
@@ -124,7 +126,7 @@ public class OHMapSIW extends OHMapKI<String> implements Writable {
 	 *         object
 	 * @throws IOException
 	 */
-	public static OHMapSIW create(byte[] bytes) throws IOException {
+	public static HMapSFW create(byte[] bytes) throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 }

@@ -13,7 +13,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -836,5 +838,73 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 				return sb.append('}').toString();
 			sb.append(", ");
 		}
+	}
+	
+	// methods not part of a standard HashMap
+
+	/**
+	 * Returns entries sorted by descending value. Ties broken by the key.
+	 * 
+	 * @return entries sorted by descending value
+	 */
+	@SuppressWarnings("unchecked")
+	public MapIV.Entry<V>[] getEntriesSortedByValue() {
+		if (this.size() == 0)
+			return null;
+
+		// for storing the entries
+		MapIV.Entry<V>[] entries = new Entry[this.size()];
+		int i = 0;
+		Entry<V> next = null;
+
+		int index = 0;
+		// advance to first entry
+		while (index < table.length && (next = table[index++]) == null)
+			;
+
+		while (next != null) {
+			// current entry
+			Entry<V> e = next;
+
+			// advance to next entry
+			next = e.next;
+			if ((next = e.next) == null) {
+				while (index < table.length && (next = table[index++]) == null)
+					;
+			}
+
+			// add entry to array
+			entries[i++] = e;
+		}
+
+		// sort the entries
+		Arrays.sort(entries, new Comparator<MapIV.Entry<V>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(MapIV.Entry e1, MapIV.Entry e2) {
+				return ((Comparable) e1.getValue()).compareTo(e2.getValue());
+			}
+		});
+
+		return entries;
+	}
+
+	/**
+	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * the key.
+	 * 
+	 * @param n
+	 *            number of entries to return
+	 * @return top <i>n</i> entries sorted by descending value
+	 */
+	public MapIV.Entry<V>[] getEntriesSortedByValue(int n) {
+		MapIV.Entry<V>[] entries = getEntriesSortedByValue();
+
+		if (entries == null)
+			return null;
+
+		if (entries.length < n)
+			return entries;
+
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 }

@@ -25,11 +25,11 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class OHMapIIWTest {
+public class HMapIIWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapIIW m = new OHMapIIW();
+		HMapIIW m = new HMapIIW();
 
 		m.put(2, 5);
 		m.put(1, 22);
@@ -50,12 +50,12 @@ public class OHMapIIWTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		OHMapIIW m1 = new OHMapIIW();
+		HMapIIW m1 = new HMapIIW();
 
 		m1.put(3, 5);
 		m1.put(4, 22);
 
-		OHMapIIW n2 = OHMapIIW.create(m1.serialize());
+		HMapIIW n2 = HMapIIW.create(m1.serialize());
 
 		int value;
 
@@ -73,13 +73,13 @@ public class OHMapIIWTest {
 
 	@Test
 	public void testSerializeLazy1() throws IOException {
-		OHMapIIW.setLazyDecodeFlag(true);
-		OHMapIIW m1 = new OHMapIIW();
+		HMapIIW.setLazyDecodeFlag(true);
+		HMapIIW m1 = new HMapIIW();
 
 		m1.put(3, 5);
 		m1.put(4, 22);
 
-		OHMapIIW m2 = OHMapIIW.create(m1.serialize());
+		HMapIIW m2 = HMapIIW.create(m1.serialize());
 
 		assertEquals(0, m2.size());
 
@@ -108,20 +108,20 @@ public class OHMapIIWTest {
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapIIW m1 = new OHMapIIW();
+		HMapIIW m1 = new HMapIIW();
 
 		// make sure this does nothing
 		m1.decode();
 
 		assertTrue(m1.size() == 0);
 
-		OHMapIFW m2 = OHMapIFW.create(m1.serialize());
+		HMapIFW m2 = HMapIFW.create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OHMapIIWTest.class);
+		return new JUnit4TestAdapter(HMapIIWTest.class);
 	}
 
 }

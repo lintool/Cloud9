@@ -26,12 +26,12 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.util.MapIF;
-import edu.umd.cloud9.util.OHMapIF;
+import edu.umd.cloud9.util.HMapII;
+import edu.umd.cloud9.util.MapII;
 
 /**
  * <p>
- * Writable representing a map where keys are ints and values are floats.
+ * Writable representing a map where both keys and values are ints.
  * </p>
  * 
  * <p>
@@ -47,19 +47,19 @@ import edu.umd.cloud9.util.OHMapIF;
  * 
  * @author Jimmy Lin
  */
-public class OHMapIFW extends OHMapIF implements Writable {
+public class HMapIIW extends HMapII implements Writable {
 
 	private static boolean sLazyDecode = false;
-	private static final long serialVersionUID = 4760032853L;
+	private static final long serialVersionUID = 3801790315L;
 
 	private int mNumEntries = 0;
 	private int[] mKeys = null;
-	private float[] mValues = null;
+	private int[] mValues = null;
 
 	/**
 	 * Creates a <code>OHMapIFW</code> object.
 	 */
-	public OHMapIFW() {
+	public HMapIIW() {
 		super();
 	}
 
@@ -81,16 +81,16 @@ public class OHMapIFW extends OHMapIF implements Writable {
 		if (sLazyDecode) {
 			// lazy initialization; read into arrays
 			mKeys = new int[mNumEntries];
-			mValues = new float[mNumEntries];
+			mValues = new int[mNumEntries];
 
 			for (int i = 0; i < mNumEntries; i++) {
 				mKeys[i] = in.readInt();
-				mValues[i] = in.readFloat();
+				mValues[i] = in.readInt();
 			}
 		} else {
 			// normal initialization; populate the map
 			for (int i = 0; i < mNumEntries; i++) {
-				put(in.readInt(), in.readFloat());
+				put(in.readInt(), in.readInt());
 			}
 		}
 	}
@@ -101,27 +101,13 @@ public class OHMapIFW extends OHMapIF implements Writable {
 	 * 
 	 * @throws IOException
 	 */
-	public void decode() {
+	public void decode() throws IOException {
 		if (mKeys == null)
 			return;
 
 		for (int i = 0; i < mKeys.length; i++) {
 			put(mKeys[i], mValues[i]);
 		}
-
-		mKeys = null;
-		mValues = null;
-	}
-
-	/**
-	 * Returns whether or not this map has been decoded. If not in lazy decoding
-	 * mode, this method always return <i>true</i>.
-	 */
-	public boolean isDecoded() {
-		if (getLazyDecodeFlag() == false)
-			return true;
-
-		return mKeys == null;
 	}
 
 	/**
@@ -136,10 +122,9 @@ public class OHMapIFW extends OHMapIF implements Writable {
 		if (size() == 0)
 			return;
 
-		for (MapIF.Entry e : entrySet()) {
-			// WritableUtils.writeVInt(out, e.getKey());
+		for (MapII.Entry e : entrySet()) {
 			out.writeInt(e.getKey());
-			out.writeFloat(e.getValue());
+			out.writeInt(e.getValue());
 		}
 	}
 
@@ -159,30 +144,30 @@ public class OHMapIFW extends OHMapIF implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapIFW</code> object from a <code>DataInput</code>.
+	 * Creates a <code>OHMapIIW</code> object from a <code>DataInput</code>.
 	 * 
 	 * @param in
 	 *            <code>DataInput</code> for reading the serialized
 	 *            representation
-	 * @return a newly-created <code>OHMapIFW</code> object
+	 * @return a newly-created <code>OHMapIIW</code> object
 	 * @throws IOException
 	 */
-	public static OHMapIFW create(DataInput in) throws IOException {
-		OHMapIFW m = new OHMapIFW();
+	public static HMapIIW create(DataInput in) throws IOException {
+		HMapIIW m = new HMapIIW();
 		m.readFields(in);
 
 		return m;
 	}
 
 	/**
-	 * Creates a <code>OHMapIFW</code> object from a byte array.
+	 * Creates a <code>OHMapIIW</code> object from a byte array.
 	 * 
 	 * @param bytes
 	 *            raw serialized representation
 	 * @return a newly-created <code>OHMapIFW</code> object
 	 * @throws IOException
 	 */
-	public static OHMapIFW create(byte[] bytes) throws IOException {
+	public static HMapIIW create(byte[] bytes) throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 
@@ -221,49 +206,28 @@ public class OHMapIFW extends OHMapIF implements Writable {
 	 * 
 	 * @return an array of all the values
 	 */
-	public float[] getValues() {
+	public int[] getValues() {
 		return mValues;
 	}
 
 	/**
-	 * Adds values from keys of another map to this map. This map will be
-	 * decoded if it hasn't already been decode. The other map need not be
-	 * decoded.
+	 * In lazy decoding mode, adds values from keys of another map to this map.
+	 * This map must have already been decoded, but the other map must not have
+	 * been already decoded.
 	 * 
 	 * @param m
 	 *            the other map
 	 */
-	public void plus(OHMapIFW m) {
-		// this map must be decoded, so decode if it isn't already
-		if (!this.isDecoded())
-			this.decode();
+	public void lazyplus(HMapIIW m) {
+		int[] k = m.getKeys();
+		int[] v = m.getValues();
 
-		if (!m.isDecoded()) {
-			// if the other map hasn't been decoded, we can iterate through the
-			// arrays
-			int[] k = m.getKeys();
-			float[] v = m.getValues();
-
-			for (int i = 0; i < k.length; i++) {
-				if (this.containsKey(k[i])) {
-					this.put(k[i], this.get(k[i]) + v[i]);
-				} else {
-					this.put(k[i], v[i]);
-				}
+		for (int i = 0; i < k.length; i++) {
+			if (this.containsKey(k[i])) {
+				this.put(k[i], this.get(k[i]) + v[i]);
+			} else {
+				this.put(k[i], v[i]);
 			}
-		} else {
-			// if the other map has already been decoded, the superclass plus
-			// method can handle it.
-
-			super.plus(m);
 		}
-	}
-
-	@Override
-	public int size() {
-		if (!isDecoded())
-			return mKeys.length;
-
-		return super.size();
 	}
 }

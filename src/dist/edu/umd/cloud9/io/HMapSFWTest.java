@@ -23,88 +23,73 @@ import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
 
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class OHMapKFWTest {
+public class HMapSFWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapKFW<Text> m = new OHMapKFW<Text>();
+		HMapSFW m = new HMapSFW();
 
-		m.put(new Text("hi"), 5.0f);
-		m.put(new Text("there"), 22.0f);
+		m.put("hi", 5.0f);
+		m.put("there", 22.0f);
 
-		Text key;
+		String key;
 		float value;
 
 		assertEquals(m.size(), 2);
 
-		key = new Text("hi");
+		key = "hi";
 		value = m.get(key);
 		assertTrue(value == 5.0f);
 
 		value = m.remove(key);
 		assertEquals(m.size(), 1);
 
-		key = new Text("there");
+		key = "there";
 		value = m.get(key);
 		assertTrue(value == 22.0f);
 	}
 
 	@Test
 	public void testSerialize1() throws IOException {
-		OHMapKFW<Text> m1 = new OHMapKFW<Text>();
+		HMapSFW m1 = new HMapSFW();
 
-		m1.put(new Text("hi"), 5.0f);
-		m1.put(new Text("there"), 22.0f);
+		m1.put("hi", 5.0f);
+		m1.put("there", 22.0f);
 
-		OHMapKFW<Text> n2 = OHMapKFW.<Text> create(m1.serialize());
+		HMapSFW n2 = HMapSFW.create(m1.serialize());
 
-		Text key;
+		String key;
 		float value;
 
 		assertEquals(n2.size(), 2);
 
-		key = new Text("hi");
+		key = "hi";
 		value = n2.get(key);
 		assertTrue(value == 5.0f);
 
 		value = n2.remove(key);
 		assertEquals(n2.size(), 1);
 
-		key = new Text("there");
+		key = "there";
 		value = n2.get(key);
 		assertTrue(value == 22.0f);
 	}
 
-	@Test(expected = IOException.class)
-	public void testTypeSafety() throws IOException {
-		OHMapKFW<WritableComparable<?>> m1 = new OHMapKFW<WritableComparable<?>>();
-
-		m1.put(new Text("hi"), 4.0f);
-		m1.put(new IntWritable(0), 76.0f);
-
-		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(m1.serialize());
-
-		m2.size();
-	}
-
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapKFW<WritableComparable<?>> m1 = new OHMapKFW<WritableComparable<?>>();
+		HMapSFW m1 = new HMapSFW();
 
 		assertTrue(m1.size() == 0);
 
-		OHMapKFW<Text> m2 = OHMapKFW.<Text> create(m1.serialize());
+		HMapSFW m2 = HMapSFW.create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OHMapKFWTest.class);
+		return new JUnit4TestAdapter(HMapSFWTest.class);
 	}
 
 }

@@ -38,7 +38,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.OHMapSIW;
+import edu.umd.cloud9.io.HMapSIW;
 
 /**
  * <p>
@@ -57,17 +57,17 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 	private static final Logger sLogger = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, Text, OHMapSIW> {
+			Mapper<LongWritable, Text, Text, HMapSIW> {
 
 		private int window = 2;
-		private OHMapSIW map = new OHMapSIW();
+		private HMapSIW map = new HMapSIW();
 		private Text textKey = new Text();
 
 		public void configure(JobConf job) {
 			window = job.getInt("window", 2);
 		}
 
-		public void map(LongWritable key, Text line, OutputCollector<Text, OHMapSIW> output,
+		public void map(LongWritable key, Text line, OutputCollector<Text, HMapSIW> output,
 				Reporter reporter) throws IOException {
 			String text = line.toString();
 
@@ -107,12 +107,12 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 	}
 
 	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, OHMapSIW, Text, OHMapSIW> {
+			Reducer<Text, HMapSIW, Text, HMapSIW> {
 
-		public void reduce(Text key, Iterator<OHMapSIW> values,
-				OutputCollector<Text, OHMapSIW> output, Reporter reporter) throws IOException {
+		public void reduce(Text key, Iterator<HMapSIW> values,
+				OutputCollector<Text, HMapSIW> output, Reporter reporter) throws IOException {
 
-			OHMapSIW map = new OHMapSIW();
+			HMapSIW map = new HMapSIW();
 
 			while (values.hasNext()) {
 				map.plus(values.next());
@@ -176,7 +176,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
 		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(OHMapSIW.class);
+		conf.setOutputValueClass(HMapSIW.class);
 
 		conf.setMapperClass(MyMapper.class);
 		conf.setCombinerClass(MyReducer.class);

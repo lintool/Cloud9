@@ -28,25 +28,25 @@ import java.util.Set;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import edu.umd.cloud9.util.MapKF;
-import edu.umd.cloud9.util.OHMapKF;
+import edu.umd.cloud9.util.HMapKI;
+import edu.umd.cloud9.util.MapKI;
 
 /**
- * Writable representing a map from keys of arbitrary type to floats.
+ * Writable representing a map from keys of arbitrary type to ints.
  * 
  * @param <K>
  *            type of key
  * 
  * @author Jimmy Lin
  */
-public class OHMapKFW<K extends WritableComparable<?>> extends OHMapKF<K> implements Writable {
+public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implements Writable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 295863243L;
 
 	/**
-	 * Creates a <code>OHMapKFW</code> object.
+	 * Creates a <code>OFMapKIW</code> object.
 	 */
-	public OHMapKFW() {
+	public HMapKIW() {
 		super();
 	}
 
@@ -68,12 +68,13 @@ public class OHMapKFW<K extends WritableComparable<?>> extends OHMapKF<K> implem
 		String keyClassName = in.readUTF();
 
 		K objK;
+
 		try {
 			Class keyClass = Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
-				float s = in.readFloat();
+				int s = in.readInt();
 				put(objK, s);
 			}
 
@@ -101,15 +102,15 @@ public class OHMapKFW<K extends WritableComparable<?>> extends OHMapKF<K> implem
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<MapKF.Entry<K>> entries = entrySet();
-		MapKF.Entry<K> first = entries.iterator().next();
+		Set<MapKI.Entry<K>> entries = entrySet();
+		MapKI.Entry<K> first = entries.iterator().next();
 		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (MapKF.Entry<K> e : entrySet()) {
+		for (MapKI.Entry<K> e : entrySet()) {
 			e.getKey().write(out);
-			out.writeFloat(e.getValue());
+			out.writeInt(e.getValue());
 		}
 	}
 
@@ -129,17 +130,17 @@ public class OHMapKFW<K extends WritableComparable<?>> extends OHMapKF<K> implem
 	}
 
 	/**
-	 * Creates a <code>OHMapKFW</code> object from a <code>DataInput</code>.
+	 * Creates a <code>OHMapKIW</code> object from a <code>DataInput</code>.
 	 * 
 	 * @param in
 	 *            <code>DataInput</code> for reading the serialized
 	 *            representation
-	 * @return a newly-created <code>OHMapKFW</code> object
+	 * @return a newly-created <code>OHMapKIW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> OHMapKFW<T> create(DataInput in)
+	public static <T extends WritableComparable<?>> HMapKIW<T> create(DataInput in)
 			throws IOException {
-		OHMapKFW<T> m = new OHMapKFW<T>();
+		HMapKIW<T> m = new HMapKIW<T>();
 		m.readFields(in);
 
 		return m;
@@ -152,7 +153,7 @@ public class OHMapKFW<K extends WritableComparable<?>> extends OHMapKF<K> implem
 	 *         object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> OHMapKFW<T> create(byte[] bytes)
+	public static <T extends WritableComparable<?>> HMapKIW<T> create(byte[] bytes)
 			throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}

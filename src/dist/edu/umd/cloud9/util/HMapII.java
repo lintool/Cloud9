@@ -13,7 +13,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -828,5 +830,142 @@ public class HMapII implements MapII, Cloneable, Serializable {
 				return sb.append('}').toString();
 			sb.append(", ");
 		}
+	}
+	
+	// methods not part of a standard HashMap
+
+	/**
+	 * Adds values of keys from another map to this map.
+	 * 
+	 * @param m
+	 *            the other map
+	 */
+	public void plus(MapII m) {
+		for (MapII.Entry e : m.entrySet()) {
+			int key = e.getKey();
+
+			if (this.containsKey(key)) {
+				this.put(key, this.get(key) + e.getValue());
+			} else {
+				this.put(key, e.getValue());
+			}
+		}
+	}
+
+	/**
+	 * Computes the dot product of this map with another map.
+	 * 
+	 * @param m
+	 *            the other map
+	 */
+	public int dot(MapII m) {
+		int s = 0;
+
+		for (MapII.Entry e : m.entrySet()) {
+			int key = e.getKey();
+
+			if (this.containsKey(key)) {
+				s += this.get(key) * e.getValue();
+			}
+		}
+
+		return s;
+	}
+
+	/**
+	 * Increments the key. If the key does not exist in the map, its value is
+	 * set to one.
+	 * 
+	 * @param key
+	 *            key to increment
+	 */
+	public void increment(int key) {
+		if (this.containsKey(key)) {
+			this.put(key, this.get(key) + 1);
+		} else {
+			this.put(key, 1);
+		}
+	}
+	
+	public void increment(int key, int value) {
+		if (this.containsKey(key)) {
+			this.put(key, this.get(key) + value);
+		} else {
+			this.put(key, value);
+		}
+	}
+
+	/**
+	 * Returns entries sorted by descending value. Ties broken by the key.
+	 * 
+	 * @return entries sorted by descending value
+	 */
+	public MapII.Entry[] getEntriesSortedByValue() {
+		if (this.size() == 0)
+			return null;
+
+		// for storing the entries
+		MapII.Entry[] entries = new Entry[this.size()];
+		int i = 0;
+		Entry next = null;
+
+		int index = 0;
+		// advance to first entry
+		while (index < table.length && (next = table[index++]) == null)
+			;
+
+		while (next != null) {
+			// current entry
+			Entry e = next;
+
+			// advance to next entry
+			next = e.next;
+			if ((next = e.next) == null) {
+				while (index < table.length && (next = table[index++]) == null)
+					;
+			}
+
+			// add entry to array
+			entries[i++] = e;
+		}
+
+		// sort the entries
+		Arrays.sort(entries, new Comparator<MapII.Entry>() {
+			@SuppressWarnings("unchecked")
+			public int compare(MapII.Entry e1, MapII.Entry e2) {
+				if (e1.getValue() > e2.getValue()) {
+					return -1;
+				} else if (e1.getValue() < e2.getValue()) {
+					return 1;
+				}
+
+				if (e1.getKey() == e2.getKey())
+					return 0;
+
+				return e1.getKey() > e2.getKey() ? 1 : -1;
+			}
+		});
+
+		return entries;
+	}
+
+	/**
+	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * the key.
+	 * 
+	 * @param n
+	 *            number of entries to return
+	 * @return top <i>n</i> entries sorted by descending value
+	 */
+	public MapII.Entry[] getEntriesSortedByValue(int n) {
+		MapII.Entry[] entries = getEntriesSortedByValue();
+
+		if (entries == null)
+			return null;
+
+		if (entries.length < n)
+			return entries;
+
+		return Arrays.copyOfRange(entries, 0, n);
 	}
 }

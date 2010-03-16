@@ -24,6 +24,7 @@ import java.util.Random;
 
 import junit.framework.JUnit4TestAdapter;
 
+import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
 public class HMapKITest {
@@ -116,6 +117,129 @@ public class HMapKITest {
 		m1.put("there", 22);
 
 		assertEquals("{there=22, hi=5}", m1.toString());
+	}
+
+	@Test
+	public void testBasic() throws IOException {
+		HMapKI<Text> m = new HMapKI<Text>();
+
+		m.put(new Text("hi"), 5);
+		m.put(new Text("there"), 22);
+
+		Text key;
+		int value;
+
+		assertEquals(m.size(), 2);
+
+		key = new Text("hi");
+		value = m.get(key);
+		assertEquals(value, 5);
+
+		value = m.remove(key);
+		assertEquals(m.size(), 1);
+
+		key = new Text("there");
+		value = m.get(key);
+		assertEquals(value, 22);
+	}
+
+	@Test
+	public void testPlus() throws IOException {
+		HMapKI<Text> m1 = new HMapKI<Text>();
+
+		m1.put(new Text("hi"), 5);
+		m1.put(new Text("there"), 22);
+
+		HMapKI<Text> m2 = new HMapKI<Text>();
+
+		m2.put(new Text("hi"), 4);
+		m2.put(new Text("test"), 5);
+
+		m1.plus(m2);
+
+		assertEquals(3, m1.size());
+		assertTrue(m1.get(new Text("hi")) == 9);
+		assertTrue(m1.get(new Text("there")) == 22);
+		assertTrue(m1.get(new Text("test")) == 5);
+	}
+
+	@Test
+	public void testDot() throws IOException {
+		HMapKI<Text> m1 = new HMapKI<Text>();
+
+		m1.put(new Text("hi"), 5);
+		m1.put(new Text("there"), 2);
+		m1.put(new Text("empty"), 3);
+
+		HMapKI<Text> m2 = new HMapKI<Text>();
+
+		m2.put(new Text("hi"), 4);
+		m2.put(new Text("there"), 4);
+		m2.put(new Text("test"), 5);
+
+		int s = m1.dot(m2);
+
+		assertEquals(s, 28);
+	}
+
+	@Test
+	public void testSortedEntries1() {
+		HMapKI<Text> m = new HMapKI<Text>();
+
+		m.put(new Text("a"), 5);
+		m.put(new Text("b"), 2);
+		m.put(new Text("c"), 3);
+		m.put(new Text("d"), 3);
+		m.put(new Text("e"), 1);
+
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByValue();
+		MapKI.Entry<Text> e = null;
+
+		assertEquals(5, entries.length);
+
+		e = entries[0];
+		assertEquals(new Text("a"), e.getKey());
+		assertEquals(5, (int) e.getValue());
+
+		e = entries[1];
+		assertEquals(new Text("c"), e.getKey());
+		assertEquals(3, (int) e.getValue());
+
+		e = entries[2];
+		assertEquals(new Text("d"), e.getKey());
+		assertEquals(3, (int) e.getValue());
+
+		e = entries[3];
+		assertEquals(new Text("b"), e.getKey());
+		assertEquals(2, (int) e.getValue());
+
+		e = entries[4];
+		assertEquals(new Text("e"), e.getKey());
+		assertEquals(1, (int) e.getValue());
+	}
+
+	@Test
+	public void testSortedEntries2() {
+		HMapKI<Text> m = new HMapKI<Text>();
+
+		m.put(new Text("a"), 5);
+		m.put(new Text("b"), 2);
+		m.put(new Text("c"), 3);
+		m.put(new Text("d"), 3);
+		m.put(new Text("e"), 1);
+
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByValue(2);
+		MapKI.Entry<Text> e = null;
+
+		assertEquals(2, entries.length);
+
+		e = entries[0];
+		assertEquals(new Text("a"), e.getKey());
+		assertEquals(5, (int) e.getValue());
+
+		e = entries[1];
+		assertEquals(new Text("c"), e.getKey());
+		assertEquals(3, (int) e.getValue());
 	}
 
 	public static junit.framework.Test suite() {

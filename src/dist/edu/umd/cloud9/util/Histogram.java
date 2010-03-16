@@ -45,7 +45,7 @@ package edu.umd.cloud9.util;
  * @param <T>
  *            type of object
  */
-public class Histogram<T extends Comparable<T>> extends OHMapKI<T> {
+public class Histogram<T extends Comparable<T>> extends HMapKI<T> {
 
 	private static final long serialVersionUID = 9190462865L;
 

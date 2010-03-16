@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.Indexable;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPageInputFormat;
-import edu.umd.cloud9.io.OHMapSFW;
+import edu.umd.cloud9.io.HMapSFW;
 
 /**
  * @author ferhanture

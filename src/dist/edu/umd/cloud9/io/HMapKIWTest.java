@@ -23,66 +23,88 @@ import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
 
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
-public class OHMapIVWTest {
+public class HMapKIWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapIVW<Text> m = new OHMapIVW<Text>();
+		HMapKIW<Text> m = new HMapKIW<Text>();
 
-		m.put(5, new Text("hi"));
-		m.put(22, new Text("there"));
+		m.put(new Text("hi"), 5);
+		m.put(new Text("there"), 22);
+
+		Text key;
+		int value;
 
 		assertEquals(m.size(), 2);
 
-		Text value = m.get(5);
-		assertEquals(new Text("hi"), value);
+		key = new Text("hi");
+		value = m.get(key);
+		assertEquals(value, 5);
 
-		value = m.remove(5);
-		assertEquals(new Text("hi"), value);
+		value = m.remove(key);
 		assertEquals(m.size(), 1);
 
-		value = m.get(22);
-		assertEquals(new Text("there"), value);
+		key = new Text("there");
+		value = m.get(key);
+		assertEquals(value, 22);
 	}
 
 	@Test
 	public void testSerialize1() throws IOException {
-		OHMapIVW<Text> m1 = new OHMapIVW<Text>();
+		HMapKIW<Text> m1 = new HMapKIW<Text>();
 
-		m1.put(5, new Text("hi"));
-		m1.put(22, new Text("there"));
+		m1.put(new Text("hi"), 5);
+		m1.put(new Text("there"), 22);
 
-		OHMapIVW<Text> m2 = OHMapIVW.<Text> create(m1.serialize());
+		HMapKIW<Text> m2 = HMapKIW.<Text> create(m1.serialize());
+
+		Text key;
+		int value;
 
 		assertEquals(m2.size(), 2);
 
-		Text value = m2.get(5);
-		assertEquals(new Text("hi"), value);
+		key = new Text("hi");
+		value = m2.get(key);
+		assertEquals(value, 5);
 
-		value = m2.remove(5);
-		assertEquals(new Text("hi"), value);
+		value = m2.remove(key);
 		assertEquals(m2.size(), 1);
 
-		value = m2.get(22);
-		assertEquals(new Text("there"), value);
+		key = new Text("there");
+		value = m2.get(key);
+		assertEquals(value, 22);
+	}
+
+	@Test(expected = IOException.class)
+	public void testTypeSafety() throws IOException {
+		HMapKIW<WritableComparable<?>> m1 = new HMapKIW<WritableComparable<?>>();
+
+		m1.put(new Text("hi"), 4);
+		m1.put(new IntWritable(0), 76);
+
+		HMapKIW<Text> m2 = HMapKIW.<Text> create(m1.serialize());
+
+		m2.size();
 	}
 
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapIVW<Text> m1 = new OHMapIVW<Text>();
+		HMapKIW<WritableComparable<?>> m1 = new HMapKIW<WritableComparable<?>>();
 
 		assertTrue(m1.size() == 0);
 
-		OHMapIVW<Text> m2 = OHMapIVW.<Text> create(m1.serialize());
+		HMapKIW<Text> m2 = HMapKIW.<Text> create(m1.serialize());
 
 		assertTrue(m2.size() == 0);
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OHMapIVWTest.class);
+		return new JUnit4TestAdapter(HMapKIWTest.class);
 	}
 
 }

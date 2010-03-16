@@ -26,11 +26,11 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class OHMapIFWTest {
+public class HMapIFWTest {
 
 	@Test
 	public void testBasic() throws IOException {
-		OHMapIFW m = new OHMapIFW();
+		HMapIFW m = new HMapIFW();
 
 		m.put(2, 5.0f);
 		m.put(1, 22.0f);
@@ -51,13 +51,13 @@ public class OHMapIFWTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes = m1.serialize();
-		OHMapIFW n2 = OHMapIFW.create(bytes);
+		HMapIFW n2 = HMapIFW.create(bytes);
 
 		float value;
 
@@ -75,14 +75,14 @@ public class OHMapIFWTest {
 
 	@Test
 	public void testSerializeLazy1() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW.setLazyDecodeFlag(true);
+		HMapIFW m1 = new HMapIFW();
 
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes = m1.serialize();
-		OHMapIFW m2 = OHMapIFW.create(bytes);
+		HMapIFW m2 = HMapIFW.create(bytes);
 
 		assertFalse(m2.isDecoded());
 		assertEquals(2, m2.size());
@@ -114,14 +114,14 @@ public class OHMapIFWTest {
 
 	@Test
 	public void testSerializeLazy2() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW.setLazyDecodeFlag(true);
+		HMapIFW m1 = new HMapIFW();
 
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes = m1.serialize();
-		OHMapIFW m2 = OHMapIFW.create(bytes);
+		HMapIFW m2 = HMapIFW.create(bytes);
 
 		assertFalse(m2.isDecoded());
 		assertEquals(2, m2.size());
@@ -151,23 +151,23 @@ public class OHMapIFWTest {
 
 	@Test
 	public void testLazyPlus1() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
+		HMapIFW.setLazyDecodeFlag(true);
 		
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes1 = m1.serialize();
 		
-		OHMapIFW m2 = new OHMapIFW();
+		HMapIFW m2 = new HMapIFW();
 		m2.put(3, 1.0f);
 		m2.put(4, 1.0f);
 		m2.put(5, 1.0f);
 
 		byte[] bytes2 = m2.serialize();
 
-		OHMapIFW n1 = OHMapIFW.create(bytes1);
-		OHMapIFW n2 = OHMapIFW.create(bytes2);
+		HMapIFW n1 = HMapIFW.create(bytes1);
+		HMapIFW n2 = HMapIFW.create(bytes2);
 
 		assertFalse(n1.isDecoded());
 		assertEquals(2, n1.size());
@@ -188,23 +188,23 @@ public class OHMapIFWTest {
 	
 	@Test
 	public void testLazyPlus2() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
+		HMapIFW.setLazyDecodeFlag(true);
 		
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes1 = m1.serialize();
 		
-		OHMapIFW m2 = new OHMapIFW();
+		HMapIFW m2 = new HMapIFW();
 		m2.put(3, 1.0f);
 		m2.put(4, 1.0f);
 		m2.put(5, 1.0f);
 
 		byte[] bytes2 = m2.serialize();
 
-		OHMapIFW n1 = OHMapIFW.create(bytes1);
-		OHMapIFW n2 = OHMapIFW.create(bytes2);
+		HMapIFW n1 = HMapIFW.create(bytes1);
+		HMapIFW n2 = HMapIFW.create(bytes2);
 
 		assertFalse(n1.isDecoded());
 		assertEquals(2, n1.size());
@@ -226,23 +226,23 @@ public class OHMapIFWTest {
 	
 	@Test
 	public void testLazyPlus3() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
+		HMapIFW.setLazyDecodeFlag(true);
 		
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes1 = m1.serialize();
 		
-		OHMapIFW m2 = new OHMapIFW();
+		HMapIFW m2 = new HMapIFW();
 		m2.put(3, 1.0f);
 		m2.put(4, 1.0f);
 		m2.put(5, 1.0f);
 
 		byte[] bytes2 = m2.serialize();
 
-		OHMapIFW n1 = OHMapIFW.create(bytes1);
-		OHMapIFW n2 = OHMapIFW.create(bytes2);
+		HMapIFW n1 = HMapIFW.create(bytes1);
+		HMapIFW n2 = HMapIFW.create(bytes2);
 
 		assertFalse(n1.isDecoded());
 		assertEquals(2, n1.size());
@@ -264,23 +264,23 @@ public class OHMapIFWTest {
 	
 	@Test
 	public void testLazyPlus4() throws IOException {
-		OHMapIFW.setLazyDecodeFlag(true);
+		HMapIFW.setLazyDecodeFlag(true);
 		
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 		m1.put(3, 5.0f);
 		m1.put(4, 22.0f);
 
 		byte[] bytes1 = m1.serialize();
 		
-		OHMapIFW m2 = new OHMapIFW();
+		HMapIFW m2 = new HMapIFW();
 		m2.put(3, 1.0f);
 		m2.put(4, 1.0f);
 		m2.put(5, 1.0f);
 
 		byte[] bytes2 = m2.serialize();
 
-		OHMapIFW n1 = OHMapIFW.create(bytes1);
-		OHMapIFW n2 = OHMapIFW.create(bytes2);
+		HMapIFW n1 = HMapIFW.create(bytes1);
+		HMapIFW n2 = HMapIFW.create(bytes2);
 
 		assertFalse(n1.isDecoded());
 		assertEquals(2, n1.size());
@@ -303,7 +303,7 @@ public class OHMapIFWTest {
 	
 	@Test
 	public void testSerializeEmpty() throws IOException {
-		OHMapIFW m1 = new OHMapIFW();
+		HMapIFW m1 = new HMapIFW();
 
 		// make sure this does nothing
 		m1.decode();
@@ -311,7 +311,7 @@ public class OHMapIFWTest {
 		assertTrue(m1.size() == 0);
 
 		byte[] bytes = m1.serialize();
-		OHMapIFW m2 = OHMapIFW.create(bytes);
+		HMapIFW m2 = HMapIFW.create(bytes);
 
 		assertTrue(m2.size() == 0);
 	}
@@ -319,7 +319,7 @@ public class OHMapIFWTest {
 	// TODO: Should add a test case for lazy add
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OHMapIFWTest.class);
+		return new JUnit4TestAdapter(HMapIFWTest.class);
 	}
 
 }
