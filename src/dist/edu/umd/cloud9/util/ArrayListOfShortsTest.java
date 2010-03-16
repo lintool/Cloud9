@@ -25,46 +25,46 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class ArrayListOfIntsTest {
+public class ArrayListOfShortsTest {
 
 	@Test
 	public void testBasic1() {
-		int size = 100000;
+		int size = 10000;
 		Random r = new Random();
-		int[] ints = new int[size];
+		short[] shorts = new short[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
+		ArrayListOfShorts list = new ArrayListOfShorts();
 		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
+			short k = (short) r.nextInt(size);
 			list.add(k);
-			ints[i] = k;
+			shorts[i] = k;
 		}
 
 		for (int i = 0; i < size; i++) {
 			int v = list.get(i);
 
-			assertEquals(ints[i], v);
+			assertEquals(shorts[i], v);
 		}
 
 	}
 
 	@Test
 	public void testUpdate() {
-		int size = 100000;
+		int size = 10000;
 		Random r = new Random();
-		int[] ints = new int[size];
+		short[] shorts = new short[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
+		ArrayListOfShorts list = new ArrayListOfShorts();
 		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
+			short k = (short) r.nextInt(size);
 			list.add(k);
-			ints[i] = k;
+			shorts[i] = k;
 		}
 
 		assertEquals(size, list.size());
 
 		for (int i = 0; i < size; i++) {
-			list.set(i, ints[i] + 1);
+			list.set(i, (short) (shorts[i] + 1));
 		}
 
 		assertEquals(size, list.size());
@@ -72,7 +72,7 @@ public class ArrayListOfIntsTest {
 		for (int i = 0; i < size; i++) {
 			int v = list.get(i);
 
-			assertEquals(ints[i] + 1, v);
+			assertEquals(shorts[i] + 1, v);
 		}
 
 	}
@@ -81,26 +81,26 @@ public class ArrayListOfIntsTest {
 	public void testTrim1() {
 		int size = 89;
 		Random r = new Random();
-		int[] ints = new int[size];
+		short[] shorts = new short[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
+		ArrayListOfShorts list = new ArrayListOfShorts();
 		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
+			short k = (short) r.nextInt(size);
 			list.add(k);
-			ints[i] = k;
+			shorts[i] = k;
 		}
 
 		for (int i = 0; i < size; i++) {
 			int v = list.get(i);
 
-			assertEquals(ints[i], v);
+			assertEquals(shorts[i], v);
 		}
 
-		int[] rawArray = list.getArray();
+		short[] rawArray = list.getArray();
 		int lenBefore = rawArray.length;
 
 		list.trimToSize();
-		int[] rawArrayAfter = list.getArray();
+		short[] rawArrayAfter = list.getArray();
 		int lenAfter = rawArrayAfter.length;
 
 		assertEquals(89, lenAfter);
@@ -109,59 +109,41 @@ public class ArrayListOfIntsTest {
 
 	@Test
 	public void testClone() {
-		int size = 100000;
+		int size = 10000;
 		Random r = new Random();
-		int[] ints = new int[size];
+		int[] shorts = new int[size];
 
-		ArrayListOfInts list1 = new ArrayListOfInts();
+		ArrayListOfShorts list1 = new ArrayListOfShorts();
 		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
+			short k = (short) r.nextInt(size);
 			list1.add(k);
-			ints[i] = k;
+			shorts[i] = k;
 		}
 
-		ArrayListOfInts list2 = list1.clone();
+		ArrayListOfShorts list2 = list1.clone();
 
 		assertEquals(size, list1.size());
 		assertEquals(size, list2.size());
 
 		for (int i = 0; i < size; i++) {
-			list2.set(i, ints[i] + 1);
+			list2.set(i, (short) (shorts[i] + 1));
 		}
 
 		// values in old list should not have changed
 		assertEquals(size, list1.size());
 		for (int i = 0; i < size; i++) {
-			assertEquals(ints[i], list1.get(i));
+			assertEquals(shorts[i], list1.get(i));
 		}
 
 		// however, values in new list should have changed
 		assertEquals(size, list1.size());
 		for (int i = 0; i < size; i++) {
-			assertEquals(ints[i] + 1, list2.get(i));
+			assertEquals(shorts[i] + 1, list2.get(i));
 		}
-	}
-
-	@Test
-	public void testShift() {
-		int size = 100;
-		int shift = 10;
-
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++)
-			list.add(i);
-		list.shiftLastNToTop(shift);
-
-		for (int i = 0; i < list.size(); i++) {
-			assertEquals(size - shift + i, list.get(i));
-		}
-		list.add(size);
-		assertEquals(shift + 1, list.size());
-		assertEquals(size, list.get(shift));
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
+		return new JUnit4TestAdapter(ArrayListOfShortsTest.class);
 	}
 
 }

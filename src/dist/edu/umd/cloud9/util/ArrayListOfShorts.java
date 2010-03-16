@@ -1,11 +1,27 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.util;
 
+import java.util.Arrays;
 import java.util.RandomAccess;
 
 /**
  * Object representing a list of shorts, backed by an resizable-array.
  */
-
 public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	private transient short[] mArray;
 	private int size;
@@ -31,6 +47,11 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 		this(10);
 	}
 
+	public ArrayListOfShorts(short[] a) {
+		mArray = a;
+		size = mArray.length;
+	}
+
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
 	 * application can use this operation to minimize the memory footprint of
@@ -39,14 +60,7 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	public void trimToSize() {
 		int oldCapacity = mArray.length;
 		if (size < oldCapacity) {
-			
-			// TODO: this is a Java 1.6 feature
-			// mArray = Arrays.copyOf(mArray, size);
-			
-			short[] arr = new short[size];
-			System.arraycopy(mArray, 0, arr, 0, size);
-			mArray = arr;
-			
+			mArray = Arrays.copyOf(mArray, size);
 		}
 	}
 
@@ -64,13 +78,8 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
 			if (newCapacity < minCapacity)
 				newCapacity = minCapacity;
-			
-			// TODO: this is a Java 1.6 feature
-			//mArray = Arrays.copyOf(mArray, newCapacity);
-			
-			short[] arr = new short[newCapacity];
-			System.arraycopy(mArray, 0, arr, 0, mArray.length);
-			mArray = arr;
+
+			mArray = Arrays.copyOf(mArray, newCapacity);
 		}
 	}
 
@@ -130,8 +139,8 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	 * 
 	 * @return a clone of this object
 	 */
-	public Object clone() {
-		throw new UnsupportedOperationException();
+	public ArrayListOfShorts clone() {
+		return new ArrayListOfShorts(Arrays.copyOf(mArray, this.size()));
 	}
 
 	/**
@@ -218,6 +227,12 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 		size = 0;
 	}
 
+	/**
+	 * Returns the array backing this object. Note that this array may be longer
+	 * than the number of elements in the list.
+	 * 
+	 * @return array backing this object
+	 */
 	public short[] getArray() {
 		return mArray;
 	}
