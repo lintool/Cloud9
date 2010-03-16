@@ -88,4 +88,18 @@ public class WikipediaPagesBz2InputStream {
 
 		return true;
 	}
+
+	public static void main(String[] args) throws Exception {
+		if (args.length != 1) {
+			System.err.println("usage: [file]");
+			System.exit(-1);
+		}
+
+		WikipediaPage p = new WikipediaPage();
+
+		WikipediaPagesBz2InputStream stream = new WikipediaPagesBz2InputStream(args[0]);
+		while (stream.readNext(p)) {
+			System.out.println(p.getContent());
+		}
+	}
 }
