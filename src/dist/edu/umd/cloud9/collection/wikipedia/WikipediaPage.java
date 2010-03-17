@@ -19,6 +19,8 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,7 +90,8 @@ public class WikipediaPage implements Indexable {
 	 * Returns the contents of this page (title + text).
 	 */
 	public String getContent() {
-		return parseAndCleanPage2(parseAndCleanPage((getTitle() + "\n" + getText())));
+		return getTitle() + "\n" + getText();
+		//return parseAndCleanPage2(parseAndCleanPage((getTitle() + "\n" + getText())));
 	}
 
 	/**
@@ -194,6 +197,59 @@ public class WikipediaPage implements Indexable {
 			return null;
 
 		return link;
+	}
+
+	public List<String> extractLinkDestinations() {
+		int start = 0;
+		List<String> links = new ArrayList<String>();
+
+		while (true) {
+			start = mPage.indexOf("[[", start);
+
+			if (start < 0)
+				break;
+
+			int end = mPage.indexOf("]]", start);
+
+			if (end < 0)
+				break;
+
+			String text = mPage.substring(start + 2, end);
+
+			// skip empty links
+			if (text.length() == 0) {
+				start = end + 1;
+				continue;
+			}
+
+			// skip special links
+			if (text.indexOf(":") != -1) {
+				start = end + 1;
+				continue;
+			}
+
+			// if there is anchor text, get only article title
+			int a;
+			if ((a = text.indexOf("|")) != -1) {
+				text = text.substring(0, a);
+			}
+
+			if ((a = text.indexOf("#")) != -1) {
+				text = text.substring(0, a);
+			}
+
+			// ignore article-internal links, e.g., [[#section|here]]
+			if (text.length() == 0 ) {
+				start = end + 1;
+				continue;
+			}
+			
+			links.add(text.trim());
+
+			start = end + 1;
+		}
+
+		return links;
 	}
 
 	/**
