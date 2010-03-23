@@ -340,6 +340,7 @@ public class WikipediaPage implements Indexable {
 				// $_=~s/(\w)\s{1}'(\w)/$1'$2/g;
 				// $_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
 
+				line.replaceAll("\\|", " | ");
 				if (!Pattern.compile("^\\*.*").matcher(line).matches()
 						&& !Pattern.compile("&lt;.*").matcher(line).matches()
 						&& !Pattern.compile("&gt;.*").matcher(line).matches()
