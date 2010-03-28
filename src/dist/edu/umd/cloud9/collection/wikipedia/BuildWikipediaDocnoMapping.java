@@ -63,9 +63,9 @@ import org.apache.log4j.Logger;
  * 
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
- * /umd/collections/wikipedia.raw/enwiki-20081008-pages-articles.xml \
- * /user/jimmylin/wikipedia-docid-tmp \
- * /user/jimmylin/docno.mapping 100
+ * /shared/Wikipedia/raw/enwiki-20100130-pages-articles.xml \
+ * /tmp/wikipedia-docid-tmp \
+ * /shared/Wikipedia/docno-en-20100130.dat 100
  * </pre>
  * 
  * </blockquote>
