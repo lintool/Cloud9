@@ -29,8 +29,15 @@ import edu.umd.cloud9.util.FSLineReader;
 
 /**
  * <p>
- * Tool for building a document forward index for Wikipedia.
+ * Tool for building a document forward index for Wikipedia.  Sample invocation:
  * </p>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
+ *   /shared/Wikipedia/compressed.block/en-20100130 \
+ *   /tmp/wiki-tmp \
+ *   /shared/Wikipedia/compressed.block/findex-en-20100130.dat
+ * </pre>
  * 
  * @author Jimmy Lin
  * 

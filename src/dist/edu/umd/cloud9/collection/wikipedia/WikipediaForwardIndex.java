@@ -166,8 +166,8 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 	public static void main(String[] args) throws Exception {
 		WikipediaForwardIndex f = new WikipediaForwardIndex();
 
-		f.loadIndex("/shared/Wikipedia/compressed.block/findex-en-20091202.dat",
-				"/shared/Wikipedia/docno-en-20091202.dat");
+		f.loadIndex("/shared/Wikipedia/compressed.block/findex-en-20100130.dat",
+				"/shared/Wikipedia/docno-en-20100130.dat");
 
 		WikipediaPage page;
 
@@ -177,10 +177,10 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		page = f.getDocument(100000);
 		System.out.println(page.getDocid() + ": " + page.getTitle());
 
-		page = f.getDocument("1873");
+		page = f.getDocument("1875");
 		System.out.println(page.getDocid() + ": " + page.getTitle());
 
-		page = f.getDocument("133876");
+		page = f.getDocument("134156");
 		System.out.println(page.getDocid() + ": " + page.getTitle());
 
 	}
