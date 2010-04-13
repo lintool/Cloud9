@@ -189,6 +189,23 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		}
 		return intDomain;
 	}
+	
+	/**
+	 * @param start
+	 * 	first index to be included in sub-list
+	 * @param end
+	 * 	last index to be included in sub-list
+	 * @return
+	 * 	return a new ArrayListOfIntsWritable object, containing the ints of this object from <code>start</code> to <code>end</code>
+	 */
+	public ArrayListOfIntsWritable sub(int start, int end) {
+		ArrayListOfIntsWritable sublst = new ArrayListOfIntsWritable(end-start+1);
+		for(int i=start;i<=end;i++){
+			sublst.add(get(i));
+		}
+		return sublst;
+	}
+	
 
 	/**
 	 * Add all ints in the specified array into this object. Check for duplicates.
