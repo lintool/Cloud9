@@ -31,15 +31,14 @@ document.writeln (LastUpdated+")");
 
 <p>All MapReduce jobs begin with a collection of records, which
 consists of the initial key-value pairs passed to the mapper.  The
-Hadoop <code>InputFormat</code> interface describes this input
-specification.  Simple implementations such
-as <code>TextInputFormat</code> assume records are text blobs stored
-in a file, one line per record.  This is obviously insufficient for
-more complex record structures.  One solution is keep input records in
-some type of text-based structured format (e.g., XML) and write record
-readers.  The downside is the need to write custom code for every
-record type.  The other downside is that you'll have to reparse the
-text-based input every time.</p>
+Hadoop InputFormat interface describes this input specification.
+Simple implementations such as TextInputFormat assume records are text
+blobs stored in a file, one line per record.  This is obviously
+insufficient for more complex record structures.  One solution is keep
+input records in some type of text-based structured format (e.g., XML)
+and write record readers.  The downside is the need to write custom
+code for every record type.  The other downside is that you'll have to
+reparse the text-based input every time.</p>
 
 <p>Once you've become acquainted with the word count demo, you'll want
 to next learn about SequenceFiles in Hadoop.  They are flat files that
@@ -52,8 +51,8 @@ create SequenceFiles.  The typical sequence of actions might be:</p>
 <ol>
 
 <li>Create SequenceFiles from your input data on your local machine.</li>
-<li>Copy the SequenceFiles over to the cluster (via <code>scp</code>).</li>
-<li>Copy the SequenceFiles into HDFS (via <code>hadoop dfs -put</code>).</li>
+<li>Copy the SequenceFiles over to the cluster (via "scp").</li>
+<li>Copy the SequenceFiles into HDFS (via "hadoop dfs -put").</li>
 <li>Start MapReducing!</li>
 
 </ol>
@@ -67,10 +66,10 @@ SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfil
     LongWritable.class, JSONObjectWritable.class);
 </pre>
 
-<p>In this case, <code>outfile</code> is the name of the output file.
-The key type in the SequenceFile is <code>LongWritable</code>, and the
-value type is <code>JSONObjectWritable</code>.  Once you've created
-the <code>writer</code>, adding key-value pairs is easy:</p>
+<p>In this case, outfile is the name of the output file.  The key type
+in the SequenceFile is LongWritable, and the value type is
+JSONObjectWritable.  Once you've created the writer, adding key-value
+pairs is easy:</p>
 
 <pre>
 LongWritable l = new LongWritable();
@@ -93,28 +92,29 @@ writer.close();
 <pre>
 Configuration config = new Configuration();
 FileSystem fs = FileSystem.get(config);
+Path path = new Path("/path/to/file");
 SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, config);
 
 WritableComparable key = (WritableComparable) reader.getKeyClass().newInstance();
 Writable value = (Writable) reader.getValueClass().newInstance();
 
 while (reader.next(key, value)) {
-    k++;
-
-    key = (WritableComparable) reader.getKeyClass().newInstance();
-    value = (Writable) reader.getValueClass().newInstance();
-
     // do something
 }
 reader.close();
 </pre>
 
 <p>Or easier still, use SequenceFileUtils in
-Cloud<sup><small>9</small></sup>:</p>
+Cloud<sup><small>9</small></sup> (for example, reading in key-value
+pairs with IntWritable keys and JSONObjectWritable values):</p>
 
 <pre>
-List&lt;KeyValuePair&lt;WritableComparable, Writable&gt;&gt; bigrams = 
-  SequenceFileUtils.readDirectory(path, Integer.MAX_VALUE);
+List&lt;KeyValuePair&lt;IntWritable, JSONObjectWritable&gt;&gt; pairs = 
+    SequenceFileUtils.&lt;IntWritable, JSONObjectWritable&gt;readDirectory(path, Integer.MAX_VALUE);
+
+for ( KeyValuePair&lt;IntWritable, JSONObjectWritable&gt; pair : pairs ) {
+    // do something
+}
 </pre>
 
 <p>First argument is the path, the second is the maximum number of
@@ -122,8 +122,8 @@ entries to read.</p>
 
 <h3>Windows users beware!</h3>
 
-<p>On Windows (Cygwin), Hadoop 0.17.0 may croak with the following
-error when writing SequenceFiles:</p>
+<p>On Windows (Cygwin), Hadoop may croak with the following error when
+writing SequenceFiles:</p>
 
 <pre>
 08/08/11 08:55:26 WARN fs.FileSystem: uri=file:///
@@ -152,9 +152,8 @@ javax.security.auth.login.LoginException: Login failed: Expect one token as the 
 </pre>
 
 <p>The problem is that Windows usernames contain spaces, which Hadoop
-does not expect.  To fix this, in Cygwin edit
-the <code>/etc/passwd</code> file and change your username (first
-field).</p>
+does not expect.  To fix this, in Cygwin edit the /etc/passwd file and
+change your username (first field).</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 

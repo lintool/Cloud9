@@ -34,50 +34,38 @@ arrays</a> where the value is a numeric weight (say, int or float).
 It would be nice to have efficient implementations of these data
 structures.</p>
 
-<p>A first stab at implementing a feature vector might be
-as <code>HashMap&lt;String,Integer&gt;</code>.  This would, for
-example, be useful in storing term frequencies in a document.  The
-biggest issue with this implementation is that the value
-is <code>Integer</code>, rather than <code>int</code>, since only
-objects can be stuffed inside Java collections.  Autoboxing
+<p>A first stab at implementing a feature vector might be as
+HashMap&lt;String,Integer&gt;.  This would, for example, be useful in
+storing term frequencies in a document.  The biggest issue with this
+implementation is that the value is Integer, rather than int, since
+only objects can be stuffed inside Java collections.  Autoboxing
 is <a href="http://www.ddj.com/java/188700760?pgno=3">slow</a>, and
-storing <code>Integer</code> objects increases the memory
+storing Integer objects increases the memory
 footprint.</p>
 
 <p>To get around this, Cloud<sup><small>9</small></sup> implements
-specialized versions of the standard Java <code>HashMap</code> class
-where the value is hard-coded as either ints or floats (and the keys
-can be any type).  Feature vectors with int or float values are a
-sufficiently common that this optimization is worth the effort.  These
-two classes are:</p>
+specialized versions of the standard Java HashMap class where the keys
+or values or both are hard-coded as Java primitives:</p>
 
-<ul>
+<table cellpadding="5" border="1">
 
-  <li><code>HMapKI&lt;K&gt;</code>, an efficient alternative
-  to <code>HashMap&lt;K,Integer&gt;</code>,
-  implements the <code>MapKI&lt;K&gt;</code> interface.</li>
+<tr><td>Cloud<sup><small>9</small></sup> class</td>
+    <td>Replaces</td>
+    <td>Implemented interface</td></tr>
 
-  <li><code>HMapKF&lt;K&gt;</code>, an efficient alternative
-  to <code>HashMap&lt;K,Float&gt;</code>,
-  implements the <code>MapKF&lt;K&gt;</code> interface.</li>
+<tr><td>HMapKI&lt;K&gt;</td><td>HashMap&lt;K,Integer&gt;</td><td>MapKI&lt;K&gt;</td></tr>
 
-</ul>
+<tr><td>HMapKF&lt;K&gt;</td><td>HashMap&lt;K,Float&gt;</td><td>MapKF&lt;K&gt;</td></li>
 
-<p>A further optimization is also to hard-code the key.  Ints are
-frequently used as keys, so we have the following two common
-cases:</p>
+<tr><td>HMapKL&lt;K&gt;</td><td>HashMap&lt;K,Long&gt;</td><td>MapKL&lt;K&gt;</td></li>
 
-<ul>
+<tr><td>HMapII</td><td>HashMap&lt;Integer,Integer&gt;</td><td>MapII</td></li>
 
-  <li><code>HMapII</code>, an efficient alternative
-  to <code>HashMap&lt;Integer,Integer&gt;</code>, implements
-  the <code>MapII</code> interface.</li>
+<tr><td>HMapIF</td><td>HashMap&lt;Integer,Float&gt;</td><td>MapIF</td></li>
 
-  <li><code>HMapIF</code>, an efficient alternative
-  to <code>HashMap&lt;Integer,Float&gt;</code>, implements
-  the <code>MapIF</code> interface.</li>
+<tr><td>HMapIV</td><td>HashMap&lt;Integer,V&gt;</td><td>MapIV</td></li>
 
-</ul>
+</table>
 
 <p>How much more efficient are these implementation?  As a benchmark,
 I experimented with feature vectors where both the features and values
@@ -86,15 +74,29 @@ all 5m ints.  The following shows running times and the memory
 footprint:</p>
 
 <table cellpadding="5" border="1">
-<tr><td></td><td width="200" align="right"><b><code>HashMap&lt;Integer,Integer&gt;</code></b></td>
-             <td width="200" align="right"><b><code>HMapKI&lt;Integer&gt;</code></b></td>
-             <td width="200" align="right"><b><code>HMapII</code></b></td></tr>
 
-<tr><td>Insertion</td><td align="right">3796 ms</td><td align="right">2953 ms (-22%)</td><td align="right">1703 ms (-55%)</td></tr>
+<tr><td/>
+    <td>Insertion</td>
+    <td>Access</td>
+    <td>Memory (per entry)</td></tr>
 
-<tr><td>Access</td><td align="right">350 ms</td><td align="right">281 ms (-20%)</td><td align="right">78 ms (-78%)</td></tr>
+<tr><td>HashMap&lt;Integer,Integer&gt;</td>
+    <td>3796 ms</td>
+    <td>350 ms</td>
+    <td>68 bytes</td>
+</tr>
 
-<tr><td>Memory footprint (per entry)</td><td align="right">68 bytes</td><td align="right">52 bytes (-24%)</td><td align="right">31 bytes (-55%)</td></tr>
+<tr><td>HMapKI&lt;Integer&gt;</td>
+    <td>2953 ms (-22%)</td>
+    <td>281 ms (-20%)</td>
+    <td>52 bytes (-24%)</td>
+</tr>
+
+<tr><td>HMapII</td>
+    <td>1703 ms (-55%)</td>
+    <td>&nbsp;78 ms (-78%)</td>
+    <td>31 bytes (-55%)</td>
+</tr>
 
 </table>
 
@@ -104,68 +106,37 @@ can be seen, these optimizations represent a significant improvement
 in both speed and memory footprint.</p>
 
 <p>Insertion is still relatively expensive because the default
-implementation of <code>HashMap</code> backs every key-value pair with
-an <code>Entry</code> object.  This goes naturally with the use of
-chaining for hash collisions and supports iteration by keys, values,
-and entries.  The downside, however, is object creation overhead and
-lots of time wasted garbage collecting.  One solution around this is
-to implement some type of object pooling, but a better solution is to
-write a completely different implementation that uses open addressing
-to deal with hash collisions, thereby obviating the need for
-actual <code>Entry</code> objects.</p>
+implementation of HashMap backs every key-value pair with an Entry
+object.  This goes naturally with the use of chaining for hash
+collisions and supports iteration by keys, values, and entries.  The
+downside, however, is object creation overhead and lots of time wasted
+garbage collecting.  One solution around this is to implement some
+type of object pooling, but a better solution is to write a completely
+different implementation that uses open addressing to deal with hash
+collisions, thereby obviating the need for actual Entry objects.</p>
 
-<p>Beyond the above classes, I've written a whole bunch of
-subclasses:</p>
+<p>For use in Hadoop, there are classes that implement Writable:</p>
 
-<ul>
+<table cellpadding="5" border="1">
 
-  <li><code>OHMapIF</code> extends <code>HMapIF</code></li>
+<tr><td>Cloud<sup><small>9</small></sup> Writable</td>
+    <td>Implemented interface</td></tr>
 
-  <li><code>OHMapII</code> extends <code>HMapII</code></li>
+<tr><td>HMapIFW</td><td>HMapIF</td></tr>
 
-  <li><code>OHMapKF</code> extends <code>HMapKF</code> (key must be
-  comparable)</li>
+<tr><td>HMapIIW</td><td>HMapII</td></tr>
 
-  <li><code>OHMapKI</code> extends <code>HMapKI</code> (key must be
-  comparable)</li>
+<tr><td>HMapIVW&lt;V&gt;</td><td>HMapIV&lt;V&gt;</td></tr>
 
-</ul>
+<tr><td>HMapKFW&lt;V&gt;</td><td>HMapKF&lt;K&gt;</td></tr>
 
-<p>They all share in providing methods to retrieve entries sorted by
-values, along with methods like <code>plus</code> and <code>dot</code>
-(for adding vectors and taking their dot products).  These are the
-classes you'd most likely want to use in practice.</p>
+<tr><td>HMapKIW&lt;V&gt;</td><td>HMapKI&lt;K&gt;</td></tr>
 
-<p>Finally, for use in Hadoop, there are the final classes that
-implement <code>Writable</code>:</p>
+<tr><td>HMapSFW</td><td>HMapKF&lt;String&gt;</td></tr>
 
-<ul>
+<tr><td>HMapSIW</td><td>HMapKI&lt;String&gt;</td></tr>
 
-  <li><code>OHMapIFW</code> extends <code>HMapIF</code> (well suited
-  to holding accumulators in an IR application)</li>
-
-  <li><code>OHMapIIW</code> extends <code>HMapII</code> (well suited
-  to holding accumulators with impact-based integer scores in an IR
-  application)</li>
-
-  <li><code>OHMapSFW</code> extends <code>HMapKF</code> (specialized
-  for a <code>String</code> key to eliminate need to wrap the string
-  inside a Hadoop <code>Text</code> object; well suited for storing
-  weighted feature vectors in "bag-of-words" representation of
-  documents)</li>
-
-  <li><code>OHMapSIW</code> extends <code>HMapKI</code> (specialized
-  for a <code>String</code> key to eliminate need to wrap the string
-  inside a Hadoop <code>Text</code> object; well suited for storing
-  term frequencies in "bag-of-words" representation of documents)</li>
-
-  <li><code>OHMapKFW</code> extends <code>HMapKF</code> (support for
-  arbitrary keys that implement <code>Writable</code>)</li>
-
-  <li><code>OHMapKIW</code> extends <code>HMapKI</code> (support for
-  arbitrary keys that implement <code>Writable</code>)</li>
-
-</ul>
+</table>
 
 <p>The upside of all these classes is efficiency.  The downside is the
 proliferation of a whole bunch of specialized classes... in my
