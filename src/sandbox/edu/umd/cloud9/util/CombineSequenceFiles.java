@@ -2,6 +2,7 @@ package edu.umd.cloud9.util;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
@@ -18,15 +19,15 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
- * Combine a number of sequence files into a smaller number of sequence files. 
- * 
- * Input: Any number of sequence files containing key-value pairs, each of a certain type.
- * Output: N sequence files containing all key-value pairs given as input.
- * 
- * Given the number of desired sequence files, say N, map over a number of sequence files and partition all key-value pairs into N.
- * 
- * Usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]
- * 
+ * Combine a number of sequence files into a smaller number of sequence files. <p>
+ * <p>
+ * Input: Any number of sequence files containing key-value pairs, each of a certain type.<p>
+ * Output: N sequence files containing all key-value pairs given as input.<p>
+ * <p>
+ * Given the number of desired sequence files, say N, map over a number of sequence files and partition all key-value pairs into N.<p>
+ * <p>
+ * Usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]<p>
+ *<p> 
  * @author ferhanture
  *
  */
@@ -40,7 +41,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 	
 	private static int printUsage() {
 		System.out.println("usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]");
-		ToolRunner.printGenericCommandUsage(System.out);
+//		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
 	
@@ -69,7 +70,12 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		job.setJobName("CombineSequenceFiles");
 			
 		FileSystem.get(job).delete(new Path(outputPath), true);
-		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		
+		FileStatus[] stat = FileSystem.get(job).listStatus(new Path(inputPath));
+		for (int i = 0; i < stat.length; ++i) {
+			FileInputFormat.addInputPath(job, stat[i].getPath());
+			sLogger.info("Added: "+stat[i].getPath());
+		}
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(job, false);
 
