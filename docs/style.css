@@ -11,7 +11,8 @@ td {
   font-size: 95%;
   padding: 5px;  }
 code {
-  font-size: 110%;
+  font-family: monospace, courier;
+  /*font-size: 100%;*/
 }
 div.main {
   font-size: 95%;
