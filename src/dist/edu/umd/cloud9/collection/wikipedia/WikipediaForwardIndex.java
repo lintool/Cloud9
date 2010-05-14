@@ -159,10 +159,6 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		return mLastDocno;
 	}
 
-	public String getContentType() {
-		return "text/plain";
-	}
-
 	public static void main(String[] args) throws Exception {
 		WikipediaForwardIndex f = new WikipediaForwardIndex();
 
@@ -183,5 +179,11 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		page = f.getDocument("134156");
 		System.out.println(page.getDocid() + ": " + page.getTitle());
 
+		// test link removal on this one: Thomas Snow (boxer)
+		// sometimes <ref>http...</ref> appears in the text output
+		//page = f.getDocument("25041463");
+		
+		System.out.println("===content===\n" + page.getContent());
+		System.out.println("===display===\n" + page.getDisplayContent());
 	}
 }

@@ -29,7 +29,7 @@ import edu.umd.cloud9.collection.Indexable;
  * 
  * @author Jimmy Lin
  */
-public class TrecDocument implements Indexable {
+public class TrecDocument extends Indexable {
 
 	/**
 	 * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.

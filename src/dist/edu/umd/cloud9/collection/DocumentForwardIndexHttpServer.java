@@ -204,10 +204,10 @@ public class DocumentForwardIndexHttpServer {
 
 				if (doc != null) {
 					sLogger.info("fetched: " + doc.getDocid());
-					res.setContentType(sForwardIndex.getContentType());
+					res.setContentType(doc.getDisplayContentType());
 
 					PrintWriter out = res.getWriter();
-					out.print(doc.getContent());
+					out.print(doc.getDisplayContent());
 					out.close();
 				} else {
 					throw new Exception();
@@ -251,10 +251,10 @@ public class DocumentForwardIndexHttpServer {
 
 				if (doc != null) {
 					sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
-					res.setContentType(sForwardIndex.getContentType());
+					res.setContentType(doc.getDisplayContentType());
 
 					PrintWriter out = res.getWriter();
-					out.print(doc.getContent());
+					out.print(doc.getDisplayContent());
 					out.close();
 				} else {
 					throw new Exception();

@@ -26,8 +26,6 @@ public interface DocumentForwardIndex<T extends Indexable> {
 		
 	public void loadIndex(String indexFile, String mappingDataFile)
 			throws IOException;
-
-	public String getContentType();
 	
 	public String getCollectionPath();
 }

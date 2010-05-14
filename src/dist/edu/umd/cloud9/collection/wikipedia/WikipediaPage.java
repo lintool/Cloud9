@@ -16,6 +16,9 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
+import info.bliki.wiki.filter.PlainTextConverter;
+import info.bliki.wiki.model.WikiModel;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -33,7 +36,7 @@ import edu.umd.cloud9.collection.Indexable;
  * 
  * @author Jimmy Lin
  */
-public class WikipediaPage implements Indexable {
+public class WikipediaPage extends Indexable {
 
 	/**
 	 * Start delimiter of the page, which is &lt;<code>page</code>&gt;.
@@ -54,10 +57,15 @@ public class WikipediaPage implements Indexable {
 	private boolean mIsDisambig;
 	private boolean mIsStub;
 
+	private WikiModel mWikiModel;
+	private PlainTextConverter mTextConverter;
+	
 	/**
 	 * Creates an empty <code>WikipediaPage</code> object.
 	 */
 	public WikipediaPage() {
+        mWikiModel = new WikiModel("", "");
+        mTextConverter = new PlainTextConverter();
 	}
 
 	/**
@@ -90,8 +98,42 @@ public class WikipediaPage implements Indexable {
 	 * Returns the contents of this page (title + text).
 	 */
 	public String getContent() {
-		return getTitle() + "\n" + getText();
+		mWikiModel.setUp();
+		String s = getTitle() + "\n" + mWikiModel.render(mTextConverter, getWikiMarkup());
+		mWikiModel.tearDown();
+
+		// performs some more light cleanup of known Bliki issues
+		s = s.replace("&amp;nbsp;", " ");
+		s = s.replaceAll("&lt;references */&gt;", "");
+		s = s.replaceAll("\\{\\{.*?\\}\\}", "");
+		s = s.replaceAll("&#60;ref name.*?&#60;/ref&#62;", "");
+		
+		// sometimes <ref>http...</ref> appears in the text output
+		s = s.replaceAll("&lt;ref&gt;http:.*?&lt;/ref&gt;", "");
+		
+		return s;
+		
+		//return getTitle() + "\n" + getWikiMarkup();
 		//return parseAndCleanPage2(parseAndCleanPage((getTitle() + "\n" + getText())));
+	}
+	
+	public String getDisplayContent() {
+		mWikiModel.setUp();
+		String s = "<h1>" + getTitle() + "</h1>\n" + mWikiModel.render(getWikiMarkup());
+		mWikiModel.tearDown();
+		
+		// performs some more light cleanup of known Bliki issues
+		s = s.replace("&#38;nbsp;", " ");
+		s = s.replace("&#60;references /&#62;", "");
+		s = s.replaceAll("\\{\\{.*?\\}\\}", "");
+		s = s.replaceAll("&#60;ref name.*?&#60;/ref&#62;", "");
+		
+		return s;
+	}
+	
+	@Override
+	public String getDisplayContentType() {
+		return "text/html";
 	}
 
 	/**
@@ -104,7 +146,7 @@ public class WikipediaPage implements Indexable {
 	/**
 	 * Returns the text of this page.
 	 */
-	public String getText() {
+	public String getWikiMarkup() {
 		if (mTextStart == -1)
 			return null;
 

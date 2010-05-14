@@ -48,10 +48,6 @@ public class TrecForwardIndex implements DocumentForwardIndex<TrecDocument> {
 		return mCollectionPath;
 	}
 
-	public String getContentType() {
-		return "text/plain";
-	}
-
 	public TrecDocument getDocument(String docid) {
 		return getDocument(mDocnoMapping.getDocno(docid));
 	}

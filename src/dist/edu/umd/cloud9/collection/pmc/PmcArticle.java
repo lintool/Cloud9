@@ -8,7 +8,7 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
-public class PmcArticle implements Indexable {
+public class PmcArticle extends Indexable {
 
 	public static final String XML_START_TAG = "<article ";
 	public static final String XML_END_TAG = "</article>";

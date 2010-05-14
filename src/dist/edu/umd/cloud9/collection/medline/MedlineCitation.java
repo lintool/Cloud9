@@ -29,7 +29,7 @@ import edu.umd.cloud9.collection.Indexable;
  * 
  * @author Jimmy Lin
  */
-public class MedlineCitation implements Indexable {
+public class MedlineCitation extends Indexable {
 
 	/**
 	 * Start delimiter of the document, which is &lt;<code>MedlineCitation</code>

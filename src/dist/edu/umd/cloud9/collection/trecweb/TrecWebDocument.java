@@ -27,7 +27,7 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
-public class TrecWebDocument implements Writable, Indexable {
+public class TrecWebDocument extends Indexable {
 
 	/**
 	 * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.

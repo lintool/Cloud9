@@ -21,16 +21,24 @@ import org.apache.hadoop.io.Writable;
 /**
  * Interface for a document that can be indexed.
  */
-public interface Indexable extends Writable {
+public abstract class Indexable implements Writable {
 
 	/**
 	 * Returns the globally-unique String identifier of the document within the
 	 * collection.
 	 */
-	public String getDocid();
+	public abstract String getDocid();
 
 	/**
 	 * Returns the content of the document.
 	 */
-	public String getContent();
+	public abstract String getContent();
+	
+	public String getDisplayContent() {
+		return getContent();
+	}
+	
+	public String getDisplayContentType() {
+		return "text/plain";
+	}
 }

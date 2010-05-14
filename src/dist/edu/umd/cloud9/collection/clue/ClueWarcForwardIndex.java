@@ -159,10 +159,6 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 		return mLastDocno;
 	}
 
-	public String getContentType() {
-		return "text/html";
-	}
-
 	public static void main(String[] args) throws Exception {
 		ClueWarcForwardIndex f = new ClueWarcForwardIndex();
 

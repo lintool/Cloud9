@@ -28,7 +28,7 @@ import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
-public class Spinn3rItem implements Indexable {
+public class Spinn3rItem extends Indexable {
 	public static final String XML_START_TAG = "<item>";
 	public static final String XML_END_TAG = "</item>";
 

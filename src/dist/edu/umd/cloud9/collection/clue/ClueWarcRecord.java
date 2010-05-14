@@ -49,7 +49,7 @@ import org.apache.hadoop.io.Writable;
 
 import edu.umd.cloud9.collection.Indexable;
 
-public class ClueWarcRecord implements Writable, Indexable {
+public class ClueWarcRecord extends Indexable {
 
 	public static String WARC_VERSION = "WARC/0.18";
 	public static String WARC_VERSION_LINE = "WARC/0.18\n";
@@ -632,5 +632,9 @@ public class ClueWarcRecord implements Writable, Indexable {
 		int j = str.indexOf("\n", i);
 		
 		return str.substring(j+1);
+	}
+	
+	public String getDisplayContentType() {
+		return "text/html";
 	}
 }
