@@ -39,7 +39,7 @@ access to English Wikipedia dumps can be
 found <a href="http://download.wikimedia.org/enwiki/">here</a>.</p>
 
 <p>In this guide, we'll be working with the XML dump of English
-Wikipedia dated Jan. 30, 2010 (enwiki-20100130-pages-articles.xml).
+Wikipedia dated Jan. 30, 2010 (<code>enwiki-20100130-pages-articles.xml</code>).
 Note that Wikipedia is distributed as a single, large XML file
 compressed with bzip2.  We'll want to repack the dataset as
 block-compressed SequenceFiles (see below), so you should uncompress
@@ -118,9 +118,10 @@ Golomb codes).</p>
 <p>The next step is to create a mapping from Wikipedia internal
 document ids (docids) to these sequentially-numbered ids (docnos).
 Although, in general, docids can be arbitrary alphanumeric strings,
-we'll be using Wikipedia internal ids (which are integers) as the
-docids.  This is a bit confusing, so we'll illustrate.  The first
-page in enwiki-20100130-pages-articles.xml is:</p>
+we'll be using Wikipedia internal ids (which happend to be integers,
+but we'll treat as strings) as the docids.  This is a bit confusing,
+so we'll illustrate.  The first page in
+<code>enwiki-20100130-pages-articles.xml</code> is:</p>
 
 <pre>
   ...
@@ -222,16 +223,50 @@ SequenceFiles are preferred.  As expected, without compression,
 SequenceFiles are larger than the original XML files (due to headers,
 delimiters, sync markers, etc.).</p>
 
+<h3>Supporting Random Access</h3>
 
-<!--
+<p>Cloud<sup><small>9</small></sup> provides utilities for random
+access to Wikipedia articles.  First, we need to build a forward
+index:</p>
+
+<pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
   /shared/Wikipedia/compressed.block/en-20100130 /tmp/wikipedia-findex-tmp \
   /shared/Wikipedia/compressed.block/findex-en-20100130.dat
+</pre>
 
+<p>With this forward index, we can now programmatically access
+Wikipedia articles given docno or docid.  For example:</p>
+
+<pre>
+WikipediaForwardIndex f = new WikipediaForwardIndex();
+
+f.loadIndex("/shared/Wikipedia/compressed.block/findex-en-20100130.dat",
+    "/shared/Wikipedia/docno-en-20100130.dat");
+
+WikipediaPage page;
+
+// fetch docno
+page = f.getDocument(1000);
+System.out.println(page.getDocid() + ": " + page.getTitle());
+
+// fetch docid
+page = f.getDocument("1875");
+System.out.println(page.getDocid() + ": " + page.getTitle());
+</pre>
+
+<p>There's also a web interface for browsing, which can be started
+with the following invocation:</p>
+
+<pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
   /shared/Wikipedia/compressed.block/findex-en-20100130.dat \
   /shared/Wikipedia/docno-en-20100130.dat
--->
+</pre>
+
+<p>When the server starts up, it'll report back the host information
+of the node it's running on (along with the port). You can then direct
+your browser at the relevant URL and gain access to the webapp.</p>
 
 <p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
 
