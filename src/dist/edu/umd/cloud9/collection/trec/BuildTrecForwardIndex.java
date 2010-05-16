@@ -32,8 +32,16 @@ import edu.umd.cloud9.util.FSLineReader;
 
 /**
  * <p>
- * Tool for building a document forward index for TREC collections.
+ * Tool for building a document forward index for TREC collections. Sameple
+ * Invocation:
  * </p>
+ * 
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex \
+ *  /umd-lin/shared/collections/trec/trec4-5_noCRFR.xml /tmp/findex/ \
+ *  /umd-lin/shared/collections/trec4-5_noCRFR.findex.dat \
+ *  /umd-lin/shared/indexes/trec/docno-mapping.dat
+ * </pre>
  * 
  * @author Jimmy Lin
  * 
@@ -90,7 +98,8 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [collection-path] [output-path] [index-file] [docno-mapping-file]");
+		System.out
+				.println("usage: [collection-path] [output-path] [index-file] [docno-mapping-file]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -144,11 +153,11 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		RunningJob job = JobClient.runJob(conf);
-		
+
 		Counters counters = job.getCounters();
 		int numDocs = (int) counters.findCounter(Count.DOCS).getCounter();
 
-		String inputFile = outputPath + "/"	+ "part-00000";
+		String inputFile = outputPath + "/" + "part-00000";
 
 		sLogger.info("Writing " + numDocs + " doc offseta to " + indexFile);
 		FSLineReader reader = new FSLineReader(inputFile, fs);
@@ -182,7 +191,7 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
 		if (numDocs != cnt) {
 			throw new RuntimeException("Unexpected number of documents in building forward index!");
 		}
-		
+
 		return 0;
 	}
 
