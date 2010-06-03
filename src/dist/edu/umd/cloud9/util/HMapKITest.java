@@ -183,7 +183,7 @@ public class HMapKITest {
 	}
 
 	@Test
-	public void testSortedEntries1() {
+	public void testSortedEntriesValue1() {
 		HMapKI<Text> m = new HMapKI<Text>();
 
 		m.put(new Text("a"), 5);
@@ -219,7 +219,7 @@ public class HMapKITest {
 	}
 
 	@Test
-	public void testSortedEntries2() {
+	public void testSortedEntriesValue2() {
 		HMapKI<Text> m = new HMapKI<Text>();
 
 		m.put(new Text("a"), 5);
@@ -240,6 +240,66 @@ public class HMapKITest {
 		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
 		assertEquals(3, (int) e.getValue());
+	}
+
+	@Test
+	public void testSortedEntriesKey1() {
+		HMapKI<Text> m = new HMapKI<Text>();
+
+		m.put(new Text("a"), 5);
+		m.put(new Text("b"), 2);
+		m.put(new Text("c"), 3);
+		m.put(new Text("d"), 3);
+		m.put(new Text("e"), 1);
+
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByKey();
+		MapKI.Entry<Text> e = null;
+
+		assertEquals(5, entries.length);
+
+		e = entries[0];
+		assertEquals(new Text("a"), e.getKey());
+		assertEquals(5, (int) e.getValue());
+
+		e = entries[1];
+		assertEquals(new Text("b"), e.getKey());
+		assertEquals(2, (int) e.getValue());
+
+		e = entries[2];
+		assertEquals(new Text("c"), e.getKey());
+		assertEquals(3, (int) e.getValue());
+
+		e = entries[3];
+		assertEquals(new Text("d"), e.getKey());
+		assertEquals(3, (int) e.getValue());
+
+		e = entries[4];
+		assertEquals(new Text("e"), e.getKey());
+		assertEquals(1, (int) e.getValue());
+	}
+
+	@Test
+	public void testSortedEntriesKey2() {
+		HMapKI<Text> m = new HMapKI<Text>();
+
+		m.put(new Text("a"), 5);
+		m.put(new Text("b"), 2);
+		m.put(new Text("c"), 3);
+		m.put(new Text("d"), 3);
+		m.put(new Text("e"), 1);
+
+		MapKI.Entry<Text>[] entries = m.getEntriesSortedByKey(2);
+		MapKI.Entry<Text> e = null;
+
+		assertEquals(2, entries.length);
+
+		e = entries[0];
+		assertEquals(new Text("a"), e.getKey());
+		assertEquals(5, (int) e.getValue());
+
+		e = entries[1];
+		assertEquals(new Text("b"), e.getKey());
+		assertEquals(2, (int) e.getValue());
 	}
 
 	public static junit.framework.Test suite() {

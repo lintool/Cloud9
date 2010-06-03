@@ -1010,4 +1010,56 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 		return Arrays.copyOfRange(entries, 0, n);
 	}
+	
+	public MapKI.Entry<K>[] getEntriesSortedByKey() {
+		if (this.size() == 0)
+			return null;
+
+		// for storing the entries
+		MapKI.Entry<K>[] entries = new Entry[this.size()];
+		int i = 0;
+		Entry<K> next = null;
+
+		int index = 0;
+		// advance to first entry
+		while (index < table.length && (next = table[index++]) == null)
+			;
+
+		while (next != null) {
+			// current entry
+			Entry<K> e = next;
+
+			// advance to next entry
+			next = e.next;
+			if ((next = e.next) == null) {
+				while (index < table.length && (next = table[index++]) == null)
+					;
+			}
+
+			// add entry to array
+			entries[i++] = e;
+		}
+
+		// sort the entries
+		Arrays.sort(entries, new Comparator<MapKI.Entry<K>>() {
+			@SuppressWarnings("unchecked")
+			public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
+				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
+			}
+		});
+
+		return entries;
+	}
+	
+	public MapKI.Entry<K>[] getEntriesSortedByKey(int n) {
+		MapKI.Entry<K>[] entries = getEntriesSortedByKey();
+
+		if (entries == null)
+			return null;
+
+		if (entries.length < n)
+			return entries;
+
+		return Arrays.copyOfRange(entries, 0, n);
+	}
 }
