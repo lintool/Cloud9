@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/bliki-core-3.0.14.jar"/>
+	<classpathentry kind="lib" path="lib/clojure-1.1.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
