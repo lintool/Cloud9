@@ -1,33 +1,66 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head><title>Cloud9: A MapReduce Library for Hadoop :: Getting started in standalone mode</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Getting started in standalone mode</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
 <body>
 
-<center><table width="80%"><tbody><tr><td align="left">
+<div id="wrap">
+<div id="container" class="one-column" >
 
-<h2>Cloud<sup><small>9</small></sup>: Getting started in standalone mode</h2>
+<!-- header START -->
 
-<p>by Jimmy Lin</p>
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
 
-<p>
-<small>(Page first created: 31 May 2009; last updated:
-<script language="JavaScript" type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
-document.writeln (LastUpdated);
--->
-</script>)
-</small>
-</p>
+<div class="fixed"></div>
 
-<div class="main">
+</div>
 
-<h3>Introduction</h3>
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+  <li class="page_item"><a class="home" title="Home" href="../index.html">Home</a></li>
+  <li class="page_item"><a href="../api/index.html" title="API">API</a></li>
+  <li class="page_item"><a href="../exercises/index.html" title="Exercises">Exercises</a></li>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Getting started in standalone mode</h2>
+
+<div class="post">
+<div class="content">
 
 <p>This tutorial will get you started with
 Cloud<sup><small>9</small></sup> in standalone mode.  In standalone
@@ -44,14 +77,19 @@ Cloud<sup><small>9</small></sup> on EC2</a>.</p>
 use <a href="http://www.cygwin.com">Cygwin</a>.  That's what I mean
 when I say, "open up a shell".</p>
 
-<h3>Step 1: Configure Hadoop for standalone mode</h3>
+</div></div>
+
+
+<div class="post">
+<h2>Step 1: Configure Hadoop for standalone mode</h2>
+<div class="content">
 
 <p>This tutorial assumes Hadoop 0.20.1.  Make sure you've downloaded
-and unpacked the Hadoop distribution in umd-hadoop-core/hadoop/.
+and unpacked the Hadoop distribution in <code>umd-hadoop-core/hadoop/</code>.
 See <a href="start.html">this guide</a> for more details.</p>
 
 <p>Open up a shell and go to
-umd-hadoop-core/hadoop/hadoop-0.20.1/conf/.  Make sure the file
+<code>umd-hadoop-core/hadoop/hadoop-0.20.1/conf/</code>.  Make sure the file
 core-site.xml doesn't actually specify configuration parameters:</p>
 
 <pre>
@@ -80,9 +118,14 @@ hadoop fs -D mapred.job.tracker=local -D fs.default.name=file:/// -ls .
 <p>The above example performs a directory listing in standalone mode
 (which corresponds to a directory listing of the local disk).</p>
 
-<h3>Step 2: Run pi</h3>
+</div></div>
 
-<p>Open a shell and go to umd-hadoop-core/hadoop/hadoop-0.20.1/. Now
+
+<div class="post">
+<h2>Step 2: Run pi</h2>
+<div class="content">
+
+<p>Open a shell and go to <code>umd-hadoop-core/hadoop/hadoop-0.20.1/</code>. Now
 run the pi demo:</p>
 
 <pre>
@@ -125,10 +168,15 @@ Estimated value of Pi is 3.14800000000000000000
 <p>Okay, so the value of pi is a bit off... but at least Hadoop
 works!</p>
 
-<h3>Step 3: Unpack some data and build the job jar</h3>
+</div></div>
+
+
+<div class="post">
+<h2>Step 3: Unpack some data and build the job jar</h2>
+<div class="content">
 
 <p>Now we're getting ready to run the word count demo.  Open a shell
-and go to umd-hadoop-core/data/.  Uncompress the sample text
+and go to <code>umd-hadoop-core/data/</code>.  Uncompress the sample text
 collection (Bible and the complete works of Shakespeare):</p>
 
 <pre>
@@ -136,7 +184,7 @@ $ gunzip bible+shakes.nopunc.gz
 </pre>
 
 <p>Now let's build a job jar for running the word count demo.  Open a
-shell and go to umd-hadoop-core/build/ (which is where
+shell and go to <code>umd-hadoop-core/build/</code> (which is where
 Eclipse automatically puts compiled class files).  Jar up the class
 files:</p>
 
@@ -144,13 +192,18 @@ files:</p>
 $ jar cvf cloud9.jar *
 </pre>
 
-<p>If there's nothing in build/, go back to Eclipse and make sure the
+<p>If there's nothing in <code>build/</code>, go back to Eclipse and make sure the
 code compiles without error.</p>
 
-<h3>Step 4: Build and run the word count demo</h3>
+</div></div>
+
+
+<div class="post">
+<h2>Step 4: Build and run the word count demo</h2>
+<div class="content">
 
 <p>Once you have created the jar, go back to
-umd-hadoop-core/hadoop/hadoop-0.20.1/ and submit the job in standalone
+<code>umd-hadoop-core/hadoop/hadoop-0.20.1/</code> and submit the job in standalone
 mode.  Run the class to find out its command-line arguments:</p>
 
 <pre>
@@ -189,7 +242,7 @@ $ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount ../../
 </pre>
 
 <p>There should now be a new sub-directory in your current directory
-called demo/ that contains the output of the word
+called <code>demo/</code> that contains the output of the word
 count demo:</p>
 
 <pre>
@@ -224,28 +277,53 @@ $ wc demo/part-00000
 <p>And that's it!  Now you're ready to run a <i>real</i> MapReduce
 cluster.</p>
 
-<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div></div>
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
 
 </div>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
-<tr><td valign="top" align="left">
-</td>
-<td valign="top" align="right">
-  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
-  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
-  </a>
-  <a href="http://validator.w3.org/check/referer">
-  <img src="../images/valid-xhtml10.gif" border="0"
-       alt="Valid XHTML 1.0!" height="31" width="88" />
-  </a>
-  <a href="http://jigsaw.w3.org/css-validator/check/referer">
-  <img style="border:0;width:88px;height:31px"
-       src="../images/vcss.gif" 
-       alt="Valid CSS!" />
-  </a>
-</td></tr></table>
+<!-- content END -->
 
-</td></tr></tbody></table></center>
+<!-- footer START -->
 
-</body></html>
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>

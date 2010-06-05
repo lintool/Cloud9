@@ -1,48 +1,84 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head><title>Cloud9: A MapReduce Library for Hadoop :: Downloading and setting up</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Downloading and setting up</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
 <body>
 
-<center><table width="80%"><tbody><tr><td align="left">
+<div id="wrap">
+<div id="container" class="one-column" >
 
-<h2>Cloud<sup><small>9</small></sup>: Downloading and setting up</h2>
+<!-- header START -->
 
-<p>by Jimmy Lin</p>
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
 
-<p>
-<small>(Page first created: 16 Jul 2009; last updated:
-<script language="JavaScript" type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
-document.writeln (LastUpdated);
--->
-</script>)
-</small>
-</p>
+<div class="fixed"></div>
 
-<div class="main">
+</div>
 
-<h3>Introduction</h3>
+<!-- header END -->
 
-<p>This tutorial will cover downloading and setting up
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+  <li class="page_item"><a class="home" title="Home" href="../index.html">Home</a></li>
+  <li class="page_item"><a href="../api/index.html" title="API">API</a></li>
+  <li class="page_item"><a href="../exercises/index.html" title="Exercises">Exercises</a></li>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Downloading and setting up</h2>
+
+<div class="post">
+<div class="content">
+
+<p>This tutorial covers downloading and setting up
 Cloud<sup><small>9</small></sup>.  From here, you can either play with
-the code in 
+the code in
 <a href="start-standalone.html">standalone mode</a> or
 on <a href="start-EC2.html">Amazon's EC2</a>.</p>
 
-<h3>Step 1: Download various software packages</h3>
+</div></div>
+
+<div class="post">
+<h2>Step 1: Download various software packages</h2>
+<div class="content">
 
 <p>Download and install the following software packages:</p>
 
 <ul>
 
-<li><a href="http://java.sun.com">Java</a>: (if you don't know what
-Java is you probably shouldn't be here...)</li>
+<li><a href="http://java.sun.com">Java</a></li>
 
 <li><a href="http://www.eclipse.org/">Eclipse</a>: an IDE for
 Java</li>
@@ -55,7 +91,11 @@ for Java</li>
 
 </ul>
 
-<h3>Step 2: Check out code from the Subversion repository</h3>
+</div></div>
+
+<div class="post">
+<h2>Step 2: Check out code from the Subversion repository</h2>
+<div class="content">
 
 <p>Cloud<sup><small>9</small></sup> is distributed as a fully
 self-contained tarball, but follow the instructions below if you want
@@ -73,9 +113,9 @@ Exploring.</p>
 <p>Add repository by right clicking on left panel &gt; New &gt;
 Repository Location.  The repository location you want to add is:</p>
 
-<blockquote>
-<a href="https://subversion.umiacs.umd.edu/umd-hadoop/core">https://subversion.umiacs.umd.edu/umd-hadoop/core</a>
-</blockquote>
+<ul>
+<li style="list-style:none;"><a href="https://subversion.umiacs.umd.edu/umd-hadoop/core">https://subversion.umiacs.umd.edu/umd-hadoop/core</a></li>
+</ul>
 
 <p>Once you've added the repository, expand the tree.  You should see
 "branches", "tags", and "trunk".  Right click on trunk &gt;
@@ -89,7 +129,7 @@ distribution</a>, which is released more frequently and contains
 patches since the latest main trunk release.  For the most part, you
 shouldn't notice a difference between the two.</p>
 
-<p>Copy the tarball to umd-hadoop-core/hadoop/ and unpack
+<p>Copy the tarball to <code>umd-hadoop-core/hadoop/</code> and unpack
 distribution:</p>
 
 <pre>
@@ -108,28 +148,53 @@ projects.  Select menu option: Project &gt; Clean...</p>
 
 <p>That should do it!</p>
 
-<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+
+</div></div>
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
 
 </div>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
-<tr><td valign="top" align="left">
-</td>
-<td valign="top" align="right">
-  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
-  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
-  </a>
-  <a href="http://validator.w3.org/check/referer">
-  <img src="../images/valid-xhtml10.gif" border="0"
-       alt="Valid XHTML 1.0!" height="31" width="88" />
-  </a>
-  <a href="http://jigsaw.w3.org/css-validator/check/referer">
-  <img style="border:0;width:88px;height:31px"
-       src="../images/vcss.gif" 
-       alt="Valid CSS!" />
-  </a>
-</td></tr></table>
+<!-- content END -->
 
-</td></tr></tbody></table></center>
+<!-- footer START -->
 
-</body></html>
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>

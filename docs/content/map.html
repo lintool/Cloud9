@@ -1,31 +1,66 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head><title>Cloud9: A MapReduce Library for Hadoop</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Efficient feature vectors and maps</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
 <body>
 
-<center><table width="80%"><tbody><tr><td align="left">
+<div id="wrap">
+<div id="container" class="one-column" >
 
-<h2>Cloud<sup><small>9</small></sup>: Efficient feature vectors and maps</h2>
+<!-- header START -->
 
-<p>by Jimmy Lin</p>
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
 
-<p>
-<small>(Page first created: 03 Jan 2009; last updated:
-<script language="JavaScript" type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
-document.writeln (LastUpdated);
--->
-</script>)
-</small>
-</p>
+<div class="fixed"></div>
 
-<div class="main">
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+  <li class="page_item"><a class="home" title="Home" href="../index.html">Home</a></li>
+  <li class="page_item"><a href="../api/index.html" title="API">API</a></li>
+  <li class="page_item"><a href="../exercises/index.html" title="Exercises">Exercises</a></li>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Efficient feature vectors and maps</h2>
+
+<div class="post">
+<div class="content">
 
 <p>Feature vectors are ubiquitous in text processing and many other
 applications.  They represent a special case
@@ -47,23 +82,23 @@ footprint.</p>
 specialized versions of the standard Java HashMap class where the keys
 or values or both are hard-coded as Java primitives:</p>
 
-<table cellpadding="5" border="1">
+<table>
 
-<tr><td>Cloud<sup><small>9</small></sup> class</td>
-    <td>Replaces</td>
-    <td>Implemented interface</td></tr>
+<tr><td class="myheader">Cloud<sup><small>9</small></sup> class</td>
+    <td class="myheader">Replaces</td>
+    <td class="myheader">Implemented interface</td></tr>
 
-<tr><td>HMapKI&lt;K&gt;</td><td>HashMap&lt;K,Integer&gt;</td><td>MapKI&lt;K&gt;</td></tr>
+<tr><td class="mycell">HMapKI&lt;K&gt;</td><td class="mycell">HashMap&lt;K,Integer&gt;</td><td class="mycell">MapKI&lt;K&gt;</td></tr>
 
-<tr><td>HMapKF&lt;K&gt;</td><td>HashMap&lt;K,Float&gt;</td><td>MapKF&lt;K&gt;</td></tr>
+<tr><td class="mycell">HMapKF&lt;K&gt;</td><td class="mycell">HashMap&lt;K,Float&gt;</td><td class="mycell">MapKF&lt;K&gt;</td></tr>
 
-<tr><td>HMapKL&lt;K&gt;</td><td>HashMap&lt;K,Long&gt;</td><td>MapKL&lt;K&gt;</td></tr>
+<tr><td class="mycell">HMapKL&lt;K&gt;</td><td class="mycell">HashMap&lt;K,Long&gt;</td><td class="mycell">MapKL&lt;K&gt;</td></tr>
 
-<tr><td>HMapII</td><td>HashMap&lt;Integer,Integer&gt;</td><td>MapII</td></tr>
+<tr><td class="mycell">HMapII</td><td class="mycell">HashMap&lt;Integer,Integer&gt;</td><td class="mycell">MapII</td></tr>
 
-<tr><td>HMapIF</td><td>HashMap&lt;Integer,Float&gt;</td><td>MapIF</td></tr>
+<tr><td class="mycell">HMapIF</td><td class="mycell">HashMap&lt;Integer,Float&gt;</td><td class="mycell">MapIF</td></tr>
 
-<tr><td>HMapIV</td><td>HashMap&lt;Integer,V&gt;</td><td>MapIV</td></tr>
+<tr><td class="mycell">HMapIV</td><td class="mycell">HashMap&lt;Integer,V&gt;</td><td class="mycell">MapIV</td></tr>
 
 </table>
 
@@ -73,29 +108,29 @@ are ints.  The benchmark first inserts 5m random ints, and then access
 all 5m ints.  The following shows running times and the memory
 footprint:</p>
 
-<table cellpadding="5" border="1">
+<table>
 
-<tr><td/>
-    <td>Insertion</td>
-    <td>Access</td>
-    <td>Memory (per entry)</td></tr>
+<tr><td class="myheader"/>
+    <td class="myheader">Insertion</td>
+    <td class="myheader">Access</td>
+    <td class="myheader">Memory (per entry)</td></tr>
 
-<tr><td>HashMap&lt;Integer,Integer&gt;</td>
-    <td>3796 ms</td>
-    <td>350 ms</td>
-    <td>68 bytes</td>
+<tr><td class="mycell">HashMap&lt;Integer,Integer&gt;</td>
+    <td class="mycell">3796 ms</td>
+    <td class="mycell">350 ms</td>
+    <td class="mycell">68 bytes</td>
 </tr>
 
-<tr><td>HMapKI&lt;Integer&gt;</td>
-    <td>2953 ms (-22%)</td>
-    <td>281 ms (-20%)</td>
-    <td>52 bytes (-24%)</td>
+<tr><td class="mycell">HMapKI&lt;Integer&gt;</td>
+    <td class="mycell">2953 ms (-22%)</td>
+    <td class="mycell">281 ms (-20%)</td>
+    <td class="mycell">52 bytes (-24%)</td>
 </tr>
 
-<tr><td>HMapII</td>
-    <td>1703 ms (-55%)</td>
-    <td>&nbsp;78 ms (-78%)</td>
-    <td>31 bytes (-55%)</td>
+<tr><td class="mycell">HMapII</td>
+    <td class="mycell">1703 ms (-55%)</td>
+    <td class="mycell">&nbsp;78 ms (-78%)</td>
+    <td class="mycell">31 bytes (-55%)</td>
 </tr>
 
 </table>
@@ -117,24 +152,24 @@ collisions, thereby obviating the need for actual Entry objects.</p>
 
 <p>For use in Hadoop, there are classes that implement Writable:</p>
 
-<table cellpadding="5" border="1">
+<table>
 
-<tr><td>Cloud<sup><small>9</small></sup> Writable</td>
-    <td>Implemented interface</td></tr>
+<tr><td class="myheader">Cloud<sup><small>9</small></sup> Writable</td>
+    <td class="myheader">Implemented interface</td></tr>
 
-<tr><td>HMapIFW</td><td>HMapIF</td></tr>
+<tr><td class="mycell">HMapIFW</td><td class="mycell">HMapIF</td></tr>
 
-<tr><td>HMapIIW</td><td>HMapII</td></tr>
+<tr><td class="mycell">HMapIIW</td><td class="mycell">HMapII</td></tr>
 
-<tr><td>HMapIVW&lt;V&gt;</td><td>HMapIV&lt;V&gt;</td></tr>
+<tr><td class="mycell">HMapIVW&lt;V&gt;</td><td class="mycell">HMapIV&lt;V&gt;</td></tr>
 
-<tr><td>HMapKFW&lt;V&gt;</td><td>HMapKF&lt;K&gt;</td></tr>
+<tr><td class="mycell">HMapKFW&lt;V&gt;</td><td class="mycell">HMapKF&lt;K&gt;</td></tr>
 
-<tr><td>HMapKIW&lt;V&gt;</td><td>HMapKI&lt;K&gt;</td></tr>
+<tr><td class="mycell">HMapKIW&lt;V&gt;</td><td class="mycell">HMapKI&lt;K&gt;</td></tr>
 
-<tr><td>HMapSFW</td><td>HMapKF&lt;String&gt;</td></tr>
+<tr><td class="mycell">HMapSFW</td><td class="mycell">HMapKF&lt;String&gt;</td></tr>
 
-<tr><td>HMapSIW</td><td>HMapKI&lt;String&gt;</td></tr>
+<tr><td class="mycell">HMapSIW</td><td class="mycell">HMapKI&lt;String&gt;</td></tr>
 
 </table>
 
@@ -143,29 +178,52 @@ proliferation of a whole bunch of specialized classes... in my
 opinion, this is a worthwhile tradeoff.  Use of a consistent naming
 scheme helps.</p>
 
-<p style="padding-top: 25px"><a href="../index.html">Back to main
-page</a></p>
+</div></div>
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
 
 </div>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
-<tr><td valign="top" align="left">
-</td>
-<td valign="top" align="right">
-  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
-  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
-  </a>
-  <a href="http://validator.w3.org/check/referer">
-  <img src="../images/valid-xhtml10.gif" border="0"
-       alt="Valid XHTML 1.0!" height="31" width="88" />
-  </a>
-  <a href="http://jigsaw.w3.org/css-validator/check/referer">
-  <img style="border:0;width:88px;height:31px"
-       src="../images/vcss.gif" 
-       alt="Valid CSS!" />
-  </a>
-</td></tr></table>
+<!-- content END -->
 
-</td></tr></tbody></table></center>
+<!-- footer START -->
 
-</body></html>
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>

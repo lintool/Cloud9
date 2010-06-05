@@ -1,34 +1,66 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head><title>Cloud9: A MapReduce Library for Hadoop</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Working with the ClueWeb09 Collection</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
 <body>
 
-<center><table width="80%"><tbody><tr><td align="left">
+<div id="wrap">
+<div id="container" class="one-column" >
 
-<h2>Cloud<sup><small>9</small></sup>: Working with the ClueWeb09
-Collection</h2>
+<!-- header START -->
 
-<p>by Jimmy Lin</p>
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
 
-<p>
-<small>(Page first created: 26 May 2009; last updated:
-<script language="JavaScript" type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
-document.writeln (LastUpdated);
--->
-</script>)
-</small>
-</p>
+<div class="fixed"></div>
 
-<div class="main">
+</div>
 
-<h3>Introduction</h3>
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+  <li class="page_item"><a class="home" title="Home" href="../index.html">Home</a></li>
+  <li class="page_item"><a href="../api/index.html" title="API">API</a></li>
+  <li class="page_item"><a href="../exercises/index.html" title="Exercises">Exercises</a></li>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Working with the ClueWeb09 Collection</h2>
+
+<div class="post">
+<div class="content">
 
 <p>The <a
 href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=ClueWeb09%20Wiki">ClueWeb09
@@ -109,7 +141,12 @@ Wikipedia.  Also, sections <code>en0083</code>, <code>en0084</code>,
 and <code>en0097</code> do not exist (or are empty, depending on the
 distribution).</p>
 
-<h3><a name="counting">Counting the Records</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="counting">Counting the Records</a></h2>
+<div class="content">
 
 <p>Once you've gotten your hands on the collection, the first thing
 you might want to do is run some sanity checks.  The simplest sanity
@@ -267,7 +304,12 @@ segments, you should get the following results:</p>
 the actual HTML pages, so number of records should be equal to number
 of files plus number of pages.</p>
 
-<h3><a name="repacking">Repacking the Records</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="repacking">Repacking the Records</a></h2>
+<div class="content">
 
 <p>In some ways, the original WARC files are awkward to work with.
 There is, for example, no simple way to quickly access an individual
@@ -276,7 +318,12 @@ to repack the collection into block-compressed SequenceFiles.  This is
 described in a separate page on <a href="clue-access.html">providing
 random access to the WARC records</a>.</p>
 
-<h3><a name="docnos">Sequentially-Numbered Docnos</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="docnos">Sequentially-Numbered Docnos</a></h2>
+<div class="content">
 
 <p>Many information retrieval and other text processing tasks require
 that all documents in the collection be sequentially numbered, from 1
@@ -320,7 +367,12 @@ column minus one.  The fourth column tracks the cumulative count in
 the number of documents.  With this information, mapping between
 docnos and docids is a simple matter of arithmetic.</p>
 
-<h3><a name="malformed">Malformed Records</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="malformed">Malformed Records</a></h2>
+<div class="content">
 
 <p>There are a number of malformed WARC records in the English portion
 of the collection (there may be malformed records in the other
@@ -352,28 +404,52 @@ Cloud<sup><small>9</small></sup> transparently handles these malformed
 WARC records (thanks to code originally written by Mark Hoy from
 CMU).</p>
 
-<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+</div></div>
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
 
 </div>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
-<tr><td valign="top" align="left">
-</td>
-<td valign="top" align="right">
-  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
-  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
-  </a>
-  <a href="http://validator.w3.org/check/referer">
-  <img src="../images/valid-xhtml10.gif" border="0"
-       alt="Valid XHTML 1.0!" height="31" width="88" />
-  </a>
-  <a href="http://jigsaw.w3.org/css-validator/check/referer">
-  <img style="border:0;width:88px;height:31px"
-       src="../images/vcss.gif" 
-       alt="Valid CSS!" />
-  </a>
-</td></tr></table>
+<!-- content END -->
 
-</td></tr></tbody></table></center>
+<!-- footer START -->
 
-</body></html>
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>

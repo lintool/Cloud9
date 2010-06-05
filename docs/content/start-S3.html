@@ -1,33 +1,66 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head><title>Cloud9: A MapReduce Library for Hadoop</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Getting started with S3</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
 <body>
 
-<center><table width="80%"><tbody><tr><td align="left">
+<div id="wrap">
+<div id="container" class="one-column" >
 
-<h2>Cloud<sup><small>9</small></sup>: Getting started with S3</h2>
+<!-- header START -->
 
-<p>by Jimmy Lin</p>
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
 
-<p>
-<small>(Page first created: 05 Aug 2008; last updated:
-<script language="JavaScript" type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
-document.writeln (LastUpdated);
--->
-</script>)
-</small>
-</p>
+<div class="fixed"></div>
 
-<div class="main">
+</div>
 
-<h3>Introduction</h3>
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+  <li class="page_item"><a class="home" title="Home" href="../index.html">Home</a></li>
+  <li class="page_item"><a href="../api/index.html" title="API">API</a></li>
+  <li class="page_item"><a href="../exercises/index.html" title="Exercises">Exercises</a></li>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Getting started with S3</h2>
+
+<div class="post">
+<div class="content">
 
 <p>This tutorial will get you started with Amazon's S3.  Before you
 begin, first complete the tutorial
@@ -90,7 +123,12 @@ faster than scp.</p>
 
 <p>Let's get started!</p>
 
-<h3><a name="step0">Step 0: Download JetS3t and prep S3</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="step0">Step 0: Download JetS3t and prep S3</a></h2>
+<div class="content">
 
 <p>Download <a href="http://jets3t.s3.amazonaws.com/index.html">JetS3t</a>,
 which is an open-source Java toolkit and application suite for S3.
@@ -111,8 +149,12 @@ should look something like this:</p>
 src="jetS3t-screenshot1.png" alt="Screenshot of JetS3t"
 border="0"/></a></p>
 
+</div></div>
 
-<h3><a name="step1">Step 1: Copying stuff out of HDFS in S3</a></h3>
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="step1">Step 1: Copying stuff out of HDFS in S3</a></h2>
+<div class="content">
 
 <p>For a more complete reference, you'll want to consult
 the <a href="http://wiki.apache.org/hadoop/AmazonS3">Hadoop Wiki page
@@ -195,7 +237,12 @@ border="0"/></a></p>
 
 <p>Congratulations!  You've succesfully stored stuff in S3.</p>
 
-<h3><a name="step2">Step 2: Copying stuff into HDFS from S3</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="step2">Step 2: Copying stuff into HDFS from S3</a></h2>
+<div class="content">
 
 <p>Now let's work on the reverse, copying data from S3 directly into
 HDFS.  First, let's blow away data in HDFS.  Don't worry, we'll be
@@ -253,7 +300,12 @@ Found 1 items
 <p>And that's it!  Remember to clean up when you are done, i.e., tear
 down your cluster!</p>
 
-<h3><a name="ps">Postscript</a></h3>
+</div></div>
+
+
+<div class="post">
+<h2><a style="text-decoration:none; color:#555;" name="ps">Postscript</a></h2>
+<div class="content">
 
 <p>We've now gone through all steps in the typical development cycle
 with Hadoop on EC2/S3.  Putting everything together, a typical hacking
@@ -276,28 +328,52 @@ session might look like:</p>
 <p>Of course, there are many variations on a theme... but my tutorials
 should represent a good start.  Have fun computing in the clouds!</p>
 
-<p style="padding-top: 25px"><a href="../index.html">Back to main page</a></p>
+</div></div>
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
 
 </div>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding-top: 10px;">
-<tr><td valign="top" align="left">
-</td>
-<td valign="top" align="right">
-  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
-  <img src="../images/creative-commons.png" border="0" alt="Creative Commons: Attribution-Noncommercial-Share Alike 3.0 United States"/>
-  </a>
-  <a href="http://validator.w3.org/check/referer">
-  <img src="../images/valid-xhtml10.gif" border="0"
-       alt="Valid XHTML 1.0!" height="31" width="88" />
-  </a>
-  <a href="http://jigsaw.w3.org/css-validator/check/referer">
-  <img style="border:0;width:88px;height:31px"
-       src="../images/vcss.gif" 
-       alt="Valid CSS!" />
-  </a>
-</td></tr></table>
+<!-- content END -->
 
-</td></tr></tbody></table></center>
+<!-- footer START -->
 
-</body></html>
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
