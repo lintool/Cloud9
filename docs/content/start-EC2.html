@@ -131,7 +131,7 @@ my tutorial on <a href="start.html">that</a>.</p>
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step1">Step 1: Setting up Amazon EC2</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step1">Step 1: Setting up Amazon EC2</a></h2>
 <div class="content">
 
 <p>Go to the <a href="http://aws.amazon.com">Amazon AWS site</a> to
@@ -151,7 +151,7 @@ regenerate.</p>
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step2">Step 2: Fire up a Hadoop cluster in the clouds!</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step2">Step 2: Fire up a Hadoop cluster in the clouds!</a></h2>
 <div class="content">
 
 <p>You'll want to
@@ -274,9 +274,9 @@ usage starting now.  After a little bit, you should be able to access
 the jobtracker webapp on port 50030 of the master, which in my case
 is:</p>
 
-<blockquote>
+<pre>
 http://ec2-75-101-178-200.compute-1.amazonaws.com:50030/
-</blockquote>
+</pre>
 
 <p>Obviously, your master will have a different public address.  Now
 navigate to that URL in a browser, and you should see something
@@ -307,7 +307,7 @@ INSTANCE        i-ee191686      ami-fa6a8e93    ec2-75-101-191-132.compute-1.ama
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step3">Step 3: Test drive the cluster</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step3">Step 3: Test drive the cluster</a></h2>
 <div class="content">
 
 <p>Let's log into the cluster and poke around.  Open a shell on your
@@ -401,7 +401,7 @@ should see the run.</p>
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step4">Step 4: Transfer some data</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step4">Step 4: Transfer some data</a></h2>
 <div class="content">
 
 <p>Now we're getting ready to run the word count demo.  Before doing
@@ -460,7 +460,7 @@ Found 1 items
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step5">Step 5: Transfer some code and run the word count demo</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step5">Step 5: Transfer some code and run the word count demo</a></h2>
 <div class="content">
 
 <p>Back on your machine, open a shell and go to umd-hadoop-core/build/
@@ -605,7 +605,7 @@ redistribution of the blocks).</p>
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="step6">Step 6: Clean up!</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="step6">Step 6: Clean up!</a></h2>
 <div class="content">
 
 <p>You'll want to clean up after you're done.  Remember, the meter
@@ -643,7 +643,7 @@ INSTANCE        i-ee191686      ami-fa6a8e93                    terminated [...]
 
 
 <div class="post">
-<h2><a style="text-decoration:none; color:#555;" name="ps">Postscript</a></h2>
+<h2><a style="text-decoration:none; color:#555;" id="ps">Postscript</a></h2>
 <div class="content">
 
 <p>Log into <a href="http://aws.amazon.com">your AWS account</a> and
