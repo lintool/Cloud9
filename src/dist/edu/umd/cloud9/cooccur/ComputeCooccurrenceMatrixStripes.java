@@ -43,13 +43,27 @@ import edu.umd.cloud9.io.HMapSIW;
 /**
  * <p>
  * Implementation of the "stripes" algorithm for computing co-occurrence
- * matrices from corpora. Algorithm is described in:
+ * matrices from a large text collection. This algorithm is described in Chapter
+ * 3 of "Data-Intensive Text Processing with MapReduce" by Lin &amp; Dyer, as
+ * well as the following paper:
  * </p>
  * 
  * <blockquote>Jimmy Lin. <b>Scalable Language Processing Algorithms for the
  * Masses: A Case Study in Computing Word Co-occurrence Matrices with MapReduce.</b>
  * <i>Proceedings of the 2008 Conference on Empirical Methods in Natural
- * Language Processing (EMNLP 2008).</i></blockquote>
+ * Language Processing (EMNLP 2008)</i>, pages 419-428.</blockquote>
+ * 
+ * <p>
+ * This program takes the following command-line arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[input-path]</li>
+ * <li>[output-path]</li>
+ * <li>[window]</li>
+ * <li>[num-mappers]</li>
+ * <li>[num-reducers]</li>
+ * </ul>
  * 
  * @author Jimmy Lin
  */
