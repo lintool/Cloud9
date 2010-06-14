@@ -69,6 +69,27 @@ at the University of Maryland).</p>
 </div></div>
 
 <div class="post">
+<h2>Order Inversion</h2>
+<div class="content">
+
+<p>The order inversion design pattern is covered in Chapter 3, where
+the example is computing bigram relative frequencies.  A reference
+implementation can be found in the solutions to
+the <a href="../exercises/bigrams.html">bigram counting
+exercise</a>.</p>
+
+<p>Here's how it works, very briefly: in addition to each bigram
+count, the mapper emits an special key (word, *) which contributes to
+the marginal count of the word.  We define the sort order so that this
+special key always comes before the bigram counts, so that by
+preserving state across multiple reduce method calls,we can compute
+the relative frequency directly by simple division.  We also need to
+define a custom partitioner to send all keys with the same left
+element to the same reducer.</p>
+
+</div></div>
+
+<div class="post">
 <h2>Pairs and Stripes</h2>
 <div class="content">
 

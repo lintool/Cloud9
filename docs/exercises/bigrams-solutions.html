@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Bigram counts</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
+</head>
+
+<body>
+
+<div id="wrap">
+<div id="container" class="one-column" >
+
+<!-- header START -->
+
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+<ul id="menus">
+
+<script type="text/javascript" src="menu.js">
+</script>
+
+</ul>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Exercise Solutions &#187; Bigram counts</h2>
+
+<div class="post">
+<div class="content">
+
+<p>These are the solutions to the <a href="bigrams.html">bigram
+counting exercises</a> which takes advantage of the <b>order
+inversion</b> design pattern to compute bigram relative frequencies.
+This design pattern is covered in Chapter 3 of Lin and Dyer's book
+"<a href="http://mapreduce.me/">Data-Intensive Text Processing with
+MapReduce</a>".</p>
+
+</div></div>
+
+
+<div class="post">
+<h2>Part I: Count the bigrams</h2>
+<div class="content">
+
+<p>The solution can be found
+in <code>edu.umd.cloud9.bigram.BigramCount</code>.  This
+implementation is quite simple: just like word count, except that
+we're counting bigrams instead of words.  The keys emitted by the
+mapper are (a, b) pairs representing the observed bigrams, while the
+values are their counts.  The reducer simply sums these counts.</p>
+
+<p>Here's the command-line invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.bigram.BigramCount /tmp/bible+shakes.nopunc /tmp/bigram 10 5
+</pre>
+
+<p>Trace from output:</p>
+
+<pre>
+Map input records=156215
+Map output records=1578220
+Map input bytes=9068074
+Map output bytes=22456817
+Combine input records=1578220
+Combine output records=745328
+Reduce input groups=424462
+Reduce input records=745328
+Reduce output records=424462
+</pre>
+
+<p>From this we see that there are 424,462 unique bigrams.</p>
+
+<p>For analyzing the results, run
+<code>edu.umd.cloud9.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.bigram.AnalyzeBigramCount /tmp/bigram
+</pre>
+
+<p>Note we specify the entire output directoy.  You'll see the
+following output:</p>
+
+<pre>
+total number of unique bigrams: 424462
+total number of bigrams: 1578220
+number of bigrams that appear only once: 296139
+
+ten most frequent bigrams:
+of the     13037
+and the     7034
+the lord    7017
+in the      6738
+to the      3799
+i will      3470
+and he      3020
+shall be    3013
+all the     2714
+i have      2666
+i am        2603
+</pre>
+
+<p>So, we see that the number of bigrams that appear only once is
+296,139.  The fraction of all bigrams occurrences the top ten bigrams
+account for: 52508/1578220 = 3.33%</p>
+
+</div></div>
+
+
+<div class="post">
+<h2>Part II: From bigram counts to relative frequencies</h2>
+<div class="content">
+
+<p>The solution can be found
+in <code>edu.umd.cloud9.bigram.BigramRelativeFrequency</code>.  This
+program takes advantage of the <b>order inversion</b> design pattern,
+which is covered in Chapter 3 of Lin and Dyer's book
+"<a href="http://mapreduce.me/">Data-Intensive Text Processing with
+MapReduce</a>".  Here's how it works, very briefly: in addition to
+each bigram count, the mapper emits an special key (word, *) which
+contributes to the marginal count of the word.  We define the sort
+order so that this special key always comes before the bigram counts,
+so that by preserving state across multiple reduce method calls,we can
+compute the relative frequency directly by simple division.  We also
+need to define a custom partitioner to send all keys with the same
+left element to the same reducer.</p>
+
+<p>Here's the command-line invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.bigram.BigramRelativeFrequency /tmp/bible+shakes.nopunc /tmp/bigram 10 5
+</pre>
+
+<p>For analyzing the results, run
+<code>edu.umd.cloud9.bigram.AnalyzeBigramRelativeFrequency</code>.
+Sample invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.bigram.AnalyzeBigramRelativeFrequency /tmp/bigram
+</pre>
+
+<p>What are the five most frequent words following the word "light"?
+What is the frequency of observing each word?</p>
+
+<pre>
+(light, *)	454.0
+(light, and)	0.12555066
+(light, of)	0.116740085
+(light, to)	0.04185022
+(light, in)	0.033039648
+(light, on)	0.033039648
+(light, is)	0.028634362
+(light, upon)	0.026431719
+(light, that)	0.02202643
+(light, a)	0.019823788
+(light, the)	0.019823788
+</pre>
+
+<p>Same question, except for the word "contain".</p>
+
+<pre>
+(contain, *)            19.0
+(contain, a)            0.15789473
+(contain, the)          0.15789473
+(contain, thee)         0.15789473
+(contain, and)          0.05263158
+(contain, celestial)    0.05263158
+(contain, him)          0.05263158
+(contain, let)          0.05263158
+(contain, ourselves)    0.05263158
+(contain, that)         0.05263158
+(contain, their)        0.05263158
+</pre>
+
+<p>If there are a total of <i>N</i> words in your vocabulary, then
+there are a total of <i>N<sup><small>2</small></sup></i> possible
+values for
+F(W<sub><small>n</small></sub>|W<sub><small>n-1</small></sub>)&mdash;in
+theory, every word can follow every other word (including itself).
+What fraction of these values are non-zero?</p>
+
+<p style="padding-left: 30px">
+424462 / 41788<sup><small>2</small></sup> = 0.0002430724
+</p>
+
+</div></div>
+
+<p style="padding-top: 25px">&#171; <a href="index.html">Back to exercises</a></p>
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
+
+</div>
+
+<!-- content END -->
+
+<!-- footer START -->
+
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-14, LastUpdated.length-3);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
