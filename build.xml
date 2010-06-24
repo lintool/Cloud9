@@ -14,9 +14,6 @@
 		<fileset dir=".">
 			<include name="cloud9.jar" />
 		</fileset>
-		<fileset dir="hadoop/hadoop-0.20.1">
-			<include name="**/*.jar" />
-		</fileset>
 	</path>
 
 	<target name="init">
@@ -90,7 +87,7 @@
 				<exclude name="edu/cmu/**/*.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
-			<link href="../../hadoop/hadoop-0.20.1/docs/api" />
+			<link href="http://hadoop.apache.org/common/docs/current/api/" />
 		</javadoc>
 		<copy todir="${javadoc}">
 			<fileset dir="${src}/dist">
