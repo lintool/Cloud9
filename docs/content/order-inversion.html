@@ -53,25 +53,25 @@
 
 <!--- START MAIN CONTENT HERE -->
 
-<h2>Design Patterns &amp; Algorithms</h2>
+<h2>Design Patterns &amp; Algorithms &#187; Order Inversion</h2>
 
 <div class="post">
 <div class="content">
 
-<p>Cloud<sup><small>9</small></sup> provides reference implementations
-of many design patterns and algorithms introduced in the
-book <a href="http://mapreduce.me">Data-Intensive Text Processing with
-MapReduce</a> by Lin and Dyer.  Some of these examples are also
-solutions to <a href="../exercises/index.html">exercises</a> included
-with the library (which have been previously used in MapReduce courses
-at the University of Maryland).</p>
+<p>The order inversion design pattern is covered in Chapter 3, where
+the example is computing bigram relative frequencies.  A reference
+implementation can be found in the solutions to
+the <a href="../exercises/bigrams.html">bigram counting
+exercise</a>.</p>
 
-<ul>
-
-  <li><a href="order-inversion.html">Order Inversion</a></li>
-  <li><a href="pairs-stripes.html">Pairs and Stripes</a></li>
-
-</ul>
+<p>Here's how it works, very briefly: in addition to each bigram
+count, the mapper emits an special key (word, *) which contributes to
+the marginal count of the word.  We define the sort order so that this
+special key always comes before the bigram counts, so that by
+preserving state across multiple reduce method calls,we can compute
+the relative frequency directly by simple division.  We also need to
+define a custom partitioner to send all keys with the same left
+element to the same reducer.</p>
 
 </div></div>
 
