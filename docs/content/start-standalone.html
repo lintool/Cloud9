@@ -63,11 +63,9 @@ Cloud<sup><small>9</small></sup> in standalone mode.  In standalone
 mode, you run Hadoop directly on your local machine.  Of course, you
 don't get the benefit of distributing your code across multiple
 machines... but it's a good start for learning about Hadoop.  This
-tutorial assumes you've already downloaded
-Cloud<sup><small>9</small></sup> and gotten it set up.  Otherwise, see
-<a href="start.html">my tutorial on that</a>.  Also, see companion
-tutorial on <a href="start-EC2.html">getting started with
-Cloud<sup><small>9</small></sup> on EC2</a>.</p>
+tutorial assumes you've already downloaded the libraries and gotten it
+set up.  Also, see companion tutorial
+on <a href="start-EC2.html">getting started with on EC2</a>.</p>
 
 <p><b>For Windows users:</b> If you are using Windows,
 use <a href="http://www.cygwin.com">Cygwin</a>.  That's what I mean
@@ -81,11 +79,8 @@ when I say, "open up a shell".</p>
 <div class="content">
 
 <p>This tutorial assumes Hadoop 0.20.1.  Make sure you've downloaded
-and unpacked the Hadoop distribution in <code>umd-hadoop-core/hadoop/</code>.
-See <a href="start.html">this guide</a> for more details.</p>
-
-<p>Open up a shell and go to
-<code>umd-hadoop-core/hadoop/hadoop-0.20.1/conf/</code>.  Make sure the file
+and unpacked the Hadoop distribution somewhere. Open up a shell and go to
+<code>/path/to/hadoop/conf/</code>.  Make sure the file
 core-site.xml doesn't actually specify configuration parameters:</p>
 
 <pre>
@@ -121,7 +116,7 @@ hadoop fs -D mapred.job.tracker=local -D fs.default.name=file:/// -ls .
 <h2>Step 2: Run pi</h2>
 <div class="content">
 
-<p>Open a shell and go to <code>umd-hadoop-core/hadoop/hadoop-0.20.1/</code>. Now
+<p>Open a shell and go to <code>/path/to/hadoop/</code>. Now
 run the pi demo:</p>
 
 <pre>

@@ -368,7 +368,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 
 	private static int printUsage() {
 		System.out
-				.println("usage: [base-path] [num-nodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
+				.println("usage: [basePath] [numNodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -391,14 +391,14 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 		boolean useInmapCombiner = Integer.parseInt(args[5]) != 0;
 		boolean useRange = Integer.parseInt(args[6]) != 0;
 
-		sLogger.info("Tool name: RunPageRankSchimmy");
-		sLogger.info(" - base dir: " + basePath);
-		sLogger.info(" - node count: " + n);
+		sLogger.info("Tool name: RunPageRank");
+		sLogger.info(" - basePath: " + basePath);
+		sLogger.info(" - numNodes: " + n);
 		sLogger.info(" - start iteration: " + s);
 		sLogger.info(" - end iteration: " + e);
-		sLogger.info(" - useCombiner: " + useCombiner);
-		sLogger.info(" - useInmapCombiner: " + useInmapCombiner);
-		sLogger.info(" - useRange: " + useRange);
+		sLogger.info(" - useCombiner?: " + useCombiner);
+		sLogger.info(" - useInMapCombiner?: " + useInmapCombiner);
+		sLogger.info(" - useRange?: " + useRange);
 
 		// iterate PageRank
 		for (int i = s; i < e; i++) {

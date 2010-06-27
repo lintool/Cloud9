@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
+</head>
+
+<body>
+
+<div id="wrap">
+<div id="container" class="one-column" >
+
+<!-- header START -->
+
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+
+<script type="text/javascript" src="menu.js">
+</script>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Design Patterns &amp; Algorithms &#187; PageRank</h2>
+
+<div class="post">
+<div class="content">
+
+<p>This page describes the code used to run experiments in the
+following paper:</p>
+
+<p style="margin-left: 30px">Jimmy Lin and Michael Schatz. <b><a href="Lin_Schatz_MLG2010.pdf">Design Patterns for Efficient Graph Algorithms in MapReduce.</a></b> <i>Proceedings of the 2010 Workshop on Mining and Learning with Graphs Workshop (MLG-2010)</i>, July 2010, Washington, D.C.</p>
+
+<p>There's code in Cloud<sup><small>9</small></sup> that illustrates
+three different design patterns for graph algorithms in MapReduce
+using PageRank: in-mapper combining for faster local aggregation,
+range partitioning to create more opportunities for local aggregation,
+and Schimmy to avoid shuffling the graph structure from iteration to
+iteration.</p>
+
+<p>We have a very simple text format for specifying the graph
+structure.  A graph with <i>n</i> nodes is represented in a text file
+with <i>n</i> arbitrarily-ordered lines.  Each line begins with a
+nodeid (numeric identifier for the node), followed by its adjacency
+list, which specifies neighbors reachable via outgoing edges. The
+adjacency list is tab separated.  Note that if a node does not contain
+an outgoing edges, you still need a line in the file to represent it.
+Here's a simple example (tab replaced with spaces for presentation
+reasons):</p>
+
+<pre>
+1    3    4
+2    1
+3
+4    2    3
+</pre>
+
+<p>This represents a graph with four nodes: nodeid 1 points to 3 and
+4; nodeid 2 points to 1, nodeid 3 is a dangling node (no neighbors);
+and nodeid 4 points to nodes 2 and 3.</p>
+
+<p>Unfortunately, we haven't found a good way to distribute the
+webgraph used in our experiments... but assuming you have a graph
+represented in the above format, here are the relevant driver classes
+for running PageRank:</p>
+
+<ul>
+
+  <li><code><a href="../api/edu/umd/cloud9/pagerank/BuildPageRankRecords.html">edu.umd.cloud9.pagerank.BuildPageRankRecords</a></code></li>
+
+  <li><code><a href="../api/edu/umd/cloud9/pagerank/PartitionGraph.html">edu.umd.cloud9.pagerank.PartitionGraph</a></code></li>
+
+  <li><code><a href="../api/edu/umd/cloud9/pagerank/RunPageRankBasic.html">edu.umd.cloud9.pagerank.RunPageRankBasic</a></code></li>
+
+  <li><code><a href="../api/edu/umd/cloud9/pagerank/RunPageRankSchimmy.html">edu.umd.cloud9.pagerank.RunPageRankSchimmy</a></code></li>
+
+</ul>
+
+<p>Below, we present step-by-step instructions for running the various
+experiments.</p>
+
+<p>First, we take the plain-text graph structure and pack it into the
+appropriate Hadoop data structures. The driver
+program <code>edu.umd.cloud9.pagerank.BuildPageRankRecords</code>
+takes three command-line arguments:</p>
+
+<ul>
+
+  <li>[inputDir]: input directory</li>
+  <li>[outputDir]: output directory</li>
+  <li>[numNodes]: number of nodes in the graph</li>
+
+</ul>
+
+<p>Here's a sample command-line
+invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
+   /shared/ClueWeb09/webgraph/en.01 /umd-lin/jimmylin/PageRankRecords 50220423
+</pre>
+
+<p>Second, we need to partition the graph.  The appropriate driver
+program is <code>edu.umd.cloud9.pagerank.PartitionGraph</code>, which takes the
+following command-line arguments:</p>
+
+<ul>
+
+  <li>[inputDir]: input directory</li>
+  <li>[outputDir]: output directory</li>
+  <li>[numPartitions]: number of partitions</li>
+  <li>[useRange?]: 1 to user range partitioing or 0 otherwise</li>
+  <li>[nodeCount]: number of nodes in the graph</li>
+
+</ul>
+
+<p>So, let's partition the graph both ways:</p>
+
+<pre>
+# hash partition the graph
+hadoop fs -mkdir /umd-lin/jimmylin/PageRank-hash
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+   /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-hash/iter0000 100 0 50220423
+
+# range partition the graph
+hadoop fs -mkdir /umd-lin/jimmylin/PageRank-range
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+   /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-range/iter0000 100 1 50220423
+</pre>
+
+<p>We want to specify an output directory of the form
+<code>/base/path/iter0000</code> because that's the convention of the
+PageRank driver program: the output of iteration <i>x</i> is stored in
+a subdirectory named <code>iterXXXX</code>.  In the experiments
+discussed in our paper, we partitioned the graph into 100 parts.</p>
+
+<p>Now we're ready to run PageRank.  The two important driver programs
+are:</p>
+
+<ul>
+
+  <li><code>edu.umd.cloud9.pagerank.RunPageRankBasic</code> for
+  the basic implementation: shuffles graph structure from iteration to
+  iteration.</li>
+
+  <li><code>edu.umd.cloud9.pagerank.RunPageRankSchimmy</code>
+  for the Schimmy implementation: avoids graph structure shuffling.</li>
+
+</ul>
+
+<p>Both driver programs take the same command-line arguments:</p>
+
+<ul>
+
+  <li>[basePath]: the base path</li>
+  <li>[numNodes]: number of nodes in the graph</li>
+  <li>[start]: starting iteration</li>
+  <li>[end]: ending iteration</li>
+  <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
+  <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
+  <li>[useRange?]: 1 for range partitioning, 0 for not</li>
+
+</ul>
+
+<p>A few notes:</p>
+
+<ul>
+
+<li>The starting and ending iterations will correspond to
+paths <code>/base/path/iterXXXX</code>
+and <code>/base/path/iterYYYY</code>.  As a example, if I specify 0
+and 10 as the starting and ending iterations, the driver program will
+start with the graph structure stored
+at <code>/base/path/iter0000</code>; final results will be stored
+at <code>/base/path/iter0010</code>.</p>
+
+<li>Although the driver program will
+allow you to use both combiners and the in-mapper combining pattern,
+using both actually slows down the algorithm.  So for all practical
+purposes, those bits should be considered exclusive.</li>
+
+</ul>
+
+<p>Here the command-line invocation of what's pretty much considered
+the "best-practices" baseline (prior to our paper):</p>
+
+<pre>
+# hash partitioning, basic implementation, +combiner
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 1 0 0
+</pre>
+
+<p>Here are some command-line invocation exercising some of the
+patterns discussed in our paper:</p>
+
+<pre>
+# hash partitioning, basic implementation, +IMC
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
+
+# hash partitioning, Schimmy implementation, +IMC
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
+
+# range partitioning, basic implementation, +IMC
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+   /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
+
+# range partitioning, Schimmy implementation, +IMC
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+   /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
+</pre></blockquote>
+
+<p>Based on our experiments, the final setting is the fastest, with a
+per-iteration running time that is 69% faster than the
+"best-practices" baseline.</p>
+
+</div></div>
+
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
+
+</div>
+
+<!-- content END -->
+
+<!-- footer START -->
+
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--
+var LastUpdated = "$Date$";
+LastUpdated = LastUpdated.substring(LastUpdated.length-28, LastUpdated.length-6);
+document.writeln (LastUpdated);
+-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
+

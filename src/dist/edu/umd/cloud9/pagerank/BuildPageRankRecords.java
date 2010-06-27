@@ -94,7 +94,7 @@ public class BuildPageRankRecords extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input] [output] [num-nodes]");
+		System.out.println("usage: [inputDir] [outputDir] [numNodes]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -113,9 +113,9 @@ public class BuildPageRankRecords extends Configured implements Tool {
 		int n = Integer.parseInt(args[2]);
 
 		sLogger.info("Tool name: BuildPageRankRecords");
-		sLogger.info(" - input: " + inputPath);
-		sLogger.info(" - output: " + outputPath);
-		sLogger.info(" - node cnt: " + n);
+		sLogger.info(" - inputDir: " + inputPath);
+		sLogger.info(" - outputDir: " + outputPath);
+		sLogger.info(" - numNodes: " + n);
 
 		JobConf conf = new JobConf(BuildPageRankRecords.class);
 		conf.setJobName("PackageLinkGraph");

@@ -80,7 +80,7 @@ public class PartitionGraph extends Configured implements Tool
 	public PartitionGraph() { }
 
 	private static int printUsage() {
-		System.out.println("usage: [in-path] [out-path] [numPartitions] [useRange?] [nodeCount]");
+		System.out.println("usage: [inputDir] [outputDir] [numPartitions] [useRange?] [nodeCount]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -100,10 +100,10 @@ public class PartitionGraph extends Configured implements Tool
 		int nodeCount    = Integer.parseInt(args[4]);
 
 		sLogger.info("Tool name: PartitionGraph");
-		sLogger.info(" - in dir: " + inPath);
-		sLogger.info(" - out dir: " + outPath);
-		sLogger.info(" - numParts: " + numParts);
-		sLogger.info(" - useRange: " + useRange);
+		sLogger.info(" - inputDir: " + inPath);
+		sLogger.info(" - outputDir: " + outPath);
+		sLogger.info(" - numPartitions: " + numParts);
+		sLogger.info(" - useRange?: " + useRange);
 		sLogger.info(" - nodeCnt: " + nodeCount);
 
 		JobConf conf = new JobConf(PartitionGraph.class);
