@@ -141,7 +141,7 @@ following command-line arguments:</p>
   <li>[inputDir]: input directory</li>
   <li>[outputDir]: output directory</li>
   <li>[numPartitions]: number of partitions</li>
-  <li>[useRange?]: 1 to user range partitioing or 0 otherwise</li>
+  <li>[useRange?]: 1 to user range partitioning or 0 otherwise</li>
   <li>[nodeCount]: number of nodes in the graph</li>
 
 </ul>
@@ -206,7 +206,7 @@ and <code>/base/path/iterYYYY</code>.  As a example, if I specify 0
 and 10 as the starting and ending iterations, the driver program will
 start with the graph structure stored
 at <code>/base/path/iter0000</code>; final results will be stored
-at <code>/base/path/iter0010</code>.</p>
+at <code>/base/path/iter0010</code>.</li>
 
 <li>Although the driver program will
 allow you to use both combiners and the in-mapper combining pattern,
@@ -243,7 +243,7 @@ hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
 # range partitioning, Schimmy implementation, +IMC
 hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
    /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
-</pre></blockquote>
+</pre>
 
 <p>Based on our experiments, the final setting is the fastest, with a
 per-iteration running time that is 69% faster than the
@@ -272,11 +272,9 @@ per-iteration running time that is 69% faster than the
 <div id="copyright">
 Last updated:
 <script type="text/javascript">
-<!--
-var LastUpdated = "$Date$";
-LastUpdated = LastUpdated.substring(LastUpdated.length-28, LastUpdated.length-6);
-document.writeln (LastUpdated);
--->
+<!--//
+document.write(document.lastModified);
+//-->
 </script>
 </div>
 
