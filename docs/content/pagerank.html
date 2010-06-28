@@ -91,10 +91,48 @@ reasons):</p>
 4; nodeid 2 points to 1, nodeid 3 is a dangling node (no neighbors);
 and nodeid 4 points to nodes 2 and 3.</p>
 
+
 <p>Unfortunately, we haven't found a good way to distribute the
-webgraph used in our experiments... but assuming you have a graph
-represented in the above format, here are the relevant driver classes
-for running PageRank:</p>
+webgraph used in our experiments.  As an alternative, we have provided
+code for extracting the link graph from Wikipedia, which is readily
+accessible by anyone.  First, refer to this page
+on <a href="wikipedia.html">working with Wikipedia</a>.  It contains
+instructions for packing Wikipedia pages from the raw XML distribution
+into block-compressed SequenceFiles for convenient access.  Once
+you've done that, here's a sample invocation for extracting the link
+graph in the above text format:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
+  /shared/Wikipedia/compressed.block/en-20100130/ \
+  /umd-lin/jimmylin/wiki-edges /umd-lin/jimmylin/wiki-adjacency 10
+</pre>
+
+<p>The command-line arguments, in order: directory of Wikipedia
+source, directory for storing edge information, directory for storing
+adjecency lists (in the above text format), and number of partitions.
+The number of nodes in the link graph is stored in a counter and can
+be read either from the command line or from the jobtracker.</p>
+
+<!-- 
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
+   /umd-lin/jimmylin/wiki-adjacency /umd-lin/jimmylin/wiki/PageRankRecords 9541307
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+   /umd-lin/jimmylin/wiki/PageRankRecords /umd-lin/jimmylin/wiki/PageRank-hash/iter0000 10 0 9541307
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+   /umd-lin/jimmylin/wiki/PageRank-hash 9541307 0 10 0 1 0
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+   /umd-lin/jimmylin/wiki/PageRank-hash 9541307 0 10 0 1 0
+
+-->
+
+<p>The rest of this guide, however, assumes you're working with the
+ClueWeb09 link graph (as discussed in the paper).  Here are the
+relevant driver classes for running PageRank:</p>
 
 <ul>
 
