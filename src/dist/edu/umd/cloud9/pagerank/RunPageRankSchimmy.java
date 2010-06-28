@@ -58,6 +58,36 @@ import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 import edu.umd.cloud9.util.HMapIF;
 import edu.umd.cloud9.util.MapIF;
 
+/**
+ * <p>
+ * Main driver program for running the Schimmy implementation of PageRank.
+ * Command-line arguments are as follows:
+ * </p>
+ * 
+ * <ul>
+ * <li>[basePath]: the base path</li>
+ * <li>[numNodes]: number of nodes in the graph</li>
+ * <li>[start]: starting iteration</li>
+ * <li>[end]: ending iteration</li>
+ * <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
+ * <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
+ * <li>[useRange?]: 1 for range partitioning, 0 for not</li>
+ * </ul>
+ * 
+ * <p>
+ * The starting and ending iterations will correspond to paths
+ * <code>/base/path/iterXXXX</code> and <code>/base/path/iterYYYY</code>. As a
+ * example, if you specify 0 and 10 as the starting and ending iterations, the
+ * driver program will start with the graph structure stored at
+ * <code>/base/path/iter0000</code>; final results will be stored at
+ * <code>/base/path/iter0010</code>.
+ * </p>
+ * 
+ * @see RunPageRankBasic
+ * @author Jimmy Lin
+ * @author Michael Schatz
+ * 
+ */
 public class RunPageRankSchimmy extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(RunPageRankSchimmy.class);
@@ -433,7 +463,15 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 
 		FileSystem fs = FileSystem.get(conf);
 
-		int numPartitions = FileSystem.get(conf).listStatus(new Path(in)).length - 1;
+		
+		// we need to actually count the number of part files to get the number
+		// of partitions (because the directory might contain _log)
+		int numPartitions = 0;
+		for (FileStatus s : FileSystem.get(conf).listStatus(new Path(in))) {
+			if (s.getPath().getName().contains("part-"))
+				numPartitions++;
+		}
+		
 		conf.setInt("NodeCount", n);
 
 		Partitioner p = null;
@@ -479,6 +517,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 		sLogger.info(" - useInmapCombiner: " + useInmapCombiner);
 		sLogger.info(" - numPartitions: " + numPartitions);
 		sLogger.info(" - useRange: " + useRange);
+		sLogger.info("computed number of partitions: " + numPartitions);
 
 		int numMapTasks = numPartitions;
 		int numReduceTasks = numPartitions;

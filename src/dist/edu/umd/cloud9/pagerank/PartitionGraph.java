@@ -39,45 +39,57 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-public class PartitionGraph extends Configured implements Tool
-{
+/**
+ * <p>
+ * Driver program for partitioning the graph. Command-line arguments are as
+ * follows:
+ * </p>
+ * 
+ * <ul>
+ * 
+ * <li>[inputDir]: input directory</li>
+ * <li>[outputDir]: output directory</li>
+ * <li>[numPartitions]: number of partitions</li>
+ * <li>[useRange?]: 1 to user range partitioning or 0 otherwise</li>
+ * <li>[nodeCount]: number of nodes in the graph</li>
+ * 
+ * </ul>
+ * 
+ * @author Jimmy Lin
+ * @author Michael Schatz
+ * 
+ */
+public class PartitionGraph extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(PartitionGraph.class);
 
 	private static class MapClass extends MapReduceBase implements
-			Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode>
-	{
+			Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode> {
 		public void map(IntWritable nid, PageRankNode node,
 				OutputCollector<IntWritable, PageRankNode> output, Reporter reporter)
-				throws IOException
-		{
+				throws IOException {
 			output.collect(nid, node);
 		}
 	}
 
-
 	private static class ReduceClass extends MapReduceBase implements
-			Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode>
-	{
+			Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode> {
 		public void reduce(IntWritable nid, Iterator<PageRankNode> values,
 				OutputCollector<IntWritable, PageRankNode> output, Reporter reporter)
-				throws IOException
-		{
-			while (values.hasNext())
-			{
+				throws IOException {
+			while (values.hasNext()) {
 				PageRankNode node = values.next();
 				output.collect(nid, node);
 			}
 		}
 	}
 
-
-	public static void main(String[] args) throws Exception
-	{
+	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new PartitionGraph(), args);
 		System.exit(res);
 	}
 
-	public PartitionGraph() { }
+	public PartitionGraph() {
+	}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [numPartitions] [useRange?] [nodeCount]");
@@ -85,19 +97,17 @@ public class PartitionGraph extends Configured implements Tool
 		return -1;
 	}
 
-	public int run(String[] args) throws IOException
-	{
-		if (args.length != 5)
-		{
+	public int run(String[] args) throws IOException {
+		if (args.length != 5) {
 			printUsage();
 			return -1;
 		}
 
-		String inPath    = args[0];
-		String outPath   = args[1];
-		int numParts     = Integer.parseInt(args[2]);
+		String inPath = args[0];
+		String outPath = args[1];
+		int numParts = Integer.parseInt(args[2]);
 		boolean useRange = Integer.parseInt(args[3]) != 0;
-		int nodeCount    = Integer.parseInt(args[4]);
+		int nodeCount = Integer.parseInt(args[4]);
 
 		sLogger.info("Tool name: PartitionGraph");
 		sLogger.info(" - inputDir: " + inPath);
@@ -132,7 +142,9 @@ public class PartitionGraph extends Configured implements Tool
 
 		conf.setSpeculativeExecution(false);
 
-		if (useRange) { conf.setPartitionerClass(RangePartitioner.class); }
+		if (useRange) {
+			conf.setPartitionerClass(RangePartitioner.class);
+		}
 
 		FileSystem.get(conf).delete(new Path(outPath), true);
 

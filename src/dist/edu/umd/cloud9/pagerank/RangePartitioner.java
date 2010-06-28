@@ -21,20 +21,24 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Partitioner;
 
-public class RangePartitioner<K, V> implements Partitioner<IntWritable, Writable>
-{
+/**
+ * Ranger partitioner. In the context of graph algorithms, ensures that
+ * consecutive node ids are blocked together.
+ * 
+ * @author jimmy
+ * 
+ */
+public class RangePartitioner<K, V> implements Partitioner<IntWritable, Writable> {
 	private int mNodeCnt = 0;
 
-	public RangePartitioner() { }
+	public RangePartitioner() {
+	}
 
-	public int getPartition(IntWritable key, Writable value, int numReduceTasks)
-	{
+	public int getPartition(IntWritable key, Writable value, int numReduceTasks) {
 		return (int) (((float) key.get() / (float) mNodeCnt) * numReduceTasks) % numReduceTasks;
 	}
 
-	public void configure(JobConf job)
-	{
+	public void configure(JobConf job) {
 		mNodeCnt = job.getInt("NodeCount", 0);
 	}
 }
-

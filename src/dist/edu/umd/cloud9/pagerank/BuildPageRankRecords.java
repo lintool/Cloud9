@@ -40,6 +40,25 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 
+/**
+ * <p>
+ * Driver program that takes a plain-text encoding of a directed graph and
+ * builds corresponding Hadoop structures for representing the graph.
+ * Command-line parameters are as follows:
+ * </p>
+ * 
+ * <ul>
+ * 
+ * <li>[inputDir]: input directory</li>
+ * <li>[outputDir]: output directory</li>
+ * <li>[numNodes]: number of nodes in the graph</li>
+ * 
+ * </ul>
+ * 
+ * @author Jimmy Lin
+ * @author Michael Schatz
+ * 
+ */
 public class BuildPageRankRecords extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(BuildPageRankRecords.class);
@@ -79,10 +98,9 @@ public class BuildPageRankRecords extends Configured implements Tool {
 			}
 
 			reporter.incrCounter("graph", "numNodes", 1);
-			reporter.incrCounter("graph", "numEdges", arr.length-1);
+			reporter.incrCounter("graph", "numEdges", arr.length - 1);
 
-			if (arr.length > 1)
-			{
+			if (arr.length > 1) {
 				reporter.incrCounter("graph", "numActiveNodes", 1);
 			}
 

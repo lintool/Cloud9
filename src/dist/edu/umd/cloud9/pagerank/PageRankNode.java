@@ -24,6 +24,13 @@ import org.apache.hadoop.io.Writable;
 
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 
+/**
+ * Representation of a graph node for PageRank.
+ * 
+ * @author Jimmy Lin
+ * @author Michael Schatz
+ *
+ */
 public class PageRankNode implements Writable {
 
 	public static final int TYPE_COMPLETE = 1;
@@ -79,6 +86,7 @@ public class PageRankNode implements Writable {
 	 * @param in
 	 *            source for raw byte representation
 	 */
+	@Override
 	public void readFields(DataInput in) throws IOException {
 		mType = in.readByte();
 
@@ -103,6 +111,7 @@ public class PageRankNode implements Writable {
 	 * @param out
 	 *            where to write the raw byte representation
 	 */
+	@Override
 	public void write(DataOutput out) throws IOException {
 		out.writeByte((byte) mType);
 		out.writeInt(mNodeId);
@@ -119,6 +128,7 @@ public class PageRankNode implements Writable {
 		mAdjacenyList.write(out);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 
