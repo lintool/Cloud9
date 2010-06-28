@@ -144,11 +144,11 @@ in <b>core-site.xml</b>:</p>
 </pre>
 
 <p>For NAMENODE, substitute the fully-qualified hostname of the
-namenode.  This should begin with "<code>hdfs://</code>" and end with a port
-number.  The UGI property specifies file permissions you have in HDFS
-and will vary by user.  Ask me what this should be, or otherwise just
-put in your username twice separated by a comma.  So if your username
-is "foo", put "foo,foo" here.</p>
+namenode.  This should begin with "<code>hdfs://</code>" and end with
+a port number.  The UGI property specifies file permissions you have
+in HDFS and will vary by user.  This should be your username, followed
+by a comma, followed by the group you belong to.  So for me, it would
+be "jimmylin,umd-lin".</p>
 
 <p>The following configuration information goes
 in <b>hdfs-site.xml</b>:</p>
