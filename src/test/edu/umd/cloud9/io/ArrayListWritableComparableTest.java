@@ -31,7 +31,6 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.junit.Test;
 
 public class ArrayListWritableComparableTest {
@@ -49,8 +48,7 @@ public class ArrayListWritableComparableTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
-		//ArrayListWritableComparable<Text> list = new ArrayListWritableComparable<Text>();
-		ArrayListWritableComparable<WritableComparable> list = new ArrayListWritableComparable<WritableComparable>();
+		ArrayListWritableComparable<Text> list = new ArrayListWritableComparable<Text>();
 		list.add(new Text("hi"));
 		list.add(new Text("there"));
 

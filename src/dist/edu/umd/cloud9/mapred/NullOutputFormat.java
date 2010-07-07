@@ -8,6 +8,7 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 
+@Deprecated
 public class NullOutputFormat implements OutputFormat<NullWritable, NullWritable> {
 
 	public void checkOutputSpecs(FileSystem ignored, JobConf job) {
