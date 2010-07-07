@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercise Solutions &#187; PageRank</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
+</head>
+
+<body>
+
+<div id="wrap">
+<div id="container" class="one-column" >
+
+<!-- header START -->
+
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+
+<script type="text/javascript" src="menu.js">
+</script>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Exercise Solutions &#187; PageRank</h2>
+
+<div class="post">
+<div class="content">
+
+<p>This page presents solutions for
+the <a href="pagerank.html">PageRank exercise</a>.  Code is described
+in a separate page <a href="../content/pagerank.html">on design
+patterns for graph algorithms in MapReduce</a>.  Here, we show how the
+code can be applied to solve this exercise.  Command-line invocations
+are shown for the "large" graph, but are similar for the other
+graphs.</p>
+
+<p>Assuming that you've already loaded the adjacency list information
+to HDFS, the first step is to take the plain-text graph structure and
+pack it into the appropriate Hadoop data structures:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
+   /umd-lin/jimmylin/sample-large.txt /umd-lin/jimmylin/sample-large-PageRankRecords 1458
+</pre>
+
+<p>Next, let's partition the graph:</p>
+
+<pre>
+hadoop fs -mkdir /umd-lin/jimmylin/sample-large-PageRank
+
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+   /umd-lin/jimmylin/sample-large-PageRankRecords /umd-lin/jimmylin/sample-large-PageRank/iter0000 5 0 1458
+</pre>
+
+<p>Now we're ready to run PageRank.  Let's run 10 iterations:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+   /umd-lin/jimmylin/sample-large-PageRank 1458 0 10 1 0 0
+</pre>
+
+<p>We're basically done!  Let's use this utility program to fetch the
+top 10 nodes by PageRank:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.pagerank.FindMaxPageRankNodes \
+  /umd-lin/jimmylin/sample-large-PageRank/iter0010 /umd-lin/jimmylin/sample-large-PageRank-top10 10
+</pre>
+
+<p>The results:</p>
+
+<pre>
+$ hadoop fs -cat /umd-lin/jimmylin/sample-large-PageRank-top10/part-00000
+9520006	  -5.0940123
+8069300	  -5.093434
+11775232  -4.9177628
+12787320  -4.8977823
+8614504	  -4.8873854
+10912914  -4.868026
+9265639	  -4.8555655
+12486146  -4.774886
+8669492	  -4.454868
+9369084	  -4.3875346
+</pre>
+
+<p>The PageRank values are expressed as log probabilities, and do
+indeed match results from the <a href="sample-large.pagerank.txt">JUNG
+reference implementation</a>.</p>
+
+</div></div>
+
+
+<p style="padding-top: 25px">&#171; <a href="index.html">Back to exercises</a></p>
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
+
+</div>
+
+<!-- content END -->
+
+<!-- footer START -->
+
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--//
+document.write(document.lastModified);
+//-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
