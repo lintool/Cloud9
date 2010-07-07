@@ -61,7 +61,9 @@
 <p>This exercise is a simple extension of the word count demo: in the
 first part of the exercise, you'll be counting bigrams, and in the
 second part of the exercise, you'll be computing bigram relative
-frequencies.  For both parts, feel free to use Hadoop data types in
+frequencies.</p>
+
+<p>For both parts, feel free to use Hadoop data types in
 Cloud<sup><small>9</small></sup> if you think it's helpful.  You'll
 want to look in the edu.umd.cloud9.io package.</p>
 
@@ -76,12 +78,13 @@ want to look in the edu.umd.cloud9.io package.</p>
 bigrams.  <a href="http://en.wikipedia.org/wiki/Bigram">Bigrams</a>
 are simply sequences of two consecutive words.  For example, the
 previous sentence contains the following bigrams: "Bigrams are", "are
-simply", "simply sequences", "sequence of", etc.  Work with the sample
-collection included in Cloud<sup><small>9</small></sup>, <a
-href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
-works of Shakespeare</a>.  Don't worry about doing anything fancy in
-terms of tokenization; it's fine to continue using Java's
-StringTokenizer.</p>
+simply", "simply sequences", "sequence of", etc.</p>
+
+<p>Work with the sample collection included in
+Cloud<sup><small>9</small></sup>, <a href="../../data/bible+shakes.nopunc.gz">the
+Bible and the complete works of Shakespeare</a>.  Don't worry about
+doing anything fancy in terms of tokenization; it's fine to continue
+using Java's StringTokenizer.</p>
 
 <p>Questions to answer:</p>
 
@@ -109,10 +112,11 @@ StringTokenizer.</p>
 <p>Extend your program to compute bigram relative frequencies, i.e.,
 how likely you are to observe a word given the preceding word.  The
 output of the code should be a table of values for
-F(W<sub><small>n</small></sub>|W<sub><small>n-1</small></sub>).  Hint:
-to compute F(B|A), count up the number of occurrences of the bigram "A
-B", and then divide by the number of occurrences of all the bigrams
-that start with "A".</p>
+F(W<sub><small>n</small></sub>|W<sub><small>n-1</small></sub>).</p>
+
+<p>Hint: to compute F(B|A), count up the number of occurrences of the
+bigram "A B", and then divide by the number of occurrences of all the
+bigrams that start with "A".</p>
 
 <p>Questions to answer:</p>
 
