@@ -56,7 +56,6 @@ public class AnalyzeBigramRelativeFrequency {
 		}
 
 		Collections.sort(list1, new Comparator<KeyValuePair<PairOfStrings, FloatWritable>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(KeyValuePair<PairOfStrings, FloatWritable> e1,
 					KeyValuePair<PairOfStrings, FloatWritable> e2) {
 				if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {
@@ -78,7 +77,6 @@ public class AnalyzeBigramRelativeFrequency {
 		}
 
 		Collections.sort(list2, new Comparator<KeyValuePair<PairOfStrings, FloatWritable>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(KeyValuePair<PairOfStrings, FloatWritable> e1,
 					KeyValuePair<PairOfStrings, FloatWritable> e2) {
 				if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {

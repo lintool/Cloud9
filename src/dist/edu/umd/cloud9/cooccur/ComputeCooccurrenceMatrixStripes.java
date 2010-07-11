@@ -25,15 +25,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -49,7 +45,8 @@ import edu.umd.cloud9.io.HMapSIW;
  * </p>
  * 
  * <blockquote>Jimmy Lin. <b>Scalable Language Processing Algorithms for the
- * Masses: A Case Study in Computing Word Co-occurrence Matrices with MapReduce.</b>
+ * Masses: A Case Study in Computing Word Co-occurrence Matrices with
+ * MapReduce.</b>
  * <i>Proceedings of the 2008 Conference on Empirical Methods in Natural
  * Language Processing (EMNLP 2008)</i>, pages 419-428.</blockquote>
  * 
@@ -61,7 +58,6 @@ import edu.umd.cloud9.io.HMapSIW;
  * <li>[input-path]</li>
  * <li>[output-path]</li>
  * <li>[window]</li>
- * <li>[num-mappers]</li>
  * <li>[num-reducers]</li>
  * </ul>
  * 
@@ -70,19 +66,20 @@ import edu.umd.cloud9.io.HMapSIW;
 public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, Text, HMapSIW> {
+	private static class MyMapper extends Mapper<LongWritable, Text, Text, HMapSIW> {
 
 		private int window = 2;
 		private HMapSIW map = new HMapSIW();
 		private Text textKey = new Text();
 
-		public void configure(JobConf job) {
-			window = job.getInt("window", 2);
+		@Override
+		public void setup(Context context) {
+			window = context.getConfiguration().getInt("window", 2);
 		}
 
-		public void map(LongWritable key, Text line, OutputCollector<Text, HMapSIW> output,
-				Reporter reporter) throws IOException {
+		@Override
+		public void map(LongWritable key, Text line, Context context) throws IOException,
+				InterruptedException {
 			String text = line.toString();
 
 			String[] terms = text.split("\\s+");
@@ -115,24 +112,25 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 				}
 
 				textKey.set(term);
-				output.collect(textKey, map);
+				context.write(textKey, map);
 			}
 		}
 	}
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, HMapSIW, Text, HMapSIW> {
+	private static class MyReducer extends Reducer<Text, HMapSIW, Text, HMapSIW> {
 
-		public void reduce(Text key, Iterator<HMapSIW> values,
-				OutputCollector<Text, HMapSIW> output, Reporter reporter) throws IOException {
+		@Override
+		public void reduce(Text key, Iterable<HMapSIW> values, Context context) throws IOException,
+				InterruptedException {
+			Iterator<HMapSIW> iter = values.iterator();
 
 			HMapSIW map = new HMapSIW();
 
-			while (values.hasNext()) {
-				map.plus(values.next());
+			while (iter.hasNext()) {
+				map.plus(iter.next());
 			}
 
-			output.collect(key, map);
+			context.write(key, map);
 		}
 	}
 
@@ -144,7 +142,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 
 	private static int printUsage() {
 		System.out
-				.println("usage: [input-path] [output-path] [window] [num-mappers] [num-reducers]");
+				.println("usage: [input-path] [output-path] [window] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -153,7 +151,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-		if (args.length != 5) {
+		if (args.length != 4) {
 			printUsage();
 			return -1;
 		}
@@ -162,42 +160,38 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 		String outputPath = args[1];
 
 		int window = Integer.parseInt(args[2]);
-		int mapTasks = Integer.parseInt(args[3]);
-		int reduceTasks = Integer.parseInt(args[4]);
+		int reduceTasks = Integer.parseInt(args[3]);
 
 		sLogger.info("Tool: ComputeCooccurrenceMatrixStripes");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
 		sLogger.info(" - window: " + window);
-		sLogger.info(" - number of mappers: " + mapTasks);
 		sLogger.info(" - number of reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(ComputeCooccurrenceMatrixStripes.class);
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "CooccurrenceMatrixStripes");
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
-		conf.setJobName("CooccurrenceMatrixStripes");
+		job.getConfiguration().setInt("window", window);
 
-		conf.setInt("window", window);
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(reduceTasks);
+		job.setJarByClass(ComputeCooccurrenceMatrixStripes.class);
+		job.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
+		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		FileOutputFormat.setCompressOutput(conf, false);
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(HMapSIW.class);
 
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(HMapSIW.class);
-
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(MyReducer.class);
-		conf.setReducerClass(MyReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
 
 		long startTime = System.currentTimeMillis();
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 

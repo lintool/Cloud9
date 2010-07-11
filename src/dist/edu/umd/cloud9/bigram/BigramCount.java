@@ -27,16 +27,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -46,15 +42,15 @@ public class BigramCount extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(BigramCount.class);
 
 	// mapper: emits (token, 1) for every bigram occurrence
-	protected static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, Text, IntWritable> {
+	protected static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// reuse objects to save overhead of object creation
 		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
+		private Text bigram = new Text();
 
-		public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
-				Reporter reporter) throws IOException {
+		@Override
+		public void map(LongWritable key, Text value, Context context) throws IOException,
+				InterruptedException {
 			String line = ((Text) value).toString();
 
 			String prev = null;
@@ -64,8 +60,8 @@ public class BigramCount extends Configured implements Tool {
 
 				// emit only if we have an actual bigram
 				if (prev != null) {
-					word.set(prev + " " + cur);
-					output.collect(word, one);
+					bigram.set(prev + " " + cur);
+					context.write(bigram, one);
 				}
 				prev = cur;
 			}
@@ -73,21 +69,22 @@ public class BigramCount extends Configured implements Tool {
 	}
 
 	// reducer: sums up all the counts
-	protected static class MyReducer extends MapReduceBase implements
-			Reducer<Text, IntWritable, Text, IntWritable> {
+	protected static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
 		// reuse objects
 		private final static IntWritable SumValue = new IntWritable();
 
-		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+		@Override
+		public void reduce(Text key, Iterable<IntWritable> values, Context context)
+				throws IOException, InterruptedException {
 			// sum up values
 			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			Iterator<IntWritable> iter = values.iterator();
+			while (iter.hasNext()) {
+				sum += iter.next().get();
 			}
 			SumValue.set(sum);
-			output.collect(key, SumValue);
+			context.write(key, SumValue);
 		}
 	}
 
@@ -95,7 +92,7 @@ public class BigramCount extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out.println("usage: [input-path] [output-path] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -104,45 +101,47 @@ public class BigramCount extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-
-		if (args.length != 4) {
+		if (args.length != 3) {
 			printUsage();
 			return -1;
 		}
 
 		String inputPath = args[0];
 		String outputPath = args[1];
-		int mapTasks = Integer.parseInt(args[2]);
-		int reduceTasks = Integer.parseInt(args[3]);
+		int reduceTasks = Integer.parseInt(args[2]);
 
 		sLogger.info("Tool name: BigramCount");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - num mappers: " + mapTasks);
 		sLogger.info(" - num reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(BigramCount.class);
-		conf.setJobName("BigramCount");
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "BigramCount");
+		job.setJarByClass(BigramCount.class);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(reduceTasks);
+		job.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(MyReducer.class);
-		conf.setReducerClass(MyReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
-		JobClient.runJob(conf);
+		long startTime = System.currentTimeMillis();
+		job.waitForCompletion(true);
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
 
 		return 0;
 	}

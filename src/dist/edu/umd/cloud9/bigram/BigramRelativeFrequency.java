@@ -27,17 +27,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Partitioner;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -49,16 +45,16 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(BigramRelativeFrequency.class);
 
 	// mapper: emits (token, 1) for every bigram occurrence
-	protected static class MyMapper extends MapReduceBase implements
+	protected static class MyMapper extends
 			Mapper<LongWritable, Text, PairOfStrings, FloatWritable> {
 
 		// reuse objects to save overhead of object creation
 		private final static FloatWritable one = new FloatWritable(1);
 		private PairOfStrings bigrams = new PairOfStrings();
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<PairOfStrings, FloatWritable> output, Reporter reporter)
-				throws IOException {
+		@Override
+		public void map(LongWritable key, Text value, Context context) throws IOException,
+				InterruptedException {
 			String line = ((Text) value).toString();
 
 			String prev = null;
@@ -77,10 +73,10 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 						prev = prev.substring(0, 100);
 
 					bigrams.set(prev, cur);
-					output.collect(bigrams, one);
+					context.write(bigrams, one);
 
 					bigrams.set(prev, "*");
-					output.collect(bigrams, one);
+					context.write(bigrams, one);
 				}
 				prev = cur;
 			}
@@ -88,58 +84,57 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 	}
 
 	// combiner: sums up all the counts
-	protected static class MyCombiner extends MapReduceBase implements
+	protected static class MyCombiner extends
 			Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
 
 		// reuse objects
 		private final static FloatWritable SumValue = new FloatWritable();
 
-		public void reduce(PairOfStrings key, Iterator<FloatWritable> values,
-				OutputCollector<PairOfStrings, FloatWritable> output, Reporter reporter)
-				throws IOException {
+		@Override
+		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context)
+				throws IOException, InterruptedException {
 			// sum up values
 			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			Iterator<FloatWritable> iter = values.iterator();
+			while (iter.hasNext()) {
+				sum += iter.next().get();
 			}
 			SumValue.set(sum);
-			output.collect(key, SumValue);
+			context.write(key, SumValue);
 		}
 	}
 
 	// reducer: sums up all the counts
-	protected static class MyReducer extends MapReduceBase implements
+	protected static class MyReducer extends
 			Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
 
 		// reuse objects
 		private final static FloatWritable value = new FloatWritable();
-
 		private float marginal = 0.0f;
 
-		public void reduce(PairOfStrings key, Iterator<FloatWritable> values,
-				OutputCollector<PairOfStrings, FloatWritable> output, Reporter reporter)
-				throws IOException {
+		@Override
+		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context)
+				throws IOException, InterruptedException {
 			// sum up values
 			float sum = 0.0f;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			Iterator<FloatWritable> iter = values.iterator();
+			while (iter.hasNext()) {
+				sum += iter.next().get();
 			}
 
 			if (key.getRightElement().equals("*")) {
 				value.set(sum);
-				output.collect(key, value);
+				context.write(key, value);
 				marginal = sum;
 			} else {
 				value.set(sum / marginal);
-				output.collect(key, value);
+				context.write(key, value);
 			}
 		}
 	}
 
-	protected static class MyPartitioner implements Partitioner<PairOfStrings, FloatWritable> {
-		public void configure(JobConf job) {
-		}
-
+	protected static class MyPartitioner extends Partitioner<PairOfStrings, FloatWritable> {
+		@Override
 		public int getPartition(PairOfStrings key, FloatWritable value, int numReduceTasks) {
 			return (key.getLeftElement().hashCode() & Integer.MAX_VALUE) % numReduceTasks;
 		}
@@ -149,7 +144,7 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out.println("usage: [input-path] [output-path] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -158,46 +153,48 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-
-		if (args.length != 4) {
+		if (args.length != 3) {
 			printUsage();
 			return -1;
 		}
 
 		String inputPath = args[0];
 		String outputPath = args[1];
-		int mapTasks = Integer.parseInt(args[2]);
-		int reduceTasks = Integer.parseInt(args[3]);
+		int reduceTasks = Integer.parseInt(args[2]);
 
 		sLogger.info("Tool name: BigramRelativeFrequency");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - num mappers: " + mapTasks);
 		sLogger.info(" - num reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(BigramRelativeFrequency.class);
-		conf.setJobName("BigramRelativeFrequency");
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "BigramRelativeFrequency");
+		job.setJarByClass(BigramRelativeFrequency.class);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(reduceTasks);
+		job.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setOutputKeyClass(PairOfStrings.class);
-		conf.setOutputValueClass(FloatWritable.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setMapOutputKeyClass(PairOfStrings.class);
+		job.setMapOutputValueClass(FloatWritable.class);
+		job.setOutputKeyClass(PairOfStrings.class);
+		job.setOutputValueClass(FloatWritable.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(MyCombiner.class);
-		conf.setReducerClass(MyReducer.class);
-		conf.setPartitionerClass(MyPartitioner.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyCombiner.class);
+		job.setReducerClass(MyReducer.class);
+		job.setPartitionerClass(MyPartitioner.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
-		JobClient.runJob(conf);
+		long startTime = System.currentTimeMillis();
+		job.waitForCompletion(true);
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+				+ " seconds");
 
 		return 0;
 	}

@@ -38,7 +38,6 @@ public class AnalyzeBigramCount {
 		List<KeyValuePair<Text, IntWritable>> bigrams = SequenceFileUtils.readDirectory(args[0]);
 
 		Collections.sort(bigrams, new Comparator<KeyValuePair<Text, IntWritable>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(KeyValuePair<Text, IntWritable> e1,
 					KeyValuePair<Text, IntWritable> e2) {
 				if (((IntWritable) e2.getValue()).compareTo(e1.getValue()) == 0) {
