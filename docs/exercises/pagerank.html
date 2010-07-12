@@ -85,15 +85,25 @@ source node id).</p>
 computes PageRank using
 the <a href="http://jung.sourceforge.net/">JUNG</a> package (2.0.1).
 The relevant class
-is <code>edu.umd.cloud9.demo.SequentialPageRank</code>, which takes
+is <code>edu.umd.cloud9.example.pagerank.SequentialPageRank</code>, which takes
 two command-line arguments: the first is a file containing the graph
 (one of the ones above), and the second is the random jump factor (a
 typical setting is 0.15).</p>
 
 <p>If you run the program on the small network, with a random jump
-factor of 0.15, these will be your command-line arguments:</p>
+factor of 0.15, these will be your command-line arguments from within
+Eclipse:</p>
 
 <pre>docs/exercises/sample-small.txt 0.15</pre>
+
+<p>You can also launch the program from a shell.  Go to the base
+project directory and type <code>ant</code> to build the necessary
+jar.  You should then be able to run the following command (which uses
+an automatically-generated launch script that properly constructs the
+correct classpath):</p>
+
+<pre>etc/run.sh edu.umd.cloud9.example.pagerank.SequentialPageRank \
+  docs/exercises/sample-small.txt 0.15</pre>
 
 <p>And here's the sample output:</p>
 
@@ -113,7 +123,7 @@ PageRank of nodes, in descending order:
 </pre>
 
 <p>To help in your implementation, I've captured the complete output
-of <code>edu.umd.cloud9.demo.SequentialPageRank</code> for each of the
+of <code>edu.umd.cloud9.example.pagerank.SequentialPageRank</code> for each of the
 above graphs:</p>
 
 <ul>

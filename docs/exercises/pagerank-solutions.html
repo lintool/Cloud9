@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercise Solutions &#187; PageRank</title>
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercise &#187; PageRank &#187; Solutions</title>
 <style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
@@ -53,7 +53,7 @@
 
 <!--- START MAIN CONTENT HERE -->
 
-<h2>Exercise Solutions &#187; PageRank</h2>
+<h2>Exercise &#187; PageRank &#187; Solutions</h2>
 
 <div class="post">
 <div class="content">
@@ -71,38 +71,38 @@ to HDFS, the first step is to take the plain-text graph structure and
 pack it into the appropriate Hadoop data structures:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
-   /umd-lin/jimmylin/sample-large.txt /umd-lin/jimmylin/sample-large-PageRankRecords 1458
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+   docs/exercises/sample-large.txt sample-large-PageRankRecords 1458
 </pre>
 
 <p>Next, let's partition the graph:</p>
 
 <pre>
-hadoop fs -mkdir /umd-lin/jimmylin/sample-large-PageRank
+hadoop fs -mkdir sample-large-PageRank
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
-   /umd-lin/jimmylin/sample-large-PageRankRecords /umd-lin/jimmylin/sample-large-PageRank/iter0000 5 0 1458
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   sample-large-PageRankRecords sample-large-PageRank/iter0000 5 0 1458
 </pre>
 
 <p>Now we're ready to run PageRank.  Let's run 10 iterations:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
-   /umd-lin/jimmylin/sample-large-PageRank 1458 0 10 1 0 0
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+   sample-large-PageRank 1458 0 10 1 0 0
 </pre>
 
 <p>We're basically done!  Let's use this utility program to fetch the
 top 10 nodes by PageRank:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.FindMaxPageRankNodes \
-  /umd-lin/jimmylin/sample-large-PageRank/iter0010 /umd-lin/jimmylin/sample-large-PageRank-top10 10
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+  sample-large-PageRank/iter0010 sample-large-PageRank-top10 10
 </pre>
 
 <p>The results:</p>
 
 <pre>
-$ hadoop fs -cat /umd-lin/jimmylin/sample-large-PageRank-top10/part-00000
+$ hadoop fs -cat sample-large-PageRank-top10/part-00000
 9520006	  -5.0940123
 8069300	  -5.093434
 11775232  -4.9177628

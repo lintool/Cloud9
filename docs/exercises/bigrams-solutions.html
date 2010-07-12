@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercise Solutions &#187; Bigram counts</title>
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Bigram Counts &#187; Solutions</title>
 <style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
@@ -53,13 +53,13 @@
 
 <!--- START MAIN CONTENT HERE -->
 
-<h2>Exercise Solutions &#187; Bigram counts</h2>
+<h2>Exercises &#187; Bigram Counts &#187; Solutions</h2>
 
 <div class="post">
 <div class="content">
 
 <p>These are the solutions to the <a href="bigrams.html">bigram
-counting exercises</a> which takes advantage of the <b>order
+counting exercise</a> which takes advantage of the <b>order
 inversion</b> design pattern to compute bigram relative frequencies.
 This design pattern is covered in Chapter 3 of Lin and Dyer's book
 "<a href="http://mapreduce.me/">Data-Intensive Text Processing with
@@ -73,7 +73,7 @@ MapReduce</a>".</p>
 <div class="content">
 
 <p>The solution can be found
-in <code>edu.umd.cloud9.bigram.BigramCount</code>.  This
+in <code>edu.umd.cloud9.example.bigram.BigramCount</code>.  This
 implementation is quite simple: just like word count, except that
 we're counting bigrams instead of words.  The keys emitted by the
 mapper are (a, b) pairs representing the observed bigrams, while the
@@ -82,33 +82,17 @@ values are their counts.  The reducer simply sums these counts.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.bigram.BigramCount /tmp/bible+shakes.nopunc /tmp/bigram 10 5
+hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.BigramCount data/bible+shakes.nopunc bigram 5
 </pre>
-
-<p>Trace from output:</p>
-
-<pre>
-Map input records=156215
-Map output records=1578220
-Map input bytes=9068074
-Map output bytes=22456817
-Combine input records=1578220
-Combine output records=745328
-Reduce input groups=424462
-Reduce input records=745328
-Reduce output records=424462
-</pre>
-
-<p>From this we see that there are 424,462 unique bigrams.</p>
 
 <p>For analyzing the results, run
-<code>edu.umd.cloud9.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
+<code>edu.umd.cloud9.example.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.bigram.AnalyzeBigramCount /tmp/bigram
+hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.AnalyzeBigramCount bigram
 </pre>
 
-<p>Note we specify the entire output directoy.  You'll see the
+<p>Note we specify the entire output directory.  You'll see the
 following output:</p>
 
 <pre>
@@ -142,9 +126,9 @@ account for: 52508/1578220 = 3.33%</p>
 <div class="content">
 
 <p>The solution can be found
-in <code>edu.umd.cloud9.bigram.BigramRelativeFrequency</code>.  This
-program takes advantage of the <b>order inversion</b> design pattern,
-which is covered in Chapter 3 of Lin and Dyer's book
+in <code>edu.umd.cloud9.example.bigram.BigramRelativeFrequency</code>.
+This program takes advantage of the <b>order inversion</b> design
+pattern, which is covered in Chapter 3 of Lin and Dyer's book
 "<a href="http://mapreduce.me/">Data-Intensive Text Processing with
 MapReduce</a>".  Here's how it works, very briefly: in addition to
 each bigram count, the mapper emits an special key (word, *) which
@@ -158,15 +142,15 @@ left element to the same reducer.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.bigram.BigramRelativeFrequency /tmp/bible+shakes.nopunc /tmp/bigram 10 5
+hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.BigramRelativeFrequency data/bible+shakes.nopunc bigram 5
 </pre>
 
 <p>For analyzing the results, run
-<code>edu.umd.cloud9.bigram.AnalyzeBigramRelativeFrequency</code>.
+<code>edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency</code>.
 Sample invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.bigram.AnalyzeBigramRelativeFrequency /tmp/bigram
+hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency bigram
 </pre>
 
 <p>What are the five most frequent words following the word "light"?

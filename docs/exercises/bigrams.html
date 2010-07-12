@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Bigram counts</title>
+<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Bigram Counts</title>
 <style type="text/css" media="screen">@import url( ../style.css );</style>
 </head>
 
@@ -53,7 +53,7 @@
 
 <!--- START MAIN CONTENT HERE -->
 
-<h2>Exercises &#187; Bigram counts</h2>
+<h2>Exercises &#187; Bigram Counts</h2>
 
 <div class="post">
 <div class="content">
@@ -149,17 +149,15 @@ bigrams that start with "A".</p>
 
 <p>The easiest way to get started is to write a new class directly
 inside the Cloud<sup><small>9</small></sup> project in Eclipse.  Once
-you have some code you want to run, pull up a shell and change
-directory to <code>umd-hadoop-core/build/</code> (this is where
-Eclipse automatically puts compiled class files).  Then create a jar
-with the following command:</p>
+you have some code you want to run, pull up a shell, go to the base
+directory of the project, and type the following command:</p>
 
 <pre>
-jar cvf cloud9.jar *
+ant
 </pre>
 
-<p>You can then run the job in standalone mode, on the Google/IBM
-cluster, on EC2, etc.</p>
+<p>Ant should build <code>cloud9.jar</code>, which you can then use to
+run in standalone mode or on a cluster.</p>
 
 </div></div>
 
