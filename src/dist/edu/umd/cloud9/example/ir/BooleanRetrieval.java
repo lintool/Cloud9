@@ -37,7 +37,6 @@ public class BooleanRetrieval {
 
 	MapFile.Reader mIndex;
 	FSDataInputStream mCollection;
-	BufferedReader mReader;
 	Stack<Set<Integer>> mStack;
 
 	public BooleanRetrieval(String indexPath, String collectionPath, Configuration config)
@@ -46,7 +45,6 @@ public class BooleanRetrieval {
 		mIndex = new MapFile.Reader(fs, indexPath + "/part-00000", config);
 
 		mCollection = fs.open(new Path(collectionPath));
-		mReader = new BufferedReader(new InputStreamReader(mCollection));
 		mStack = new Stack<Set<Integer>>();
 	}
 
@@ -135,7 +133,9 @@ public class BooleanRetrieval {
 
 	public String fetchLine(long offset) throws IOException {
 		mCollection.seek(offset);
-		return mReader.readLine();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(mCollection));
+
+		return reader.readLine();
 	}
 
 	public static void main(String[] args) throws IOException {
