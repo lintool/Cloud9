@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.example.simple;
+package edu.umd.cloud9.example.pagerank;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
