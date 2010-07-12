@@ -69,8 +69,8 @@ Cloud<sup><small>9</small></sup> classes:</p>
 
 <ul>
 
-  <li><code><a href="../api/edu/umd/cloud9/cooccur/ComputeCooccurrenceMatrixPairs.html">edu.umd.cloud9.cooccur.ComputeCooccurrenceMatrixPairs</a></code></li>
-  <li><code><a href="../api/edu/umd/cloud9/cooccur/ComputeCooccurrenceMatrixStripes.html">edu.umd.cloud9.cooccur.ComputeCooccurrenceMatrixStripes</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixPairs.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixStripes.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes</a></code></li>
 
 </ul>
 
@@ -78,14 +78,14 @@ Cloud<sup><small>9</small></sup> classes:</p>
 dataset:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.cooccur.ComputeCooccurrenceMatrixPairs \
-  /tmp/bible+shakes.nopunc /tmp/cooccur 2 5 5
+hadoop jar cloud9.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs \
+  data/bible+shakes.nopunc cooccur 2 5
 </pre>
 
 <p>Let's find what words co-occur with the word "ant":</p>
 
 <pre>
-$ hadoop fs -cat /tmp/cooccur/part-* | grep "(ant, "
+$ hadoop fs -cat cooccur/part-* | grep "(ant, "
 (ant, an)       1
 (ant, and)      1
 (ant, teach)    1
@@ -108,14 +108,14 @@ fool we'll set thee to school to an ant to teach thee
 the same dataset:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.cooccur.ComputeCooccurrenceMatrixStripes \
-  /tmp/bible+shakes.nopunc /tmp/cooccur 2 5 5
+hadoop jar cloud9.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes \
+  data/bible+shakes.nopunc cooccur 2 5
 </pre>
 
 <p>And indeed, we get the same results:</p>
 
 <pre>
-$  hadoop fs -cat /tmp/cooccur/part-*  | grep "^ant"$'\t'
+$ hadoop fs -cat cooccur/part-*  | grep "^ant"$'\t'
 ant     {thou=1, and=1, an=1, to=3, sluggard=1, the=2, teach=1}
 </pre>
 
