@@ -167,7 +167,7 @@ works!</p>
 <div class="content">
 
 <p>Now we're getting ready to run the word count demo.  Open a shell
-and go to <code>umd-hadoop-core/data/</code>.  Uncompress the sample text
+and go to <code>Cloud9/data/</code>.  Uncompress the sample text
 collection (Bible and the complete works of Shakespeare):</p>
 
 <pre>
@@ -175,16 +175,14 @@ $ gunzip bible+shakes.nopunc.gz
 </pre>
 
 <p>Now let's build a job jar for running the word count demo.  Open a
-shell and go to <code>umd-hadoop-core/build/</code> (which is where
-Eclipse automatically puts compiled class files).  Jar up the class
-files:</p>
+shell and go to <code>Cloud9/</code>.  Build the library using Ant
+with the simple command:</p>
 
 <pre>
-$ jar cvf cloud9.jar *
+$ ant
 </pre>
 
-<p>If there's nothing in <code>build/</code>, go back to Eclipse and make sure the
-code compiles without error.</p>
+<p>You should now see <code>cloud9.jar</code> in your current directory.</p>
 
 </div></div>
 
@@ -193,51 +191,48 @@ code compiles without error.</p>
 <h2>Step 4: Build and run the word count demo</h2>
 <div class="content">
 
-<p>Once you have created the jar, go back to
-<code>umd-hadoop-core/hadoop/hadoop-0.20.1/</code> and submit the job in standalone
-mode.  Run the class to find out its command-line arguments:</p>
+<p>Once you have created the jar with ant, you should be able to run
+the word count demo is standalone mode.  Run the class to find out its
+command-line arguments:</p>
 
 <pre>
-$ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount
-usage: [input-path] [output-path] [num-mappers] [num-reducers]
+$ hadoop jar cloud9.jar edu.umd.cloud9.example.simple.DemoWordCount
+usage: [input-path] [output-path] [num-reducers]
 </pre>
 
 <p>Now run the code with on the sample text collection:</p>
 
 <pre>
-$ bin/hadoop jar ../../build/cloud9.jar edu.umd.cloud9.demo.DemoWordCount ../../data/bible+shakes.nopunc demo 5 1
-09/11/18 19:53:18 INFO demo.DemoWordCount: Tool: DemoWordCount
-09/11/18 19:53:18 INFO demo.DemoWordCount:  - input path: ../../data/bible+shakes.nopunc
-09/11/18 19:53:18 INFO demo.DemoWordCount:  - output path: demo
-09/11/18 19:53:18 INFO demo.DemoWordCount:  - number of mappers: 5
-09/11/18 19:53:18 INFO demo.DemoWordCount:  - number of reducers: 1
+$ hadoop jar cloud9.jar edu.umd.cloud9.example.simple.DemoWordCount data/bible+shakes.nopunc wc 1
+10/07/11 22:25:42 INFO simple.DemoWordCount: Tool: DemoWordCount
+10/07/11 22:25:42 INFO simple.DemoWordCount:  - input path: data/bible+shakes.nopunc
+10/07/11 22:25:42 INFO simple.DemoWordCount:  - output path: wc
+10/07/11 22:25:42 INFO simple.DemoWordCount:  - number of reducers: 1
 [...]
-09/11/18 19:53:25 INFO mapred.JobClient: Job complete: job_local_0001
-09/11/18 19:53:25 INFO mapred.JobClient: Counters: 13
-09/11/18 19:53:25 INFO mapred.JobClient:   FileSystemCounters
-09/11/18 19:53:25 INFO mapred.JobClient:     FILE_BYTES_READ=22537334
-09/11/18 19:53:25 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=5495288
-09/11/18 19:53:25 INFO mapred.JobClient:   Map-Reduce Framework
-09/11/18 19:53:25 INFO mapred.JobClient:     Reduce input groups=41788
-09/11/18 19:53:25 INFO mapred.JobClient:     Combine output records=128253
-09/11/18 19:53:25 INFO mapred.JobClient:     Map input records=156215
-09/11/18 19:53:25 INFO mapred.JobClient:     Reduce shuffle bytes=0
-09/11/18 19:53:25 INFO mapred.JobClient:     Reduce output records=41788
-09/11/18 19:53:25 INFO mapred.JobClient:     Spilled Records=170041
-09/11/18 19:53:25 INFO mapred.JobClient:     Map output bytes=15919397
-09/11/18 19:53:25 INFO mapred.JobClient:     Map input bytes=9068074
-09/11/18 19:53:25 INFO mapred.JobClient:     Combine input records=1820763
-09/11/18 19:53:25 INFO mapred.JobClient:     Map output records=1734298
-09/11/18 19:53:25 INFO mapred.JobClient:     Reduce input records=41788
-09/11/18 19:53:25 INFO demo.DemoWordCount: Job Finished in 7.406 seconds
+10/07/11 22:25:48 INFO mapred.JobClient: Counters: 12
+10/07/11 22:25:48 INFO mapred.JobClient:   FileSystemCounters
+10/07/11 22:25:48 INFO mapred.JobClient:     FILE_BYTES_READ=22907000
+10/07/11 22:25:48 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=5867160
+10/07/11 22:25:48 INFO mapred.JobClient:   Map-Reduce Framework
+10/07/11 22:25:48 INFO mapred.JobClient:     Reduce input groups=41788
+10/07/11 22:25:48 INFO mapred.JobClient:     Combine output records=128253
+10/07/11 22:25:48 INFO mapred.JobClient:     Map input records=156215
+10/07/11 22:25:48 INFO mapred.JobClient:     Reduce shuffle bytes=0
+10/07/11 22:25:48 INFO mapred.JobClient:     Reduce output records=41788
+10/07/11 22:25:48 INFO mapred.JobClient:     Spilled Records=170041
+10/07/11 22:25:48 INFO mapred.JobClient:     Map output bytes=15919397
+10/07/11 22:25:48 INFO mapred.JobClient:     Combine input records=1820763
+10/07/11 22:25:48 INFO mapred.JobClient:     Map output records=1734298
+10/07/11 22:25:48 INFO mapred.JobClient:     Reduce input records=41788
+10/07/11 22:25:48 INFO simple.DemoWordCount: Job Finished in 5.345 seconds
 </pre>
 
 <p>There should now be a new sub-directory in your current directory
-called <code>demo/</code> that contains the output of the word
+called <code>wc/</code> that contains the output of the word
 count demo:</p>
 
 <pre>
-$ head demo/part-00000
+$ head wc/part-r-00000
 &amp;c      70
 &amp;c'     1
 ''all   1
@@ -249,7 +244,7 @@ $ head demo/part-00000
 ''look  1
 ''my    1
 
-$ tail demo/part-00000
+$ tail wc/part-r-00000
 zorites 1
 zorobabel       3
 zounds  20
@@ -261,8 +256,8 @@ zurishaddai     5
 zuzims  1
 zwaggered       1
 
-$ wc demo/part-00000
- 41788  83576 447180 demo/part-00000
+$ wc wc/part-r-00000 
+   41788   83576  447180 wc/part-r-00000
 </pre>
 
 <p>And that's it!  Now you're ready to run a <i>real</i> MapReduce

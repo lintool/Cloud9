@@ -115,16 +115,16 @@ be read either from the command line or from the jobtracker.</p>
 
 <!-- 
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
    /umd-lin/jimmylin/wiki-adjacency /umd-lin/jimmylin/wiki/PageRankRecords 9541307
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
    /umd-lin/jimmylin/wiki/PageRankRecords /umd-lin/jimmylin/wiki/PageRank-hash/iter0000 10 0 9541307
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
    /umd-lin/jimmylin/wiki/PageRank-hash 9541307 0 10 0 1 0
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
    /umd-lin/jimmylin/wiki/PageRank-hash 9541307 0 10 0 1 0
 
 -->
@@ -135,13 +135,13 @@ relevant driver classes for running PageRank:</p>
 
 <ul>
 
-  <li><code><a href="../api/edu/umd/cloud9/pagerank/BuildPageRankRecords.html">edu.umd.cloud9.pagerank.BuildPageRankRecords</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/BuildPageRankRecords.html">edu.umd.cloud9.example.pagerank.BuildPageRankRecords</a></code></li>
 
-  <li><code><a href="../api/edu/umd/cloud9/pagerank/PartitionGraph.html">edu.umd.cloud9.pagerank.PartitionGraph</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/PartitionGraph.html">edu.umd.cloud9.example.pagerank.PartitionGraph</a></code></li>
 
-  <li><code><a href="../api/edu/umd/cloud9/pagerank/RunPageRankBasic.html">edu.umd.cloud9.pagerank.RunPageRankBasic</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/RunPageRankBasic.html">edu.umd.cloud9.example.pagerank.RunPageRankBasic</a></code></li>
 
-  <li><code><a href="../api/edu/umd/cloud9/pagerank/RunPageRankSchimmy.html">edu.umd.cloud9.pagerank.RunPageRankSchimmy</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/RunPageRankSchimmy.html">edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</a></code></li>
 
 </ul>
 
@@ -150,7 +150,7 @@ experiments.</p>
 
 <p>First, we take the plain-text graph structure and pack it into the
 appropriate Hadoop data structures. The driver
-program <code>edu.umd.cloud9.pagerank.BuildPageRankRecords</code>
+program <code>edu.umd.cloud9.example.pagerank.BuildPageRankRecords</code>
 takes three command-line arguments:</p>
 
 <ul>
@@ -165,12 +165,12 @@ takes three command-line arguments:</p>
 invocation:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.BuildPageRankRecords \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
    /shared/ClueWeb09/webgraph/en.01 /umd-lin/jimmylin/PageRankRecords 50220423
 </pre>
 
 <p>Second, we need to partition the graph.  The appropriate driver
-program is <code>edu.umd.cloud9.pagerank.PartitionGraph</code>, which takes the
+program is <code>edu.umd.cloud9.example.pagerank.PartitionGraph</code>, which takes the
 following command-line arguments:</p>
 
 <ul>
@@ -189,13 +189,13 @@ following command-line arguments:</p>
 # hash partition the graph
 hadoop fs -mkdir /umd-lin/jimmylin/PageRank-hash
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
    /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-hash/iter0000 100 0 50220423
 
 # range partition the graph
 hadoop fs -mkdir /umd-lin/jimmylin/PageRank-range
 
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.PartitionGraph \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
    /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-range/iter0000 100 1 50220423
 </pre>
 
@@ -210,11 +210,11 @@ are:</p>
 
 <ul>
 
-  <li><code>edu.umd.cloud9.pagerank.RunPageRankBasic</code> for
+  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankBasic</code> for
   the basic implementation: shuffles graph structure from iteration to
   iteration.</li>
 
-  <li><code>edu.umd.cloud9.pagerank.RunPageRankSchimmy</code>
+  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</code>
   for the Schimmy implementation: avoids graph structure shuffling.</li>
 
 </ul>
@@ -257,7 +257,7 @@ the "best-practices" baseline (prior to our paper):</p>
 
 <pre>
 # hash partitioning, basic implementation, +combiner
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
    /umd-lin/jimmylin/PageRank-hash 50220423 0 10 1 0 0
 </pre>
 
@@ -266,19 +266,19 @@ patterns discussed in our paper:</p>
 
 <pre>
 # hash partitioning, basic implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
    /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
 
 # hash partitioning, Schimmy implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
    /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
 
 # range partitioning, basic implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankBasic \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
    /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
 
 # range partitioning, Schimmy implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.pagerank.RunPageRankSchimmy \
+hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
    /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
 </pre>
 
