@@ -26,7 +26,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
@@ -37,8 +36,8 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * Demo that packs the sample collection into a SequenceFile as JSON objects.
  * The key in each record is a {@link LongWritable} indicating the record count
  * (sequential numbering). The value in each record is a
- * {@link JSONObjectWritable}, where the raw text is stored under the field
- * name "text".
+ * {@link JSONObjectWritable}, where the raw text is stored under the field name
+ * "text".
  * </p>
  * 
  * @see DemoPackTuples1
@@ -58,14 +57,14 @@ public class DemoPackJSON {
 			System.out.println("usage: [input] [output]");
 			System.exit(-1);
 		}
-				
+
 		String infile = args[0];
 		String outfile = args[1];
 
 		sLogger.info("input: " + infile);
 		sLogger.info("output: " + outfile);
-		
-		Configuration conf = new JobConf();
+
+		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
 				LongWritable.class, JSONObjectWritable.class);

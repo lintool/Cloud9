@@ -28,7 +28,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListWritable;
@@ -52,9 +51,9 @@ import edu.umd.cloud9.io.Tuple;
  * <li>the first field of the tuple is an Integer with the field name "length";
  * its value is the length of the record in number of characters.</li>
  * 
- * <li>the second field of the tuple is a ListWritable<Text> with the field
- * name "tokens"; its value is a list of tokens that comprise the text of the
- * record.</li>
+ * <li>the second field of the tuple is a ListWritable<Text> with the field name
+ * "tokens"; its value is a list of tokens that comprise the text of the record.
+ * </li>
  * 
  * </ul>
  * 
@@ -92,7 +91,7 @@ public class DemoPackTuples2 {
 		sLogger.info("input: " + infile);
 		sLogger.info("output: " + outfile);
 
-		Configuration conf = new JobConf();
+		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
 				LongWritable.class, Tuple.class);

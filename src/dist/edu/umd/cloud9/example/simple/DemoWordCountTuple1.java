@@ -26,17 +26,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -53,7 +49,6 @@ import edu.umd.cloud9.io.Tuple;
  * <ul>
  * <li>[input-path] input path</li>
  * <li>[output-path] output path</li>
- * <li>[num-mappers] number of mappers</li>
  * <li>[num-reducers] number of reducers</li>
  * </ul>
  * 
@@ -88,8 +83,7 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 	}
 
 	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Tuple, Tuple, IntWritable> {
+	private static class MyMapper extends Mapper<LongWritable, Tuple, Tuple, IntWritable> {
 
 		// define value '1' statically so we can reuse the object, i.e., avoid
 		// unnecessary object creation
@@ -98,8 +92,9 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 		// once again, reuse tuples if possible
 		private Tuple tupleOut = KEY_SCHEMA.instantiate();
 
-		public void map(LongWritable key, Tuple tupleIn,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
+		@Override
+		public void map(LongWritable key, Tuple tupleIn, Context context) throws IOException,
+				InterruptedException {
 
 			// the input value is a tuple; get field 0
 			String line = (String) tupleIn.get(0);
@@ -112,27 +107,28 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 				tupleOut.set("EvenOrOdd", line.length() % 2);
 
 				// emit key-value pair
-				output.collect(tupleOut, one);
+				context.write(tupleOut, one);
 			}
 		}
 	}
 
 	// reducer counts up tuple occurrences
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<Tuple, IntWritable, Tuple, IntWritable> {
+	private static class MyReducer extends Reducer<Tuple, IntWritable, Tuple, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
-		public void reduce(Tuple tupleKey, Iterator<IntWritable> values,
-				OutputCollector<Tuple, IntWritable> output, Reporter reporter) throws IOException {
+		@Override
+		public void reduce(Tuple tupleKey, Iterable<IntWritable> values, Context context)
+				throws IOException, InterruptedException {
+			Iterator<IntWritable> iter = values.iterator();
 			// sum values
 			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			while (iter.hasNext()) {
+				sum += iter.next().get();
 			}
 
 			// keep original tuple key, emit sum of counts as value
 			SumValue.set(sum);
-			output.collect(tupleKey, SumValue);
+			context.write(tupleKey, SumValue);
 		}
 	}
 
@@ -143,7 +139,7 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out.println("usage: [input-path] [output-path] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -152,48 +148,44 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
+		if (args.length != 3) {
 			printUsage();
 			return -1;
 		}
 
 		String inputPath = args[0];
 		String outputPath = args[1];
-
-		int numMapTasks = Integer.parseInt(args[2]);
-		int numReduceTasks = Integer.parseInt(args[3]);
+		int numReduceTasks = Integer.parseInt(args[2]);
 
 		sLogger.info("Tool: DemoWordCountTuple1");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - number of mappers: " + numMapTasks);
 		sLogger.info(" - number of reducers: " + numReduceTasks);
 
-		JobConf conf = new JobConf(DemoWordCountTuple1.class);
-		conf.setJobName("DemoWordCountTuple1");
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "DemoWordCountTuple1");
 
-		conf.setNumMapTasks(numMapTasks);
-		conf.setNumReduceTasks(numReduceTasks);
+		job.setJarByClass(DemoWordCountTuple1.class);
+		job.setNumReduceTasks(numReduceTasks);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputKeyClass(Tuple.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setInputFormatClass(SequenceFileInputFormat.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+		job.setOutputKeyClass(Tuple.class);
+		job.setOutputValueClass(IntWritable.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(MyReducer.class);
-		conf.setReducerClass(MyReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 

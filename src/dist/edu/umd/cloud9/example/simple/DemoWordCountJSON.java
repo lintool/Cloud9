@@ -27,17 +27,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -55,14 +51,13 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * <ul>
  * <li>[input-path] input path</li>
  * <li>[output-path] output path</li>
- * <li>[num-mappers] number of mappers</li>
  * <li>[num-reducers] number of reducers</li>
  * </ul>
  * 
  * <p>
  * Input comes from a flat text collection packed into a SequenceFile with
- * {@link DemoPackJSON}. Output shows the count of words on even- and
- * odd-length lines.
+ * {@link DemoPackJSON}. Output shows the count of words on even- and odd-length
+ * lines.
  * </p>
  * 
  * <p>
@@ -81,11 +76,9 @@ public class DemoWordCountJSON extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(DemoWordCountJSON.class);
 
 	// define custom intermediate key; must specify sort order
-	public static class MyKey extends JSONObjectWritable implements WritableComparable {
-		public int compareTo(Object obj) {
+	public static class MyKey extends JSONObjectWritable implements WritableComparable<MyKey> {
+		public int compareTo(MyKey that) {
 			try {
-				MyKey that = (MyKey) obj;
-
 				String thisToken = this.getStringUnchecked("Token");
 				String thatToken = that.getStringUnchecked("Token");
 
@@ -126,7 +119,7 @@ public class DemoWordCountJSON extends Configured implements Tool {
 
 	// mapper that emits a json object as the key, and value '1' for each
 	// occurrence
-	protected static class MyMapper extends MapReduceBase implements
+	protected static class MyMapper extends
 			Mapper<LongWritable, JSONObjectWritable, MyKey, IntWritable> {
 
 		// define value '1' statically so we can reuse the object, i.e., avoid
@@ -136,8 +129,9 @@ public class DemoWordCountJSON extends Configured implements Tool {
 		// once again, reuse keys if possible
 		private final static MyKey key = new MyKey();
 
-		public void map(LongWritable dummy, JSONObjectWritable jsonIn,
-				OutputCollector<MyKey, IntWritable> output, Reporter reporter) throws IOException {
+		@Override
+		public void map(LongWritable dummy, JSONObjectWritable jsonIn, Context context)
+				throws IOException, InterruptedException {
 
 			try {
 				// the input value is a JSON object
@@ -152,7 +146,7 @@ public class DemoWordCountJSON extends Configured implements Tool {
 					key.put("EvenOrOdd", line.length() % 2);
 
 					// emit key-value pair
-					output.collect(key, one);
+					context.write(key, one);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -162,21 +156,22 @@ public class DemoWordCountJSON extends Configured implements Tool {
 	}
 
 	// reducer counts up tuple occurrences
-	protected static class MyReducer extends MapReduceBase implements
-			Reducer<MyKey, IntWritable, MyKey, IntWritable> {
+	protected static class MyReducer extends Reducer<MyKey, IntWritable, MyKey, IntWritable> {
 		private final static IntWritable SumValue = new IntWritable();
 
-		public void reduce(MyKey keyIn, Iterator<IntWritable> values,
-				OutputCollector<MyKey, IntWritable> output, Reporter reporter) throws IOException {
+		@Override
+		public void reduce(MyKey keyIn, Iterable<IntWritable> values, Context context)
+				throws IOException, InterruptedException {
+			Iterator<IntWritable> iter = values.iterator();
 			// sum values
 			int sum = 0;
-			while (values.hasNext()) {
-				sum += values.next().get();
+			while (iter.hasNext()) {
+				sum += iter.next().get();
 			}
 
 			// keep original tuple key, emit sum of counts as value
 			SumValue.set(sum);
-			output.collect(keyIn, SumValue);
+			context.write(keyIn, SumValue);
 		}
 	}
 
@@ -187,7 +182,7 @@ public class DemoWordCountJSON extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out.println("usage: [input-path] [output-path] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -196,48 +191,44 @@ public class DemoWordCountJSON extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
+		if (args.length != 3) {
 			printUsage();
 			return -1;
 		}
 
 		String inputPath = args[0];
 		String outputPath = args[1];
-
-		int numMapTasks = Integer.parseInt(args[2]);
-		int numReduceTasks = Integer.parseInt(args[3]);
+		int numReduceTasks = Integer.parseInt(args[2]);
 
 		sLogger.info("Tool: DemoWordCountJSON");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - number of mappers: " + numMapTasks);
 		sLogger.info(" - number of reducers: " + numReduceTasks);
 
-		JobConf conf = new JobConf(DemoWordCountTuple1.class);
-		conf.setJobName("DemoWordCountJSON");
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "DemoWordCountJSON");
+		job.setJarByClass(DemoWordCountJSON.class);
+		job.setNumReduceTasks(numReduceTasks);
 
-		conf.setNumMapTasks(numMapTasks);
-		conf.setNumReduceTasks(numReduceTasks);
+		FileInputFormat.setInputPaths(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+		job.setInputFormatClass(SequenceFileInputFormat.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputKeyClass(MyKey.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setOutputKeyClass(MyKey.class);
+		job.setOutputValueClass(IntWritable.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(MyReducer.class);
-		conf.setReducerClass(MyReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 

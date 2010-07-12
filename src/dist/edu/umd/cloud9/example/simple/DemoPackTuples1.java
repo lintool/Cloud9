@@ -26,7 +26,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.Schema;
@@ -50,7 +49,7 @@ import edu.umd.cloud9.io.Tuple;
  */
 public class DemoPackTuples1 {
 	private static final Logger sLogger = Logger.getLogger(DemoPackTuples1.class);
-			
+
 	private DemoPackTuples1() {
 	}
 
@@ -71,14 +70,14 @@ public class DemoPackTuples1 {
 			System.out.println("usage: [input] [output]");
 			System.exit(-1);
 		}
-				
+
 		String infile = args[0];
 		String outfile = args[1];
 
 		sLogger.info("input: " + infile);
 		sLogger.info("output: " + outfile);
 
-		Configuration conf = new JobConf();
+		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
 				LongWritable.class, Tuple.class);
