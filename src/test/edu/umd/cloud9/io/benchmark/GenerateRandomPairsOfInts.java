@@ -1,4 +1,4 @@
-package edu.umd.cloud9.benchmark.io;
+package edu.umd.cloud9.io.benchmark;
 
 import java.util.Random;
 

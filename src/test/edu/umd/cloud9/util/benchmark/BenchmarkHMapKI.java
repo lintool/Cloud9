@@ -1,12 +1,12 @@
-package edu.umd.cloud9.benchmark.util;
+package edu.umd.cloud9.util.benchmark;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
+import edu.umd.cloud9.util.HMapKI;
+import edu.umd.cloud9.util.MapKI;
 
-public class BenchmarkHashMapIntInt {
+public class BenchmarkHMapKI {
 
 	public static void main(String[] args) {
 		int size = 5000000;
@@ -17,8 +17,8 @@ public class BenchmarkHashMapIntInt {
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
 
-		System.out.println("Benchmarking HashMap<Integer, Integer>...");
-		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+		System.out.println("Benchmarking HMapKI<Integer>...");
+		MapKI<Integer> map = new HMapKI<Integer>();
 
 		startTime = System.currentTimeMillis();
 		for (int i = 0; i < size; i++) {
@@ -46,6 +46,6 @@ public class BenchmarkHashMapIntInt {
 		System.out.println("Total memory usage: " + (usedMemory2 - usedMemory1));
 		System.out.println("Memory usage per map entry: "
 				+ ((float) (usedMemory2 - usedMemory1) / size));
-
 	}
+
 }

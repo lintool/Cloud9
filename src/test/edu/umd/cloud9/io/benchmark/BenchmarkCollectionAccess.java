@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.benchmark.io;
+package edu.umd.cloud9.io.benchmark;
 
 import java.util.ArrayList;
 import java.util.HashMap;
