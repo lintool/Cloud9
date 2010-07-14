@@ -34,7 +34,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.HMapSIW;
+import edu.umd.cloud9.io.fastuil.String2IntOpenHashMapWritable;
 
 /**
  * <p>
@@ -66,10 +66,11 @@ import edu.umd.cloud9.io.HMapSIW;
 public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
-	private static class MyMapper extends Mapper<LongWritable, Text, Text, HMapSIW> {
+	private static class MyMapper extends
+			Mapper<LongWritable, Text, Text, String2IntOpenHashMapWritable> {
 
 		private int window = 2;
-		private HMapSIW map = new HMapSIW();
+		private String2IntOpenHashMapWritable map = new String2IntOpenHashMapWritable();
 		private Text textKey = new Text();
 
 		@Override
@@ -117,14 +118,16 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 		}
 	}
 
-	private static class MyReducer extends Reducer<Text, HMapSIW, Text, HMapSIW> {
+	private static class MyReducer extends
+			Reducer<Text, String2IntOpenHashMapWritable, Text, String2IntOpenHashMapWritable> {
 
 		@Override
-		public void reduce(Text key, Iterable<HMapSIW> values, Context context) throws IOException,
+		public void reduce(Text key, Iterable<String2IntOpenHashMapWritable> values, Context context)
+				throws IOException,
 				InterruptedException {
-			Iterator<HMapSIW> iter = values.iterator();
+			Iterator<String2IntOpenHashMapWritable> iter = values.iterator();
 
-			HMapSIW map = new HMapSIW();
+			String2IntOpenHashMapWritable map = new String2IntOpenHashMapWritable();
 
 			while (iter.hasNext()) {
 				map.plus(iter.next());
@@ -184,7 +187,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(HMapSIW.class);
+		job.setOutputValueClass(String2IntOpenHashMapWritable.class);
 
 		job.setMapperClass(MyMapper.class);
 		job.setCombinerClass(MyReducer.class);
