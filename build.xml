@@ -35,11 +35,15 @@
 		<javac classpathref="classpath" srcdir="${src}/dist" destdir="${build}" optimize="on" debug="on">
 			<!-- compilerarg value="-Xlint:unchecked"/ uncomment this to check for generics -->
 		</javac>
+		<javac classpathref="classpath" srcdir="${src}/test" destdir="${build}" optimize="on" debug="on">
+			<!-- compilerarg value="-Xlint:unchecked"/ uncomment this to check for generics -->
+		</javac>
 		<javac classpathref="classpath" srcdir="${src}/sandbox" destdir="${build}" optimize="on" debug="on">
 			<!-- compilerarg value="-Xlint:unchecked"/ uncomment this to check for generics -->
 		</javac>
 
 		<copy todir="${build}">
+			<fileset dir="${src}/test" excludes="**/*.java" />
 			<fileset dir="${src}/dist" excludes="**/*.java" />
 			<fileset dir="${src}/sandbox" excludes="**/*.java" />
 		</copy>
@@ -69,7 +73,6 @@
 				</fileset>
 			</batchtest>
 		</junit>
-
 		<junitreport todir="${regression_results}">
 			<fileset dir="${regression_results}">
 				<include name="TEST-*.xml" />
