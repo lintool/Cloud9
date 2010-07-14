@@ -96,13 +96,13 @@ public class HMapIITest {
 		assertEquals(m.size(), 2);
 
 		value = m.get(1);
-		assertTrue(value == 5.0f);
+		assertTrue(value == 5);
 
 		value = m.remove(1);
 		assertEquals(m.size(), 1);
 
 		value = m.get(2);
-		assertTrue(value == 22.0f);
+		assertTrue(value == 22);
 	}
 
 	@Test
@@ -158,19 +158,19 @@ public class HMapIITest {
 		assertEquals(5, e.length);
 
 		assertEquals(1, e[0].getKey());
-		assertEquals(5.0f, (float) e[0].getValue(), 10E-6);
+		assertEquals(5, e[0].getValue());
 
 		assertEquals(3, e[1].getKey());
-		assertEquals(3.0f, (float) e[1].getValue(), 10E-6);
+		assertEquals(3, e[1].getValue());
 
 		assertEquals(4, e[2].getKey());
-		assertEquals(3.0f, (float) e[2].getValue(), 10E-6);
+		assertEquals(3, e[2].getValue());
 
 		assertEquals(2, e[3].getKey());
-		assertEquals(2.0f, (float) e[3].getValue(), 10E-6);
+		assertEquals(2, e[3].getValue());
 
 		assertEquals(5, e[4].getKey());
-		assertEquals(1.0f, (float) e[4].getValue(), 10E-6);
+		assertEquals(1, e[4].getValue());
 	}
 
 	@Test
