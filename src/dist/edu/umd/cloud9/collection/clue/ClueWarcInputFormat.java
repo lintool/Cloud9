@@ -42,7 +42,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.GzipCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
@@ -80,7 +80,8 @@ public class ClueWarcInputFormat extends FileInputFormat<LongWritable, ClueWarcR
 			FileSystem fs = FileSystem.get(conf);
 			mFilePath = split.getPath();
 
-			CompressionCodec compressionCodec = new GzipCodec();
+			CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
+			CompressionCodec compressionCodec = compressionCodecs.getCodec(mFilePath);
 			mCompressedInput = new DataInputStream(compressionCodec.createInputStream(fs
 					.open(mFilePath)));
 		}

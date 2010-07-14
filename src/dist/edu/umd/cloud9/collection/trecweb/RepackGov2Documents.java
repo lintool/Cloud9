@@ -124,7 +124,7 @@ public class RepackGov2Documents extends Configured implements Tool {
 		int mapTasks = 10;
 
 		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(0);
+		conf.setNumReduceTasks(500);
 
 		// 272
 		for (int i = 0; i <= 272; i++) {

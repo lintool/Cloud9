@@ -124,7 +124,7 @@ public class RepackWt10gDocuments extends Configured implements Tool {
 		int mapTasks = 10;
 
 		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(0);
+		conf.setNumReduceTasks(50);
 
 		for (int i = 1; i <= 104; i++) {
 			String path = basePath + "/WTX";
