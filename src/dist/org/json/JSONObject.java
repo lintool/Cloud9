@@ -130,7 +130,7 @@ public class JSONObject {
     /**
      * The map where the JSONObject's properties are kept.
      */
-    protected Map map;
+    protected Map<String, Object> map;
 
 
     /**
@@ -146,7 +146,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap();
+        this.map = new HashMap<String, Object>();
     }
 
 
@@ -232,8 +232,8 @@ public class JSONObject {
      * @param map A map object that can be used to initialize the contents of
      *  the JSONObject.
      */
-    public JSONObject(Map map) {
-        this.map = (map == null) ? new HashMap() : map;
+    public JSONObject(Map<String, Object> map) {
+        this.map = (map == null) ? new HashMap<String, Object>() : map;
     }
 
     /**
@@ -244,11 +244,11 @@ public class JSONObject {
      * @param map - A map with Key-Bean data.
      * @param includeSuperClass - Tell whether to include the super class properties.
      */
-    public JSONObject(Map map, boolean includeSuperClass) {
-       	this.map = new HashMap();
+    public JSONObject(Map<String, Object> map, boolean includeSuperClass) {
+       	this.map = new HashMap<String, Object>();
        	if (map != null){
-            for (Iterator i = map.entrySet().iterator(); i.hasNext(); ) {
-                Map.Entry e = (Map.Entry)i.next();
+            for (Iterator<Map.Entry<String, Object>> i = map.entrySet().iterator(); i.hasNext(); ) {
+                Map.Entry<String, Object> e = (Map.Entry<String, Object>)i.next();
                 this.map.put(e.getKey(), new JSONObject(e.getValue(), includeSuperClass));
             }
        	}
@@ -295,7 +295,7 @@ public class JSONObject {
     }
     
     private void populateInternalMap(Object bean, boolean includeSuperClass){
-    	Class klass = bean.getClass();
+    	Class<?> klass = bean.getClass();
     	
         //If klass.getSuperClass is System class then includeSuperClass = false;
     	
@@ -330,10 +330,10 @@ public class JSONObject {
                     	map.put(key, NULL);
                     }else if (result.getClass().isArray()) {
                     	map.put(key, new JSONArray(result,includeSuperClass));
-                    }else if (result instanceof Collection) { //List or Set
-                    	map.put(key, new JSONArray((Collection)result,includeSuperClass));
-                    }else if (result instanceof Map) {
-                    	map.put(key, new JSONObject((Map)result,includeSuperClass));
+                    }else if (result instanceof Collection<?>) { //List or Set
+                    	map.put(key, new JSONArray((Collection<?>)result,includeSuperClass));
+                    }else if (result instanceof Map<?, ?>) {
+                    	map.put(key, new JSONObject((Map<?, ?>)result,includeSuperClass));
                     }else if (isStandardProperty(result.getClass())) { //Primitives, String and Wrapper
                     	map.put(key, result);
                     }else{
@@ -351,7 +351,7 @@ public class JSONObject {
         }
     }
     
-    private boolean isStandardProperty(Class clazz) {
+    private boolean isStandardProperty(Class<?> clazz) {
     	return clazz.isPrimitive()                  ||
     		clazz.isAssignableFrom(Byte.class)      ||
     		clazz.isAssignableFrom(Short.class)     ||
@@ -377,7 +377,7 @@ public class JSONObject {
      */
     public JSONObject(Object object, String names[]) {
         this();
-        Class c = object.getClass();
+        Class<?> c = object.getClass();
         for (int i = 0; i < names.length; i += 1) {
             String name = names[i];
         	try {
@@ -625,7 +625,7 @@ public class JSONObject {
     	if (length == 0) {
     		return null;
     	}
-    	Iterator i = jo.keys();
+    	Iterator<String> i = jo.keys();
     	String[] names = new String[length];
     	int j = 0;
     	while (i.hasNext()) {
@@ -645,7 +645,7 @@ public class JSONObject {
     	if (object == null) {
     		return null;
     	}
-    	Class klass = object.getClass();
+    	Class<?> klass = object.getClass();
     	Field[] fields = klass.getFields();
     	int length = fields.length;
     	if (length == 0) {
@@ -698,7 +698,7 @@ public class JSONObject {
      *
      * @return An iterator of the keys.
      */
-    public Iterator keys() {
+    public Iterator<String> keys() {
         return this.map.keySet().iterator();
     }
 
@@ -721,7 +721,7 @@ public class JSONObject {
      */
     public JSONArray names() {
         JSONArray ja = new JSONArray();
-        Iterator  keys = keys();
+        Iterator<String> keys = keys();
         while (keys.hasNext()) {
             ja.put(keys.next());
         }
@@ -741,7 +741,7 @@ public class JSONObject {
         }
         testValidity(n);
 
-// Shave off trailing zeros and decimal point, if possible.
+        // Shave off trailing zeros and decimal point, if possible.
 
         String s = n.toString();
         if (s.indexOf('.') > 0 && s.indexOf('e') < 0 && s.indexOf('E') < 0) {
@@ -805,7 +805,7 @@ public class JSONObject {
      * @return      this.
      * @throws JSONException
      */
-    public JSONObject put(String key, Collection value) throws JSONException {
+    public JSONObject put(String key, Collection<Object> value) throws JSONException {
         put(key, new JSONArray(value));
         return this;
     }
@@ -1031,7 +1031,7 @@ public class JSONObject {
      * @return      this.
      * @throws JSONException
      */
-    public JSONObject put(String key, Map value) throws JSONException {
+    public JSONObject put(String key, Map<String, Object> value) throws JSONException {
         put(key, new JSONObject(value));
         return this;
     }
@@ -1161,8 +1161,8 @@ public class JSONObject {
      *
      * @return An iterator of the keys.
      */
-    public Iterator sortedKeys() {
-      return new TreeSet(this.map.keySet()).iterator();
+    public Iterator<String> sortedKeys() {
+      return new TreeSet<String>(this.map.keySet()).iterator();
     }
 
     /**
@@ -1220,7 +1220,7 @@ public class JSONObject {
      */
     public String toString() {
         try {
-            Iterator     keys = keys();
+            Iterator<String> keys = keys();
             StringBuffer sb = new StringBuffer("{");
 
             while (keys.hasNext()) {
@@ -1276,7 +1276,7 @@ public class JSONObject {
         if (n == 0) {
             return "{}";
         }
-        Iterator     keys = sortedKeys();
+        Iterator<String> keys = sortedKeys();
         StringBuffer sb = new StringBuffer("{");
         int          newindent = indent + indentFactor;
         Object       o;
@@ -1358,11 +1358,11 @@ public class JSONObject {
                 value instanceof JSONArray) {
             return value.toString();
         }
-        if (value instanceof Map) {
-            return new JSONObject((Map)value).toString();
+        if (value instanceof Map<?,?>) {
+            return new JSONObject((Map<?,?>)value).toString();
         }
-        if (value instanceof Collection) {
-            return new JSONArray((Collection)value).toString();
+        if (value instanceof Collection<?>) {
+            return new JSONArray((Collection<?>)value).toString();
         }
         if (value.getClass().isArray()) {
             return new JSONArray(value).toString();
@@ -1412,11 +1412,11 @@ public class JSONObject {
         if (value instanceof JSONArray) {
             return ((JSONArray)value).toString(indentFactor, indent);
         }
-        if (value instanceof Map) {
-            return new JSONObject((Map)value).toString(indentFactor, indent);
+        if (value instanceof Map<?,?>) {
+            return new JSONObject((Map<?,?>)value).toString(indentFactor, indent);
         }
-        if (value instanceof Collection) {
-            return new JSONArray((Collection)value).toString(indentFactor, indent);
+        if (value instanceof Collection<?>) {
+            return new JSONArray((Collection<?>)value).toString(indentFactor, indent);
         }
         if (value.getClass().isArray()) {
             return new JSONArray(value).toString(indentFactor, indent);
@@ -1437,7 +1437,7 @@ public class JSONObject {
      public Writer write(Writer writer) throws JSONException {
         try {
             boolean  b = false;
-            Iterator keys = keys();
+            Iterator<String> keys = keys();
             writer.write('{');
 
             while (keys.hasNext()) {
