@@ -19,12 +19,16 @@ package edu.umd.cloud9.util;
 import java.util.Arrays;
 import java.util.RandomAccess;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Object representing a list of floats, backed by an resizable-array.
  */
 public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	protected transient float[] mArray;
 	protected int size = 0;
+
+	private static final int INITIAL_CAPACITY_DEFAULT = 10;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
@@ -37,17 +41,20 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	public ArrayListOfFloats(int initialCapacity) {
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
-		this.mArray = new float[initialCapacity];
+
+		mArray = new float[initialCapacity];
 	}
 
 	/**
 	 * Constructs an empty list with an initial capacity of ten.
 	 */
 	public ArrayListOfFloats() {
-		this(10);
+		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
 	public ArrayListOfFloats(float[] a) {
+		Preconditions.checkNotNull(a);
+
 		mArray = a;
 		size = mArray.length;
 	}
@@ -224,6 +231,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 */
 	public void clear() {
 		size = 0;
+		mArray = new float[INITIAL_CAPACITY_DEFAULT];
 	}
 
 	/**

@@ -19,6 +19,8 @@ package edu.umd.cloud9.util;
 import java.util.Arrays;
 import java.util.RandomAccess;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Object representing a list of ints, backed by an resizable-array.
  */
@@ -26,6 +28,8 @@ import java.util.RandomAccess;
 public class ArrayListOfInts implements RandomAccess, Cloneable {
 	protected transient int[] mArray;
 	protected int size = 0;
+
+	private static final int INITIAL_CAPACITY_DEFAULT = 10;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
@@ -38,17 +42,20 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	public ArrayListOfInts(int initialCapacity) {
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
-		this.mArray = new int[initialCapacity];
+
+		mArray = new int[initialCapacity];
 	}
 
 	/**
 	 * Constructs an empty list with an initial capacity of ten.
 	 */
 	public ArrayListOfInts() {
-		this(10);
+		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
 	public ArrayListOfInts(int[] a) {
+		Preconditions.checkNotNull(a);
+
 		mArray = a;
 		size = mArray.length;
 	}
@@ -225,6 +232,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable {
 	 */
 	public void clear() {
 		size = 0;
+		mArray = new int[INITIAL_CAPACITY_DEFAULT];
 	}
 
 	/**
