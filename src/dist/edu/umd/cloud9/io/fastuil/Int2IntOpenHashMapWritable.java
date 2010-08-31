@@ -26,7 +26,7 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 	private int[] mValues = null;
 
 	/**
-	 * Creates a <code>Int2IntOpenHashMapWritable</code> object.
+	 * Creates an <code>Int2IntOpenHashMapWritable</code> object.
 	 */
 	public Int2IntOpenHashMapWritable() {
 		super();
@@ -46,7 +46,7 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 			return;
 
 		if (sLazyDecode) {
-			// lazy initialization; read into arrays
+			// Lazy initialization; read into arrays.
 			mKeys = new int[mNumEntries];
 			mValues = new int[mNumEntries];
 
@@ -55,7 +55,7 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 				mValues[i] = in.readInt();
 			}
 		} else {
-			// normal initialization; populate the map
+			// Normal initialization; populate the map.
 			for (int i = 0; i < mNumEntries; i++) {
 				put(in.readInt(), in.readInt());
 			}
@@ -65,16 +65,20 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 	/**
 	 * In lazy decoding mode, populates the map with deserialized data.
 	 * Otherwise, does nothing.
-	 * 
-	 * @throws IOException
 	 */
-	public void decode() throws IOException {
+	public void decode() {
 		if (mKeys == null)
 			return;
 
 		for (int i = 0; i < mKeys.length; i++) {
 			put(mKeys[i], mValues[i]);
 		}
+
+		mKeys = null;
+	}
+
+	public boolean hasBeenDecoded() {
+		return mKeys == null;
 	}
 
 	/**
@@ -84,15 +88,25 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 	 *            where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
-		out.writeInt(size());
-		if (size() == 0)
-			return;
+		// Check to see if we're in lazy decode mode, and this object hasn't
+		// been decoded yet.
+		if (mKeys == null) {
+			// Write out the number of entries in the map.
+			out.writeInt(size());
+			if (size() == 0)
+				return;
 
-		// Then write out each key/value pair
-		for (Int2IntMap.Entry e : int2IntEntrySet()) {
-			out.writeInt(e.getIntKey());
-			out.writeInt(e.getIntValue());
+			// Then write out each key/value pair.
+			for (Int2IntMap.Entry e : int2IntEntrySet()) {
+				out.writeInt(e.getIntKey());
+				out.writeInt(e.getIntValue());
+			}
+		} else {
+			out.writeInt(mNumEntries);
+			for (int i = 0; i < mNumEntries; i++) {
+				out.writeInt(mKeys[i]);
+				out.writeInt(mValues[i]);
+			}
 		}
 	}
 
@@ -112,7 +126,8 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 	}
 
 	/**
-	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
+	 * Creates an <code>Int2IntOpenHashMapWritable</code> object from a
+	 * <code>DataInput</code>.
 	 * 
 	 * @param in
 	 *            <code>DataInput</code> for reading the serialized
@@ -282,24 +297,24 @@ public class Int2IntOpenHashMapWritable extends Int2IntOpenHashMap implements Wr
 
 		return entries;
 	}
-	
+
 	/**
-	 * Returns top <i>n</i> entries sorted by descending value. Ties broken by
+	 * Returns top <i>k</i> entries sorted by descending value. Ties broken by
 	 * the key.
 	 * 
-	 * @param n
+	 * @param k
 	 *            number of entries to return
-	 * @return top <i>n</i> entries sorted by descending value
+	 * @return top <i>k</i> entries sorted by descending value
 	 */
-	public Int2IntMap.Entry[] getEntriesSortedByValue(int n) {
+	public Int2IntMap.Entry[] getEntriesSortedByValue(int k) {
 		Int2IntMap.Entry[] entries = getEntriesSortedByValue();
 
 		if (entries == null)
 			return null;
 
-		if (entries.length < n)
+		if (entries.length < k)
 			return entries;
 
-		return Arrays.copyOfRange(entries, 0, n);
+		return Arrays.copyOfRange(entries, 0, k);
 	}
 }

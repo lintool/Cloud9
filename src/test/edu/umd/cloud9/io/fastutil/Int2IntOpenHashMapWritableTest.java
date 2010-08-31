@@ -2,6 +2,7 @@ package edu.umd.cloud9.io.fastutil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 
 import java.io.IOException;
@@ -24,13 +25,13 @@ public class Int2IntOpenHashMapWritableTest {
 
 		int value;
 
-		assertEquals(m.size(), 2);
+		assertEquals(2, m.size());
 
 		value = m.get(2);
 		assertEquals(5, value);
 
 		value = m.remove(2);
-		assertEquals(m.size(), 1);
+		assertEquals(1, m.size());
 
 		value = m.get(1);
 		assertEquals(22, value);
@@ -47,16 +48,16 @@ public class Int2IntOpenHashMapWritableTest {
 
 		int value;
 
-		assertEquals(n2.size(), 2);
+		assertEquals(2, n2.size());
 
 		value = n2.get(3);
 		assertEquals(5, value);
 
 		value = n2.remove(3);
-		assertEquals(n2.size(), 1);
+		assertEquals(1, n2.size());
 
 		value = n2.get(4);
-		assertEquals(value, 22);
+		assertEquals(22, value);
 	}
 
 	@Test
@@ -70,28 +71,75 @@ public class Int2IntOpenHashMapWritableTest {
 		Int2IntOpenHashMapWritable m2 = Int2IntOpenHashMapWritable.create(m1.serialize());
 
 		assertEquals(0, m2.size());
+		assertFalse(m2.hasBeenDecoded());
 
 		int[] keys = m2.getKeys();
 		int[] values = m2.getValues();
 
-		assertTrue(keys[0] == 3);
-		assertTrue(keys[1] == 4);
+		assertEquals(3, keys[0]);
+		assertEquals(4, keys[1]);
 
-		assertTrue(values[0] == 5.0f);
-		assertTrue(values[1] == 22.0f);
+		assertEquals(5, values[0]);
+		assertEquals(22, values[1]);
 
 		m2.decode();
-		float value;
-		assertEquals(m2.size(), 2);
+		assertTrue(m2.hasBeenDecoded());
+
+		int value;
+		assertEquals(2, m2.size());
 
 		value = m2.get(3);
-		assertTrue(value == 5.0f);
+		assertEquals(5, value);
 
 		value = m2.remove(3);
-		assertEquals(m2.size(), 1);
+		assertEquals(1, m2.size());
 
 		value = m2.get(4);
-		assertTrue(value == 22.0f);
+		assertEquals(22, value);
+	}
+
+	@Test
+	public void testSerializeLazy2() throws IOException {
+		Int2IntOpenHashMapWritable.setLazyDecodeFlag(true);
+		Int2IntOpenHashMapWritable m1 = new Int2IntOpenHashMapWritable();
+
+		m1.put(3, 5);
+		m1.put(4, 22);
+
+		// Object m2 should not have been decoded, size lazy decode flag is
+		// true.
+		Int2IntOpenHashMapWritable m2 = Int2IntOpenHashMapWritable.create(m1.serialize());
+
+		// Even though m2 hasn't be decoded, we should be able to properly
+		// serialize it.
+		Int2IntOpenHashMapWritable m3 = Int2IntOpenHashMapWritable.create(m2.serialize());
+
+		assertEquals(0, m3.size());
+		assertFalse(m3.hasBeenDecoded());
+
+		int[] keys = m3.getKeys();
+		int[] values = m3.getValues();
+
+		assertEquals(3, keys[0]);
+		assertEquals(4, keys[1]);
+
+		assertEquals(5, values[0]);
+		assertEquals(22, values[1]);
+
+		m3.decode();
+		assertTrue(m3.hasBeenDecoded());
+
+		int value;
+		assertEquals(2, m3.size());
+
+		value = m3.get(3);
+		assertEquals(5, value);
+
+		value = m3.remove(3);
+		assertEquals(1, m3.size());
+
+		value = m3.get(4);
+		assertEquals(22, value);
 	}
 
 	@Test
@@ -101,16 +149,15 @@ public class Int2IntOpenHashMapWritableTest {
 		// make sure this does nothing
 		m1.decode();
 
-		assertTrue(m1.size() == 0);
+		assertEquals(0, m1.size());
 
 		Int2IntMap m2 = Int2IntOpenHashMapWritable.create(m1.serialize());
 
-		assertTrue(m2.size() == 0);
+		assertEquals(0, m2.size());
 	}
 
 	@Test
 	public void testBasic1() {
-
 		int size = 100000;
 		Random r = new Random();
 		int[] ints = new int[size];
@@ -123,17 +170,13 @@ public class Int2IntOpenHashMapWritableTest {
 		}
 
 		for (int i = 0; i < size; i++) {
-			int v = map.get(i);
-
-			assertEquals(ints[i], v);
+			assertEquals(ints[i], map.get(i));
 			assertTrue(map.containsKey(i));
 		}
-
 	}
 
 	@Test
 	public void testUpdate() {
-
 		int size = 100000;
 		Random r = new Random();
 		int[] ints = new int[size];
@@ -154,12 +197,9 @@ public class Int2IntOpenHashMapWritableTest {
 		assertEquals(size, map.size());
 
 		for (int i = 0; i < size; i++) {
-			int v = map.get(i);
-
-			assertEquals(ints[i] + 1, v);
+			assertEquals(ints[i] + 1, map.get(i));
 			assertTrue(map.containsKey(i));
 		}
-
 	}
 
 	@Test
@@ -176,10 +216,10 @@ public class Int2IntOpenHashMapWritableTest {
 
 		m1.plus(m2);
 
-		assertEquals(m1.size(), 3);
-		assertTrue(m1.get(1) == 9);
-		assertTrue(m1.get(2) == 22);
-		assertTrue(m1.get(3) == 5);
+		assertEquals(3, m1.size());
+		assertEquals(9, m1.get(1));
+		assertEquals(22, m1.get(2));
+		assertEquals(5, m1.get(3));
 	}
 
 	@Test
@@ -198,15 +238,15 @@ public class Int2IntOpenHashMapWritableTest {
 		Int2IntOpenHashMapWritable m3 = Int2IntOpenHashMapWritable.create(m2.serialize());
 
 		assertEquals(0, m3.size());
-		
+
 		m1.lazyplus(m3);
-		
-		assertEquals(m1.size(), 3);
-		assertTrue(m1.get(1) == 9);
-		assertTrue(m1.get(2) == 22);
-		assertTrue(m1.get(3) == 5);
+
+		assertEquals(3, m1.size());
+		assertEquals(9, m1.get(1));
+		assertEquals(22, m1.get(2));
+		assertEquals(5, m1.get(3));
 	}
-	
+
 	@Test
 	public void testDot() throws IOException {
 		Int2IntOpenHashMapWritable m1 = new Int2IntOpenHashMapWritable();
@@ -223,7 +263,7 @@ public class Int2IntOpenHashMapWritableTest {
 
 		int s = m1.dot(m2);
 
-		assertTrue(s == 6);
+		assertEquals(6, s);
 	}
 
 	@Test
@@ -305,5 +345,4 @@ public class Int2IntOpenHashMapWritableTest {
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(Int2IntOpenHashMapWritableTest.class);
 	}
-
 }
