@@ -27,8 +27,8 @@ import org.json.JSONException;
 import edu.umd.cloud9.io.JSONObjectWritable;
 
 /**
- * Benchmark for {@link JSONObjectWritable}. See {@link BenchmarkPairOfInts}
- * for more details.
+ * Benchmark for {@link JSONObjectWritable}. See {@link BenchmarkPairOfInts} for
+ * more details.
  */
 public class BenchmarkJSON {
 
@@ -38,11 +38,10 @@ public class BenchmarkJSON {
 	/**
 	 * Runs this benchmark.
 	 */
-	private static class MyJSONTuple extends JSONObjectWritable implements WritableComparable {
-		public int compareTo(Object obj) {
+	private static class MyJSONTuple extends JSONObjectWritable implements
+			WritableComparable<MyJSONTuple> {
+		public int compareTo(MyJSONTuple that) {
 			try {
-				MyJSONTuple that = (MyJSONTuple) obj;
-
 				int thisLeft = this.getIntUnchecked("left");
 				int thisRight = this.getIntUnchecked("right");
 
@@ -73,7 +72,6 @@ public class BenchmarkJSON {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		Random r = new Random();
 

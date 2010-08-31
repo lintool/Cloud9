@@ -91,7 +91,6 @@ public class BenchmarkPairOfInts {
 	/**
 	 * Runs this benchmark.
 	 */
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		Random r = new Random();
 
