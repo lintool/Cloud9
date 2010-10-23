@@ -24,15 +24,15 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
 /**
- * Object representing an Wikipedia page.
+ * A page from Wikipedia.
  * 
  * @author Jimmy Lin
  */
@@ -94,27 +94,48 @@ public class WikipediaPage extends Indexable {
 		return mId;
 	}
 
+
+	// Explictly remove <ref>...</ref>, because there are screwy things like this:
+	//   <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
+	// where "http://www.interieur.org/<!--" gets interpreted as the URL by
+	// Bliki in conversion to text
+	private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
+
+	private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
+	private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
+
+	private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture possible HTML tag
+
+	private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture comments
+	private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
+
 	/**
 	 * Returns the contents of this page (title + text).
 	 */
 	public String getContent() {
+		String s = getWikiMarkup();
+
+		// Bliki doesn't seem to properly handle inter-language links, so remove manually.
+		s = LANG_LINKS.matcher(s).replaceAll(" ");
+
 		mWikiModel.setUp();
-		String s = getTitle() + "\n" + mWikiModel.render(mTextConverter, getWikiMarkup());
+		s = getTitle() + "\n" + mWikiModel.render(mTextConverter, s);
 		mWikiModel.tearDown();
 
-		// performs some more light cleanup of known Bliki issues
-		s = s.replace("&amp;nbsp;", " ");
-		s = s.replaceAll("&lt;references */&gt;", "");
-		s = s.replaceAll("\\{\\{.*?\\}\\}", "");
-		s = s.replaceAll("&#60;ref name.*?&#60;/ref&#62;", "");
+		// The way the some entities are encoded, we have to unescape twice.
+		s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
 		
-		// sometimes <ref>http...</ref> appears in the text output
-		s = s.replaceAll("&lt;ref&gt;http:.*?&lt;/ref&gt;", "");
-		
+		s = REF.matcher(s).replaceAll(" ");
+		s = HTML_COMMENT.matcher(s).replaceAll(" ");
+
+		// Sometimes, URL bumps up against comments e.g., <!-- http://foo.com/-->
+		// Therefore, we want to remove the comment first; otherwise the URL pattern might eat up
+		// the comment terminator.
+		s = URL.matcher(s).replaceAll(" ");
+		s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
+		s = HTML_TAG.matcher(s).replaceAll(" ");
+
 		return s;
-		
-		//return getTitle() + "\n" + getWikiMarkup();
-		//return parseAndCleanPage2(parseAndCleanPage((getTitle() + "\n" + getText())));
 	}
 	
 	public String getDisplayContent() {
@@ -122,12 +143,8 @@ public class WikipediaPage extends Indexable {
 		String s = "<h1>" + getTitle() + "</h1>\n" + mWikiModel.render(getWikiMarkup());
 		mWikiModel.tearDown();
 		
-		// performs some more light cleanup of known Bliki issues
-		s = s.replace("&#38;nbsp;", " ");
-		s = s.replace("&#60;references /&#62;", "");
-		s = s.replaceAll("\\{\\{.*?\\}\\}", "");
-		s = s.replaceAll("&#60;ref name.*?&#60;/ref&#62;", "");
-		
+		s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
+
 		return s;
 	}
 	
@@ -203,6 +220,20 @@ public class WikipediaPage extends Indexable {
 	public boolean isStub() {
 		return mIsStub;
 	}
+
+	/**
+	 * Checks to see if this page is an actual article, and not, for example,
+	 * "File:", "Category:", "Wikipedia:", etc.
+	 *
+	 * @return <code>true</code> if this page is an actual article
+	 */
+	public boolean isArticle() {
+		return !(getTitle().startsWith("File:") || getTitle().startsWith("Category:")
+				|| getTitle().startsWith("Special:") || getTitle().startsWith("Wikipedia:")
+				|| getTitle().startsWith("Wikipedia:") || getTitle().startsWith("Template:")
+				|| getTitle().startsWith("Portal:"));
+	}
+
 
 	/**
 	 * Returns the inter-language link to a specific language (if any).
@@ -308,7 +339,7 @@ public class WikipediaPage extends Indexable {
 		// parse out title
 		int start = s.indexOf("<title>");
 		int end = s.indexOf("</title>", start);
-		page.mTitle = s.substring(start + 7, end);
+		page.mTitle = StringEscapeUtils.unescapeHtml(s.substring(start + 7, end));
 
 		start = s.indexOf("<id>");
 		end = s.indexOf("</id>");
@@ -318,172 +349,9 @@ public class WikipediaPage extends Indexable {
 		page.mTextStart = s.indexOf("<text xml:space=\"preserve\">");
 		page.mTextEnd = s.indexOf("</text>", page.mTextStart);
 
-		page.mIsDisambig = s.indexOf("{{disambig}}", page.mTextStart) != -1;
-		page.mIsRedirect = s.substring(page.mTextStart + 27, page.mTextStart + 36).compareTo(
-				"#REDIRECT") == 0;
+		page.mIsDisambig = s.indexOf("{{disambig", page.mTextStart) != -1 || s.indexOf("{{Disambig", page.mTextStart) != -1;
+		page.mIsRedirect = s.substring(page.mTextStart + 27, page.mTextStart + 36).compareTo("#REDIRECT") == 0 ||
+		                   s.substring(page.mTextStart + 27, page.mTextStart + 36).compareTo("#redirect") == 0;
 		page.mIsStub = s.indexOf("stub}}", page.mTextStart) != -1;
-
 	}
-
-	private static String parseAndCleanPage2(String raw) {
-
-		// # delete lines in between {{...}}
-		// # delete part of line [[ or ]]
-		// # delete line starting with *
-		//
-		// # keep track of open and closed parantheses/brackets for parsing
-		int isSkip = 0, count1, count2;
-
-		String[] lines = raw.split("\n");
-		// String[] parsed = new String[lines.length];
-		String parsed = "";
-		boolean isFlag;
-
-		int counter = 0;
-		for (String line : lines) {
-			isFlag = false;
-			// Create a pattern to match cat
-			Pattern p1 = Pattern.compile("\\{\\|");
-			Matcher m1 = p1.matcher(line);
-			Pattern p2 = Pattern.compile("\\|\\}");
-			Matcher m2 = p2.matcher(line);
-
-			// Create a matcher with an input string
-			if (isSkip == 0) {
-				count1 = getCount(m1);
-
-				// isSkip = difference between number of {{s and number of }}s
-				if (count1 > 0) {
-					count2 = getCount(m2);
-					isSkip = count1 - count2;
-					isFlag = true;
-				}
-			} else {
-				count1 = getCount(m1);
-				count2 = getCount(m2);
-				isSkip += (count1 - count2);
-				isFlag = true;
-			}
-
-			if (isSkip == 0 && !isFlag) {
-				// $_=~s/=+//g;
-				line = Pattern.compile("```").matcher(line).replaceAll("");
-				line = Pattern.compile("\\'\\'\\'").matcher(line).replaceAll("");
-				line = Pattern.compile("``").matcher(line).replaceAll("");
-				line = Pattern.compile("\\'\\'").matcher(line).replaceAll("");
-				line = Pattern.compile("&quot").matcher(line).replaceAll("");
-				line = Pattern.compile("\\[http.+\\]").matcher(line).replaceAll("");
-				line = Pattern.compile("!--.+--").matcher(line).replaceAll("");
-
-				Matcher mm = Pattern.compile(" (\\S)+\\|(\\S)+ ").matcher(line);
-				if (mm.matches()) {
-					line = mm.replaceAll(" $2 ");
-				}
-				// $_=~s/(\w)\s{1}'(\w)/$1'$2/g;
-				// $_=~s/(\w)\s{1}'d(\w)/$1'd$2/g;
-
-				line.replaceAll("\\|", " | ");
-				if (!Pattern.compile("^\\*.*").matcher(line).matches()
-						&& !Pattern.compile("&lt;.*").matcher(line).matches()
-						&& !Pattern.compile("&gt;.*").matcher(line).matches()
-						&& !Pattern.compile("1\\s+").matcher(line).matches()
-						&& !Pattern.compile("\\w\\w:").matcher(line).matches()
-						&& !Pattern.compile("^\\s*").matcher(line).matches()
-						&& !Pattern.compile("\\=+.+\\=+").matcher(line).matches()
-						&& !Pattern.compile("^\\|\\-.+").matcher(line).matches()
-						&& !Pattern.compile("Kategorie:.+").matcher(line).matches()
-						&& !Pattern.compile("\\w\\w:.+").matcher(line).matches()) {
-					parsed += line + "\n";
-				}
-			}
-		}
-
-		return parsed;
-	}
-
-	public static String parseAndCleanPage(String raw) {
-		String parsed = "";
-
-		// # delete lines in between {{...}}
-		// # delete part of line [[ or ]]
-		// # delete line starting with *
-		//
-		// # keep track of open and closed parantheses/brackets for parsing
-		int isSkip = 0, count1, count2;
-
-		String[] lines = raw.split("\n");
-		boolean isFlag;
-
-		for (String line : lines) {
-			isFlag = false;
-			// Create a pattern to match cat
-			Pattern p1 = Pattern.compile("\\{\\{");
-			Matcher m1 = p1.matcher(line);
-			Pattern p2 = Pattern.compile("\\}\\}");
-			Matcher m2 = p2.matcher(line);
-
-			// Create a matcher with an input string
-			if (isSkip == 0) {
-				count1 = getCount(m1);
-				if (count1 == 0 && line.contains("{{")) {
-					throw new RuntimeException();
-				}
-
-				// isSkip = difference between number of {{s and number of }}s
-				if (count1 > 0) {
-					count2 = getCount(m2);
-					isSkip = count1 - count2;
-					isFlag = true;
-				}
-			} else {
-				count1 = getCount(m1);
-				count2 = getCount(m2);
-
-				isSkip += (count1 - count2);
-				isFlag = true;
-			}
-
-			if (isSkip == 0 && !isFlag) {
-				// $_=~s/\[\[//g;
-				Pattern p3 = Pattern.compile("\\[\\[");
-				Matcher m3 = p3.matcher(line);
-				line = m3.replaceAll("");
-				//
-				// $_=~s/\]\]//g;
-				Pattern p4 = Pattern.compile("\\]\\]");
-				Matcher m4 = p4.matcher(line);
-				line = m4.replaceAll("");
-				// $_=~s/=+//g;
-				// Pattern p5 = Pattern.compile("\\=+");
-				// Matcher m5 = p5.matcher(line);
-				// line = m5.replaceAll("");
-
-				// separate sentences # $_=~s/([,;:.)(-])/\n$1\n/g;
-				// Pattern p6 = Pattern.compile("([,;.:\\)\\(-])");
-				// Matcher m6 = p6.matcher(line);
-				// line = m6.replaceAll(" $1");
-
-				// if($_!~/\*/){
-				// print $_;
-				// }
-				Pattern p7 = Pattern.compile("\\*");
-				Matcher m7 = p7.matcher(line);
-				if (!m7.matches()) {
-					parsed += line + "\n";
-				}
-			}
-		}
-
-		return parseAndCleanPage2(parsed);
-
-	}
-
-	static int getCount(Matcher m) {
-		int count = 0;
-		while (m.find()) {
-			count++;
-		}
-		return count;
-	}
-
 }

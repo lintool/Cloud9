@@ -32,7 +32,7 @@ import edu.umd.cloud9.util.FSLineReader;
 
 /**
  * <p>
- * Object that maps between Wikipedia internal ids (docids) and
+ * Provides a mapping between Wikipedia internal ids (docids) and
  * sequentially-numbered ints (docnos).
  * </p>
  * 

@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
@@ -29,14 +45,14 @@ import edu.umd.cloud9.util.FSLineReader;
 
 /**
  * <p>
- * Tool for building a document forward index for Wikipedia.  Sample invocation:
+ * Tool for building a document forward index for Wikipedia. Sample invocation:
  * </p>
- * 
+ *
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
- *   /shared/Wikipedia/compressed.block/en-20100130 \
- *   /tmp/wiki-tmp \
- *   /shared/Wikipedia/compressed.block/findex-en-20100130.dat
+ *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+ *   /user/jimmy/Wikipedia/compressed.block/en-20101011 tmp \
+ *   /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat
  * </pre>
  * 
  * @author Jimmy Lin
@@ -114,20 +130,20 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 			return -1;
 		}
 
-		JobConf conf = new JobConf(BuildWikipediaForwardIndex.class);
+		JobConf conf = new JobConf(getConf(), BuildWikipediaForwardIndex.class);
 		FileSystem fs = FileSystem.get(conf);
 
 		String collectionPath = args[0];
 		String outputPath = args[1];
 		String indexFile = args[2];
 
-		sLogger.info("Tool name: BuildClueWarcForwardIndex");
+		sLogger.info("Tool name: BuildWikipediaForwardIndex");
 		sLogger.info(" - collection path: " + collectionPath);
 		sLogger.info(" - output path: " + outputPath);
 		sLogger.info(" - index file: " + indexFile);
 		sLogger.info("Note: This tool only works on block-compressed SequenceFiles!");
 
-		conf.setJobName("BuildClueForwardIndex:" + collectionPath);
+		conf.setJobName("BuildWikipediaForwardIndex:" + collectionPath);
 
 		conf.setNumMapTasks(100);
 		conf.setNumReduceTasks(1);
@@ -197,7 +213,7 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BuildWikipediaForwardIndex(), args);
+		int res = ToolRunner.run(new BuildWikipediaForwardIndex(), args);
 		System.exit(res);
 	}
 }

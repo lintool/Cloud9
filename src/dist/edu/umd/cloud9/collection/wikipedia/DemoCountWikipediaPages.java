@@ -18,7 +18,6 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -38,12 +37,13 @@ import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Simple demo program that counts the number of pages in a particular Wikipedia
- * XML dump file. This program keeps track of total number of pages, redirect
- * pages, disambiguation pages, empty pages, actual articles (including stubs),
- * and stubs. This also provides a skeleton for MapReduce programs to process
- * the collection. The program takes a single command-line argument, which is
- * the path to the Wikipedia XML dump file.
+ * Tool for counting the number of pages in a particular Wikipedia XML dump
+ * file. This program keeps track of total number of pages, redirect pages,
+ * disambiguation pages, empty pages, actual articles (including stubs), stubs,
+ * and non-articles ("File:", "Category:", "Wikipedia:", etc.). This also
+ * provides a skeleton for MapReduce programs to process the collection. The
+ * program takes a single command-line argument, which is the path to the
+ * Wikipedia XML dump file.
  * </p>
  * 
  * <p>
@@ -53,8 +53,9 @@ import org.apache.log4j.Logger;
  * <blockquote>
  * 
  * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPageTypes \
- * /shared/Wikipedia/raw/enwiki-20091202-pages-articles.xml
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPages \
+ *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+ *   /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml
  * </pre>
  * 
  * </blockquote>
@@ -63,10 +64,10 @@ import org.apache.log4j.Logger;
  */
 public class DemoCountWikipediaPages extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(DemoCountWikipediaPages.class);
+	private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
 
 	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
+		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
 	};
 
 	private static class MyMapper extends MapReduceBase implements
@@ -83,12 +84,14 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
 				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
 			} else if (p.isEmpty()) {
 				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else {
+			} else if (p.isArticle()) {
 				reporter.incrCounter(PageTypes.ARTICLE, 1);
 
 				if (p.isStub()) {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
+			} else {
+				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
 		}
 	}
@@ -116,10 +119,10 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
 
 		String inputPath = args[0];
 
-		sLogger.info("Tool name: RepackWikipedia");
-		sLogger.info(" - xml dump file: " + inputPath);
+		LOG.info("Tool name: DemoCountWikipediaPages");
+		LOG.info(" - xml dump file: " + inputPath);
 
-		JobConf conf = new JobConf(DemoCountWikipediaPages.class);
+		JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
 		conf.setJobName("DemoCountWikipediaPages");
 
 		conf.setNumMapTasks(10);
@@ -142,7 +145,7 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new DemoCountWikipediaPages(), args);
+		int res = ToolRunner.run(new DemoCountWikipediaPages(), args);
 		System.exit(res);
 	}
 }

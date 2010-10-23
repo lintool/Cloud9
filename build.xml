@@ -85,7 +85,7 @@
 				<exclude name="edu/cmu/**/*.java" />
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
-			<link href="http://hadoop.apache.org/common/docs/current/api/" />
+			<link href="http://hadoop.apache.org/common/docs/r0.20.1/api/" />
 		</javadoc>
 		<copy todir="${javadoc}">
 			<fileset dir="${src}/dist">
@@ -128,7 +128,7 @@
 			<equals arg1="${platform}" arg2="windows" />
 		</condition>
 
-		<property name="java_command" value="${java} -Xmx1024m -classpath &quot;${classpath}&quot;" />
+		<property name="java_command" value="${java} -Xmx2048m -classpath &quot;${classpath}&quot;" />
 
 		<condition property="script_prefix" value="#!/bin/sh${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
 			<equals arg1="${platform}" arg2="unix" />

@@ -68,7 +68,7 @@ access to English Wikipedia dumps can be
 found <a href="http://download.wikimedia.org/enwiki/">here</a>.</p>
 
 <p>In this guide, we'll be working with the XML dump of English
-Wikipedia dated Jan. 30, 2010 (<code>enwiki-20100130-pages-articles.xml</code>).
+Wikipedia dated October 11, 2010 (<code>enwiki-20101011-pages-articles.xml</code>).
 Note that Wikipedia is distributed as a single, large XML file
 compressed with bzip2.  We'll want to repack the dataset as
 block-compressed SequenceFiles (see below), so you should uncompress
@@ -86,15 +86,22 @@ how many pages there are in this particular version of Wikipedia:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPages \
-/shared/Wikipedia/raw/enwiki-20100130-pages-articles.xml
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml
 </pre>
 
 <p>Conveniently enough, Cloud<sup><small>9</small></sup> provides a
-WikipediaPageInputFormat that automatically parses the XML dump file,
-so that your mapper will be presented WikipediaPage objects to
-process.</p>
+<code>WikipediaPageInputFormat</code> that automatically parses the XML dump file,
+so that your mapper will be presented <code>WikipediaPage</code> objects to
+process.  Note that you have to include two dependencies with
+the <code>-libjars</code> option:
+the <a href="http://code.google.com/p/gwtwiki/">Bliki engine</a> for
+parsing Wikipedia articles
+and <a href="http://commons.apache.org/lang/">Apache Commons
+Lang</a>.</p>
 
-<p>After running the above program, you'll see:</p>
+<p>After running the above program, you'll see the follow statistics
+stored in counters:</p>
 
 <table>
 <tr><td class="myheader"><b>Type</b></td>
@@ -103,37 +110,56 @@ process.</p>
 
 <tr>
 <td class="mycell" align="left">Redirect pages</td>
-<td class="mycell" style="text-align:right;">3,614,074</td>
+<td class="mycell" style="text-align:right;">4,526,685</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Disambiguation pages</td>
-<td class="mycell" style="text-align:right;">95,679</td>
+<td class="mycell" style="text-align:right;">120,547</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Empty pages</td>
-<td class="mycell" style="text-align:right;">561</td>
+<td class="mycell" style="text-align:right;">530</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Stub articles</td>
-<td class="mycell" style="text-align:right;">1,403,062</td>
+<td class="mycell" style="text-align:right;">1,487,805</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Total articles (including stubs)</td>
-<td class="mycell" style="text-align:right;">5,830,993</td>
+<td class="mycell" style="text-align:right;">3,483,213</td>
+</tr>
+
+<tr>
+<td class="mycell" align="left">Other non-articles ("File:", "Category:", "Wikipedia:", etc.)</td>
+<td class="mycell" style="text-align:right;">2,345,636</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left"><b>Total</b></td>
-<td class="mycell" style="text-align:right;">9,541,307</td>
+<td class="mycell" style="text-align:right;">10,476,611</td>
 </tr>
 
 </table>
 
 <p>So far, so good!</p>
+
+<p>The remainder of this guide will provide a more principled approach
+to working with Wikipedia.  However, for something "quick-and-dirty",
+we can dump all articles into a flat text file with the following
+command:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml /user/jimmy/Wikipedia/txt
+</pre>
+
+<p>The output consist of text files, one article per line (article
+title and contents, separated by a tab).</p>
 
 </div></div>
 
@@ -146,7 +172,7 @@ that all documents in the collection be sequentially numbered, from 1
 ... <i>n</i>.  Typically, you'll want to start with document 1 as
 opposed to 0 because it is not possible to represent 0 with many
 standard compression schemes used in information retrieval (i.e.,
-Golomb codes).</p>
+gamma codes).</p>
 
 <p>The next step is to create a mapping from Wikipedia internal
 document ids (docids) to these sequentially-numbered ids (docnos).
@@ -154,7 +180,7 @@ Although, in general, docids can be arbitrary alphanumeric strings,
 we'll be using Wikipedia internal ids (which happend to be integers,
 but we'll treat as strings) as the docids.  This is a bit confusing,
 so we'll illustrate.  The first page in
-<code>enwiki-20100130-pages-articles.xml</code> is:</p>
+<code>enwiki-20101011-pages-articles.xml</code> is:</p>
 
 <pre>
   ...
@@ -171,15 +197,16 @@ docids and docnos by the following command:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
- /shared/Wikipedia/raw/enwiki-20100130-pages-articles.xml \
- /tmp/wikipedia-docid-tmp /shared/Wikipedia/docno-en-20100130.dat 100
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml tmp \
+  /user/jimmy/Wikipedia/docno-en-20101011.dat 100
 </pre>
 
 <p>The first command-line argument is the input XML file; the second
-is a temp directory, the third is the location of the output mappings
+is a tmp directory, the third is the location of the output mappings
 file, and the fourth is the number of mappers to run.  The mappings is
-used by the class WikipediaDocnoMapping, which provides a nice API for
-mapping back and forth between docnos and docids.</p>
+used by the class <code>WikipediaDocnoMapping</code>, which provides a
+nice API for mapping back and forth between docnos and docids.</p>
 
 <p>Aside: Why not use the article titles are docids?  We could, but
 since we need to maintain the docid to docno mapping in memory (for
@@ -196,16 +223,17 @@ of strings to store in memory).</p>
 Wikipedia data dump in XML.  To gain the benefits of compression
 (within the Hadoop framework), we'll now repack the XML file into
 block-compressed SequenceFiles, where the keys are the docnos, and the
-values are WikipediaPage objects.  This will make subsequent
+values are <code>WikipediaPage</code> objects.  This will make subsequent
 processing much easier.</p>
 
 <p>Here's the command-line invocation:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
- /shared/Wikipedia/raw/enwiki-20100130-pages-articles.xml \
- /shared/Wikipedia/compressed.block/en-20100130 \
- /shared/Wikipedia/docno-en-20100130.dat block
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml \
+  /user/jimmy/Wikipedia/compressed.block/en-20101011 \
+  /user/jimmy/Wikipedia/docno-en-20101011.dat block
 </pre>
 
 <p>The first command-line argument specifies the input XML file; the
@@ -213,38 +241,38 @@ second specifies the output directory; the third specifies the docno
 mappings file (from above); the fourth specifies block
 compression.</p>
 
-<p>In addition to block-compression, the program RepackWikipedia also
+<p>In addition to block-compression, the program <code>RepackWikipedia</code> also
 supports record-level compression as well as no compression.  Here's
 how they stack up:</p>
 
 <table>
 <tr><td class="myheader"><b>Format</b></td>
-    <td class="myheader"><b>Size (bytes)</b></td>
+    <td class="myheader"><b>Size (MiB bytes)</b></td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Original XML dump (bzip2-compressed)</td>
-<td class="mycell" style="text-align:right;">5,983,814,213</td>
+<td class="mycell" style="text-align:right;">6,653</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">Original XML dump (uncompressed)</td>
-<td class="mycell" style="text-align:right;">26,731,765,797</td>
+<td class="mycell" style="text-align:right;">29,132</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">SequenceFiles (block-compressed)</td>
-<td class="mycell" style="text-align:right;">7,743,355,075</td>
+<td class="mycell" style="text-align:right;">8,603</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">SequenceFiles (record-compressed)</td>
-<td class="mycell" style="text-align:right;">10,690,339,155</td>
+<td class="mycell" style="text-align:right;">11,873</td>
 </tr>
 
 <tr>
 <td class="mycell" align="left">SequenceFiles (no compression)</td>
-<td class="mycell" style="text-align:right;">26,926,795,252</td>
+<td class="mycell" style="text-align:right;">29,346</td>
 </tr>
 
 </table>
@@ -252,13 +280,13 @@ how they stack up:</p>
 <p>Block-compressed SequenceFiles are larger than the bzip2-compressed
 original XML files, but are easier to manipulate in Hadoop (since
 SequenceFiles are very common and there's lots of existing code to
-work with SequenceFiles).  Record-compressed SequenceFiles are less
+work with them).  Record-compressed SequenceFiles are less
 space-efficient, but retain the ability to directly seek to any
-WikipediaPage object (whereas with block compression you can only seek
-to block boundaries).  In most usage scenarios, block-compressed
-SequenceFiles are preferred.  As expected, without compression,
-SequenceFiles are larger than the original XML files (due to headers,
-delimiters, sync markers, etc.).</p>
+<code>WikipediaPage</code> object (whereas with block compression you
+can only seek to block boundaries).  In most usage scenarios,
+block-compressed SequenceFiles are preferred.  As expected, without
+compression, SequenceFiles are slightly larger than the original XML
+files (due to headers, delimiters, sync markers, etc.).</p>
 
 </div></div>
 
@@ -272,18 +300,20 @@ index:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
-  /shared/Wikipedia/compressed.block/en-20100130 /tmp/wikipedia-findex-tmp \
-  /shared/Wikipedia/compressed.block/findex-en-20100130.dat
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/compressed.block/en-20101011 tmp \
+  /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat
 </pre>
 
 <p>With this forward index, we can now programmatically access
-Wikipedia articles given docno or docid.  For example:</p>
+Wikipedia articles given docno or docid.  Here's a snippet of code
+that does this:</p>
 
 <pre>
 WikipediaForwardIndex f = new WikipediaForwardIndex();
 
-f.loadIndex("/shared/Wikipedia/compressed.block/findex-en-20100130.dat",
-    "/shared/Wikipedia/docno-en-20100130.dat");
+f.loadIndex("/user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat",
+    "/user/jimmy/Wikipedia/docno-en-20101011.dat");
 
 WikipediaPage page;
 
@@ -296,13 +326,28 @@ page = f.getDocument("1875");
 System.out.println(page.getDocid() + ": " + page.getTitle());
 </pre>
 
-<p>There's also a web interface for browsing, which can be started
-with the following invocation:</p>
+<p>This is illustrated by a simple command-line program that allows
+you to find out the title of a page given either the docno or the
+docid:</p>
+
+<pre>
+hadoop jar cloud9all.jar edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
+  /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat \
+  /user/jimmy/Wikipedia/docno-en-20101011.dat
+</pre>
+
+<p>Note that the option <code>-libjars</code> doesn't work for this
+program since it's not a MapReduce job.  As a result, we have to
+package up all dependencies (i.e., Bliki) in the same jar.</p>
+
+<p>Finally, there's also a web interface for browsing (the same
+as <a href="clue-access.html#webapp">the random access webapp for
+Clue</a>), which can be started with the following invocation:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
-  /shared/Wikipedia/compressed.block/findex-en-20100130.dat \
-  /shared/Wikipedia/docno-en-20100130.dat
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat /user/jimmy/Wikipedia/docno-en-20101011.dat
 </pre>
 
 <p>When the server starts up, it'll report back the host information

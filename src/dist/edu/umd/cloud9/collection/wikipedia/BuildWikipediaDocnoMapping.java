@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Program that builds the mapping between Wikipedia internal ids (docids) and
+ * Tool for building the mapping between Wikipedia internal ids (docids) and
  * sequentially-numbered ints (docnos). The program takes four command-line
  * arguments:
  * </p>
@@ -63,9 +63,9 @@ import org.apache.log4j.Logger;
  * 
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
- * /shared/Wikipedia/raw/enwiki-20100130-pages-articles.xml \
- * /tmp/wikipedia-docid-tmp \
- * /shared/Wikipedia/docno-en-20100130.dat 100
+ *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+ *   /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml tmp \
+ *   /user/jimmy/Wikipedia/docno-en-20101011.dat 100
  * </pre>
  * 
  * </blockquote>
@@ -150,13 +150,14 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
+		sLogger.info("Tool name: BuildWikipediaDocnoMapping");
 		sLogger.info("input: " + inputPath);
 		sLogger.info("output path: " + outputPath);
 		sLogger.info("output file: " + outputFile);
 		sLogger.info("number of mappers: " + mapTasks);
 
-		JobConf conf = new JobConf(BuildWikipediaDocnoMapping.class);
-		conf.setJobName("NumberWikipediaArticles");
+		JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
+		conf.setJobName("BuildWikipediaDocnoMapping");
 
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(1);
@@ -180,8 +181,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		Counters c = job.getCounters();
 		long cnt = c.getCounter(PageTypes.TOTAL);
 
-		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt,
-				outputFile);
+		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt, outputFile);
 
 		return 0;
 	}
@@ -191,7 +191,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BuildWikipediaDocnoMapping(), args);
+		int res = ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
 		System.exit(res);
 	}
 }

@@ -14,6 +14,12 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 
+/**
+ * Forward index for Wikipedia collections.
+ *
+ * @author Jimmy Lin
+ *
+ */
 public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage> {
 
 	private static final Logger sLogger = Logger.getLogger(WikipediaPage.class);
@@ -29,12 +35,17 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 	private WikipediaDocnoMapping mDocnoMapping = new WikipediaDocnoMapping();
 
 	public WikipediaForwardIndex() {
+		mConf = new Configuration();
 	}
 
+	public WikipediaForwardIndex(Configuration conf) {
+		mConf = conf;
+	}
+
+	@Override
 	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
 		sLogger.info("Loading forward index: " + indexFile);
 
-		mConf = new Configuration();
 		mFS = FileSystem.get(mConf);
 
 		mDocnoMapping.loadMapping(new Path(mappingDataFile), mFS);
@@ -64,10 +75,12 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		in.close();
 	}
 
+	@Override
 	public String getCollectionPath() {
 		return mCollectionPath;
 	}
 
+	@Override
 	public WikipediaPage getDocument(int docno) {
 		long start = System.currentTimeMillis();
 
@@ -114,24 +127,29 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		return null;
 	}
 
+	@Override
 	public WikipediaPage getDocument(String docid) {
 		return getDocument(mDocnoMapping.getDocno(docid));
 	}
 
+	@Override
 	public int getDocno(String docid) {
 		return mDocnoMapping.getDocno(docid);
 	}
 
+	@Override
 	public String getDocid(int docno) {
 		return mDocnoMapping.getDocid(docno);
 	}
 
+	@Override
 	public int getFirstDocno() {
 		return mDocnos[0];
 	}
 
 	private int mLastDocno = -1;
 
+	@Override
 	public int getLastDocno() {
 		if (mLastDocno != -1)
 			return mLastDocno;
@@ -157,33 +175,5 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		}
 
 		return mLastDocno;
-	}
-
-	public static void main(String[] args) throws Exception {
-		WikipediaForwardIndex f = new WikipediaForwardIndex();
-
-		f.loadIndex("/shared/Wikipedia/compressed.block/findex-en-20100130.dat",
-				"/shared/Wikipedia/docno-en-20100130.dat");
-
-		WikipediaPage page;
-
-		page = f.getDocument(1000);
-		System.out.println(page.getDocid() + ": " + page.getTitle());
-
-		page = f.getDocument(100000);
-		System.out.println(page.getDocid() + ": " + page.getTitle());
-
-		page = f.getDocument("1875");
-		System.out.println(page.getDocid() + ": " + page.getTitle());
-
-		page = f.getDocument("134156");
-		System.out.println(page.getDocid() + ": " + page.getTitle());
-
-		// test link removal on this one: Thomas Snow (boxer)
-		// sometimes <ref>http...</ref> appears in the text output
-		//page = f.getDocument("25041463");
-		
-		System.out.println("===content===\n" + page.getContent());
-		System.out.println("===display===\n" + page.getDisplayContent());
 	}
 }

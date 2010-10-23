@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/bliki-core-3.0.14.jar"/>
 	<classpathentry kind="lib" path="lib/clojure-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-0.20.1-core.jar"/>
@@ -21,5 +20,7 @@
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/guava-r06.jar"/>
+	<classpathentry kind="lib" path="lib/bliki-core-3.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
