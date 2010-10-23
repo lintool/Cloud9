@@ -48,12 +48,12 @@ import edu.umd.cloud9.util.FSLineReader;
  * Tool for building a document forward index for Wikipedia. Sample invocation:
  * </p>
  *
- * <pre>
+ * <blockquote><pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
  *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
  *   /user/jimmy/Wikipedia/compressed.block/en-20101011 tmp \
  *   /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat
- * </pre>
+ * </pre></blockquote>
  * 
  * @author Jimmy Lin
  * 

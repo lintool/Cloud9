@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
@@ -29,12 +45,27 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.PairOfStringInt;
 
+/**
+ * <p>
+ * Tool for extracting the link graph out of Wikipedia. Sample invocation:
+ * </p>
+ *
+ * <blockquote><pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
+ *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+ *   /user/jimmy/Wikipedia/compressed.block/en-20101011 \
+ *   /user/jimmy/Wikipedia/edges /user/jimmy/Wikipedia/adjacency 10
+ * </pre></blockquote>
+ *
+ * @author Jimmy Lin
+ *
+ */
 public class BuildWikipediaLinkGraph extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(BuildWikipediaLinkGraph.class);
 
 	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
+		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
 	};
 
 	private static class MyMapper1 extends MapReduceBase implements
@@ -75,12 +106,14 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
 			} else if (p.isEmpty()) {
 				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else {
+			} else if (p.isArticle()) {
 				reporter.incrCounter(PageTypes.ARTICLE, 1);
 
 				if (p.isStub()) {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
+			} else {
+				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
 
 			for (String t : p.extractLinkDestinations()) {
@@ -225,7 +258,7 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		sLogger.info(" - input: " + inputPath);
 		sLogger.info(" - output: " + outputPath);
 
-		JobConf conf = new JobConf(BuildWikipediaLinkGraph.class);
+		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
 		conf.setJobName("BuildWikipediaLinkGraph:Edges");
 
 		conf.setNumMapTasks(10);
@@ -258,7 +291,7 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		sLogger.info(" - input: " + inputPath);
 		sLogger.info(" - output: " + outputPath);
 
-		JobConf conf = new JobConf(BuildWikipediaLinkGraph.class);
+		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
 		conf.setJobName("BuildWikipediaLinkGraph:AdjacencyList");
 
 		conf.setNumMapTasks(10);
@@ -290,7 +323,7 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BuildWikipediaLinkGraph(), args);
+		int res = ToolRunner.run(new BuildWikipediaLinkGraph(), args);
 		System.exit(res);
 	}
 }

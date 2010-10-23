@@ -103,8 +103,9 @@ graph in the above text format:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
-  /shared/Wikipedia/compressed.block/en-20100130/ \
-  /umd-lin/jimmylin/wiki-edges /umd-lin/jimmylin/wiki-adjacency 10
+  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
+  /user/jimmy/Wikipedia/compressed.block/en-20101011 \
+  /user/jimmy/Wikipedia/edges /user/jimmy/Wikipedia/adjacency 10
 </pre>
 
 <p>The command-line arguments, in order: directory of Wikipedia
