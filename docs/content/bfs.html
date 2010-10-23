@@ -207,9 +207,10 @@ hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
 
 <p>A few observations: only about half of Wikipedia pages are
 reachable, but the vast majority of reachable pages are only a few
-hops away.  But why are there pages so far away?  We can use a handy
-tool to extract pages that are at a specific distance (e.g., 25 hops
-away):</p>
+hops away.  But why are there pages so far away?  (The algorithm still
+had not converged at iteration 25, but I gave up trying.)  To
+investigate, we can use a handy tool to extract pages that are at a
+specific distance (e.g., 25 hops away):</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindNodeAtDistance \
