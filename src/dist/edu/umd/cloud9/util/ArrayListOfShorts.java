@@ -17,6 +17,7 @@
 package edu.umd.cloud9.util;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.RandomAccess;
 
 import com.google.common.base.Preconditions;
@@ -24,23 +25,22 @@ import com.google.common.base.Preconditions;
 /**
  * Object representing a list of shorts, backed by an resizable-array.
  */
-public class ArrayListOfShorts implements RandomAccess, Cloneable {
-	private transient short[] mArray;
-	private int size;
+public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Short> {
+	protected transient short[] mArray;
+	protected int size;
 
 	private static final int INITIAL_CAPACITY_DEFAULT = 10;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
-	 * 
-	 * @param initialCapacity
-	 *            the initial capacity of the list
-	 * @exception IllegalArgumentException
-	 *                if the specified initial capacity is negative
+	 *
+	 * @param initialCapacity the initial capacity of the list
+	 * @exception IllegalArgumentException if the specified initial capacity is negative
 	 */
 	public ArrayListOfShorts(int initialCapacity) {
-		if (initialCapacity < 0)
+		if (initialCapacity < 0) {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
+		}
 
 		mArray = new short[initialCapacity];
 	}
@@ -75,16 +75,16 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	 * Increases the capacity of this object, if necessary, to ensure that it
 	 * can hold at least the number of elements specified by the minimum
 	 * capacity argument.
-	 * 
-	 * @param minCapacity
-	 *            the desired minimum capacity
+	 *
+	 * @param minCapacity the desired minimum capacity
 	 */
 	public void ensureCapacity(int minCapacity) {
 		int oldCapacity = mArray.length;
 		if (minCapacity > oldCapacity) {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
-			if (newCapacity < minCapacity)
+			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
+			}
 
 			mArray = Arrays.copyOf(mArray, newCapacity);
 		}
@@ -92,7 +92,7 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 
 	/**
 	 * Returns the number of elements in this list.
-	 * 
+	 *
 	 * @return the number of elements in this list
 	 */
 	public int size() {
@@ -110,9 +110,8 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 
 	/**
 	 * Returns <tt>true</tt> if this list contains the specified element.
-	 * 
-	 * @param n
-	 *            element whose presence in this list is to be tested
+	 *
+	 * @param n element whose presence in this list is to be tested
 	 * @return <tt>true</tt> if this list contains the specified element
 	 */
 	public boolean contains(short n) {
@@ -124,9 +123,11 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	 * this list, or -1 if this list does not contain the element.
 	 */
 	public int indexOf(short n) {
-		for (int i = 0; i < size; i++)
-			if (n == mArray[i])
+		for (int i = 0; i < size; i++) {
+			if (n == mArray[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -135,15 +136,17 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	 * list, or -1 if this list does not contain the element.
 	 */
 	public int lastIndexOf(short n) {
-		for (int i = size - 1; i >= 0; i--)
-			if (n == mArray[i])
+		for (int i = size - 1; i >= 0; i--) {
+			if (n == mArray[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
 	/**
 	 * Returns a clone of this object.
-	 * 
+	 *
 	 * @return a clone of this object
 	 */
 	public ArrayListOfShorts clone() {
@@ -152,9 +155,8 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 
 	/**
 	 * Returns the element at the specified position in this list.
-	 * 
-	 * @param index
-	 *            index of the element to return
+	 *
+	 * @param index index of the element to return
 	 * @return the element at the specified position in this list
 	 */
 	public short get(int index) {
@@ -164,11 +166,9 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	/**
 	 * Replaces the element at the specified position in this list with the
 	 * specified element.
-	 * 
-	 * @param index
-	 *            index of the element to replace
-	 * @param element
-	 *            element to be stored at the specified position
+	 *
+	 * @param index index of the element to replace
+	 * @param element element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 */
 	public short set(int index, short element) {
@@ -179,9 +179,8 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 * 
-	 * @param e
-	 *            element to be appended to this list
+	 *
+	 * @param e element to be appended to this list
 	 */
 	public void add(short e) {
 		ensureCapacity(size + 1); // Increments modCount!!
@@ -192,15 +191,14 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	 * Inserts the specified element at the specified position in this list.
 	 * Shifts the element currently at that position (if any) and any subsequent
 	 * elements to the right (adds one to their indices).
-	 * 
-	 * @param index
-	 *            index at which the specified element is to be inserted
-	 * @param element
-	 *            element to be inserted
+	 *
+	 * @param index index at which the specified element is to be inserted
+	 * @param element element to be inserted
 	 */
 	public void add(int index, short element) {
-		if (index > size || index < 0)
+		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+		}
 
 		ensureCapacity(size + 1); // Increments modCount!!
 		System.arraycopy(mArray, index, mArray, index + 1, size - index);
@@ -211,18 +209,19 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	/**
 	 * Removes the element at the specified position in this list. Shifts any
 	 * subsequent elements to the left (subtracts one from their indices).
-	 * 
-	 * @param index
-	 *            the index of the element to be removed
+	 *
+	 * @param index the index of the element to be removed
 	 * @return the element that was removed from the list
 	 */
 	public short remove(int index) {
 		short oldValue = mArray[index];
 
 		int numMoved = size - index - 1;
-		if (numMoved > 0)
+		if (numMoved > 0) {
 			System.arraycopy(mArray, index + 1, mArray, index, numMoved);
+		}
 
+		size--;
 		return oldValue;
 	}
 
@@ -238,10 +237,51 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable {
 	/**
 	 * Returns the array backing this object. Note that this array may be longer
 	 * than the number of elements in the list.
-	 * 
+	 *
 	 * @return array backing this object
 	 */
 	public short[] getArray() {
 		return mArray;
+	}
+
+	/**
+	 * Returns an iterator for this list. Note that this method is included only
+	 * for convenience to conform to the <code>Iterable</code> interface; this
+	 * method is not efficient because of autoboxing.
+	 */
+	public Iterator<Short> iterator() {
+		return new Iterator<Short>() {
+			int cnt = 0;
+			public boolean hasNext() { return cnt < size(); }
+			public void remove() { throw new UnsupportedOperationException(); }
+			public Short next() { return get(cnt++); }
+		};
+	}
+
+	/**
+	 * Returns a string representation of the object, explicitly printing out the
+	 * first <i>n</i> elements of this list.
+	 */
+	public String toString(int n) {
+		StringBuilder s = new StringBuilder();
+
+		s.append("[");
+		int sz = size() > n ? n : size;
+
+		for (int i = 0; i < sz; i++) {
+			if (i != 0) {
+				s.append(", ");
+			}
+			s.append(get(i));
+		}
+
+		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+
+		return s.toString();
+	}
+
+	@Override
+	public String toString() {
+		return toString(10);
 	}
 }

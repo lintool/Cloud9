@@ -45,7 +45,37 @@ public class ArrayListOfShortsTest {
 
 			assertEquals(shorts[i], v);
 		}
+	}
 
+	@Test
+	public void testRemove() {
+		ArrayListOfShorts list = new ArrayListOfShorts();
+		for ( int i=0; i<10; i++) {
+			list.add((short) i);
+		}
+
+		list.remove(list.indexOf((short) 5));
+		assertEquals(9, list.size());
+		assertEquals(0, list.get(0));
+		assertEquals(1, list.get(1));
+		assertEquals(2, list.get(2));
+		assertEquals(3, list.get(3));
+		assertEquals(4, list.get(4));
+		assertEquals(6, list.get(5));
+		assertEquals(7, list.get(6));
+		assertEquals(8, list.get(7));
+		assertEquals(9, list.get(8));
+
+		list.remove(list.indexOf((short) 9));
+		assertEquals(8, list.size);
+		assertEquals(0, list.get(0));
+		assertEquals(1, list.get(1));
+		assertEquals(2, list.get(2));
+		assertEquals(3, list.get(3));
+		assertEquals(4, list.get(4));
+		assertEquals(6, list.get(5));
+		assertEquals(7, list.get(6));
+		assertEquals(8, list.get(7));
 	}
 
 	@Test
@@ -140,6 +170,59 @@ public class ArrayListOfShortsTest {
 		for (int i = 0; i < size; i++) {
 			assertEquals(shorts[i] + 1, list2.get(i));
 		}
+	}
+
+	@Test
+	public void testToString() {
+		int size = 10;
+		Random r = new Random();
+
+		ArrayListOfShorts list = new ArrayListOfShorts();
+		for (int i = 0; i < size; i++) {
+			list.add((short) r.nextInt(30000));
+		}
+
+		String out = list.toString();
+		for (int i = 0; i < size; i++) {
+			short v = list.get(i);
+
+			// Make sure the first 10 elements are printed out.
+			assertTrue(out.indexOf(new Short(v).toString()) != -1);
+		}
+
+		for (int i = 0; i < size; i++) {
+			list.add((short) r.nextInt(30000));
+		}
+
+		out = list.toString();
+		for (int i = size; i < size+size; i++) {
+			short v = list.get(i);
+
+			// Make sure these elements are not printed out.
+			assertTrue(out.indexOf(new Short(v).toString()) == -1);
+		}
+
+		assertTrue(out.indexOf(size + " more") != -1);
+	}
+
+	@Test
+	public void testIterable() {
+		int size = 1000;
+		Random r = new Random();
+		short[] shorts = new short[size];
+
+		ArrayListOfShorts list = new ArrayListOfShorts();
+		for (int i = 0; i < size; i++) {
+			short k = (short) r.nextInt(size);
+			list.add(k);
+			shorts[i] = k;
+		}
+
+		int i=0;
+		for ( Short v : list) {
+			assertEquals(shorts[i++], (short) v);
+		}
+
 	}
 
 	public static junit.framework.Test suite() {

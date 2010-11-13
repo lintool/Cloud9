@@ -17,6 +17,7 @@
 package edu.umd.cloud9.util;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.RandomAccess;
 
 import com.google.common.base.Preconditions;
@@ -24,7 +25,7 @@ import com.google.common.base.Preconditions;
 /**
  * Object representing a list of floats, backed by an resizable-array.
  */
-public class ArrayListOfFloats implements RandomAccess, Cloneable {
+public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Float> {
 	protected transient float[] mArray;
 	protected int size = 0;
 
@@ -33,14 +34,13 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	/**
 	 * Constructs an empty list with the specified initial capacity.
 	 * 
-	 * @param initialCapacity
-	 *            the initial capacity of the list
-	 * @exception IllegalArgumentException
-	 *                if the specified initial capacity is negative
+	 * @param initialCapacity the initial capacity of the list
+	 * @exception IllegalArgumentException if the specified initial capacity is negative
 	 */
 	public ArrayListOfFloats(int initialCapacity) {
-		if (initialCapacity < 0)
+		if (initialCapacity < 0) {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
+		}
 
 		mArray = new float[initialCapacity];
 	}
@@ -76,15 +76,15 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * can hold at least the number of elements specified by the minimum
 	 * capacity argument.
 	 * 
-	 * @param minCapacity
-	 *            the desired minimum capacity
+	 * @param minCapacity the desired minimum capacity
 	 */
 	public void ensureCapacity(int minCapacity) {
 		int oldCapacity = mArray.length;
 		if (minCapacity > oldCapacity) {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
-			if (newCapacity < minCapacity)
+			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
+			}
 			mArray = Arrays.copyOf(mArray, newCapacity);
 		}
 	}
@@ -110,8 +110,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	/**
 	 * Returns <tt>true</tt> if this list contains the specified element.
 	 * 
-	 * @param n
-	 *            element whose presence in this list is to be tested
+	 * @param n element whose presence in this list is to be tested
 	 * @return <tt>true</tt> if this list contains the specified element
 	 */
 	public boolean contains(float n) {
@@ -123,9 +122,11 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * this list, or -1 if this list does not contain the element.
 	 */
 	public int indexOf(float n) {
-		for (int i = 0; i < size; i++)
-			if (n == mArray[i])
+		for (int i = 0; i < size; i++) {
+			if (n == mArray[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -134,9 +135,11 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * list, or -1 if this list does not contain the element.
 	 */
 	public int lastIndexOf(float n) {
-		for (int i = size - 1; i >= 0; i--)
-			if (n == mArray[i])
+		for (int i = size - 1; i >= 0; i--) {
+			if (n == mArray[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -152,8 +155,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	/**
 	 * Returns the element at the specified position in this list.
 	 * 
-	 * @param index
-	 *            index of the element to return
+	 * @param index index of the element to return
 	 * @return the element at the specified position in this list
 	 */
 	public float get(int index) {
@@ -164,10 +166,8 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * Replaces the element at the specified position in this list with the
 	 * specified element.
 	 * 
-	 * @param index
-	 *            index of the element to replace
-	 * @param element
-	 *            element to be stored at the specified position
+	 * @param index index of the element to replace
+	 * @param element element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 */
 	public float set(int index, float element) {
@@ -179,8 +179,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	/**
 	 * Appends the specified element to the end of this list.
 	 * 
-	 * @param e
-	 *            element to be appended to this list
+	 * @param e element to be appended to this list
 	 */
 	public void add(float e) {
 		ensureCapacity(size + 1); // Increments modCount!!
@@ -192,14 +191,13 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * Shifts the element currently at that position (if any) and any subsequent
 	 * elements to the right (adds one to their indices).
 	 * 
-	 * @param index
-	 *            index at which the specified element is to be inserted
-	 * @param element
-	 *            element to be inserted
+	 * @param index index at which the specified element is to be inserted
+	 * @param element element to be inserted
 	 */
 	public void add(int index, float element) {
-		if (index > size || index < 0)
+		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+		}
 
 		ensureCapacity(size + 1); // Increments modCount!!
 		System.arraycopy(mArray, index, mArray, index + 1, size - index);
@@ -211,17 +209,18 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 * Removes the element at the specified position in this list. Shifts any
 	 * subsequent elements to the left (subtracts one from their indices).
 	 * 
-	 * @param index
-	 *            the index of the element to be removed
+	 * @param index the index of the element to be removed
 	 * @return the element that was removed from the list
 	 */
 	public float remove(int index) {
 		float oldValue = mArray[index];
 
 		int numMoved = size - index - 1;
-		if (numMoved > 0)
+		if (numMoved > 0) {
 			System.arraycopy(mArray, index + 1, mArray, index, numMoved);
+		}
 
+		size--;
 		return oldValue;
 	}
 
@@ -242,5 +241,46 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable {
 	 */
 	public float[] getArray() {
 		return mArray;
+	}
+
+	/**
+	 * Returns an iterator for this list. Note that this method is included only
+	 * for convenience to conform to the <code>Iterable</code> interface; this
+	 * method is not efficient because of autoboxing.
+	 */
+	public Iterator<Float> iterator() {
+		return new Iterator<Float>() {
+			int cnt = 0;
+			public boolean hasNext() { return cnt < size(); }
+			public void remove() { throw new UnsupportedOperationException(); }
+			public Float next() { return get(cnt++); }
+		};
+	}
+
+	/**
+	 * Returns a string representation of the object, explicitly printing out the
+	 * first <i>n</i> elements of this list.
+	 */
+	public String toString(int n) {
+		StringBuilder s = new StringBuilder();
+
+		s.append("[");
+		int sz = size() > n ? n : size;
+
+		for (int i = 0; i < sz; i++) {
+			if (i != 0) {
+				s.append(", ");
+			}
+			s.append(get(i));
+		}
+
+		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+
+		return s.toString();
+	}
+
+	@Override
+	public String toString() {
+		return toString(10);
 	}
 }

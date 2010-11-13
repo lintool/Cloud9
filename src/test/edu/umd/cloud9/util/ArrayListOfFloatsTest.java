@@ -43,7 +43,37 @@ public class ArrayListOfFloatsTest {
 		for (int i = 0; i < size; i++) {
 			assertEquals(floats[i], list.get(i), 10e-5);
 		}
+	}
 
+	@Test
+	public void testRemove() {
+		ArrayListOfFloats list = new ArrayListOfFloats();
+		for ( int i=0; i<10; i++) {
+			list.add((float) i);
+		}
+
+		list.remove(list.indexOf(5.0f));
+		assertEquals(9, list.size());
+		assertEquals(0.0f, list.get(0), 10e-6);
+		assertEquals(1.0f, list.get(1), 10e-6);
+		assertEquals(2.0f, list.get(2), 10e-6);
+		assertEquals(3.0f, list.get(3), 10e-6);
+		assertEquals(4.0f, list.get(4), 10e-6);
+		assertEquals(6.0f, list.get(5), 10e-6);
+		assertEquals(7.0f, list.get(6), 10e-6);
+		assertEquals(8.0f, list.get(7), 10e-6);
+		assertEquals(9.0f, list.get(8), 10e-6);
+
+		list.remove(list.indexOf((short) 9));
+		assertEquals(8, list.size);
+		assertEquals(0.0f, list.get(0), 10e-6);
+		assertEquals(1.0f, list.get(1), 10e-6);
+		assertEquals(2.0f, list.get(2), 10e-6);
+		assertEquals(3.0f, list.get(3), 10e-6);
+		assertEquals(4.0f, list.get(4), 10e-6);
+		assertEquals(6.0f, list.get(5), 10e-6);
+		assertEquals(7.0f, list.get(6), 10e-6);
+		assertEquals(8.0f, list.get(7), 10e-6);
 	}
 
 	@Test
@@ -134,6 +164,59 @@ public class ArrayListOfFloatsTest {
 		for (int i = 0; i < size; i++) {
 			assertEquals(floats[i] + 1, list2.get(i), 10e-5);
 		}
+	}
+
+	@Test
+	public void testToString() {
+		int size = 10;
+		Random r = new Random();
+
+		ArrayListOfFloats list = new ArrayListOfFloats();
+		for (int i = 0; i < size; i++) {
+			list.add(r.nextFloat());
+		}
+
+		String out = list.toString();
+		for (int i = 0; i < size; i++) {
+			float v = list.get(i);
+
+			// Make sure the first 10 elements are printed out.
+			assertTrue(out.indexOf(new Float(v).toString()) != -1);
+		}
+
+		for (int i = 0; i < size; i++) {
+			list.add(r.nextFloat());
+		}
+
+		out = list.toString();
+		for (int i = size; i < size+size; i++) {
+			float v = list.get(i);
+
+			// Make sure these elements are not printed out.
+			assertTrue(out.indexOf(new Float(v).toString()) == -1);
+		}
+
+		assertTrue(out.indexOf(size + " more") != -1);
+	}
+
+	@Test
+	public void testIterable() {
+		int size = 1000;
+		Random r = new Random();
+		float[] floats = new float[size];
+
+		ArrayListOfFloats list = new ArrayListOfFloats();
+		for (int i = 0; i < size; i++) {
+			float k = r.nextFloat();
+			list.add(k);
+			floats[i] = k;
+		}
+
+		int i=0;
+		for ( Float v : list) {
+			assertEquals(floats[i++], v, 10e-5);
+		}
+
 	}
 
 	public static junit.framework.Test suite() {

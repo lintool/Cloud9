@@ -45,7 +45,37 @@ public class ArrayListOfIntsTest {
 
 			assertEquals(ints[i], v);
 		}
+	}
 
+	@Test
+	public void testRemove() {
+		ArrayListOfInts list = new ArrayListOfInts();
+		for ( int i=0; i<10; i++) {
+			list.add(i);
+		}
+
+		list.remove(list.indexOf(5));
+		assertEquals(9, list.size());
+		assertEquals(0, list.get(0));
+		assertEquals(1, list.get(1));
+		assertEquals(2, list.get(2));
+		assertEquals(3, list.get(3));
+		assertEquals(4, list.get(4));
+		assertEquals(6, list.get(5));
+		assertEquals(7, list.get(6));
+		assertEquals(8, list.get(7));
+		assertEquals(9, list.get(8));
+
+		list.remove(list.indexOf(9));
+		assertEquals(8, list.size());
+		assertEquals(0, list.get(0));
+		assertEquals(1, list.get(1));
+		assertEquals(2, list.get(2));
+		assertEquals(3, list.get(3));
+		assertEquals(4, list.get(4));
+		assertEquals(6, list.get(5));
+		assertEquals(7, list.get(6));
+		assertEquals(8, list.get(7));
 	}
 
 	@Test
@@ -158,6 +188,59 @@ public class ArrayListOfIntsTest {
 		list.add(size);
 		assertEquals(shift + 1, list.size());
 		assertEquals(size, list.get(shift));
+	}
+
+	@Test
+	public void testToString() {
+		int size = 10;
+		Random r = new Random();
+
+		ArrayListOfInts list = new ArrayListOfInts();
+		for (int i = 0; i < size; i++) {
+			list.add(r.nextInt(100000));
+		}
+
+		String out = list.toString();
+		for (int i = 0; i < size; i++) {
+			int v = list.get(i);
+
+			// Make sure the first 10 elements are printed out.
+			assertTrue(out.indexOf(new Integer(v).toString()) != -1);
+		}
+
+		for (int i = 0; i < size; i++) {
+			list.add(r.nextInt(100000));
+		}
+
+		out = list.toString();
+		for (int i = size; i < size+size; i++) {
+			int v = list.get(i);
+
+			// Make sure these elements are not printed out.
+			assertTrue(out.indexOf(new Integer(v).toString()) == -1);
+		}
+
+		assertTrue(out.indexOf(size + " more") != -1);
+	}
+
+	@Test
+	public void testIterable() {
+		int size = 1000;
+		Random r = new Random();
+		int[] ints = new int[size];
+
+		ArrayListOfInts list = new ArrayListOfInts();
+		for (int i = 0; i < size; i++) {
+			int k = r.nextInt(size);
+			list.add(k);
+			ints[i] = k;
+		}
+
+		int i=0;
+		for ( Integer v : list) {
+			assertEquals(ints[i++], (int) v);
+		}
+
 	}
 
 	public static junit.framework.Test suite() {
