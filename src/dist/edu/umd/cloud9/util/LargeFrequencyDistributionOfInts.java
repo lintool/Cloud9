@@ -16,8 +16,8 @@
 
 package edu.umd.cloud9.util;
 
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,22 +25,19 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.PairOfIntLong;
 
 /**
- * An implementation of a frequency distribution for int events, backed by a
- * fastutil map. One common use is to store frequency counts for a vocabulary
- * space that has been integerized, i.e., each term has been mapped to an
- * integer. This class keeps track of frequencies using ints, so beware when
- * dealing with a large number of observations; see also
- * {@link LargeFrequencyDistributionOfInts}.
+ * Similar to {@link FrequencyDistributionOfInts}, but keep tracks of counts
+ * with longs. Thus, useful keeping track of distributions with a large number
+ * of observations.
  *
  * @author Jimmy Lin
  *
  */
-public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
+public class LargeFrequencyDistributionOfInts extends Int2LongOpenHashMap {
 
-	private static final long serialVersionUID = -8991144500446882265L;
+	private static final long serialVersionUID = 2937102257008737066L;
 
 	private long mSumOfFrequencies = 0;
 
@@ -49,16 +46,16 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 */
 	public void increment(int key) {
 		if (containsKey(key)) {
-			put(key, get(key) + 1);
+			put(key, get(key) + 1L);
 		} else {
-			put(key, 1);
+			put(key, 1L);
 		}
 	}
 
 	/**
 	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void increment(int key, int cnt) {
+	public void increment(int key, long cnt) {
 		if (containsKey(key)) {
 			put(key, get(key) + cnt);
 		} else {
@@ -71,11 +68,11 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 */
 	public void decrement(int key) {
 		if (containsKey(key)) {
-			int v = get(key);
-			if (v == 1) {
+			long v = get(key);
+			if (v == 1L) {
 				remove(key);
 			} else {
-				put(key, this.get(key) - 1);
+				put(key, this.get(key) - 1L);
 			}
 		} else {
 			throw new RuntimeException("Can't decrement non-existent event!");
@@ -85,9 +82,9 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Decrements the frequency of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void decrement(int key, int cnt) {
+	public void decrement(int key, long cnt) {
 		if (containsKey(key)) {
-			int v = get(key);
+			long v = get(key);
 			if (v < cnt) {
 				throw new RuntimeException("Can't decrement past zero!");
 			} else if (v == cnt) {
@@ -104,7 +101,7 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 * Returns the frequency of a particular event <i>key</i>.
 	 */
 	@Override
-	public int get(int key) {
+	public long get(int key) {
 		return super.get(key);
 	}
 
@@ -112,8 +109,8 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 * Sets the frequency of a particular event <code>key</code> to count <code>v</code>.
 	 */
 	@Override
-	public int put(int key, int v) {
-		int rv = super.put(key, v);
+	public long put(int k, long v) {
+		long rv = super.put(k, v);
 		mSumOfFrequencies = mSumOfFrequencies - rv + v;
 
 		return rv;
@@ -123,16 +120,16 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 * Sets the frequency of a particular event <code>ok</code> to count <code>ov</code>.
 	 */
 	@Override
-	public Integer put(Integer ok, Integer ov) {
-		return put((int) ok, (int) ov);
+	public Long put(Integer ok, Long ov) {
+		return put((int) ok, (long) ov);
 	}
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
 	@Override
-	public int remove(int key) {
-		int rv = super.remove(key);
+	public long remove(int k) {
+		long rv = super.remove(k);
 		mSumOfFrequencies -= rv;
 
 		return rv;
@@ -142,22 +139,22 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 * Removes the count of a particular event <code>ok</code>.
 	 */
 	@Override
-	public Integer remove(Object ok) {
+	public Long remove(Object ok) {
 		return this.remove((int) (Integer) ok);
 	}
 
 	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
-	public List<PairOfInts> getFrequencySortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
+	public List<PairOfIntLong> getFrequencySortedEvents() {
+		List<PairOfIntLong> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : int2IntEntrySet()) {
-			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+		for (Int2LongMap.Entry e : int2LongEntrySet()) {
+			list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
+		Collections.sort(list, new Comparator<PairOfIntLong>() {
+			public int compare(PairOfIntLong e1, PairOfIntLong e2) {
 				if (e1.getRightElement() > e2.getRightElement()) {
 					return -1;
 				}
@@ -180,23 +177,23 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Returns top <i>n</i> events sorted by frequency of occurrence.
 	 */
-	public List<PairOfInts> getFrequencySortedEvents(int n) {
-		List<PairOfInts> list = getFrequencySortedEvents();
+	public List<PairOfIntLong> getFrequencySortedEvents(int n) {
+		List<PairOfIntLong> list = getFrequencySortedEvents();
 		return list.subList(0, n);
 	}
 
 	/**
 	 * Returns events in sorted order.
 	 */
-	public List<PairOfInts> getSortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
+	public List<PairOfIntLong> getSortedEvents() {
+		List<PairOfIntLong> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : int2IntEntrySet()) {
-			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+		for (Int2LongMap.Entry e : int2LongEntrySet()) {
+			list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
+		Collections.sort(list, new Comparator<PairOfIntLong>() {
+			public int compare(PairOfIntLong e1, PairOfIntLong e2) {
 				if (e1.getLeftElement() > e2.getLeftElement()) {
 					return 1;
 				}
@@ -215,8 +212,8 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Returns top <i>n</i> events in sorted order.
 	 */
-	public List<PairOfInts> getSortedEvents(int n) {
-		List<PairOfInts> list = getSortedEvents();
+	public List<PairOfIntLong> getSortedEvents(int n) {
+		List<PairOfIntLong> list = getSortedEvents();
 		return list.subList(0, n);
 	}
 

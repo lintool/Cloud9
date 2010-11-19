@@ -16,8 +16,8 @@
 
 package edu.umd.cloud9.util;
 
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,40 +25,38 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.PairOfStringLong;
 
 /**
- * An implementation of a frequency distribution for int events, backed by a
- * fastutil map. One common use is to store frequency counts for a vocabulary
- * space that has been integerized, i.e., each term has been mapped to an
- * integer. This class keeps track of frequencies using ints, so beware when
- * dealing with a large number of observations; see also
- * {@link LargeFrequencyDistributionOfInts}.
+ * Similar to {@link FrequencyDistribution}, but keep tracks of counts
+ * with longs. Thus, useful keeping track of distributions with a large number
+ * of observations.
  *
  * @author Jimmy Lin
  *
  */
-public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
+public class LargeFrequencyDistribution<K> extends Object2LongOpenHashMap<K> {
 
-	private static final long serialVersionUID = -8991144500446882265L;
+	private static final long serialVersionUID = -5283249239701824488L;
 
 	private long mSumOfFrequencies = 0;
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.
 	 */
-	public void increment(int key) {
+	public void increment(K key) {
 		if (containsKey(key)) {
-			put(key, get(key) + 1);
+			put(key, get(key) + 1L);
 		} else {
-			put(key, 1);
+			put(key, 1L);
 		}
 	}
 
 	/**
-	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>.
+	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>
+	 * .
 	 */
-	public void increment(int key, int cnt) {
+	public void increment(K key, long cnt) {
 		if (containsKey(key)) {
 			put(key, get(key) + cnt);
 		} else {
@@ -69,13 +67,13 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Decrements the frequency of an event <code>key</code>.
 	 */
-	public void decrement(int key) {
+	public void decrement(K key) {
 		if (containsKey(key)) {
-			int v = get(key);
+			long v = get(key);
 			if (v == 1) {
 				remove(key);
 			} else {
-				put(key, this.get(key) - 1);
+				put(key, this.get(key) - 1L);
 			}
 		} else {
 			throw new RuntimeException("Can't decrement non-existent event!");
@@ -83,11 +81,12 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	}
 
 	/**
-	 * Decrements the frequency of an event <code>key</code> by <code>cnt</code>.
+	 * Sets the frequency of a particular event <code>key</code> to count
+	 * <code>v</code>.
 	 */
-	public void decrement(int key, int cnt) {
+	public void decrement(K key, long cnt) {
 		if (containsKey(key)) {
-			int v = get(key);
+			long v = get(key);
 			if (v < cnt) {
 				throw new RuntimeException("Can't decrement past zero!");
 			} else if (v == cnt) {
@@ -103,36 +102,36 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Returns the frequency of a particular event <i>key</i>.
 	 */
-	@Override
-	public int get(int key) {
-		return super.get(key);
+	public long get(K key) {
+		return getLong(key);
 	}
 
 	/**
-	 * Sets the frequency of a particular event <code>key</code> to count <code>v</code>.
+	 * Sets the frequency of a particular event <code>key</code> to count
+	 * <code>v</code>.
 	 */
 	@Override
-	public int put(int key, int v) {
-		int rv = super.put(key, v);
+	public long put(K k, long v) {
+		long rv = super.put(k, v);
 		mSumOfFrequencies = mSumOfFrequencies - rv + v;
 
 		return rv;
 	}
 
 	/**
-	 * Sets the frequency of a particular event <code>ok</code> to count <code>ov</code>.
+	 * Sets the frequency of a particular event <code>ok</code> to count
+	 * <code>ov</code>.
 	 */
 	@Override
-	public Integer put(Integer ok, Integer ov) {
-		return put((int) ok, (int) ov);
+	public Long put(K ok, Long ov) {
+		return put(ok, (long) ov);
 	}
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
-	@Override
-	public int remove(int key) {
-		int rv = super.remove(key);
+	public long remove(K k) {
+		long rv = super.remove(k);
 		mSumOfFrequencies -= rv;
 
 		return rv;
@@ -142,22 +141,23 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	 * Removes the count of a particular event <code>ok</code>.
 	 */
 	@Override
-	public Integer remove(Object ok) {
-		return this.remove((int) (Integer) ok);
+	@SuppressWarnings("unchecked")
+	public long removeLong(final Object ok) {
+		return remove((K) ok);
 	}
 
 	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
-	public List<PairOfInts> getFrequencySortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
+	public List<PairOfStringLong> getFrequencySortedEvents() {
+		List<PairOfStringLong> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : int2IntEntrySet()) {
-			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+		for (Object2LongMap.Entry<K> e : object2LongEntrySet()) {
+			list.add(new PairOfStringLong((String) e.getKey(), e.getLongValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
+		Collections.sort(list, new Comparator<PairOfStringLong>() {
+			public int compare(PairOfStringLong e1, PairOfStringLong e2) {
 				if (e1.getRightElement() > e2.getRightElement()) {
 					return -1;
 				}
@@ -166,11 +166,7 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 					return 1;
 				}
 
-				if (e1.getLeftElement() == e2.getLeftElement()) {
-					throw new RuntimeException("Event observed twice!");
-				}
-
-				return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+				return e1.getLeftElement().compareTo(e2.getLeftElement());
 			}
 		});
 
@@ -180,32 +176,29 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Returns top <i>n</i> events sorted by frequency of occurrence.
 	 */
-	public List<PairOfInts> getFrequencySortedEvents(int n) {
-		List<PairOfInts> list = getFrequencySortedEvents();
+	public List<PairOfStringLong> getFrequencySortedEvents(int n) {
+		List<PairOfStringLong> list = getFrequencySortedEvents();
 		return list.subList(0, n);
 	}
 
 	/**
 	 * Returns events in sorted order.
 	 */
-	public List<PairOfInts> getSortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
+	public List<PairOfStringLong> getSortedEvents() {
+		List<PairOfStringLong> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : int2IntEntrySet()) {
-			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+		for (Object2LongMap.Entry<K> e : object2LongEntrySet()) {
+			list.add(new PairOfStringLong((String) e.getKey(), e.getLongValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
-				if (e1.getLeftElement() > e2.getLeftElement()) {
-					return 1;
+		// sort the entries
+		Collections.sort(list, new Comparator<PairOfStringLong>() {
+			public int compare(PairOfStringLong e1, PairOfStringLong e2) {
+				if (e1.getLeftElement().equals(e2.getLeftElement())) {
+					throw new RuntimeException("Event observed twice!");
 				}
 
-				if (e1.getLeftElement() < e2.getLeftElement()) {
-					return -1;
-				}
-
-				throw new RuntimeException("Event observed twice!");
+				return e1.getLeftElement().compareTo(e1.getLeftElement());
 			}
 		});
 
@@ -215,8 +208,8 @@ public class FrequencyDistributionOfInts extends Int2IntOpenHashMap {
 	/**
 	 * Returns top <i>n</i> events in sorted order.
 	 */
-	public List<PairOfInts> getSortedEvents(int n) {
-		List<PairOfInts> list = getSortedEvents();
+	public List<PairOfStringLong> getSortedEvents(int n) {
+		List<PairOfStringLong> list = getSortedEvents();
 		return list.subList(0, n);
 	}
 

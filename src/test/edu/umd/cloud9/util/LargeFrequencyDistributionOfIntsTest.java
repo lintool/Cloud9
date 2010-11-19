@@ -24,13 +24,13 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.PairOfIntLong;
 
-public class FrequencyDistributionOfIntsTest {
+public class LargeFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test1() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		assertEquals(0, fd.get(1));
 
@@ -69,7 +69,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test2() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.increment(1);
 		fd.increment(1);
@@ -128,7 +128,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.increment(1);
 
@@ -147,7 +147,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.increment(1, 1000);
 
@@ -173,7 +173,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.increment(1, 2);
 		fd.increment(2, 3);
@@ -198,7 +198,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testGetFrequencySortedEvents() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.put(1, 5);
 		fd.put(4, 2);
@@ -210,7 +210,7 @@ public class FrequencyDistributionOfIntsTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfFrequencies());
 
-		List<PairOfInts> list = fd.getFrequencySortedEvents();
+		List<PairOfIntLong> list = fd.getFrequencySortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -243,7 +243,7 @@ public class FrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		FrequencyDistributionOfInts fd = new FrequencyDistributionOfInts();
+		LargeFrequencyDistributionOfInts fd = new LargeFrequencyDistributionOfInts();
 
 		fd.put(1, 1);
 		fd.put(4, 3);
@@ -255,7 +255,7 @@ public class FrequencyDistributionOfIntsTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfFrequencies());
 
-		List<PairOfInts> list = fd.getSortedEvents();
+		List<PairOfIntLong> list = fd.getSortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -287,6 +287,6 @@ public class FrequencyDistributionOfIntsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(FrequencyDistributionOfIntsTest.class);
+		return new JUnit4TestAdapter(LargeFrequencyDistributionOfIntsTest.class);
 	}
 }

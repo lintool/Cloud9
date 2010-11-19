@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.util;
 
 import static org.junit.Assert.assertEquals;
@@ -8,13 +24,13 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.PairOfStringInt;
+import edu.umd.cloud9.io.PairOfStringLong;
 
-public class FrequencyDistributionOfStringsTest {
+public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void test1() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		assertEquals(0, fd.get("a"));
 
@@ -53,7 +69,7 @@ public class FrequencyDistributionOfStringsTest {
 
 	@Test
 	public void test2() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.increment("a");
 		fd.increment("a");
@@ -113,7 +129,7 @@ public class FrequencyDistributionOfStringsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.increment("a");
 
@@ -132,7 +148,7 @@ public class FrequencyDistributionOfStringsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.increment("a", 1000);
 
@@ -158,7 +174,7 @@ public class FrequencyDistributionOfStringsTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.increment("a", 2);
 		fd.increment("b", 3);
@@ -182,8 +198,8 @@ public class FrequencyDistributionOfStringsTest {
 	}
 
 	@Test
-	public void testGetFrequencySortedEvents() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+	public void testGetLargeFrequencySortedEvents() {
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.put("a", 5);
 		fd.put("d", 2);
@@ -195,7 +211,7 @@ public class FrequencyDistributionOfStringsTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfFrequencies());
 
-		List<PairOfStringInt> list = fd.getFrequencySortedEvents();
+		List<PairOfStringLong> list = fd.getFrequencySortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -228,7 +244,7 @@ public class FrequencyDistributionOfStringsTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		FrequencyDistributionOfStrings fd = new FrequencyDistributionOfStrings();
+		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
 
 		fd.put("a", 1);
 		fd.put("d", 3);
@@ -240,7 +256,7 @@ public class FrequencyDistributionOfStringsTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfFrequencies());
 
-		List<PairOfStringInt> list = fd.getSortedEvents();
+		List<PairOfStringLong> list = fd.getSortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -272,6 +288,6 @@ public class FrequencyDistributionOfStringsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(FrequencyDistributionOfStringsTest.class);
+		return new JUnit4TestAdapter(LargeFrequencyDistributionTest.class);
 	}
 }
