@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,10 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * <p>
- * WritableComparable representing a pair of longs. The elements in the pair are
- * referred to as the left and right elements. The natural sort order is: first
- * by the left element, and then by the right element.
- * </p>
+ * WritableComparable representing a pair consisting of a long and a float.
+ * The elements in the pair are referred to as the left and right elements. The
+ * natural sort order is: first by the left element, and then by
+ * the right element.
  * 
  * @author Jimmy Lin
  */
@@ -44,11 +43,9 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Creates a pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public PairOfLongFloat(long left, float right) {
 		set(left, right);
@@ -56,9 +53,8 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Deserializes this pair.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readLong();
@@ -67,9 +63,8 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Serializes this pair.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(leftElement);
@@ -78,7 +73,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Returns the left element.
-	 * 
+	 *
 	 * @return the left element
 	 */
 	public long getLeftElement() {
@@ -87,7 +82,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Returns the right element.
-	 * 
+	 *
 	 * @return the right element
 	 */
 	public float getRightElement() {
@@ -96,11 +91,9 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Sets the right and left elements of this pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public void set(long left, float right) {
 		leftElement = left;
@@ -109,11 +102,9 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Checks two pairs for equality.
-	 * 
-	 * @param obj
-	 *            object for comparison
-	 * @return <code>true</code> if <code>obj</code> is equal to this
-	 *         object, <code>false</code> otherwise
+	 *
+	 * @param obj object for comparison
+	 * @return <code>true</code> if <code>obj</code> is equal to this object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
 		PairOfLongFloat pair = (PairOfLongFloat) obj;
@@ -123,7 +114,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 	/**
 	 * Defines a natural sort order for pairs. Pairs are sorted first by the
 	 * left element, and then by the right element.
-	 * 
+	 *
 	 * @return a value less than zero, a value greater than zero, or zero if
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
@@ -150,7 +141,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Returns a hash code value for the pair.
-	 * 
+	 *
 	 * @return hash code for the pair
 	 */
 	public int hashCode() {
@@ -159,7 +150,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Generates human-readable String representation of this pair.
-	 * 
+	 *
 	 * @return human-readable String representation of this pair
 	 */
 	public String toString() {
@@ -168,7 +159,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 	/**
 	 * Clones this object.
-	 * 
+	 *
 	 * @return clone of this object
 	 */
 	public PairOfLongFloat clone() {
@@ -179,10 +170,10 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for <code>PairOfLongs</code>.
+		 * Creates a new Comparator optimized for <code>PairOfLongFloat</code>.
 		 */
 		public Comparator() {
-			super(PairOfInts.class);
+			super(PairOfLongFloat.class);
 		}
 
 		/**
@@ -198,7 +189,6 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));
-
 			}
 
 			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));

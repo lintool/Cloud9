@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,10 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * <p>
- * WritableComparable representing a pair consisting of a float and an integer.
+ * WritableComparable representing a pair consisting of a float and an int.
  * The elements in the pair are referred to as the left element (the float) and
- * right element (the integer). The natural sort order is: first by the left
+ * right element (the int). The natural sort order is: first by the left
  * element, and then by the right element.
- * </p>
  * 
  * @author Jimmy Lin
  */
@@ -45,11 +43,9 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Creates a pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public PairOfFloatInt(float left, int right) {
 		set(left, right);
@@ -57,9 +53,8 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Deserializes this pair.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readFloat();
@@ -68,9 +63,8 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Serializes this pair.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeFloat(leftElement);
@@ -79,7 +73,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Returns the left element.
-	 * 
+	 *
 	 * @return the left element
 	 */
 	public float getLeftElement() {
@@ -88,7 +82,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Returns the right element.
-	 * 
+	 *
 	 * @return the right element
 	 */
 	public int getRightElement() {
@@ -97,11 +91,9 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Sets the right and left elements of this pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public void set(float left, int right) {
 		leftElement = left;
@@ -110,11 +102,9 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Checks two pairs for equality.
-	 * 
-	 * @param obj
-	 *            object for comparison
-	 * @return <code>true</code> if <code>obj</code> is equal to this
-	 *         object, <code>false</code> otherwise
+	 *
+	 * @param obj object for comparison
+	 * @return <code>true</code> if <code>obj</code> is equal to this object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
 		PairOfFloatInt pair = (PairOfFloatInt) obj;
@@ -124,7 +114,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 	/**
 	 * Defines a natural sort order for pairs. Pairs are sorted first by the
 	 * left element, and then by the right element.
-	 * 
+	 *
 	 * @return a value less than zero, a value greater than zero, or zero if
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
@@ -151,7 +141,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Returns a hash code value for the pair.
-	 * 
+	 *
 	 * @return hash code for the pair
 	 */
 	public int hashCode() {
@@ -160,7 +150,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Generates human-readable String representation of this pair.
-	 * 
+	 *
 	 * @return human-readable String representation of this pair
 	 */
 	public String toString() {
@@ -169,7 +159,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 	/**
 	 * Clones this object.
-	 * 
+	 *
 	 * @return clone of this object
 	 */
 	public PairOfFloatInt clone() {
@@ -199,7 +189,6 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));
-
 			}
 
 			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));

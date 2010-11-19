@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,8 @@ public class PairOfIntsTest {
 	public void testBasic() throws IOException {
 		PairOfInts pair = new PairOfInts(1, 2);
 
-		assertEquals(pair.getLeftElement(), 1);
-		assertEquals(pair.getRightElement(), 2);
+		assertEquals(1, pair.getLeftElement());
+		assertEquals(2, pair.getRightElement());
 	}
 
 	@Test
@@ -56,8 +56,8 @@ public class PairOfIntsTest {
 
 		pair.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
-		assertEquals(pair.getLeftElement(), 1);
-		assertEquals(pair.getRightElement(), 2);
+		assertEquals(1, pair.getLeftElement());
+		assertEquals(2, pair.getRightElement());
 	}
 
 	@Test

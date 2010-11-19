@@ -24,22 +24,22 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * WritableComparable representing a pair consisting of a String and a float.
+ * WritableComparable representing a pair consisting of a String and a long.
  * The elements in the pair are referred to as the left and right elements. The
- * natural sort order is: first by the left element, and then by
- * the right element.
+ * natural sort order is: first by the left element, and then by the right
+ * element.
  *
- * @author Ferhan Ture
+ * @author Jimmy Lin
  */
-public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> {
+public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 
 	private String leftElement;
-	private float rightElement;
+	private long rightElement;
 
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfStringFloat() {
+	public PairOfStringLong() {
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 * @param left the left element
 	 * @param right the right element
 	 */
-	public PairOfStringFloat(String left, float right) {
+	public PairOfStringLong(String left, long right) {
 		set(left, right);
 	}
 
@@ -59,7 +59,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readUTF();
-		rightElement = in.readFloat();
+		rightElement = in.readLong();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(leftElement);
-		out.writeFloat(rightElement);
+		out.writeLong(rightElement);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 *
 	 * @return the right element
 	 */
-	public float getRightElement() {
+	public long getRightElement() {
 		return rightElement;
 	}
 
@@ -96,7 +96,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 * @param left the left element
 	 * @param right the right element
 	 */
-	public void set(String left, float right) {
+	public void set(String left, long right) {
 		leftElement = left;
 		rightElement = right;
 	}
@@ -107,9 +107,8 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 * @param obj object for comparison
 	 * @return <code>true</code> if <code>obj</code> is equal to this object, <code>false</code> otherwise
 	 */
-	@Override
 	public boolean equals(Object obj) {
-		PairOfStringFloat pair = (PairOfStringFloat) obj;
+		PairOfStringLong pair = (PairOfStringLong) obj;
 		return leftElement.equals(pair.getLeftElement()) && rightElement == pair.getRightElement();
 	}
 
@@ -121,11 +120,11 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfStringFloat obj) {
-		PairOfStringFloat pair = (PairOfStringFloat) obj;
+	public int compareTo(PairOfStringLong obj) {
+		PairOfStringLong pair = (PairOfStringLong) obj;
 
 		String pl = pair.getLeftElement();
-		float pr = pair.getRightElement();
+		long pr = pair.getRightElement();
 
 		if (leftElement.equals(pl)) {
 			if (rightElement == pr)
@@ -142,9 +141,8 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 *
 	 * @return hash code for the pair
 	 */
-	@Override
 	public int hashCode() {
-		return leftElement.hashCode() + (int) rightElement;
+		return leftElement.hashCode() + (int) (rightElement % Integer.MAX_VALUE);
 	}
 
 	/**
@@ -152,7 +150,6 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 *
 	 * @return human-readable String representation of this pair
 	 */
-	@Override
 	public String toString() {
 		return "(" + leftElement + ", " + rightElement + ")";
 	}
@@ -162,19 +159,18 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 *
 	 * @return clone of this object
 	 */
-	@Override
-	public PairOfStringFloat clone() {
-		return new PairOfStringFloat(this.leftElement, this.rightElement);
+	public PairOfStringLong clone() {
+		return new PairOfStringLong(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfStringFloat</code>. */
+	/** Comparator optimized for <code>PairOfStringLong</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for <code>PairOfStringFloat</code>.
+		 * Creates a new Comparator optimized for <code>PairOfStrings</code>.
 		 */
 		public Comparator() {
-			super(PairOfStringFloat.class);
+			super(PairOfStringLong.class);
 		}
 
 		/**
@@ -188,8 +184,8 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 				int s1offset = readUnsignedShort(b1, s1);
 				int s2offset = readUnsignedShort(b2, s2);
 
-				float thisRightValue = readFloat(b1, s1 + 2 + s1offset);
-				float thatRightValue = readFloat(b2, s2 + 2 + s2offset);
+				long thisRightValue = readLong(b1, s1 + 2 + s1offset);
+				long thatRightValue = readLong(b2, s2 + 2 + s2offset);
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));
@@ -200,6 +196,6 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	}
 
 	static { // register this comparator
-		WritableComparator.define(PairOfStringFloat.class, new Comparator());
+		WritableComparator.define(PairOfStringLong.class, new Comparator());
 	}
 }

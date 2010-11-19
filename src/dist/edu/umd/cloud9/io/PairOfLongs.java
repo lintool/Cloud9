@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,9 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * <p>
  * WritableComparable representing a pair of longs. The elements in the pair are
  * referred to as the left and right elements. The natural sort order is: first
  * by the left element, and then by the right element.
- * </p>
  * 
  * @author Jimmy Lin
  */
@@ -44,11 +42,9 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Creates a pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public PairOfLongs(long left, long right) {
 		set(left, right);
@@ -56,9 +52,8 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Deserializes this pair.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readLong();
@@ -67,9 +62,8 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Serializes this pair.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(leftElement);
@@ -78,7 +72,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Returns the left element.
-	 * 
+	 *
 	 * @return the left element
 	 */
 	public long getLeftElement() {
@@ -87,7 +81,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Returns the right element.
-	 * 
+	 *
 	 * @return the right element
 	 */
 	public long getRightElement() {
@@ -96,11 +90,9 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Sets the right and left elements of this pair.
-	 * 
-	 * @param left
-	 *            the left element
-	 * @param right
-	 *            the right element
+	 *
+	 * @param left the left element
+	 * @param right the right element
 	 */
 	public void set(long left, long right) {
 		leftElement = left;
@@ -109,11 +101,9 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Checks two pairs for equality.
-	 * 
-	 * @param obj
-	 *            object for comparison
-	 * @return <code>true</code> if <code>obj</code> is equal to this
-	 *         object, <code>false</code> otherwise
+	 *
+	 * @param obj object for comparison
+	 * @return <code>true</code> if <code>obj</code> is equal to this object, <code>false</code> otherwise
 	 */
 	public boolean equals(Object obj) {
 		PairOfLongs pair = (PairOfLongs) obj;
@@ -123,7 +113,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 	/**
 	 * Defines a natural sort order for pairs. Pairs are sorted first by the
 	 * left element, and then by the right element.
-	 * 
+	 *
 	 * @return a value less than zero, a value greater than zero, or zero if
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
@@ -150,7 +140,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Returns a hash code value for the pair.
-	 * 
+	 *
 	 * @return hash code for the pair
 	 */
 	public int hashCode() {
@@ -159,7 +149,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Generates human-readable String representation of this pair.
-	 * 
+	 *
 	 * @return human-readable String representation of this pair
 	 */
 	public String toString() {
@@ -168,7 +158,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 	/**
 	 * Clones this object.
-	 * 
+	 *
 	 * @return clone of this object
 	 */
 	public PairOfLongs clone() {
@@ -182,7 +172,7 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 		 * Creates a new Comparator optimized for <code>PairOfLongs</code>.
 		 */
 		public Comparator() {
-			super(PairOfInts.class);
+			super(PairOfLongs.class);
 		}
 
 		/**
@@ -198,7 +188,6 @@ public class PairOfLongs implements WritableComparable<PairOfLongs> {
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));
-
 			}
 
 			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));
