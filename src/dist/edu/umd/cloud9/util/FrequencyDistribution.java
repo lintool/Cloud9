@@ -25,8 +25,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.PairOfStringInt;
-
 /**
  * An implementation of a frequency distribution for arbitrary events, backed by
  * a fastutil map. One common use is to store frequency counts for language
@@ -37,7 +35,7 @@ import edu.umd.cloud9.io.PairOfStringInt;
  * @author Jimmy Lin
  *
  */
-public class FrequencyDistribution<K> extends Object2IntOpenHashMap<K> {
+public class FrequencyDistribution<K extends Comparable<K>> extends Object2IntOpenHashMap<K> {
 
 	private static final long serialVersionUID = -1167146372606430678L;
 
@@ -146,15 +144,15 @@ public class FrequencyDistribution<K> extends Object2IntOpenHashMap<K> {
 	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
-	public List<PairOfStringInt> getFrequencySortedEvents() {
-		List<PairOfStringInt> list = Lists.newArrayList();
+	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
+		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
 		for (Object2IntMap.Entry<K> e : object2IntEntrySet()) {
-			list.add(new PairOfStringInt((String) e.getKey(), e.getIntValue()));
+			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfStringInt>() {
-			public int compare(PairOfStringInt e1, PairOfStringInt e2) {
+		Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
+			public int compare(PairOfObjectInt<K> e1, PairOfObjectInt<K> e2) {
 				if (e1.getRightElement() > e2.getRightElement()) {
 					return -1;
 				}
@@ -173,24 +171,24 @@ public class FrequencyDistribution<K> extends Object2IntOpenHashMap<K> {
 	/**
 	 * Returns top <i>n</i> events sorted by frequency of occurrence.
 	 */
-	public List<PairOfStringInt> getFrequencySortedEvents(int n) {
-		List<PairOfStringInt> list = getFrequencySortedEvents();
+	public List<PairOfObjectInt<K>> getFrequencySortedEvents(int n) {
+		List<PairOfObjectInt<K>> list = getFrequencySortedEvents();
 		return list.subList(0, n);
 	}
 
 	/**
 	 * Returns events in sorted order.
 	 */
-	public List<PairOfStringInt> getSortedEvents() {
-		List<PairOfStringInt> list = Lists.newArrayList();
+	public List<PairOfObjectInt<K>> getSortedEvents() {
+		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
 		for (Object2IntMap.Entry<K> e : object2IntEntrySet()) {
-			list.add(new PairOfStringInt((String) e.getKey(), e.getIntValue()));
+			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
 		}
 
 		// sort the entries
-		Collections.sort(list, new Comparator<PairOfStringInt>() {
-			public int compare(PairOfStringInt e1, PairOfStringInt e2) {
+		Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
+			public int compare(PairOfObjectInt<K> e1, PairOfObjectInt<K> e2) {
 				if (e1.getLeftElement().equals(e2.getLeftElement())) {
 					throw new RuntimeException("Event observed twice!");
 				}
@@ -205,8 +203,8 @@ public class FrequencyDistribution<K> extends Object2IntOpenHashMap<K> {
 	/**
 	 * Returns top <i>n</i> events in sorted order.
 	 */
-	public List<PairOfStringInt> getSortedEvents(int n) {
-		List<PairOfStringInt> list = getSortedEvents();
+	public List<PairOfObjectInt<K>> getSortedEvents(int n) {
+		List<PairOfObjectInt<K>> list = getSortedEvents();
 		return list.subList(0, n);
 	}
 

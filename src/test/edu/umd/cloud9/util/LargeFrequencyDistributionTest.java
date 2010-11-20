@@ -24,8 +24,6 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.PairOfStringLong;
-
 public class LargeFrequencyDistributionTest {
 
 	@Test
@@ -211,7 +209,7 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfFrequencies());
 
-		List<PairOfStringLong> list = fd.getFrequencySortedEvents();
+		List<PairOfObjectLong<String>> list = fd.getFrequencySortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -256,7 +254,7 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfFrequencies());
 
-		List<PairOfStringLong> list = fd.getSortedEvents();
+		List<PairOfObjectLong<String>> list = fd.getSortedEvents();
 
 		assertEquals(6, list.size());
 

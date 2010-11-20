@@ -25,8 +25,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.PairOfStringLong;
-
 /**
  * Similar to {@link FrequencyDistribution}, but keep tracks of counts
  * with longs. Thus, useful keeping track of distributions with a large number
@@ -35,7 +33,7 @@ import edu.umd.cloud9.io.PairOfStringLong;
  * @author Jimmy Lin
  *
  */
-public class LargeFrequencyDistribution<K> extends Object2LongOpenHashMap<K> {
+public class LargeFrequencyDistribution<K extends Comparable<K>> extends Object2LongOpenHashMap<K> {
 
 	private static final long serialVersionUID = -5283249239701824488L;
 
@@ -149,15 +147,15 @@ public class LargeFrequencyDistribution<K> extends Object2LongOpenHashMap<K> {
 	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
-	public List<PairOfStringLong> getFrequencySortedEvents() {
-		List<PairOfStringLong> list = Lists.newArrayList();
+	public List<PairOfObjectLong<K>> getFrequencySortedEvents() {
+		List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
 		for (Object2LongMap.Entry<K> e : object2LongEntrySet()) {
-			list.add(new PairOfStringLong((String) e.getKey(), e.getLongValue()));
+			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
 		}
 
-		Collections.sort(list, new Comparator<PairOfStringLong>() {
-			public int compare(PairOfStringLong e1, PairOfStringLong e2) {
+		Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+			public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
 				if (e1.getRightElement() > e2.getRightElement()) {
 					return -1;
 				}
@@ -176,24 +174,24 @@ public class LargeFrequencyDistribution<K> extends Object2LongOpenHashMap<K> {
 	/**
 	 * Returns top <i>n</i> events sorted by frequency of occurrence.
 	 */
-	public List<PairOfStringLong> getFrequencySortedEvents(int n) {
-		List<PairOfStringLong> list = getFrequencySortedEvents();
+	public List<PairOfObjectLong<K>> getFrequencySortedEvents(int n) {
+		List<PairOfObjectLong<K>> list = getFrequencySortedEvents();
 		return list.subList(0, n);
 	}
 
 	/**
 	 * Returns events in sorted order.
 	 */
-	public List<PairOfStringLong> getSortedEvents() {
-		List<PairOfStringLong> list = Lists.newArrayList();
+	public List<PairOfObjectLong<K>> getSortedEvents() {
+		List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
 		for (Object2LongMap.Entry<K> e : object2LongEntrySet()) {
-			list.add(new PairOfStringLong((String) e.getKey(), e.getLongValue()));
+			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
 		}
 
 		// sort the entries
-		Collections.sort(list, new Comparator<PairOfStringLong>() {
-			public int compare(PairOfStringLong e1, PairOfStringLong e2) {
+		Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+			public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
 				if (e1.getLeftElement().equals(e2.getLeftElement())) {
 					throw new RuntimeException("Event observed twice!");
 				}
@@ -208,8 +206,8 @@ public class LargeFrequencyDistribution<K> extends Object2LongOpenHashMap<K> {
 	/**
 	 * Returns top <i>n</i> events in sorted order.
 	 */
-	public List<PairOfStringLong> getSortedEvents(int n) {
-		List<PairOfStringLong> list = getSortedEvents();
+	public List<PairOfObjectLong<K>> getSortedEvents(int n) {
+		List<PairOfObjectLong<K>> list = getSortedEvents();
 		return list.subList(0, n);
 	}
 

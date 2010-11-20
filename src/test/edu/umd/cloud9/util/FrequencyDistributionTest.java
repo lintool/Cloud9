@@ -24,8 +24,6 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.PairOfStringInt;
-
 public class FrequencyDistributionTest {
 
 	@Test
@@ -211,7 +209,7 @@ public class FrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfFrequencies());
 
-		List<PairOfStringInt> list = fd.getFrequencySortedEvents();
+		List<PairOfObjectInt<String>> list = fd.getFrequencySortedEvents();
 
 		assertEquals(6, list.size());
 
@@ -256,7 +254,7 @@ public class FrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfFrequencies());
 
-		List<PairOfStringInt> list = fd.getSortedEvents();
+		List<PairOfObjectInt<String>> list = fd.getSortedEvents();
 
 		assertEquals(6, list.size());
 
