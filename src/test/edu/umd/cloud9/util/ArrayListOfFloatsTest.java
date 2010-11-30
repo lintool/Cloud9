@@ -219,8 +219,27 @@ public class ArrayListOfFloatsTest {
 
 	}
 
+	@Test
+	public void testSetSize() {
+		ArrayListOfFloats list = new ArrayListOfFloats();
+
+		list.add(5.0f);
+		assertEquals(1, list.size);
+		assertEquals(5.0f, list.get(0), 10e-6);
+
+		list.setSize(5);
+		assertEquals(5, list.size);
+		assertEquals(0.0f, list.get(1), 10e-6);
+		assertEquals(0.0f, list.get(2), 10e-6);
+		assertEquals(0.0f, list.get(3), 10e-6);
+		assertEquals(0.0f, list.get(4), 10e-6);
+
+		list.add(12.0f);
+		assertEquals(6, list.size);
+		assertEquals(12.0f, list.get(5), 10e-6);
+	}
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfFloatsTest.class);
 	}
-
 }

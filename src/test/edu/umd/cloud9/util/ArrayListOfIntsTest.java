@@ -243,8 +243,27 @@ public class ArrayListOfIntsTest {
 
 	}
 
+	@Test
+	public void testSetSize() {
+		ArrayListOfInts list = new ArrayListOfInts();
+
+		list.add(5);
+		assertEquals(1, list.size);
+		assertEquals(5, list.get(0));
+
+		list.setSize(5);
+		assertEquals(5, list.size);
+		assertEquals(0, list.get(1));
+		assertEquals(0, list.get(2));
+		assertEquals(0, list.get(3));
+		assertEquals(0, list.get(4));
+
+		list.add(12);
+		assertEquals(6, list.size);
+		assertEquals(12, list.get(5));
+	}
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
 	}
-
 }

@@ -99,6 +99,14 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	}
 
 	/**
+	 * Specifies the length of this list.
+	 */
+	public void setSize(int sz) {
+		ensureCapacity(sz);
+		size = sz;
+	}
+
+	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
 	 * 
 	 * @return <tt>true</tt> if this list contains no elements
