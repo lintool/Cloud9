@@ -22,26 +22,26 @@ import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
 
-public class ConditionalFrequencyDistributionOfIntsTest {
+public class OpenConditionalFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test1() {
-		ConditionalFrequencyDistributionOfInts cdf = new ConditionalFrequencyDistributionOfInts();
+		OpenConditionalFrequencyDistributionOfInts cdf = new OpenConditionalFrequencyDistributionOfInts();
 
-		cdf.put(1, 1, 2);
+		cdf.set(1, 1, 2);
 		cdf.check();
 
 		assertEquals(2, cdf.get(1, 1));
 		assertEquals(2, cdf.getSumOfAllFrequencies());
 
-		cdf.put(2, 1, 3);
+		cdf.set(2, 1, 3);
 		cdf.check();
 
 		assertEquals(2, cdf.get(1, 1));
 		assertEquals(3, cdf.get(2, 1));
 		assertEquals(5, cdf.getSumOfAllFrequencies());
 
-		cdf.put(3, 1, 10);
+		cdf.set(3, 1, 10);
 		cdf.check();
 
 		assertEquals(2, cdf.get(1, 1));
@@ -49,7 +49,7 @@ public class ConditionalFrequencyDistributionOfIntsTest {
 		assertEquals(10, cdf.get(3, 1));
 		assertEquals(15, cdf.getSumOfAllFrequencies());
 
-		cdf.put(10, 2, 1);
+		cdf.set(10, 2, 1);
 		cdf.check();
 
 		assertEquals(2, cdf.get(1, 1));
@@ -58,7 +58,7 @@ public class ConditionalFrequencyDistributionOfIntsTest {
 		assertEquals(1, cdf.get(10, 2));
 		assertEquals(16, cdf.getSumOfAllFrequencies());
 
-		cdf.put(1, 1, 5);
+		cdf.set(1, 1, 5);
 		cdf.check();
 
 		assertEquals(5, cdf.get(1, 1));
@@ -70,9 +70,9 @@ public class ConditionalFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test2() {
-		ConditionalFrequencyDistributionOfInts cdf = new ConditionalFrequencyDistributionOfInts();
+		OpenConditionalFrequencyDistributionOfInts cdf = new OpenConditionalFrequencyDistributionOfInts();
 
-		cdf.put(1, 1, 2);
+		cdf.set(1, 1, 2);
 		cdf.check();
 
 		assertEquals(2, cdf.get(1, 1));
@@ -104,14 +104,14 @@ public class ConditionalFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test3() {
-		ConditionalFrequencyDistributionOfInts cdf = new ConditionalFrequencyDistributionOfInts();
+		OpenConditionalFrequencyDistributionOfInts cdf = new OpenConditionalFrequencyDistributionOfInts();
 
-		cdf.put(1, 1, 2);
-		cdf.put(1, 2, 5);
-		cdf.put(1, 3, 6);
-		cdf.put(1, 4, 4);
-		cdf.put(2, 1, 3);
-		cdf.put(3, 1, 7);
+		cdf.set(1, 1, 2);
+		cdf.set(1, 2, 5);
+		cdf.set(1, 3, 6);
+		cdf.set(1, 4, 4);
+		cdf.set(2, 1, 3);
+		cdf.set(3, 1, 7);
 		cdf.check();
 
 		assertEquals(17, cdf.getMarginalCount(1));
@@ -126,6 +126,6 @@ public class ConditionalFrequencyDistributionOfIntsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(ConditionalFrequencyDistributionOfIntsTest.class);
+		return new JUnit4TestAdapter(OpenConditionalFrequencyDistributionOfIntsTest.class);
 	}
 }

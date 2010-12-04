@@ -28,7 +28,7 @@ public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void test1() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
 		assertEquals(0, fd.get("a"));
 
@@ -67,7 +67,7 @@ public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void test2() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
 		fd.increment("a");
 		fd.increment("a");
@@ -81,7 +81,7 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(1, fd.get("b"));
 		assertEquals(1, fd.get("c"));
 
-		fd.put("d", 5);
+		fd.set("d", 5);
 
 		assertEquals(4, fd.getNumberOfEvents());
 		assertEquals(9, fd.getSumOfFrequencies());
@@ -91,7 +91,7 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(1, fd.get("c"));
 		assertEquals(5, fd.get("d"));
 
-		fd.put("a", 5);
+		fd.set("a", 5);
 
 		assertEquals(4, fd.getNumberOfEvents());
 		assertEquals(12, fd.getSumOfFrequencies());
@@ -113,7 +113,7 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(4, fd.get("c"));
 		assertEquals(5, fd.get("d"));
 
-		fd.put("c", 1);
+		fd.set("c", 1);
 
 		assertEquals(4, fd.getNumberOfEvents());
 		assertEquals(12, fd.getSumOfFrequencies());
@@ -127,7 +127,7 @@ public class LargeFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
 		fd.increment("a");
 
@@ -146,7 +146,7 @@ public class LargeFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
 		fd.increment("a", 1000);
 
@@ -172,7 +172,7 @@ public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
 		fd.increment("a", 2);
 		fd.increment("b", 3);
@@ -197,14 +197,14 @@ public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void testGetLargeFrequencySortedEvents() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
-		fd.put("a", 5);
-		fd.put("d", 2);
-		fd.put("b", 5);
-		fd.put("e", 2);
-		fd.put("f", 1);
-		fd.put("c", 5);
+		fd.set("a", 5);
+		fd.set("d", 2);
+		fd.set("b", 5);
+		fd.set("e", 2);
+		fd.set("f", 1);
+		fd.set("c", 5);
 
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfFrequencies());
@@ -242,14 +242,14 @@ public class LargeFrequencyDistributionTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		LargeFrequencyDistribution<String> fd = new LargeFrequencyDistribution<String>();
+		OpenLargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
 
-		fd.put("a", 1);
-		fd.put("d", 3);
-		fd.put("b", 4);
-		fd.put("e", 7);
-		fd.put("f", 9);
-		fd.put("c", 2);
+		fd.set("a", 1);
+		fd.set("d", 3);
+		fd.set("b", 4);
+		fd.set("e", 7);
+		fd.set("f", 9);
+		fd.set("c", 2);
 
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfFrequencies());

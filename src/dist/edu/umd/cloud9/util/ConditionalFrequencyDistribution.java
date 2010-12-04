@@ -16,141 +16,55 @@
 
 package edu.umd.cloud9.util;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-
 /**
- * An implementation of a conditional frequency distribution for arbitrary
- * events, backed by a fastutil map. One possible use is a bigram language
- * model. This class keeps track of frequencies using ints, so beware when
- * dealing with a large number of observations.
+ * A conditional frequency distribution for arbitrary events. This interface
+ * specifies keeping track of frequencies using ints, so beware when dealing
+ * with a large number of observations.
  *
  * @author Jimmy Lin
  *
  */
-public class ConditionalFrequencyDistribution<K extends Comparable<K>> {
-
-	private final Object2ObjectMap<K, FrequencyDistribution<K>> mDistributions = new Object2ObjectOpenHashMap<K, FrequencyDistribution<K>>();
-	private final FrequencyDistribution<K> mMarginals = new FrequencyDistribution<K>();
-
-	private long mSumOfAllFrequencies = 0;
+public interface ConditionalFrequencyDistribution<K extends Comparable<K>> {
 
 	/**
 	 * Sets the observed frequency of <code>k</code> conditioned on <code>cond</code> to <code>v</code>.
 	 */
-	public void put(K k, K cond, int v) {
-		if (!mDistributions.containsKey(cond)) {
-			FrequencyDistribution<K> fd = new FrequencyDistribution<K>();
-			fd.put(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, v);
-
-			mSumOfAllFrequencies += v;
-		} else {
-			FrequencyDistribution<K> fd = mDistributions.get(cond);
-			int rv = fd.get(k);
-
-			fd.put(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, -rv + v);
-
-			mSumOfAllFrequencies = mSumOfAllFrequencies - rv + v;
-		}
-	}
+	public void set(K k, K cond, int v);
 
 	/**
 	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code>.
 	 */
-	public void increment(K k, K cond) {
-		increment(k, cond, 1);
-	}
+	public void increment(K k, K cond);
 
 	/**
 	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code> by <code>v</code>.
 	 */
-	public void increment(K k, K cond, int v) {
-		int cur = get(k, cond);
-		if (cur == 0) {
-			put(k, cond, v);
-		} else {
-			put(k, cond, cur + v);
-		}
-	}
+	public void increment(K k, K cond, int v);
 
 	/**
 	 * Returns the observed frequency of <code>k</code> conditioned on <code>cond</code>.
 	 */
-	public int get(K k, K cond) {
-		if ( !mDistributions.containsKey(cond)) {
-			return 0;
-		}
-
-		return mDistributions.get(cond).get(k);
-	}
+	public int get(K k, K cond);
 
 	/**
 	 * Returns the marginal count of <code>k</code>. That is, sum of counts of
 	 * <code>k</code> conditioned on all <code>cond</code>.
 	 */
-	public int getMarginalCount(K k) {
-		return mMarginals.get(k);
-	}
+	public int getMarginalCount(K k);
 
 	/**
 	 * Returns the frequency distribution conditioned on <code>cond</code>.
 	 */
-	public FrequencyDistribution<K> getConditionalDistribution(K cond) {
-		if ( mDistributions.containsKey(cond) ) {
-			return mDistributions.get(cond);
-		}
-
-		return new FrequencyDistribution<K>();
-	}
+	public FrequencyDistribution<K> getConditionalDistribution(K cond);
 
 	/**
 	 * Returns the sum of all frequencies.
 	 */
-	public long getSumOfAllFrequencies() {
-		return mSumOfAllFrequencies;
-	}
+	public long getSumOfAllFrequencies();
 
 	/**
 	 * Performs an internal consistency check of this data structure. An
 	 * exception will be thrown if an error is found.
 	 */
-	public void check() {
-		FrequencyDistribution<K> m = new FrequencyDistribution<K>();
-
-		long totalSum = 0;
-		for (FrequencyDistribution<K> fd : mDistributions.values()) {
-			long conditionalSum = 0;
-
-			for (PairOfObjectInt<K> pair : fd.getSortedEvents()) {
-				conditionalSum += pair.getRightElement();
-				m.increment(pair.getLeftElement(), pair.getRightElement());
-			}
-
-			if (conditionalSum != fd.getSumOfFrequencies()) {
-				throw new RuntimeException("Internal Error!");
-			}
-			totalSum += fd.getSumOfFrequencies();
-		}
-
-		if (totalSum != getSumOfAllFrequencies()) {
-			throw new RuntimeException("Internal Error! Got " + totalSum + ", Expected "	+ getSumOfAllFrequencies());
-		}
-
-		for (Object2IntMap.Entry<K> e : m.object2IntEntrySet()) {
-			if ( e.getIntValue() != mMarginals.get(e.getKey()) ) {
-				throw new RuntimeException("Internal Error!");
-			}
-		}
-
-		for (Object2IntMap.Entry<K> e : mMarginals.object2IntEntrySet()) {
-			if ( e.getIntValue() != m.get(e.getKey()) ) {
-				throw new RuntimeException("Internal Error!");
-			}
-		}
-	}
+	public void check();
 }
