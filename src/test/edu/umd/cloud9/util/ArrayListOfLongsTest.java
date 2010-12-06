@@ -224,8 +224,27 @@ public class ArrayListOfLongsTest {
 
 	}
 
+	@Test
+	public void testSetSize() {
+		ArrayListOfLongs list = new ArrayListOfLongs();
+
+		list.add(5L);
+		assertEquals(1, list.size);
+		assertEquals(5L, list.get(0));
+
+		list.setSize(5);
+		assertEquals(5L, list.size);
+		assertEquals(0, list.get(1));
+		assertEquals(0, list.get(2));
+		assertEquals(0, list.get(3));
+		assertEquals(0, list.get(4));
+
+		list.add(12L);
+		assertEquals(6, list.size);
+		assertEquals(12L, list.get(5));
+	}
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfLongsTest.class);
 	}
-
 }

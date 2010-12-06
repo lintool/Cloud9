@@ -22,26 +22,26 @@ import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
 
-public class ConditionalFrequencyDistributionTest {
+public class OpenConditionalFrequencyDistributionTest {
 
 	@Test
 	public void test1() {
-		ConditionalFrequencyDistribution<String> cdf = new ConditionalFrequencyDistribution<String>();
+		OpenConditionalFrequencyDistribution<String> cdf = new OpenConditionalFrequencyDistribution<String>();
 
-		cdf.put("a", "a", 2);
+		cdf.set("a", "a", 2);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
 		assertEquals(2, cdf.getSumOfAllFrequencies());
 
-		cdf.put("b", "a", 3);
+		cdf.set("b", "a", 3);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
 		assertEquals(3, cdf.get("b", "a"));
 		assertEquals(5, cdf.getSumOfAllFrequencies());
 
-		cdf.put("c", "a", 10);
+		cdf.set("c", "a", 10);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
@@ -49,7 +49,7 @@ public class ConditionalFrequencyDistributionTest {
 		assertEquals(10, cdf.get("c", "a"));
 		assertEquals(15, cdf.getSumOfAllFrequencies());
 
-		cdf.put("x", "b", 1);
+		cdf.set("x", "b", 1);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
@@ -58,7 +58,7 @@ public class ConditionalFrequencyDistributionTest {
 		assertEquals(1, cdf.get("x", "b"));
 		assertEquals(16, cdf.getSumOfAllFrequencies());
 
-		cdf.put("a", "a", 5);
+		cdf.set("a", "a", 5);
 		cdf.check();
 
 		assertEquals(5, cdf.get("a", "a"));
@@ -70,9 +70,9 @@ public class ConditionalFrequencyDistributionTest {
 
 	@Test
 	public void test2() {
-		ConditionalFrequencyDistribution<String> cdf = new ConditionalFrequencyDistribution<String>();
+		OpenConditionalFrequencyDistribution<String> cdf = new OpenConditionalFrequencyDistribution<String>();
 
-		cdf.put("a", "a", 2);
+		cdf.set("a", "a", 2);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
@@ -104,14 +104,14 @@ public class ConditionalFrequencyDistributionTest {
 
 	@Test
 	public void test3() {
-		ConditionalFrequencyDistribution<String> cdf = new ConditionalFrequencyDistribution<String>();
+		OpenConditionalFrequencyDistribution<String> cdf = new OpenConditionalFrequencyDistribution<String>();
 
-		cdf.put("a", "a", 2);
-		cdf.put("a", "b", 5);
-		cdf.put("a", "c", 6);
-		cdf.put("a", "d", 4);
-		cdf.put("b", "a", 3);
-		cdf.put("c", "a", 7);
+		cdf.set("a", "a", 2);
+		cdf.set("a", "b", 5);
+		cdf.set("a", "c", 6);
+		cdf.set("a", "d", 4);
+		cdf.set("b", "a", 3);
+		cdf.set("c", "a", 7);
 		cdf.check();
 
 		assertEquals(17, cdf.getMarginalCount("a"));
@@ -126,6 +126,6 @@ public class ConditionalFrequencyDistributionTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(ConditionalFrequencyDistributionTest.class);
+		return new JUnit4TestAdapter(OpenConditionalFrequencyDistributionTest.class);
 	}
 }

@@ -16,211 +16,89 @@
 
 package edu.umd.cloud9.util;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 /**
- * An implementation of a frequency distribution for arbitrary events, backed by
- * a fastutil map. One common use is to store frequency counts for language
- * models, where the events are Strings. This class keeps track of frequencies
- * using ints, so beware when dealing with a large number of observations; see
- * also {@link LargeFrequencyDistribution}.
+ * A frequency distribution for arbitrary events. One possible use is to store
+ * frequency counts for language models, where the events are terms. This
+ * interface specifies keeping track of frequencies using ints, so beware when
+ * dealing with a large number of observations; see also
+ * {@link OpenLargeFrequencyDistribution}.
  *
  * @author Jimmy Lin
  *
  */
-public class FrequencyDistribution<K extends Comparable<K>> extends Object2IntOpenHashMap<K> {
-
-	private static final long serialVersionUID = -1167146372606430678L;
-
-	private long mSumOfFrequencies = 0;
+public interface FrequencyDistribution<K extends Comparable<K>> {
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.
 	 */
-	public void increment(K key) {
-		if (containsKey(key)) {
-			put(key, get(key) + 1);
-		} else {
-			put(key, 1);
-		}
-	}
+	public void increment(K key);
 
 	/**
 	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void increment(K key, int cnt) {
-		if (containsKey(key)) {
-			put(key, get(key) + cnt);
-		} else {
-			put(key, cnt);
-		}
-	}
+	public void increment(K key, int cnt);
 
 	/**
 	 * Decrements the frequency of an event <code>key</code>.
 	 */
-	public void decrement(K key) {
-		if (containsKey(key)) {
-			int v = get(key);
-			if (v == 1) {
-				remove(key);
-			} else {
-				put(key, this.get(key) - 1);
-			}
-		} else {
-			throw new RuntimeException("Can't decrement non-existent event!");
-		}
-	}
+	public void decrement(K key);
 
 	/**
-	 * Sets the frequency of a particular event <code>key</code> to count <code>v</code>.
+	 * Decrements the frequency of a particular event <code>key</code> by <code>cnt</code>.
 	 */
-	public void decrement(K key, int cnt) {
-		if (containsKey(key)) {
-			int v = get(key);
-			if (v < cnt) {
-				throw new RuntimeException("Can't decrement past zero!");
-			} else if (v == cnt) {
-				remove(key);
-			} else {
-				put(key, this.get(key) - cnt);
-			}
-		} else {
-			throw new RuntimeException("Can't decrement non-existent event!");
-		}
-	}
+	public void decrement(K key, int cnt);
+
+	/**
+	 * Returns true if <i>key</i> exists in this object.
+	 */
+	public boolean contains(K key);
 
 	/**
 	 * Returns the frequency of a particular event <i>key</i>.
 	 */
-	public int get(K key) {
-		return getInt(key);
-	}
+	public int get(K key);
 
 	/**
-	 * Sets the frequency of a particular event <code>key</code> to count <code>v</code>.
+	 * Sets the frequency of a particular event <i>key</i> to <code>cnt</code>.
 	 */
-	@Override
-	public int put(K k, int v) {
-		int rv = super.put(k, v);
-		mSumOfFrequencies = mSumOfFrequencies - rv + v;
-
-		return rv;
-	}
-
-	/**
-	 * Sets the frequency of a particular event <code>ok</code> to count <code>ov</code>.
-	 */
-	@Override
-	public Integer put(K ok, Integer ov) {
-		return put(ok, (int) ov);
-	}
+	public int set(K key, int cnt);
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
-	public int remove(K k) {
-		int rv = super.remove(k);
-		mSumOfFrequencies -= rv;
-
-		return rv;
-	}
-
-	/**
-	 * Removes the count of a particular event <code>ok</code>.
-	 */
-	@Override @SuppressWarnings("unchecked")
-	public int removeInt(final Object ok) {
-		return remove((K) ok);
-	}
+	public int remove(K k);
 
 	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
-	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
-		List<PairOfObjectInt<K>> list = Lists.newArrayList();
-
-		for (Object2IntMap.Entry<K> e : object2IntEntrySet()) {
-			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
-		}
-
-		Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
-			public int compare(PairOfObjectInt<K> e1, PairOfObjectInt<K> e2) {
-				if (e1.getRightElement() > e2.getRightElement()) {
-					return -1;
-				}
-
-				if (e1.getRightElement() < e2.getRightElement()) {
-					return 1;
-				}
-
-				return e1.getLeftElement().compareTo(e2.getLeftElement());
-			}
-		});
-
-		return list;
-	}
+	public List<PairOfObjectInt<K>> getFrequencySortedEvents();
 
 	/**
 	 * Returns top <i>n</i> events sorted by frequency of occurrence.
 	 */
-	public List<PairOfObjectInt<K>> getFrequencySortedEvents(int n) {
-		List<PairOfObjectInt<K>> list = getFrequencySortedEvents();
-		return list.subList(0, n);
-	}
+	public List<PairOfObjectInt<K>> getFrequencySortedEvents(int n);
 
 	/**
 	 * Returns events in sorted order.
 	 */
-	public List<PairOfObjectInt<K>> getSortedEvents() {
-		List<PairOfObjectInt<K>> list = Lists.newArrayList();
-
-		for (Object2IntMap.Entry<K> e : object2IntEntrySet()) {
-			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
-		}
-
-		// sort the entries
-		Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
-			public int compare(PairOfObjectInt<K> e1, PairOfObjectInt<K> e2) {
-				if (e1.getLeftElement().equals(e2.getLeftElement())) {
-					throw new RuntimeException("Event observed twice!");
-				}
-
-				return e1.getLeftElement().compareTo(e1.getLeftElement());
-			}
-		});
-
-		return list;
-	}
+	public List<PairOfObjectInt<K>> getSortedEvents();
 
 	/**
 	 * Returns top <i>n</i> events in sorted order.
 	 */
-	public List<PairOfObjectInt<K>> getSortedEvents(int n) {
-		List<PairOfObjectInt<K>> list = getSortedEvents();
-		return list.subList(0, n);
-	}
+	public List<PairOfObjectInt<K>> getSortedEvents(int n);
 
 	/**
 	 * Returns number of distinct events observed. Note that if an event is
 	 * observed and then its count subsequently removed, the event will not be
 	 * included in this count.
 	 */
-	public int getNumberOfEvents() {
-		return size();
-	}
+	public int getNumberOfEvents();
 
 	/**
 	 * Returns the sum of frequencies of all observed events.
 	 */
-	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
-	}
+	public long getSumOfFrequencies();
 }
