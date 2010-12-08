@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -46,8 +46,8 @@ import java.util.HashMap;
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 import edu.umd.cloud9.util.HMapIF;
-import ivory.hits.HITSNode;
-import ivory.pagerank.RangePartitioner;
+import edu.umd.cloud9.example.hits.HITSNode;
+import edu.umd.cloud9.example.hits.RangePartitioner;
 import edu.umd.cloud9.util.MapIF;
 import edu.umd.cloud9.util.HMapIF;
 

@@ -1,4 +1,4 @@
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;

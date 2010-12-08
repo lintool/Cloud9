@@ -1,4 +1,7 @@
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -9,6 +12,10 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
@@ -17,9 +24,43 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.io.ArrayListOfIntsWritable;
+
+import edu.umd.cloud9.example.hits.HITSNode;
+
 public class MergeFormattedRecords extends Configured implements Tool {
 	
 	private static final Logger sLogger = Logger.getLogger(AFormatterWG.class);
+	
+	private static class MergeReducer extends MapReduceBase implements
+	Reducer<IntWritable, HITSNode, IntWritable, HITSNode>
+	{
+		public void reduce(IntWritable key, Iterator<HITSNode> values, OutputCollector<IntWritable, HITSNode> output,
+			Reporter reporter) throws IOException
+		{
+			ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
+		
+			float hrank = Float.NEGATIVE_INFINITY;
+			float arank = Float.NEGATIVE_INFINITY;
+		
+			int valcount = 0;
+		
+			while (values.hasNext())
+			{
+				valcount++;
+				output.collect(key, values.next());
+			}
+			if (valcount < 2)
+			{
+				HITSNode emptyA = new HITSNode();
+				emptyA.setType(HITSNode.TYPE_AUTH_COMPLETE);
+				emptyA.setNodeId(key.get());
+				emptyA.setAdjacencyList(new ArrayListOfIntsWritable());
+				emptyA.setHARank(0);
+				output.collect(key, emptyA);
+			}
+		}
+	}
 	
 	private static int printUsage() {
 		System.out.println("usage: [hub-input-path] [auth-input-path] [output-path] [num-mappers] [num-reducers]");
@@ -65,7 +106,7 @@ public class MergeFormattedRecords extends Configured implements Tool {
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf.setMapperClass(IdentityMapper.class);
-		conf.setReducerClass(IdentityReducer.class);
+		conf.setReducerClass(MergeReducer.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);

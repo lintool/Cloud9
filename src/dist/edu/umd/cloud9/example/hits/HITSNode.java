@@ -1,4 +1,4 @@
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.DataInput;
 import java.io.DataOutput;

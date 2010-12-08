@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -45,7 +45,7 @@ import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 import edu.umd.cloud9.util.HMapIV;
 import edu.umd.cloud9.util.MapIV;
-import ivory.hits.HITSNode;
+import edu.umd.cloud9.example.hits.HITSNode;
 
 /**
  * @author michaelmcgrath

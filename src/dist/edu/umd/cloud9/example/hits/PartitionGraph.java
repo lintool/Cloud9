@@ -1,4 +1,4 @@
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -30,7 +30,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import ivory.pagerank.RangePartitioner;
+import edu.umd.cloud9.example.hits.RangePartitioner;
 
 public class PartitionGraph extends Configured implements Tool 
 {

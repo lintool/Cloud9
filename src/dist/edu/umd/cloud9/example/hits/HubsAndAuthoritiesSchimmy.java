@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -52,8 +52,8 @@ import java.util.HashMap;
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 import edu.umd.cloud9.util.HMapIF;
-import ivory.hits.HITSNode;
-import ivory.hits.RangePartitioner;
+import edu.umd.cloud9.example.hits.HITSNode;
+import edu.umd.cloud9.example.hits.RangePartitioner;
 import edu.umd.cloud9.util.MapIF;
 import edu.umd.cloud9.util.HMapIF;
 
@@ -755,7 +755,14 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 		
 		FileSystem fs = FileSystem.get(conf);
 
-		int numPartitions = FileSystem.get(conf).listStatus(new Path(inputPath)).length - 1;
+		//int numPartitions = FileSystem.get(conf).listStatus(new Path(inputPath)).length - 1;
+		// we need to actually count the number of part files to get the number
+		// of partitions (because the directory might contain _log)
+		int numPartitions = 0;
+		for (FileStatus s : FileSystem.get(conf).listStatus(new Path(inputPath))) {
+			if (s.getPath().getName().contains("part-"))
+				numPartitions++;
+		}
 		conf.setInt("NodeCount", nodeCount);
 		
 		Partitioner p = null;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.IOException;
 import java.text.DecimalFormat;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ivory.hits;
+package edu.umd.cloud9.example.hits;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -42,8 +42,8 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 import edu.umd.cloud9.io.ArrayListWritable;
-import ivory.hits.HITSNode;
-import ivory.pagerank.RangePartitioner;
+import edu.umd.cloud9.example.hits.HITSNode;
+import edu.umd.cloud9.example.hits.RangePartitioner;
 
 /**
  * @author michaelmcgrath
