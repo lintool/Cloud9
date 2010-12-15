@@ -141,7 +141,7 @@ public class HFormatterWG extends Configured implements Tool {
 	
 	public int run(String[] args) throws Exception {
 		
-		if (args.length != 4) {
+		if (args.length != 5) {
 			printUsage();
 			return -1;
 		}
@@ -151,6 +151,8 @@ public class HFormatterWG extends Configured implements Tool {
 
 		int mapTasks = Integer.parseInt(args[2]);
 		int reduceTasks = Integer.parseInt(args[3]);
+		
+		String stoplistPath = args[4];
 
 		sLogger.info("Tool: HFormatterWG");
 		sLogger.info(" - input path: " + inputPath);
@@ -177,7 +179,7 @@ public class HFormatterWG extends Configured implements Tool {
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
-		Path stopList = new Path("/tmp/mmcgrath/counts/toobig.txt");
+		Path stopList = new Path(stoplistPath);
 		FileSystem.get(conf).delete(outputDir, true);
 		
 		long startTime = System.currentTimeMillis();
