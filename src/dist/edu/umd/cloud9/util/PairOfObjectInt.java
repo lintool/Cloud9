@@ -48,4 +48,11 @@ public class PairOfObjectInt<L> {
 	public void setRightElement(int right) {
 		mRightElement = right;
 	}
+
+	/**
+	 * Generates human-readable String representation of this pair.
+	 */
+	public String toString() {
+		return "(" + mLeftElement + ", " + mRightElement + ")";
+	}
 }

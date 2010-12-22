@@ -189,17 +189,17 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		return h & (length - 1);
 	}
 
-	// doc copied from interface
+	@Override
 	public int size() {
 		return size;
 	}
 
-	// doc copied from interface
+	@Override
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
-	// doc copied from interface
+	@Override
 	public int get(int key) {
 		int hash = hash(key);
 		for (Entry e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
@@ -208,10 +208,10 @@ public class HMapII implements MapII, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException("key: " + key);
+		return DEFAULT_VALUE;
 	}
 
-	// doc copied from interface
+	@Override
 	public boolean containsKey(int key) {
 		return getEntry(key) != null;
 	}
@@ -230,23 +230,23 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		return null;
 	}
 
-	// doc copied from interface
-	public void put(int key, int value) {
+	@Override
+	public int put(int key, int value) {
 		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 		for (Entry e = table[i]; e != null; e = e.next) {
 			int k;
 			if (e.hash == hash && ((k = e.key) == key || key == k)) {
-				// int oldValue = e.value;
+				int oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return; // oldValue;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 	}
 
-	// doc copied from interface
+	@Override
 	public void putAll(MapII m) {
 		int numKeysToBeAdded = m.size();
 		if (numKeysToBeAdded == 0)
@@ -362,11 +362,12 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 	}
 
-	// doc copied from interface
+	@Override
 	public int remove(int key) {
 		Entry e = removeEntryForKey(key);
-		if (e != null)
+		if (e != null) {
 			return e.value;
+		}
 
 		throw new NoSuchElementException();
 	}
@@ -431,7 +432,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		return e;
 	}
 
-	// doc copied from interface
+	@Override
 	public void clear() {
 		modCount++;
 		Entry[] tab = table;
@@ -440,7 +441,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		size = 0;
 	}
 
-	// doc copied from interface
+	@Override
 	public boolean containsValue(int value) {
 		Entry[] tab = table;
 		for (int i = 0; i < tab.length; i++)
@@ -456,6 +457,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	 * 
 	 * @return a shallow copy of this map
 	 */
+	@Override
 	public Object clone() {
 		HMapII result = null;
 		try {
@@ -658,7 +660,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	transient volatile Set<Integer> keySet = null;
 	transient volatile Collection<Integer> values = null;
 
-	// doc copied from interface
+	@Override
 	public Set<Integer> keySet() {
 		Set<Integer> ks = keySet;
 		return (ks != null ? ks : (keySet = new KeySet()));
@@ -672,21 +674,9 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		public int size() {
 			return size;
 		}
-
-		public boolean contains(int o) {
-			return containsKey(o);
-		}
-
-		public boolean remove(int o) {
-			return HMapII.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			HMapII.this.clear();
-		}
 	}
 
-	// doc copied from interface
+	@Override
 	public Collection<Integer> values() {
 		Collection<Integer> vs = values;
 		return (vs != null ? vs : (values = new Values()));
@@ -700,17 +690,9 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		public int size() {
 			return size;
 		}
-
-		public boolean contains(Integer o) {
-			return containsValue(o);
-		}
-
-		public void clear() {
-			HMapII.this.clear();
-		}
 	}
 
-	// doc copied from interface
+	@Override
 	public Set<MapII.Entry> entrySet() {
 		return entrySet0();
 	}
@@ -812,6 +794,7 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		return loadFactor;
 	}
 
+	@Override
 	public String toString() {
 		Iterator<MapII.Entry> i = entrySet().iterator();
 		if (!i.hasNext())
@@ -931,7 +914,6 @@ public class HMapII implements MapII, Cloneable, Serializable {
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapII.Entry>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapII.Entry e1, MapII.Entry e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;

@@ -16,29 +16,16 @@
 
 package edu.umd.cloud9.util;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-/**
- * An implementation of a frequency distribution for arbitrary events, backed by
- * a fastutil open hash map. One possible use is to store frequency counts for
- * language models, where the events are terms. This class keeps track of
- * frequencies using ints, so beware when dealing with a large number of
- * observations; see also {@link OpenLargeFrequencyDistribution}.
- *
- * @author Jimmy Lin
- *
- */
-public class OpenFrequencyDistribution<K extends Comparable<K>> implements FrequencyDistribution<K> {
+public class EntryFrequencyDistribution<K extends Comparable<K>> implements FrequencyDistribution<K> {
 
-	private Object2IntOpenHashMap<K> mCounts = new Object2IntOpenHashMap<K>();
-	private long mSumOfFrequencies = 0;
+	private MapKI<K> counts = new HMapKI<K>();
+	private long sumOfFrequencies = 0;
 
 	@Override
 	public void increment(K key) {
@@ -82,26 +69,26 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 
 	@Override
 	public boolean contains(K k) {
-		return mCounts.containsKey(k);
+		return counts.containsKey(k);
 	}
 
 	@Override
 	public int get(K k) {
-		return mCounts.getInt(k);
+		return counts.get(k);
 	}
 
 	@Override
 	public int set(K k, int v) {
-		int rv = mCounts.put(k, v);
-		mSumOfFrequencies = mSumOfFrequencies - rv + v;
+		int rv = counts.put(k, v);
+		sumOfFrequencies = sumOfFrequencies - rv + v;
 
 		return rv;
 	}
 
 	@Override
 	public int remove(K k) {
-		int rv = mCounts.remove(k);
-		mSumOfFrequencies -= rv;
+		int rv = counts.remove(k);
+		sumOfFrequencies -= rv;
 
 		return rv;
 	}
@@ -110,8 +97,8 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-		for (Object2IntMap.Entry<K> e : mCounts.object2IntEntrySet()) {
-			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
+		for (MapKI.Entry<K> e : counts.entrySet()) {
+			list.add(new PairOfObjectInt<K>(e.getKey(), e.getValue()));
 		}
 
 		Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
@@ -141,8 +128,8 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 	public List<PairOfObjectInt<K>> getSortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-		for (Object2IntMap.Entry<K> e : mCounts.object2IntEntrySet()) {
-			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
+		for (MapKI.Entry<K> e : counts.entrySet()) {
+			list.add(new PairOfObjectInt<K>(e.getKey(), e.getValue()));
 		}
 
 		// sort the entries
@@ -167,11 +154,11 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 
 	@Override
 	public int getNumberOfEvents() {
-		return mCounts.size();
+		return counts.size();
 	}
 
 	@Override
 	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
+		return sumOfFrequencies;
 	}
 }

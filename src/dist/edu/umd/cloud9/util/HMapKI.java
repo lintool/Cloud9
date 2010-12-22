@@ -192,20 +192,19 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		return h & (length - 1);
 	}
 
-	// doc copied from interface
+	@Override
 	public int size() {
 		return size;
 	}
 
-	// doc copied from interface
+	@Override
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
-	// doc copied from interface
+	@Override
 	public int get(K key) {
-		if (key == null)
-			return getForNullKey();
+		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
 		int hash = hash(key.hashCode());
 		for (Entry<K> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
@@ -213,26 +212,12 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
-	/**
-	 * Offloaded version of get() to look up null keys. Null keys map to index
-	 * 0. This null case is split out into separate methods for the sake of
-	 * performance in the two most commonly used operations (get and put), but
-	 * incorporated with conditionals in others.
-	 */
-	private int getForNullKey() {
-		for (Entry<K> e = table[0]; e != null; e = e.next) {
-			if (e.key == null)
-				return e.value;
-		}
-
-		throw new NoSuchElementException();
-	}
-
-	// doc copied from interface
+	@Override
 	public boolean containsKey(K key) {
+		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
 		return getEntry(key) != null;
 	}
 
@@ -241,7 +226,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	 * Returns null if the HMapKI contains no mapping for the key.
 	 */
 	final Entry<K> getEntry(Object key) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());
+		int hash = hash(key.hashCode());
 		for (Entry<K> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k))))
@@ -250,40 +235,24 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		return null;
 	}
 
-	// doc copied from interface
-	public void put(K key, int value) {
-		if (key == null) {
-			putForNullKey(value);
-			return;
-		}
+	@Override
+	public int put(K key, int value) {
+		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
 		int hash = hash(key.hashCode());
 		int i = indexFor(hash, table.length);
 		for (Entry<K> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+				int oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-	}
-
-	/**
-	 * Offloaded version of put for null keys
-	 */
-	private void putForNullKey(int value) {
-		for (Entry<K> e = table[0]; e != null; e = e.next) {
-			if (e.key == null) {
-				e.value = value;
-				e.recordAccess(this);
-			}
-		}
-		modCount++;
-		addEntry(0, null, value, 0);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
@@ -368,7 +337,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		}
 	}
 
-	// doc copied from interface
+	@Override
 	public void putAll(MapKI<? extends K> m) {
 		int numKeysToBeAdded = m.size();
 		if (numKeysToBeAdded == 0)
@@ -400,7 +369,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		}
 	}
 
-	// doc copied from interface
+	@Override
 	public int remove(K key) {
 		Entry<K> e = removeEntryForKey(key);
 		if (e != null)
@@ -473,7 +442,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		return e;
 	}
 
-	// doc copied from interface
+	@Override
 	public void clear() {
 		modCount++;
 		Entry<K>[] tab = table;
@@ -482,7 +451,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		size = 0;
 	}
 
-	// doc copied from interface
+	@Override
 	public boolean containsValue(int value) {
 		Entry<K>[] tab = table;
 		for (int i = 0; i < tab.length; i++)
@@ -498,7 +467,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	 * 
 	 * @return a shallow copy of this map
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") @Override
 	public Object clone() {
 		HMapKI<K> result = null;
 		try {
@@ -702,7 +671,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	transient volatile Set<K> keySet = null;
 	transient volatile Collection<Integer> values = null;
 
-	// doc copied from interface
+	@Override
 	public Set<K> keySet() {
 		Set<K> ks = keySet;
 		return (ks != null ? ks : (keySet = new KeySet()));
@@ -731,7 +700,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		}
 	}
 
-	// doc copied from interface
+	@Override
 	public Collection<Integer> values() {
 		Collection<Integer> vs = values;
 		return (vs != null ? vs : (values = new Values()));
@@ -745,17 +714,9 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		public int size() {
 			return size;
 		}
-
-		public boolean contains(int o) {
-			return containsValue(o);
-		}
-
-		public void clear() {
-			HMapKI.this.clear();
-		}
 	}
 
-	// doc copied from interface
+	@Override
 	public Set<MapKI.Entry<K>> entrySet() {
 		return entrySet0();
 	}
@@ -861,6 +822,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		return loadFactor;
 	}
 
+	@Override
 	public String toString() {
 		Iterator<MapKI.Entry<K>> i = entrySet().iterator();
 		if (!i.hasNext())
@@ -973,7 +935,6 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapKI.Entry<K>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;
@@ -1010,7 +971,8 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 		return Arrays.copyOfRange(entries, 0, n);
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public MapKI.Entry<K>[] getEntriesSortedByKey() {
 		if (this.size() == 0)
 			return null;
@@ -1042,7 +1004,6 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapKI.Entry<K>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
 				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
 			}
