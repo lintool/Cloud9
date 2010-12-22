@@ -53,568 +53,496 @@ import edu.umd.cloud9.util.HMapIF;
 
 /**
  * @author michaelmcgrath
- *
+ * 
  */
 public class HubsAndAuthorities extends Configured implements Tool {
-	
-	private static final Logger sLogger = Logger.getLogger(HubsAndAuthorities.class);
-	
+
+	private static final Logger sLogger = Logger
+			.getLogger(HubsAndAuthorities.class);
+
 	/**
 	 * @param args
 	 */
 	private static class HAMapper extends MapReduceBase implements
-	Mapper<IntWritable, HITSNode, IntWritable, HITSNode>
-	{
-		//private Tuple valIn = MAP_SCHEMA.instantiate();
+	Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
+		// private Tuple valIn = MAP_SCHEMA.instantiate();
 		private HITSNode valOut = new HITSNode();
 		private ArrayListOfIntsWritable empty = new ArrayListOfIntsWritable();
-	
+
 		public void map(IntWritable key, HITSNode value,
-				OutputCollector<IntWritable, HITSNode> output, Reporter reporter) throws IOException {
-		
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
+
 			int type = value.getType();
 			int typeOut = 0;
 			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
-			if (type == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
 				typeOut = HITSNode.TYPE_AUTH_STRUCTURE;
 			}
-			if (type == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			if (type == HITSNode.TYPE_HUB_COMPLETE) {
 				typeOut = HITSNode.TYPE_HUB_STRUCTURE;
 			}
 			valOut.setType(typeOut);
 			valOut.setAdjacencyList(adjList);
-			
+
 			output.collect(key, valOut);
-			
+
 			typeOut = 0;
-			
-			//check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+
+			// check type using new types
+			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
 				typeOut = HITSNode.TYPE_AUTH_MASS;
-			}
-			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
 				typeOut = HITSNode.TYPE_HUB_MASS;
-			}
-			else
-			{
+			} else {
 				System.err.print("Unknown node type: " + typeOut);
 			}
-			
+
 			valOut.setType(typeOut);
 			valOut.setHARank(value.getHARank());
-			//valOut.setAdjacencyList(empty);
+			// valOut.setAdjacencyList(empty);
 			valOut.setNodeId(value.getNodeId());
-			
+
 			output.collect(key, valOut);
-			
-			//Iterator itr = adjList.iterator();
+
+			// Iterator itr = adjList.iterator();
 			int curr;
 			typeOut = 0;
-			
-			//check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE || 
-				value.getType() == HITSNode.TYPE_AUTH_MASS)
-			{
+
+			// check type using new types
+			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE
+					|| value.getType() == HITSNode.TYPE_AUTH_MASS) {
 				typeOut = HITSNode.TYPE_HUB_MASS;
-			}
-			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE || 
-					value.getType() == HITSNode.TYPE_HUB_MASS)
-			{
+			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE
+					|| value.getType() == HITSNode.TYPE_HUB_MASS) {
 				typeOut = HITSNode.TYPE_AUTH_MASS;
-			}
-			else
-			{
+			} else {
 				System.err.print("Unknown node type: " + typeOut);
 			}
-			
-			for (int i = 0; i < adjList.size(); i++)
-			{
+
+			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
 				valOut.setType(typeOut);
 				valOut.setHARank(value.getHARank());
 				valOut.setAdjacencyList(empty);
-				
+
 				output.collect(new IntWritable(curr), valOut);
-			}	
+			}
 		}
-		
+
 	}
-	
-	//mapper using in-mapper combining
+
+	// mapper using in-mapper combining
 	private static class HAMapperIMC extends MapReduceBase implements
-	Mapper<IntWritable, HITSNode, IntWritable, HITSNode>
-	{
-		
-		//for buffering rank values
+			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
+
+		// for buffering rank values
 		private static HMapIF rankmapA = new HMapIF();
 		private static HMapIF rankmapH = new HMapIF();
-		
+
 		// save a reference to the output collector
 		private static OutputCollector<IntWritable, HITSNode> mOutput;
-		
+
 		private static HITSNode valOut = new HITSNode();
-		//private static ArrayListOfIntsWritable empty = new ArrayListOfIntsWritable();
-	
-		public void configure(JobConf job)
-		{
+
+		// private static ArrayListOfIntsWritable empty = new
+		// ArrayListOfIntsWritable();
+
+		public void configure(JobConf job) {
 			rankmapA.clear();
 			rankmapH.clear();
 		}
-		
+
 		public void map(IntWritable key, HITSNode value,
-				OutputCollector<IntWritable, HITSNode> output, Reporter reporter) throws IOException {
-			
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
+
 			mOutput = output;
-			
+
 			int type = value.getType();
 			int typeOut = 0;
 			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
-			if (type == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
 				typeOut = HITSNode.TYPE_AUTH_STRUCTURE;
 			}
-			if (type == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			if (type == HITSNode.TYPE_HUB_COMPLETE) {
 				typeOut = HITSNode.TYPE_HUB_STRUCTURE;
 			}
 			valOut.setType(typeOut);
 			valOut.setAdjacencyList(adjList);
 			valOut.setNodeId(key.get());
-			
-			//System.out.println("[key: " + key.toString() + " ] <value: " + valOut.toString() + " >");
+
+			// System.out.println("[key: " + key.toString() + " ] <value: " +
+			// valOut.toString() + " >");
 			output.collect(key, valOut);
-			
+
 			typeOut = 0;
-			
-			//check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE)
-			{
-				if (rankmapA.containsKey(key.get()))
-				{
-					rankmapA.put(key.get(), sumLogProbs(rankmapA.get(key.get()), value.getHARank()));
-				}
-				else
-				{
+
+			// check type using new types
+			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
+				if (rankmapA.containsKey(key.get())) {
+					rankmapA.put(key.get(), sumLogProbs(
+							rankmapA.get(key.get()), value.getHARank()));
+				} else {
 					rankmapA.put(key.get(), value.getHARank());
-					//rankmapA.put(key.get(), sumLogProbs(rankmapA.get(key.get()), 0));
+					// rankmapA.put(key.get(),
+					// sumLogProbs(rankmapA.get(key.get()), 0));
 				}
 			}
-			
-			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE)
-			{
-				if (rankmapH.containsKey(key.get()))
-				{
-					rankmapH.put(key.get(), sumLogProbs(rankmapH.get(key.get()), value.getHARank()));
-				}
-				else
-				{
+
+			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
+				if (rankmapH.containsKey(key.get())) {
+					rankmapH.put(key.get(), sumLogProbs(
+							rankmapH.get(key.get()), value.getHARank()));
+				} else {
 					rankmapH.put(key.get(), value.getHARank());
-					//rankmapH.put(key.get(), sumLogProbs(rankmapH.get(key.get()), 0));
+					// rankmapH.put(key.get(),
+					// sumLogProbs(rankmapH.get(key.get()), 0));
 				}
-			}
-			else
-			{
+			} else {
 				System.err.print("Unknown node type: " + typeOut);
 			}
-			
+
 			int curr;
 			typeOut = 0;
-			
-			for (int i = 0; i < adjList.size(); i++)
-			{
+
+			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
-				//System.out.println("[key: " + key.toString() + "] [curr: " + curr + "]");
-				if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE)
-				{
-					if (rankmapH.containsKey(curr))
-					{
-						rankmapH.put(curr, sumLogProbs(rankmapH.get(curr), value.getHARank()));
-					}
-					else
-					{
+				// System.out.println("[key: " + key.toString() + "] [curr: " +
+				// curr + "]");
+				if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
+					if (rankmapH.containsKey(curr)) {
+						rankmapH.put(curr, sumLogProbs(rankmapH.get(curr),
+								value.getHARank()));
+					} else {
 						rankmapH.put(curr, value.getHARank());
 					}
-				}
-				else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE)
-				{
-					if (rankmapA.containsKey(curr))
-					{
-						rankmapA.put(curr, sumLogProbs(rankmapA.get(curr), value.getHARank()));
-					}
-					else
-					{
+				} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
+					if (rankmapA.containsKey(curr)) {
+						rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
+								value.getHARank()));
+					} else {
 						rankmapA.put(curr, value.getHARank());
 					}
-				}
-				else
-				{
+				} else {
 					System.err.println("Unknown node type: " + value.getType());
 				}
-			}	
+			}
 		}
-		
-		public void close() throws IOException
-		{
+
+		public void close() throws IOException {
 			IntWritable n = new IntWritable();
 			HITSNode mass = new HITSNode();
-			for (MapIF.Entry e : rankmapH.entrySet())
-			{
+			for (MapIF.Entry e : rankmapH.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_HUB_MASS);
 				mass.setHARank(e.getValue());
 				mass.setNodeId(e.getKey());
-				//System.out.println(e.getKey() + " " + e.getValue());
+				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
-			for (MapIF.Entry e : rankmapA.entrySet())
-			{
+			for (MapIF.Entry e : rankmapA.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_AUTH_MASS);
 				mass.setHARank(e.getValue());
 				mass.setNodeId(e.getKey());
-				//System.out.println(e.getKey() + " " + e.getValue());
+				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
 		}
-		
+
 	}
-	
-	
+
 	private static class HAReducer extends MapReduceBase implements
-	Reducer<IntWritable, HITSNode, IntWritable, HITSNode>
-	{
+			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
 		private HITSNode valIn;
 		private HITSNode hvalOut = new HITSNode();
 		private HITSNode avalOut = new HITSNode();
-		
+
 		private int jobIter = 0;
-		
-		public void configure(JobConf jconf)
-		{
+
+		public void configure(JobConf jconf) {
 			jobIter = jconf.getInt("jobIter", 0);
-		} 
-		
-		public void reduce(IntWritable key, Iterator<HITSNode> values, OutputCollector<IntWritable, HITSNode> output,
-				Reporter reporter) throws IOException
-		{
+		}
+
+		public void reduce(IntWritable key, Iterator<HITSNode> values,
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
 			ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
-			
+
 			float hrank = Float.NEGATIVE_INFINITY;
 			float arank = Float.NEGATIVE_INFINITY;
-			
+
 			hvalOut.setAdjacencyList(adjList);
 			avalOut.setAdjacencyList(adjList);
-			
-			while (values.hasNext())
-			{
+
+			while (values.hasNext()) {
 				valIn = values.next();
-				
-				//get type
+
+				// get type
 				int type = valIn.getType();
 				adjList.clear();
-				
-				if (type == HITSNode.TYPE_AUTH_STRUCTURE || 
-					type == HITSNode.TYPE_HUB_STRUCTURE)
-				{
+
+				if (type == HITSNode.TYPE_AUTH_STRUCTURE
+						|| type == HITSNode.TYPE_HUB_STRUCTURE) {
 					adjList = valIn.getAdjacencyList();
-					if (type == HITSNode.TYPE_HUB_STRUCTURE)
-					{
-						//System.out.println("H> " + key.toString() + " " + type + " " + adjList.toString());
-						hvalOut.setAdjacencyList(new ArrayListOfIntsWritable(adjList));
-						//System.out.println(key.toString() + " " + "H" + " " + hpayloadOut.toString());
-					}
-					else if (type == HITSNode.TYPE_AUTH_STRUCTURE)
-					{
-						//System.out.println("A> " + key.toString() + " " + type + " " + adjList.toString());
-						avalOut.setAdjacencyList(new ArrayListOfIntsWritable(adjList));
-						//System.out.println(key.toString() + " " + "A" + " " + hpayloadOut.toString());
-					}
-					else
-					{
+					if (type == HITSNode.TYPE_HUB_STRUCTURE) {
+						// System.out.println("H> " + key.toString() + " " +
+						// type + " " + adjList.toString());
+						hvalOut.setAdjacencyList(new ArrayListOfIntsWritable(
+								adjList));
+						// System.out.println(key.toString() + " " + "H" + " " +
+						// hpayloadOut.toString());
+					} else if (type == HITSNode.TYPE_AUTH_STRUCTURE) {
+						// System.out.println("A> " + key.toString() + " " +
+						// type + " " + adjList.toString());
+						avalOut.setAdjacencyList(new ArrayListOfIntsWritable(
+								adjList));
+						// System.out.println(key.toString() + " " + "A" + " " +
+						// hpayloadOut.toString());
+					} else {
 						System.err.println("Unknown Node Type: " + type);
 					}
 				}
-				//else add rank to current rank
-				else
-				{
+				// else add rank to current rank
+				else {
 					float rankIn = valIn.getHARank();
-					if (type == HITSNode.TYPE_HUB_MASS)
-					{
-						//hrank += rankIn;
+					if (type == HITSNode.TYPE_HUB_MASS) {
+						// hrank += rankIn;
 						hrank = sumLogProbs(hrank, rankIn);
-					}
-					else if (type == HITSNode.TYPE_AUTH_MASS)
-					{
-						//arank += rankIn;
+					} else if (type == HITSNode.TYPE_AUTH_MASS) {
+						// arank += rankIn;
 						arank = sumLogProbs(arank, rankIn);
 					}
 				}
 			}
-			//System.out.println(key.toString() + " " + "H" + " " + hpayloadOut.toString());
-			
-			//if this is the first run, set rank to 0 for nodes with no inlinks or outlinks
-			if (jobIter == 0)
-			{
-				if (hrank == Float.NEGATIVE_INFINITY)
-				{
+			// System.out.println(key.toString() + " " + "H" + " " +
+			// hpayloadOut.toString());
+
+			// if this is the first run, set rank to 0 for nodes with no inlinks
+			// or outlinks
+			if (jobIter == 0) {
+				if (hrank == Float.NEGATIVE_INFINITY) {
 					hrank = 0;
 				}
-				if (arank == Float.NEGATIVE_INFINITY)
-				{
+				if (arank == Float.NEGATIVE_INFINITY) {
 					arank = 0;
 				}
 			}
-			//build output tuple and write to output
+			// build output tuple and write to output
 			hvalOut.setHARank(hrank);
 			avalOut.setHARank(arank);
 			hvalOut.setType(HITSNode.TYPE_HUB_COMPLETE);
 			avalOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
 			hvalOut.setNodeId(key.get());
 			avalOut.setNodeId(key.get());
-			
+
 			output.collect(key, hvalOut);
 			output.collect(key, avalOut);
 		}
 	}
-	
+
 	private static class Norm1Mapper extends MapReduceBase implements
-	Mapper<IntWritable, HITSNode, Text, FloatWritable>
-	{
+			Mapper<IntWritable, HITSNode, Text, FloatWritable> {
 
 		FloatWritable rank = new FloatWritable();
+
 		public void map(IntWritable key, HITSNode value,
-				OutputCollector<Text, FloatWritable> output, Reporter reporter) throws IOException {
-		
+				OutputCollector<Text, FloatWritable> output, Reporter reporter)
+				throws IOException {
+
 			int type = value.getType();
 			rank.set(value.getHARank() * 2);
-			
-			//System.out.println(key.toString() + " " + valOut.toString());
+
+			// System.out.println(key.toString() + " " + valOut.toString());
 			String textType = "?";
-			if (type == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
 				textType = "A";
-			}
-			else if (type == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
 				textType = "H";
-			}
-			else
-			{
+			} else {
 				System.err.println("Bad Type: " + type);
 			}
 			output.collect(new Text(textType), rank);
 		}
-		
+
 	}
-	
+
 	private static class Norm1MapperIMC extends MapReduceBase implements
-	Mapper<IntWritable, HITSNode, Text, FloatWritable>
-	{
+			Mapper<IntWritable, HITSNode, Text, FloatWritable> {
 
 		private static float hsum = Float.NEGATIVE_INFINITY;
 		private static float asum = Float.NEGATIVE_INFINITY;
 		private static OutputCollector<Text, FloatWritable> mOutput;
-		
-		public void configure(JobConf conf)
-		{
+
+		public void configure(JobConf conf) {
 			hsum = Float.NEGATIVE_INFINITY;
 			asum = Float.NEGATIVE_INFINITY;
 		}
-		
+
 		public void map(IntWritable key, HITSNode value,
-				OutputCollector<Text, FloatWritable> output, Reporter reporter) throws IOException {
-			
+				OutputCollector<Text, FloatWritable> output, Reporter reporter)
+				throws IOException {
+
 			mOutput = output;
-			
+
 			int type = value.getType();
 			float rank = value.getHARank() * 2;
-			
-			if (type == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+
+			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
 				asum = sumLogProbs(asum, rank);
-			}
-			else if (type == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
 				hsum = sumLogProbs(hsum, rank);
-			}
-			else
-			{
+			} else {
 				System.err.println("Bad Type: " + type);
 			}
 		}
-		
-		public void close() throws IOException
-		{
+
+		public void close() throws IOException {
 			if (hsum != Float.NEGATIVE_INFINITY)
 				mOutput.collect(new Text("H"), new FloatWritable(hsum));
 			if (asum != Float.NEGATIVE_INFINITY)
 				mOutput.collect(new Text("A"), new FloatWritable(asum));
 		}
-		
+
 	}
-	
+
 	private static class Norm1Combiner extends MapReduceBase implements
-	Reducer<Text, FloatWritable, Text, FloatWritable>
-	{
-		
-		public void reduce(Text key, Iterator<FloatWritable> values, OutputCollector<Text, FloatWritable> output,
-				Reporter reporter) throws IOException
-		{
+			Reducer<Text, FloatWritable, Text, FloatWritable> {
+
+		public void reduce(Text key, Iterator<FloatWritable> values,
+				OutputCollector<Text, FloatWritable> output, Reporter reporter)
+				throws IOException {
 			float sum = Float.NEGATIVE_INFINITY;
 			FloatWritable valIn;
 
-			while (values.hasNext())
-			{
+			while (values.hasNext()) {
 				valIn = values.next();
 				sum = sumLogProbs(sum, valIn.get());
 			}
-			
+
 			if (sum != Float.NEGATIVE_INFINITY)
 				output.collect(key, new FloatWritable(sum));
 		}
 	}
-	
+
 	private static class Norm1Reducer extends MapReduceBase implements
-	Reducer<Text, FloatWritable, Text, FloatWritable>
-	{
-		
-		public void reduce(Text key, Iterator<FloatWritable> values, OutputCollector<Text, FloatWritable> output,
-				Reporter reporter) throws IOException
-		{
+			Reducer<Text, FloatWritable, Text, FloatWritable> {
+
+		public void reduce(Text key, Iterator<FloatWritable> values,
+				OutputCollector<Text, FloatWritable> output, Reporter reporter)
+				throws IOException {
 			float sum = Float.NEGATIVE_INFINITY;
 			FloatWritable valIn;
 
-			while (values.hasNext())
-			{
+			while (values.hasNext()) {
 				valIn = values.next();
 				sum = sumLogProbs(sum, valIn.get());
 			}
-			
-			sum = sum / 2; //sqrt
-			
+
+			sum = sum / 2; // sqrt
+
 			output.collect(key, new FloatWritable(sum));
 		}
 	}
-	
+
 	private static class Norm2Mapper extends MapReduceBase implements
-	Mapper<IntWritable, HITSNode, IntWritable, HITSNode>
-	{
+			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
 
 		private HITSNode nodeOut = new HITSNode();
-		
+
 		private float rootSumA;
 		private float rootSumH;
-		
-		public void configure(JobConf jconf)
-		{
+
+		public void configure(JobConf jconf) {
 			rootSumA = jconf.getFloat("rootSumA", 0);
 			rootSumH = jconf.getFloat("rootSumH", 0);
-		} 
+		}
 
-	
 		public void map(IntWritable key, HITSNode value,
-				OutputCollector<IntWritable, HITSNode> output, Reporter reporter) throws IOException {
-		
-			//System.out.println("H: " + rootSumH);
-			//System.out.println("A: " + rootSumA);
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
+
+			// System.out.println("H: " + rootSumH);
+			// System.out.println("A: " + rootSumA);
 			int typeI = value.getType();
 			String type = "?";
-			if (typeI == HITSNode.TYPE_HUB_COMPLETE)
-			{
+			if (typeI == HITSNode.TYPE_HUB_COMPLETE) {
 				type = "H";
-			}
-			else if (typeI == HITSNode.TYPE_AUTH_COMPLETE)
-			{
+			} else if (typeI == HITSNode.TYPE_AUTH_COMPLETE) {
 				type = "A";
 			}
-			
+
 			float rank = value.getHARank();
-			
-			if (type.equals("H"))
-			{
+
+			if (type.equals("H")) {
 				rank = rank - rootSumH;
-			}
-			else if (type.equals("A"))
-			{
+			} else if (type.equals("A")) {
 				rank = rank - rootSumA;
-			}
-			else
-			{
+			} else {
 				try {
 					throw new Exception("Invalid Rank Type");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 			nodeOut.setNodeId(key.get());
 			nodeOut.setType(typeI);
 			nodeOut.setHARank(rank);
 			nodeOut.setAdjacencyList(value.getAdjacencyList());
-			//System.out.println(tupleOut.toString());
+			// System.out.println(tupleOut.toString());
 
-			//System.out.println(key.toString() + " " + valOut.toString());
+			// System.out.println(key.toString() + " " + valOut.toString());
 			output.collect(key, nodeOut);
 		}
-		
+
 	}
-	
-	private ArrayList<Float> readSums(JobConf jconf, String pathIn) throws Exception
-	{
+
+	private ArrayList<Float> readSums(JobConf jconf, String pathIn)
+			throws Exception {
 		ArrayList<Float> output = new ArrayList<Float>();
 		float rootSumA = -1;
 		float rootSumH = -1;
 		SequenceFile.Reader reader = null;
-		try
-		{
-			Configuration cfg = new Configuration(); 
-			FileSystem fs = FileSystem.get(cfg); 
-			Path sumsIn = new Path(pathIn); 
-			//FSDataInputStream in = fs.open(sumsIn); 
-			
+		try {
+			Configuration cfg = new Configuration();
+			FileSystem fs = FileSystem.get(cfg);
+			Path sumsIn = new Path(pathIn);
+			// FSDataInputStream in = fs.open(sumsIn);
+
 			reader = new SequenceFile.Reader(fs, sumsIn, jconf);
-			Text key = (Text) ReflectionUtils.newInstance(reader.getKeyClass(), jconf);
-			FloatWritable value = (FloatWritable) ReflectionUtils.newInstance(reader.getValueClass(), jconf);
+			Text key = (Text) ReflectionUtils.newInstance(reader.getKeyClass(),
+					jconf);
+			FloatWritable value = (FloatWritable) ReflectionUtils.newInstance(
+					reader.getValueClass(), jconf);
 
 			while (reader.next(key, value)) {
-			        //System.out.printf("%s\t%s\n", key, value);
-			        if (key.toString().equals("A"))
-			        {
-			        	rootSumA = value.get();
-			        }
-			        else if (key.toString().equals("H"))
-			        {
-			        	rootSumH = value.get();
-			        }
-			        else
-			        {
-			        	System.out.println("PROBLEM");
-			        }
-			      }
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-			  IOUtils.closeStream(reader);
+				// System.out.printf("%s\t%s\n", key, value);
+				if (key.toString().equals("A")) {
+					rootSumA = value.get();
+				} else if (key.toString().equals("H")) {
+					rootSumH = value.get();
+				} else {
+					System.out.println("PROBLEM");
+				}
 			}
-			
-			if (rootSumA == -1 || rootSumH == -1)
-			{
-				throw new Exception("error: rootSum == - 1");
-			}
-			
-			output.add(new Float(rootSumA));
-			output.add(new Float (rootSumH));
-			
-			return output;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			IOUtils.closeStream(reader);
+		}
+
+		if (rootSumA == -1 || rootSumH == -1) {
+			throw new Exception("error: rootSum == - 1");
+		}
+
+		output.add(new Float(rootSumA));
+		output.add(new Float(rootSumH));
+
+		return output;
 	}
-	
-	
-	
-	
+
 	// adds two log probs
 	private static float sumLogProbs(float a, float b) {
 		if (a == Float.NEGATIVE_INFINITY)
@@ -629,7 +557,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 		return (float) (a + StrictMath.log1p(StrictMath.exp(b - a)));
 	}
-	
+
 	public int run(String[] args) throws Exception {
 
 		if (args.length != 9) {
@@ -659,37 +587,41 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		sLogger.info(" - number of reducers: " + reduceTasks);
 
 		for (int i = s; i < e; i++) {
-			iterateHA(basePath, i, i + 1, n, useCombiner, useInmapCombiner, useRange, mapTasks, reduceTasks);
+			iterateHA(basePath, i, i + 1, n, useCombiner, useInmapCombiner,
+					useRange, mapTasks, reduceTasks);
 		}
 
 		return 0;
 	}
-	
+
 	public HubsAndAuthorities() {
 	}
-	
+
 	private NumberFormat sFormat = new DecimalFormat("0000");
-	
-	private void iterateHA(String path, int i, int j, int n, boolean useCombiner,
-			boolean useInmapCombiner, boolean useRange, int mapTasks, int reduceTasks) throws IOException 
-	{
-		HACalc(path, i, j, n, useCombiner, useInmapCombiner, useRange, mapTasks, reduceTasks);
-		Norm(path, i, j, n, useCombiner, useInmapCombiner, useRange, mapTasks, reduceTasks);
+
+	private void iterateHA(String path, int i, int j, int n,
+			boolean useCombiner, boolean useInmapCombiner, boolean useRange,
+			int mapTasks, int reduceTasks) throws IOException {
+		HACalc(path, i, j, n, useCombiner, useInmapCombiner, useRange,
+				mapTasks, reduceTasks);
+		Norm(path, i, j, n, useCombiner, useInmapCombiner, useRange, mapTasks,
+				reduceTasks);
 	}
 
 	private static int printUsage() {
-		System.out.println("usage: [base-path] [num-nodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?] [num-mappers] [num-reducers]");
+		System.out
+				.println("usage: [base-path] [num-nodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?] [num-mappers] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
-	
-	
-	public int HACalc(String path, int iter, int jter, int nodeCount, boolean useCombiner,
-			boolean useInmapCombiner, boolean useRange, int mapTasks, int reduceTasks) throws IOException {
-		
+
+	public int HACalc(String path, int iter, int jter, int nodeCount,
+			boolean useCombiner, boolean useInmapCombiner, boolean useRange,
+			int mapTasks, int reduceTasks) throws IOException {
+
 		String inputPath = path + "/iter" + sFormat.format(iter);
 		String outputPath = path + "/iter" + sFormat.format(jter) + "t";
-						
+
 		sLogger.info("Tool: HubsAndAuthorities");
 		sLogger.info(" - iteration: " + iter);
 		sLogger.info(" - number of mappers: " + mapTasks);
@@ -697,7 +629,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 		JobConf conf = new JobConf(HubsAndAuthorities.class);
 		conf.setJobName("Iter" + iter + "HubsAndAuthorities");
-		
+
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
@@ -710,44 +642,42 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		conf.setOutputValueClass(HITSNode.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		if (useInmapCombiner == true)
-		{
+		if (useInmapCombiner == true) {
 			conf.setMapperClass(HAMapperIMC.class);
-		}
-		else
-		{
+		} else {
 			conf.setMapperClass(HAMapper.class);
 		}
-		
-		if (useRange == true)
-		{
+
+		if (useRange == true) {
 			conf.setPartitionerClass(RangePartitioner.class);
 		}
 		conf.setReducerClass(HAReducer.class);
-		
+
 		conf.setInt("jobIter", iter);
 		conf.setInt("NodeCount", nodeCount);
-		
+
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		
+
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		return 0;
 	}
-	
-	public int Norm(String path, int iter, int jter, int nodeCount, boolean useCombiner, 
-			boolean useInmapCombiner, boolean useRange, int mapTasks, int reduceTasks) throws IOException {
-		
-		//FIXME
-		String inputPath = path + "/iter" + sFormat.format(jter) + "t"; 
-		String outputPath = path + "/iter" + sFormat.format(jter); 
+
+	public int Norm(String path, int iter, int jter, int nodeCount,
+			boolean useCombiner, boolean useInmapCombiner, boolean useRange,
+			int mapTasks, int reduceTasks) throws IOException {
+
+		// FIXME
+		String inputPath = path + "/iter" + sFormat.format(jter) + "t";
+		String outputPath = path + "/iter" + sFormat.format(jter);
 		String tempPath = path + "/sqrt";
-				
+
 		sLogger.info("Tool: Normalizer");
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
@@ -757,7 +687,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 		JobConf conf = new JobConf(Normalize.class);
 		conf.setJobName("Iter" + iter + "NormalizerStep1");
-		
+
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(1);
 
@@ -770,24 +700,20 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		conf.setOutputValueClass(FloatWritable.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		if (useInmapCombiner == true)
-		{
+		if (useInmapCombiner == true) {
 			conf.setMapperClass(Norm1MapperIMC.class);
-		}
-		else
-		{
+		} else {
 			conf.setMapperClass(Norm1Mapper.class);
 		}
-		if (useCombiner == true)
-		{
+		if (useCombiner == true) {
 			conf.setCombinerClass(Norm1Combiner.class);
 		}
 		conf.setReducerClass(Norm1Reducer.class);
-		
+
 		JobConf conf2 = new JobConf(Normalize.class);
 		conf2.setJobName("Iter" + iter + "NormalizerStep2");
 		conf2.setInt("NodeCount", nodeCount);
-		
+
 		conf2.setNumMapTasks(mapTasks);
 		conf2.setNumReduceTasks(reduceTasks);
 
@@ -801,8 +727,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		conf2.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf2.setMapperClass(Norm2Mapper.class);
-		if (useRange == true)
-		{
+		if (useRange == true) {
 			conf2.setPartitionerClass(RangePartitioner.class);
 		}
 		conf2.setReducerClass(IdentityReducer.class);
@@ -810,42 +735,43 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		// Delete the output directory if it exists already
 		Path tempDir = new Path(tempPath);
 		FileSystem.get(conf).delete(tempDir, true);
-		
+
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		Path outputDir = new Path(outputPath);
-		
-		//read sums
+
+		// read sums
 		ArrayList<Float> sums = new ArrayList<Float>();
 		try {
 			sums = readSums(conf2, tempPath + "/part-00000");
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.err.println("Failed to read in Sums");
 			System.exit(1);
 		}
-		
-		//conf2.set("rootSumA", sums.get(0).toString());
+
+		// conf2.set("rootSumA", sums.get(0).toString());
 		conf2.setFloat("rootSumA", sums.get(0));
-		//conf2.set("rootSumH", sums.get(1).toString());
+		// conf2.set("rootSumH", sums.get(1).toString());
 		conf2.setFloat("rootSumH", sums.get(1));
-		
+
 		FileSystem.get(conf2).delete(outputDir, true);
-		
+
 		startTime = System.currentTimeMillis();
 		JobClient.runJob(conf2);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		return 0;
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new HubsAndAuthorities(), args);
+		int res = ToolRunner.run(new Configuration(), new HubsAndAuthorities(),
+				args);
 		System.exit(res);
 	}
 

@@ -15,12 +15,12 @@ public class HITSNode implements Writable {
 	public static final int TYPE_AUTH_COMPLETE = 2;
 	public static final int TYPE_AUTH_MASS = 4;
 	public static final int TYPE_AUTH_STRUCTURE = 6;
-	
+
 	private int mType;
 	private int mNodeId;
 	private float mHARank;
 	private ArrayListOfIntsWritable mAdjacencyList;
-	
+
 	public HITSNode() {
 	}
 
@@ -43,7 +43,7 @@ public class HITSNode implements Writable {
 	public ArrayListOfIntsWritable getAdjacencyList() {
 		return mAdjacencyList;
 	}
-	
+
 	public void setAdjacencyList(ArrayListOfIntsWritable l) {
 		mAdjacencyList = l;
 	}
@@ -51,15 +51,16 @@ public class HITSNode implements Writable {
 	public int getType() {
 		return mType;
 	}
-	
+
 	public void setType(int type) {
-		if (type != TYPE_HUB_COMPLETE && type != TYPE_HUB_MASS && type != TYPE_HUB_STRUCTURE
-				&& type != TYPE_AUTH_COMPLETE && type != TYPE_AUTH_MASS && type != TYPE_AUTH_STRUCTURE)
+		if (type != TYPE_HUB_COMPLETE && type != TYPE_HUB_MASS
+				&& type != TYPE_HUB_STRUCTURE && type != TYPE_AUTH_COMPLETE
+				&& type != TYPE_AUTH_MASS && type != TYPE_AUTH_STRUCTURE)
 			return;
 
 		mType = type;
 	}
-	
+
 	/**
 	 * Deserializes this object.
 	 * 
@@ -83,7 +84,7 @@ public class HITSNode implements Writable {
 		mAdjacencyList = new ArrayListOfIntsWritable();
 		mAdjacencyList.readFields(in);
 	}
-	
+
 	/**
 	 * Serializes this object.
 	 * 
@@ -105,23 +106,20 @@ public class HITSNode implements Writable {
 
 		mAdjacencyList.write(out);
 	}
-	
+
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 
 		s.append("{");
 		s.append(mNodeId);
 		s.append(" ");
-		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS || mType == TYPE_HUB_STRUCTURE)
-		{
+		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS
+				|| mType == TYPE_HUB_STRUCTURE) {
 			s.append("H");
-		}
-		else if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS || mType == TYPE_AUTH_STRUCTURE)
-		{
+		} else if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS
+				|| mType == TYPE_AUTH_STRUCTURE) {
 			s.append("A");
-		}
-		else
-		{
+		} else {
 			s.append("?");
 		}
 		s.append(" ");

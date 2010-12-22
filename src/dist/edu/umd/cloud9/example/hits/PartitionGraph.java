@@ -32,73 +32,66 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.example.hits.RangePartitioner;
 
-public class PartitionGraph extends Configured implements Tool 
-{
-	private static final Logger sLogger = Logger.getLogger(PartitionGraph.class);
-	
+public class PartitionGraph extends Configured implements Tool {
+	private static final Logger sLogger = Logger
+			.getLogger(PartitionGraph.class);
+
 	private static class MapClass extends MapReduceBase implements
-			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> 
-	{
+			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
 		public void map(IntWritable nid, HITSNode node,
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
-				throws IOException 
-		{	
+				throws IOException {
 			output.collect(nid, node);
 		}
 	}
 
-	
 	private static class ReduceClass extends MapReduceBase implements
-			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> 
-	{
+			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
 		public void reduce(IntWritable nid, Iterator<HITSNode> values,
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
-				throws IOException 
-		{
-			while (values.hasNext())
-			{
-				HITSNode node = values.next();	
+				throws IOException {
+			while (values.hasNext()) {
+				HITSNode node = values.next();
 				output.collect(nid, node);
-			}			
+			}
 		}
 	}
 
-	
-	public static void main(String[] args) throws Exception 
-	{
-		int res = ToolRunner.run(new Configuration(), new PartitionGraph(), args);
+	public static void main(String[] args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new PartitionGraph(),
+				args);
 		System.exit(res);
 	}
 
-	public PartitionGraph() { }
+	public PartitionGraph() {
+	}
 
 	private static int printUsage() {
-		System.out.println("usage: [in-path] [out-path] [numPartitions] [useRange?] [nodeCount]");
+		System.out
+				.println("usage: [in-path] [out-path] [numPartitions] [useRange?] [nodeCount]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
 
-	public int run(String[] args) throws IOException
-	{
-		if (args.length != 5) 
-		{
+	public int run(String[] args) throws IOException {
+		if (args.length != 5) {
 			printUsage();
 			return -1;
 		}
 
-		String inPath    = args[0];
-		String outPath   = args[1];
-		int numParts     = Integer.parseInt(args[2]);
+		String inPath = args[0];
+		String outPath = args[1];
+		int numParts = Integer.parseInt(args[2]);
 		boolean useRange = Integer.parseInt(args[3]) != 0;
-		int nodeCount    = Integer.parseInt(args[4]);
-		
+		int nodeCount = Integer.parseInt(args[4]);
+
 		sLogger.info("Tool name: PartitionGraph");
 		sLogger.info(" - in dir: " + inPath);
 		sLogger.info(" - out dir: " + outPath);
 		sLogger.info(" - numParts: " + numParts);
 		sLogger.info(" - useRange: " + useRange);
 		sLogger.info(" - nodeCnt: " + nodeCount);
-		
+
 		JobConf conf = new JobConf(PartitionGraph.class);
 
 		conf.setJobName("Partition Graph " + numParts);
@@ -119,18 +112,20 @@ public class PartitionGraph extends Configured implements Tool
 
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(HITSNode.class);
-		
+
 		conf.setMapperClass(MapClass.class);
 		conf.setReducerClass(ReduceClass.class);
 
 		conf.setSpeculativeExecution(false);
-		
-		if (useRange) { conf.setPartitionerClass(RangePartitioner.class); }
+
+		if (useRange) {
+			conf.setPartitionerClass(RangePartitioner.class);
+		}
 
 		FileSystem.get(conf).delete(new Path(outPath), true);
 
 		JobClient.runJob(conf);
-		
+
 		return 0;
 	}
 }

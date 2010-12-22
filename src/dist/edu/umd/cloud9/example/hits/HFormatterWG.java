@@ -43,81 +43,75 @@ import edu.umd.cloud9.example.hits.HITSNode;
 
 /**
  * @author michaelmcgrath
- *
+ * 
  */
 public class HFormatterWG extends Configured implements Tool {
 
-	
 	private static final Logger sLogger = Logger.getLogger(HFormatterWG.class);
-	
+
 	/**
 	 * @param args
 	 */
 	private static class HFormatMapper extends MapReduceBase implements
-	Mapper<LongWritable, Text, IntWritable, HITSNode>
-	{
+			Mapper<LongWritable, Text, IntWritable, HITSNode> {
 
 		private IntWritable keyOut = new IntWritable();
 		HashSet<Integer> stopList = new HashSet<Integer>();
-		
-		public void configure (JobConf jc)
-		{
+
+		public void configure(JobConf jc) {
 			stopList = readStopList(jc);
 		}
-	
+
 		public void map(LongWritable key, Text value,
-				OutputCollector<IntWritable, HITSNode> output, Reporter reporter) throws IOException {
-			
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
+
 			HITSNode dataOut = new HITSNode();
 			ArrayListOfIntsWritable links = new ArrayListOfIntsWritable();
 			dataOut.setType(HITSNode.TYPE_HUB_COMPLETE);
-			
+
 			String line = ((Text) value).toString();
 			StringTokenizer itr = new StringTokenizer(line);
 
 			if (itr.hasMoreTokens()) {
 				int curr = Integer.parseInt(itr.nextToken());
-				if ( stopList.contains(curr))
-				{
+				if (stopList.contains(curr)) {
 					return;
 				}
 				keyOut.set(curr);
 				dataOut.setNodeId(keyOut.get());
 			}
 			while (itr.hasMoreTokens()) {
-				//links = new ArrayListOfIntsWritable();
+				// links = new ArrayListOfIntsWritable();
 				int curr = Integer.parseInt(itr.nextToken());
-				if (!(stopList.contains(curr)))
-				{
+				if (!(stopList.contains(curr))) {
 					links.add(curr);
 				}
 			}
 			dataOut.setAdjacencyList(links);
 			dataOut.setHARank((float) 1.0);
 			output.collect(keyOut, dataOut);
-			//emit mentioned mentioner -> mentioned (mentioners) in links
-			//emit mentioner mentioned -> mentioner (mentions) outlinks
-			//emit mentioned a
-			//emit mentioner 1
+			// emit mentioned mentioner -> mentioned (mentioners) in links
+			// emit mentioner mentioned -> mentioner (mentions) outlinks
+			// emit mentioned a
+			// emit mentioner 1
 		}
-		
+
 	}
-	
+
 	private static class HFormatReducer extends MapReduceBase implements
-	Reducer<IntWritable, HITSNode, IntWritable, HITSNode>
-	{
+			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
 		ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 		private HITSNode valIn;
 		private HITSNode valOut = new HITSNode();
-		
-		public void reduce(IntWritable key, Iterator<HITSNode> values, OutputCollector<IntWritable, HITSNode> output,
-				Reporter reporter) throws IOException
-		{
+
+		public void reduce(IntWritable key, Iterator<HITSNode> values,
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
 			adjList.clear();
-			//adjList.trimToSize();
-			
-			while (values.hasNext())
-			{
+			// adjList.trimToSize();
+
+			while (values.hasNext()) {
 				valIn = values.next();
 				ArrayListOfIntsWritable adjListIn = valIn.getAdjacencyList();
 				adjListIn.trimToSize();
@@ -127,20 +121,21 @@ public class HFormatterWG extends Configured implements Tool {
 			valOut.setAdjacencyList(adjList);
 			valOut.setType(HITSNode.TYPE_HUB_COMPLETE);
 			valOut.setHARank((float) 0.0);
-			
+
 			output.collect(key, valOut);
-			
+
 		}
 	}
-	
+
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out
+				.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
-	
+
 	public int run(String[] args) throws Exception {
-		
+
 		if (args.length != 5) {
 			printUsage();
 			return -1;
@@ -151,7 +146,7 @@ public class HFormatterWG extends Configured implements Tool {
 
 		int mapTasks = Integer.parseInt(args[2]);
 		int reduceTasks = Integer.parseInt(args[3]);
-		
+
 		String stoplistPath = args[4];
 
 		sLogger.info("Tool: HFormatterWG");
@@ -162,7 +157,7 @@ public class HFormatterWG extends Configured implements Tool {
 
 		JobConf conf = new JobConf(HFormatterWG.class);
 		conf.setJobName("HubFormatter -- WebGraph");
-		
+
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
@@ -174,43 +169,44 @@ public class HFormatterWG extends Configured implements Tool {
 		conf.setOutputValueClass(HITSNode.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		conf.setMapperClass(HFormatMapper.class);;
+		conf.setMapperClass(HFormatMapper.class);
+		;
 		conf.setReducerClass(HFormatReducer.class);
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		Path stopList = new Path(stoplistPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		
+
 		long startTime = System.currentTimeMillis();
 		DistributedCache.addCacheFile(stopList.toUri(), conf);
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		return 0;
 	}
-	
+
 	private static HashSet<Integer> readStopList(JobConf jc) {
-		HashSet<Integer> out = new HashSet<Integer> ();
+		HashSet<Integer> out = new HashSet<Integer>();
 		try {
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
 			FileReader fr = new FileReader(cacheFiles[0].toString());
 			BufferedReader stopReader = new BufferedReader(fr);
-		    String line;
-		    while ((line = stopReader.readLine()) != null) {
-		        out.add(Integer.parseInt(line));
-		    }
+			String line;
+			while ((line = stopReader.readLine()) != null) {
+				out.add(Integer.parseInt(line));
+			}
 			stopReader.close();
 			return out;
-		} 
-		catch (IOException ioe) {
-	      System.err.println("IOException reading from distributed cache");
-	      System.err.println(ioe.toString());
-	      return out;
-	    }
+		} catch (IOException ioe) {
+			System.err.println("IOException reading from distributed cache");
+			System.err.println(ioe.toString());
+			return out;
+		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new HFormatterWG(), args);
 		System.exit(res);

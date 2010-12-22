@@ -45,24 +45,24 @@ import edu.umd.cloud9.example.hits.HITSNode;
 
 /**
  * @author michaelmcgrath
- *
+ * 
  */
 public class InlinkCounter extends Configured implements Tool {
-	
+
 	private static final Logger sLogger = Logger.getLogger(InlinkCounter.class);
-	
+
 	/**
 	 * @param args
 	 */
 	private static class AFormatMapper extends MapReduceBase implements
-	Mapper<LongWritable, Text, IntWritable, LongWritable>
-	{
+			Mapper<LongWritable, Text, IntWritable, LongWritable> {
 		private LongWritable valOut = new LongWritable(1);
 		private IntWritable keyOut = new IntWritable();
-		
+
 		public void map(LongWritable key, Text value,
-				OutputCollector<IntWritable, LongWritable> output, Reporter reporter) throws IOException {
-			
+				OutputCollector<IntWritable, LongWritable> output,
+				Reporter reporter) throws IOException {
+
 			ArrayListOfIntsWritable links = new ArrayListOfIntsWritable();
 			String line = ((Text) value).toString();
 			StringTokenizer itr = new StringTokenizer(line);
@@ -73,63 +73,56 @@ public class InlinkCounter extends Configured implements Tool {
 				keyOut.set(Integer.parseInt(itr.nextToken()));
 				output.collect(keyOut, valOut);
 			}
-			//emit mentioned mentioner -> mentioned (mentioners) in links
-			//emit mentioner mentioned -> mentioner (mentions) outlinks
-			//emit mentioned a
-			//emit mentioner 1
-			
-			
+			// emit mentioned mentioner -> mentioned (mentioners) in links
+			// emit mentioner mentioned -> mentioner (mentions) outlinks
+			// emit mentioned a
+			// emit mentioner 1
+
 		}
-		
+
 	}
-	
+
 	private static class AFormatMapperIMC extends MapReduceBase implements
-	Mapper<LongWritable, Text, IntWritable, HITSNode>
-	{
+			Mapper<LongWritable, Text, IntWritable, HITSNode> {
 		private HITSNode valOut = new HITSNode();
 		private IntWritable keyOut = new IntWritable();
 		private static OutputCollector<IntWritable, HITSNode> mOutput;
 		private static HMapIV<ArrayListOfIntsWritable> adjLists = new HMapIV<ArrayListOfIntsWritable>();
-		
-		public void configure (JobConf jc)
-		{
+
+		public void configure(JobConf jc) {
 			adjLists.clear();
 		}
-		
+
 		public void map(LongWritable key, Text value,
-				OutputCollector<IntWritable, HITSNode> output, Reporter reporter) throws IOException {
-			
+				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
+				throws IOException {
+
 			mOutput = output;
-			
+
 			ArrayListOfIntsWritable links = new ArrayListOfIntsWritable();
 			String line = ((Text) value).toString();
 			StringTokenizer itr = new StringTokenizer(line);
 			if (itr.hasMoreTokens()) {
 				links.add(Integer.parseInt(itr.nextToken()));
-				//add to HMap here	
+				// add to HMap here
 			}
 			while (itr.hasMoreTokens()) {
 				int curr = Integer.parseInt(itr.nextToken());
-				if (adjLists.containsKey(curr))
-				{
+				if (adjLists.containsKey(curr)) {
 					ArrayListOfIntsWritable list = adjLists.get(curr);
 					list.trimToSize();
 					links.trimToSize();
 					list.addAll(links.getArray());
 					adjLists.put(curr, list);
-				}
-				else
-				{
+				} else {
 					links.trimToSize();
 					adjLists.put(curr, links);
 				}
 			}
 		}
-		
-		public void close() throws IOException
-		{
-			for (MapIV.Entry<ArrayListOfIntsWritable> e : adjLists.entrySet())
-			{
+
+		public void close() throws IOException {
+			for (MapIV.Entry<ArrayListOfIntsWritable> e : adjLists.entrySet()) {
 				keyOut.set(e.getKey());
 				valOut.setNodeId(e.getKey());
 				valOut.setHARank((float) 0.0);
@@ -138,68 +131,64 @@ public class InlinkCounter extends Configured implements Tool {
 				mOutput.collect(keyOut, valOut);
 			}
 		}
-		
+
 	}
-	
+
 	private static class AFormatCombiner extends MapReduceBase implements
-	Reducer<IntWritable, LongWritable, IntWritable, LongWritable>
-	{
+			Reducer<IntWritable, LongWritable, IntWritable, LongWritable> {
 		private LongWritable valIn;
 		private LongWritable valOut = new LongWritable();
 		ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
-		
-		public void reduce(IntWritable key, Iterator<LongWritable> values, OutputCollector<IntWritable, LongWritable> output,
-				Reporter reporter) throws IOException
-		{
-			//ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
+
+		public void reduce(IntWritable key, Iterator<LongWritable> values,
+				OutputCollector<IntWritable, LongWritable> output,
+				Reporter reporter) throws IOException {
+			// ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 			long sum = 0;
-			//System.out.println(key.toString());
-			//System.out.println(adjList.toString());
-			while (values.hasNext())
-			{
+			// System.out.println(key.toString());
+			// System.out.println(adjList.toString());
+			while (values.hasNext()) {
 				sum += values.next().get();
 			}
 			valOut.set(sum);
 			output.collect(key, valOut);
 		}
 	}
-	
+
 	private static class AFormatReducer extends MapReduceBase implements
-	Reducer<IntWritable, LongWritable, IntWritable, LongWritable>
-	{
+			Reducer<IntWritable, LongWritable, IntWritable, LongWritable> {
 		private LongWritable valIn;
 		private LongWritable valOut = new LongWritable();
 		ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
-		
-		public void reduce(IntWritable key, Iterator<LongWritable> values, OutputCollector<IntWritable, LongWritable> output,
-				Reporter reporter) throws IOException
-		{
-			//ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
+
+		public void reduce(IntWritable key, Iterator<LongWritable> values,
+				OutputCollector<IntWritable, LongWritable> output,
+				Reporter reporter) throws IOException {
+			// ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 			long sum = 0;
-			//System.out.println(key.toString());
-			//System.out.println(adjList.toString());
-			while (values.hasNext())
-			{
+			// System.out.println(key.toString());
+			// System.out.println(adjList.toString());
+			while (values.hasNext()) {
 				sum += values.next().get();
 			}
-	
-			if (sum > 100000)
-			{
+
+			if (sum > 100000) {
 				valOut.set(sum);
 				output.collect(key, valOut);
 			}
-			
+
 		}
 	}
-	
+
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out
+				.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
-	
+
 	public int run(String[] args) throws Exception {
-		
+
 		if (args.length != 4) {
 			printUsage();
 			return -1;
@@ -219,7 +208,7 @@ public class InlinkCounter extends Configured implements Tool {
 
 		JobConf conf = new JobConf(InlinkCounter.class);
 		conf.setJobName("InlinkCounter -- Web Graph");
-		
+
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
@@ -227,14 +216,15 @@ public class InlinkCounter extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
-		//conf.setInputFormat(SequenceFileInputFormat.class);
+		// conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(LongWritable.class);
-		//conf.setOutputFormat(SequenceFileOutputFormat.class);
+		// conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		//InputSampler.Sampler<IntWritable, Text> sampler = new InputSampler.RandomSampler<IntWritable, Text>(0.1, 10, 10);
-		//InputSampler.writePartitionFile(conf, sampler);
-		//conf.setPartitionerClass(TotalOrderPartitioner.class);
+		// InputSampler.Sampler<IntWritable, Text> sampler = new
+		// InputSampler.RandomSampler<IntWritable, Text>(0.1, 10, 10);
+		// InputSampler.writePartitionFile(conf, sampler);
+		// conf.setPartitionerClass(TotalOrderPartitioner.class);
 		conf.setMapperClass(AFormatMapper.class);
 		conf.setCombinerClass(AFormatCombiner.class);
 		conf.setReducerClass(AFormatReducer.class);
@@ -242,18 +232,20 @@ public class InlinkCounter extends Configured implements Tool {
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		
+
 		long startTime = System.currentTimeMillis();
 		sLogger.info("Starting job");
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		return 0;
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new InlinkCounter(), args);
+		int res = ToolRunner
+				.run(new Configuration(), new InlinkCounter(), args);
 		System.exit(res);
 	}
 

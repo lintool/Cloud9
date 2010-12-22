@@ -18,18 +18,19 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 public class TextOutput extends Configured implements Tool {
-	
+
 	private static final Logger sLogger = Logger.getLogger(AFormatterWG.class);
-	
+
 	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+		System.out
+				.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
-	
+
 	public int run(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 		if (args.length != 4) {
 			printUsage();
 			return -1;
@@ -41,15 +42,15 @@ public class TextOutput extends Configured implements Tool {
 		int mapTasks = Integer.parseInt(args[2]);
 		int reduceTasks = Integer.parseInt(args[3]);
 
-		sLogger.info("Tool: MergeFormattedRecords");
+		sLogger.info("Tool: TextOutputter");
 		sLogger.info(" - input paths: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);
 		sLogger.info(" - number of mappers: " + mapTasks);
 		sLogger.info(" - number of reducers: " + reduceTasks);
-		
+
 		JobConf conf = new JobConf(TextOutput.class);
 		conf.setJobName("TextOutput");
-		
+
 		conf.setNumMapTasks(mapTasks);
 		conf.setNumReduceTasks(reduceTasks);
 
@@ -60,7 +61,7 @@ public class TextOutput extends Configured implements Tool {
 		conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(HITSNode.class);
-		//conf.setOutputFormat(SequenceFileOutputFormat.class);
+		// conf.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf.setMapperClass(IdentityMapper.class);
 		conf.setReducerClass(IdentityReducer.class);
@@ -68,15 +69,16 @@ public class TextOutput extends Configured implements Tool {
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
-		
+
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		sLogger.info("Job Finished in "
+				+ (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
-		
+
 		return 0;
 	}
-	
+
 	/**
 	 * @param args
 	 */
