@@ -685,7 +685,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		sLogger.info(" - number of mappers: " + mapTasks);
 		sLogger.info(" - number of reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(Normalize.class);
+		JobConf conf = new JobConf(HubsAndAuthorities.class);
 		conf.setJobName("Iter" + iter + "NormalizerStep1");
 
 		conf.setNumMapTasks(mapTasks);
@@ -710,7 +710,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		}
 		conf.setReducerClass(Norm1Reducer.class);
 
-		JobConf conf2 = new JobConf(Normalize.class);
+		JobConf conf2 = new JobConf(HubsAndAuthorities.class);
 		conf2.setJobName("Iter" + iter + "NormalizerStep2");
 		conf2.setInt("NodeCount", nodeCount);
 

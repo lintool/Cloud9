@@ -805,7 +805,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 		sLogger.info(" - number of mappers: " + mapTasks);
 		sLogger.info(" - number of reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(Normalize.class);
+		JobConf conf = new JobConf(HubsAndAuthoritiesSchimmy.class);
 		conf.setJobName("Iter" + iter + "NormalizerStep1");
 
 		conf.setNumMapTasks(mapTasks);
@@ -830,7 +830,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 		}
 		conf.setReducerClass(Norm1Reducer.class);
 
-		JobConf conf2 = new JobConf(Normalize.class);
+		JobConf conf2 = new JobConf(HubsAndAuthoritiesSchimmy.class);
 		conf2.setJobName("Iter" + iter + "NormalizerStep2");
 		conf2.setInt("NodeCount", nodeCount);
 
