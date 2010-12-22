@@ -22,6 +22,7 @@ import java.util.Set;
  *            the type of keys maintained by this map
  */
 public interface MapKI<K> {
+	public static final int DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**
@@ -85,7 +86,7 @@ public interface MapKI<K> {
 	 * @param value
 	 *            value to be associated with the specified key
 	 */
-	void put(K key, int value);
+	int put(K key, int value);
 
 	/**
 	 * Removes the mapping for a key from this map if it is present. No action

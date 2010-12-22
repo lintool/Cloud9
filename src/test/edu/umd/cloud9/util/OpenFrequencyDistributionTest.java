@@ -28,7 +28,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test
 	public void test1() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		assertEquals(0, fd.get("a"));
 
@@ -67,7 +67,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test
 	public void test2() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.increment("a");
 		fd.increment("a");
@@ -127,7 +127,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.increment("a");
 
@@ -146,7 +146,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.increment("a", 1000);
 
@@ -172,7 +172,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.increment("a", 2);
 		fd.increment("b", 3);
@@ -197,7 +197,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test
 	public void testGetFrequencySortedEvents() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.set("a", 5);
 		fd.set("d", 2);
@@ -242,7 +242,7 @@ public class OpenFrequencyDistributionTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		OpenFrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
 
 		fd.set("a", 1);
 		fd.set("d", 3);

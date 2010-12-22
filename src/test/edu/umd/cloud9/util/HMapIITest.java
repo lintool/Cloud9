@@ -220,8 +220,36 @@ public class HMapIITest {
 		assertTrue(e == null);
 	}
 
+	@Test
+	public void testPut() {
+		HMapII m = new HMapII();
+		// When we put a value, we should get back the old value.
+
+		assertEquals(MapII.DEFAULT_VALUE, m.put(1, 5));
+		assertEquals(5, m.put(1, 6));
+		assertEquals(6, m.put(1, 2));
+		assertEquals(2, m.get(1));
+	}
+
+	@Test
+	public void testIncrement() {
+		HMapII m = new HMapII();
+		// When we put a value, we should get back the old value.
+
+		assertEquals(0, m.get(1));
+		m.increment(1);
+
+		assertEquals(1, m.get(1));
+		m.increment(1, 5);
+		m.increment(2, 0);
+		m.increment(3, 2);
+
+		assertEquals(6, m.get(1));
+		assertEquals(0, m.get(2));
+		assertEquals(2, m.get(3));
+	}
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapIITest.class);
 	}
-
 }

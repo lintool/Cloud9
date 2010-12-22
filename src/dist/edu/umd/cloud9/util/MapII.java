@@ -19,6 +19,7 @@ import java.util.Set;
  * Map version 1.56, 04/21/06.
  */
 public interface MapII {
+	public static final int DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**
@@ -82,7 +83,7 @@ public interface MapII {
 	 * @param value
 	 *            value to be associated with the specified key
 	 */
-	void put(int key, int value);
+	int put(int key, int value);
 
 	/**
 	 * Removes the mapping for a key from this map if it is present. No action

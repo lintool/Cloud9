@@ -26,11 +26,11 @@ import org.junit.Test;
 
 import edu.umd.cloud9.io.PairOfInts;
 
-public class OpenFrequencyDistributionOfIntsTest {
+public class EntryFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test1() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		assertEquals(0, fd.get(1));
 
@@ -69,7 +69,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test2() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.increment(1);
 		fd.increment(1);
@@ -128,7 +128,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.increment(1);
 
@@ -147,7 +147,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.increment(1, 1000);
 
@@ -173,7 +173,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.increment(1, 2);
 		fd.increment(2, 3);
@@ -198,7 +198,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testGetFrequencySortedEvents() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.set(1, 5);
 		fd.set(4, 2);
@@ -243,7 +243,7 @@ public class OpenFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		FrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
 
 		fd.set(1, 1);
 		fd.set(4, 3);
@@ -287,6 +287,6 @@ public class OpenFrequencyDistributionOfIntsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OpenFrequencyDistributionOfIntsTest.class);
+		return new JUnit4TestAdapter(EntryFrequencyDistributionOfIntsTest.class);
 	}
 }
