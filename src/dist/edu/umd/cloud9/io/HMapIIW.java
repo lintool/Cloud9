@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ import edu.umd.cloud9.util.MapII;
  * <p>
  * Writable representing a map where both keys and values are ints.
  * </p>
- * 
+ *
  * <p>
  * One notable feature of this class is the ability to support <i>lazy decoding</i>,
  * controlled by the {@link #setLazyDecodeFlag(boolean)} method. In lazy
@@ -44,20 +44,20 @@ import edu.umd.cloud9.util.MapII;
  * {@link #getValues()} methods, respectively. The map can be subsequently
  * populated with the {@link #decode()} method.
  * </p>
- * 
+ *
  * @author Jimmy Lin
  */
 public class HMapIIW extends HMapII implements Writable {
 
-	private static boolean sLazyDecode = false;
+	private static boolean LazyDecode = false;
 	private static final long serialVersionUID = 3801790315L;
 
-	private int mNumEntries = 0;
-	private int[] mKeys = null;
-	private int[] mValues = null;
+	private int numEntries = 0;
+	private int[] keys = null;
+	private int[] values = null;
 
 	/**
-	 * Creates a <code>OHMapIFW</code> object.
+	 * Creates a <code>HMapIIW</code> object.
 	 */
 	public HMapIIW() {
 		super();
@@ -65,31 +65,28 @@ public class HMapIIW extends HMapII implements Writable {
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
-	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-
 		this.clear();
 
-		mNumEntries = in.readInt();
-		if (mNumEntries == 0)
+		numEntries = in.readInt();
+		if (numEntries == 0)
 			return;
 
-		if (sLazyDecode) {
-			// lazy initialization; read into arrays
-			mKeys = new int[mNumEntries];
-			mValues = new int[mNumEntries];
+		if (LazyDecode) {
+			// Lazy initialization: read into arrays.
+			keys = new int[numEntries];
+			values = new int[numEntries];
 
-			for (int i = 0; i < mNumEntries; i++) {
-				mKeys[i] = in.readInt();
-				mValues[i] = in.readInt();
+			for (int i = 0; i < numEntries; i++) {
+				keys[i] = in.readInt();
+				values[i] = in.readInt();
 			}
 		} else {
-			// normal initialization; populate the map
-			for (int i = 0; i < mNumEntries; i++) {
+			// Normal initialization: populate the map.
+			for (int i = 0; i < numEntries; i++) {
 				put(in.readInt(), in.readInt());
 			}
 		}
@@ -98,26 +95,39 @@ public class HMapIIW extends HMapII implements Writable {
 	/**
 	 * In lazy decoding mode, populates the map with deserialized data.
 	 * Otherwise, does nothing.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void decode() throws IOException {
-		if (mKeys == null)
+		if (keys == null)
 			return;
 
-		for (int i = 0; i < mKeys.length; i++) {
-			put(mKeys[i], mValues[i]);
+		for (int i = 0; i < keys.length; i++) {
+			put(keys[i], values[i]);
 		}
+
+		keys = null;
+		values = null;
+	}
+
+	/**
+	 * Returns whether or not this map has been decoded. If not in lazy decoding
+	 * mode, this method always return <i>true</i>.
+	 */
+	public boolean isDecoded() {
+		if (getLazyDecodeFlag() == false)
+			return true;
+
+		return keys == null;
 	}
 
 	/**
 	 * Serializes the map.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
@@ -130,9 +140,8 @@ public class HMapIIW extends HMapII implements Writable {
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -144,12 +153,10 @@ public class HMapIIW extends HMapII implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapIIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapIIW</code> object
+	 * Creates a <code>HMapIIW</code> object from a <code>DataInput</code>.
+	 *
+	 * @param in source for reading the serialized representation
+	 * @return a newly-created <code>HMapIIW</code> object
 	 * @throws IOException
 	 */
 	public static HMapIIW create(DataInput in) throws IOException {
@@ -160,11 +167,10 @@ public class HMapIIW extends HMapII implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapIIW</code> object from a byte array.
-	 * 
-	 * @param bytes
-	 *            raw serialized representation
-	 * @return a newly-created <code>OHMapIFW</code> object
+	 * Creates a <code>HMapIIW</code> object from a byte array.
+	 *
+	 * @param bytes raw serialized representation
+	 * @return a newly-created <code>HMapIIW</code> object
 	 * @throws IOException
 	 */
 	public static HMapIIW create(byte[] bytes) throws IOException {
@@ -173,50 +179,44 @@ public class HMapIIW extends HMapII implements Writable {
 
 	/**
 	 * Sets the lazy decoding flag.
-	 * 
-	 * @param b
-	 *            the value of the lazy decoding flag
 	 */
 	public static void setLazyDecodeFlag(boolean b) {
-		sLazyDecode = b;
+		LazyDecode = b;
 	}
 
 	/**
 	 * Returns the value of the lazy decoding flag
-	 * 
-	 * @return the value of the lazy decoding flag
 	 */
 	public static boolean getLazyDecodeFlag() {
-		return sLazyDecode;
+		return LazyDecode;
 	}
 
 	/**
 	 * In lazy decoding mode, returns an array of all the keys if the map hasn't
 	 * been decoded yet. Otherwise, returns null.
-	 * 
+	 *
 	 * @return an array of all the keys
 	 */
 	public int[] getKeys() {
-		return mKeys;
+		return keys;
 	}
 
 	/**
 	 * In lazy decoding mode, returns an array of all the values if the map
 	 * hasn't been decoded yet. Otherwise, returns null.
-	 * 
+	 *
 	 * @return an array of all the values
 	 */
 	public int[] getValues() {
-		return mValues;
+		return values;
 	}
 
 	/**
 	 * In lazy decoding mode, adds values from keys of another map to this map.
 	 * This map must have already been decoded, but the other map must not have
 	 * been already decoded.
-	 * 
-	 * @param m
-	 *            the other map
+	 *
+	 * @param m the other map
 	 */
 	public void lazyplus(HMapIIW m) {
 		int[] k = m.getKeys();
@@ -229,5 +229,15 @@ public class HMapIIW extends HMapII implements Writable {
 				this.put(k[i], v[i]);
 			}
 		}
+	}
+
+
+	@Override
+	public int size() {
+		if (!isDecoded()) {
+			return keys.length;
+		}
+
+		return super.size();
 	}
 }

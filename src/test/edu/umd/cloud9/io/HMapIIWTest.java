@@ -17,6 +17,7 @@
 package edu.umd.cloud9.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class HMapIIWTest {
 
 		HMapIIW m2 = HMapIIW.create(m1.serialize());
 
-		assertEquals(0, m2.size());
+		assertEquals(2, m2.size());
 
 		int[] keys = m2.getKeys();
 		int[] values = m2.getValues();
@@ -92,7 +93,12 @@ public class HMapIIWTest {
 		assertTrue(values[0] == 5.0f);
 		assertTrue(values[1] == 22.0f);
 
+		assertFalse(m2.isDecoded());
+		assertEquals(m2.size(), 2);
+
 		m2.decode();
+		assertTrue(m2.isDecoded());
+
 		float value;
 		assertEquals(m2.size(), 2);
 

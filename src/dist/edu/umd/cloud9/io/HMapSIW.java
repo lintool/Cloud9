@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,11 +37,10 @@ import edu.umd.cloud9.util.MapKI;
  * @author Jimmy Lin
  */
 public class HMapSIW extends HMapKI<String> implements Writable {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -9179978557431493856L;
 
 	/**
-	 * Creates a <code>OHMapSIW</code> object.
+	 * Creates a <code>HMapSIW</code> object.
 	 */
 	public HMapSIW() {
 		super();
@@ -49,9 +48,8 @@ public class HMapSIW extends HMapKI<String> implements Writable {
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
 		this.clear();
@@ -69,17 +67,16 @@ public class HMapSIW extends HMapKI<String> implements Writable {
 
 	/**
 	 * Serializes the map.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
 
-		// Then write out each key/value pair
+		// Then write out each key/value pair.
 		for (MapKI.Entry<String> e : entrySet()) {
 			out.writeUTF(e.getKey());
 			out.writeInt(e.getValue());
@@ -88,9 +85,8 @@ public class HMapSIW extends HMapKI<String> implements Writable {
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -102,11 +98,9 @@ public class HMapSIW extends HMapKI<String> implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
+	 * Creates a <code>HMapSIW</code> object from a <code>DataInput</code>.
+	 *
+	 * @param in source for reading the serialized representation
 	 * @return a newly-created <code>OHMapSIW</code> object
 	 * @throws IOException
 	 */
@@ -118,10 +112,10 @@ public class HMapSIW extends HMapKI<String> implements Writable {
 	}
 
 	/**
-	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 * Creates a <code>HMapSIW</code> object from a byte array.
+	 *
+	 * @param bytes source for reading the serialized representation
+	 * @return a newly-created <code>OHMapSIW</code> object
 	 * @throws IOException
 	 */
 	public static HMapSIW create(byte[] bytes) throws IOException {

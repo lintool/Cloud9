@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,19 +32,17 @@ import edu.umd.cloud9.util.HMapKI;
 import edu.umd.cloud9.util.MapKI;
 
 /**
- * Writable representing a map from keys of arbitrary type to ints.
- * 
- * @param <K>
- *            type of key
- * 
+ * Writable representing a map from keys of arbitrary WritableComparable to ints.
+ *
+ * @param <K> type of key
+ *
  * @author Jimmy Lin
  */
 public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implements Writable {
-
-	private static final long serialVersionUID = 295863243L;
+	private static final long serialVersionUID = -495714688553572924L;
 
 	/**
-	 * Creates a <code>OFMapKIW</code> object.
+	 * Creates a <code>HMapKIW</code> object.
 	 */
 	public HMapKIW() {
 		super();
@@ -52,13 +50,11 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-
 		this.clear();
 
 		int numEntries = in.readInt();
@@ -91,23 +87,22 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 	/**
 	 * Serializes the map.
 	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
 
-		// Write out the class names for keys and values
-		// assuming that data is homogeneous (i.e., all entries have same types)
+		// Write out the class names for keys and values, assuming that data is
+		// homogeneous (i.e., all entries have same types).
 		Set<MapKI.Entry<K>> entries = entrySet();
 		MapKI.Entry<K> first = entries.iterator().next();
 		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
-		// Then write out each key/value pair
+		// Then write out each key/value pair.
 		for (MapKI.Entry<K> e : entrySet()) {
 			e.getKey().write(out);
 			out.writeInt(e.getValue());
@@ -116,9 +111,8 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -130,16 +124,13 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 	}
 
 	/**
-	 * Creates a <code>OHMapKIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapKIW</code> object
+	 * Creates a <code>HMapKIW</code> object from a <code>DataInput</code>.
+	 *
+	 * @param in source for reading the serialized representation
+	 * @return a newly-created <code>HMapKIW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> HMapKIW<T> create(DataInput in)
-			throws IOException {
+	public static <T extends WritableComparable<?>> HMapKIW<T> create(DataInput in) throws IOException {
 		HMapKIW<T> m = new HMapKIW<T>();
 		m.readFields(in);
 
@@ -147,14 +138,13 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 	}
 
 	/**
-	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 * Creates a <code>HMapKIW</code> object from a byte array.
+	 *
+	 * @param bytes source for reading the serialized representation
+	 * @return a newly-created <code>HMapKIW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> HMapKIW<T> create(byte[] bytes)
-			throws IOException {
+	public static <T extends WritableComparable<?>> HMapKIW<T> create(byte[] bytes) throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 }
