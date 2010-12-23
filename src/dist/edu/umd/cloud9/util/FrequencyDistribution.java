@@ -28,7 +28,7 @@ import java.util.List;
  * @author Jimmy Lin
  *
  */
-public interface FrequencyDistribution<K extends Comparable<K>> {
+public interface FrequencyDistribution<K extends Comparable<K>> extends Iterable<PairOfObjectInt<K>> {
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.

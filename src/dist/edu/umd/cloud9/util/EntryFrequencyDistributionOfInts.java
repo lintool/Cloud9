@@ -18,6 +18,7 @@ package edu.umd.cloud9.util;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -169,5 +170,36 @@ public class EntryFrequencyDistributionOfInts implements FrequencyDistributionOf
 	@Override
 	public long getSumOfFrequencies() {
 		return sumOfFrequencies;
+	}
+
+	/**
+	 * Iterator returns the same object every time, just with a different payload.
+	 */
+	public Iterator<PairOfInts> iterator() {
+		return new Iterator<PairOfInts>() {
+			private Iterator<MapII.Entry> iter = EntryFrequencyDistributionOfInts.this.counts.entrySet().iterator();
+			private final PairOfInts pair = new PairOfInts();
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public PairOfInts next() {
+				if (!hasNext()) {
+					return null;
+				}
+
+				MapII.Entry entry = iter.next();
+				pair.set(entry.getKey(), entry.getValue());
+				return pair;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 }

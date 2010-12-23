@@ -16,43 +16,58 @@
 
 package edu.umd.cloud9.util;
 
-public class PairOfObjects<L, R> {
+public class PairOfObjects<L extends Comparable<L>, R extends Comparable<R>> implements Comparable<PairOfObjects<L, R>>{
 
-	private L mLeftElement;
-	private R mRightElement;
+	private L left;
+	private R right;
 
 	public PairOfObjects(L left, R right) {
-		mLeftElement = left;
-		mRightElement = right;
+		this.left = left;
+		this.right = right;
 	}
 
 	public PairOfObjects() {}
 
 	public L getLeftElement() {
-		return mLeftElement;
+		return left;
 	}
 
 	public R getRightElement() {
-		return mRightElement;
+		return right;
 	}
 
 	public void set(L left, R right) {
-		mLeftElement = left;
-		mRightElement = right;
+		this.left = left;
+		this.right = right;
 	}
 
 	public void setLeftElement(L left) {
-		mLeftElement = left;
+		this.left = left;
 	}
 
 	public void setRightElement(R right) {
-		mRightElement = right;
+		this.right = right;
 	}
 
 	/**
 	 * Generates human-readable String representation of this pair.
 	 */
 	public String toString() {
-		return "(" + mLeftElement + ", " + mRightElement + ")";
+		return "(" + left + ", " + right + ")";
+	}
+
+	/**
+	 * Creates a shallow clone of this object; the left and right elements are not cloned.
+	 */
+	public PairOfObjects<L, R> clone() {
+		return new PairOfObjects<L, R>(left, right);
+	}
+
+	@Override
+	public int compareTo(PairOfObjects<L, R> that) {
+		if ( this.left.equals(that.left)) {
+			return this.right.compareTo(that.right);
+		}
+		return this.left.compareTo(that.left);
 	}
 }

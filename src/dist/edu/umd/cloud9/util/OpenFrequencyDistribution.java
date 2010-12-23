@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -37,8 +38,8 @@ import com.google.common.collect.Lists;
  */
 public class OpenFrequencyDistribution<K extends Comparable<K>> implements FrequencyDistribution<K> {
 
-	private Object2IntOpenHashMap<K> mCounts = new Object2IntOpenHashMap<K>();
-	private long mSumOfFrequencies = 0;
+	private Object2IntOpenHashMap<K> counts = new Object2IntOpenHashMap<K>();
+	private long sumOfFrequencies = 0;
 
 	@Override
 	public void increment(K key) {
@@ -82,26 +83,26 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 
 	@Override
 	public boolean contains(K k) {
-		return mCounts.containsKey(k);
+		return counts.containsKey(k);
 	}
 
 	@Override
 	public int get(K k) {
-		return mCounts.getInt(k);
+		return counts.getInt(k);
 	}
 
 	@Override
 	public int set(K k, int v) {
-		int rv = mCounts.put(k, v);
-		mSumOfFrequencies = mSumOfFrequencies - rv + v;
+		int rv = counts.put(k, v);
+		sumOfFrequencies = sumOfFrequencies - rv + v;
 
 		return rv;
 	}
 
 	@Override
 	public int remove(K k) {
-		int rv = mCounts.remove(k);
-		mSumOfFrequencies -= rv;
+		int rv = counts.remove(k);
+		sumOfFrequencies -= rv;
 
 		return rv;
 	}
@@ -110,7 +111,7 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-		for (Object2IntMap.Entry<K> e : mCounts.object2IntEntrySet()) {
+		for (Object2IntMap.Entry<K> e : counts.object2IntEntrySet()) {
 			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
 		}
 
@@ -141,7 +142,7 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 	public List<PairOfObjectInt<K>> getSortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-		for (Object2IntMap.Entry<K> e : mCounts.object2IntEntrySet()) {
+		for (Object2IntMap.Entry<K> e : counts.object2IntEntrySet()) {
 			list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
 		}
 
@@ -167,11 +168,42 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 
 	@Override
 	public int getNumberOfEvents() {
-		return mCounts.size();
+		return counts.size();
 	}
 
 	@Override
 	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
+		return sumOfFrequencies;
+	}
+
+	/**
+	 * Iterator returns the same object every time, just with a different payload.
+	 */
+	public Iterator<PairOfObjectInt<K>> iterator() {
+		return new Iterator<PairOfObjectInt<K>>() {
+			private Iterator<Object2IntMap.Entry<K>> iter = OpenFrequencyDistribution.this.counts.object2IntEntrySet().iterator();
+			private final PairOfObjectInt<K> pair = new PairOfObjectInt<K>();
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public PairOfObjectInt<K> next() {
+				if (!hasNext()) {
+					return null;
+				}
+
+				Object2IntMap.Entry<K> entry = iter.next();
+				pair.set(entry.getKey(), entry.getIntValue());
+				return pair;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 }

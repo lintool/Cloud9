@@ -30,7 +30,7 @@ import edu.umd.cloud9.io.PairOfInts;
  * @author Jimmy Lin
  *
  */
-public interface FrequencyDistributionOfInts {
+public interface FrequencyDistributionOfInts extends Iterable<PairOfInts> {
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.
