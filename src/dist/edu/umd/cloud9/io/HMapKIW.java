@@ -95,8 +95,7 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 		if (size() == 0)
 			return;
 
-		// Write out the class names for keys and values, assuming that data is
-		// homogeneous (i.e., all entries have same types).
+		// Write out the class names for keys and values assuming that all keys have the same type.
 		Set<MapKI.Entry<K>> entries = entrySet();
 		MapKI.Entry<K> first = entries.iterator().next();
 		K objK = first.getKey();

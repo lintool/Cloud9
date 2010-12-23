@@ -96,8 +96,7 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 		if (size() == 0)
 			return;
 
-		// Write out the class names for keys and values, assuming that data is
-		// homogeneous (i.e., all entries have same types).
+		// Write out the class names for keys and values, assuming that all entries have same types.
 		Set<MapIV.Entry<V>> entries = entrySet();
 		MapIV.Entry<V> first = entries.iterator().next();
 		V objV = first.getValue();
@@ -141,7 +140,7 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 	/**
 	 * Creates a <code>HMapIVW</code> object from a byte array.
 	 *
-	 * @param in source for reading the serialized representation
+	 * @param bytes source for reading the serialized representation
 	 * @return a newly-created <code>HMapIVW</code> object
 	 * @throws IOException
 	 */
