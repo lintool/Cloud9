@@ -19,8 +19,8 @@
 	<classpathentry kind="lib" path="lib/jetty-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r06.jar"/>
 	<classpathentry kind="lib" path="lib/bliki-core-3.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r07.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
