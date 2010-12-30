@@ -384,8 +384,7 @@ public class RunPageRankBasic extends Configured implements Tool {
 	}
 
 	private static int printUsage() {
-		System.out
-				.println("usage: [basePath] [numNodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
+		System.out.println("usage: [basePath] [numNodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -435,6 +434,9 @@ public class RunPageRankBasic extends Configured implements Tool {
 
 		// find out how much PageRank mass got lost at the dangling nodes
 		float missing = 1.0f - (float) StrictMath.exp(mass);
+		if ( missing < 0.0f ) {
+			missing = 0.0f;
+		}
 
 		// job2: distribute missing mass, take care of random jump factor
 		phase2(path, i, j, n, missing);
