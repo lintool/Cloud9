@@ -108,6 +108,12 @@ public class OpenFrequencyDistribution<K extends Comparable<K>> implements Frequ
 	}
 
 	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
+	}
+
+	@Override
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 

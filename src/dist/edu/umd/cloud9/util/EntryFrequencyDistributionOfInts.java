@@ -97,6 +97,12 @@ public class EntryFrequencyDistributionOfInts implements FrequencyDistributionOf
 	}
 
 	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
+	}
+
+	@Override
 	public List<PairOfInts> getFrequencySortedEvents() {
 		List<PairOfInts> list = Lists.newArrayList();
 

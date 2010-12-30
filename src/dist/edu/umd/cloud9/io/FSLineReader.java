@@ -1,4 +1,4 @@
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +10,6 @@ import org.apache.hadoop.io.Text;
 
 /**
  * Copied from LineRecordReader.LineReader in Hadoop 0.17.2 release.
- * 
- * 
  */
 public class FSLineReader {
 	private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
@@ -139,19 +137,5 @@ public class FSLineReader {
 			}
 		}
 		return str.getLength() + newlineLength;
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		FSLineReader reader = new FSLineReader(
-				"../umd-hadoop-ivory-exp/qrels/genomics2005.topics.txt");
-
-		Text t = new Text();
-		while (reader.readLine(t) != 0) {
-			System.out.println(t);
-		}
-
-		reader.close();
-
 	}
 }

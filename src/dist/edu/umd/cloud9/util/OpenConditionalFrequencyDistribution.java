@@ -30,29 +30,29 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  */
 public class OpenConditionalFrequencyDistribution<K extends Comparable<K>> implements ConditionalFrequencyDistribution<K> {
 
-	private final Object2ObjectMap<K, OpenFrequencyDistribution<K>> mDistributions = new Object2ObjectOpenHashMap<K, OpenFrequencyDistribution<K>>();
-	private final OpenFrequencyDistribution<K> mMarginals = new OpenFrequencyDistribution<K>();
+	private final Object2ObjectMap<K, OpenFrequencyDistribution<K>> distributions = new Object2ObjectOpenHashMap<K, OpenFrequencyDistribution<K>>();
+	private final OpenFrequencyDistribution<K> marginals = new OpenFrequencyDistribution<K>();
 
-	private long mSumOfAllFrequencies = 0;
+	private long sumOfAllFrequencies = 0;
 
 	@Override
 	public void set(K k, K cond, int v) {
-		if (!mDistributions.containsKey(cond)) {
+		if (!distributions.containsKey(cond)) {
 			OpenFrequencyDistribution<K> fd = new OpenFrequencyDistribution<K>();
 			fd.set(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, v);
+			distributions.put(cond, fd);
+			marginals.increment(k, v);
 
-			mSumOfAllFrequencies += v;
+			sumOfAllFrequencies += v;
 		} else {
-			OpenFrequencyDistribution<K> fd = mDistributions.get(cond);
+			OpenFrequencyDistribution<K> fd = distributions.get(cond);
 			int rv = fd.get(k);
 
 			fd.set(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, -rv + v);
+			distributions.put(cond, fd);
+			marginals.increment(k, -rv + v);
 
-			mSumOfAllFrequencies = mSumOfAllFrequencies - rv + v;
+			sumOfAllFrequencies = sumOfAllFrequencies - rv + v;
 		}
 	}
 
@@ -73,22 +73,22 @@ public class OpenConditionalFrequencyDistribution<K extends Comparable<K>> imple
 
 	@Override
 	public int get(K k, K cond) {
-		if ( !mDistributions.containsKey(cond)) {
+		if ( !distributions.containsKey(cond)) {
 			return 0;
 		}
 
-		return mDistributions.get(cond).get(k);
+		return distributions.get(cond).get(k);
 	}
 
 	@Override
 	public int getMarginalCount(K k) {
-		return mMarginals.get(k);
+		return marginals.get(k);
 	}
 
 	@Override
 	public OpenFrequencyDistribution<K> getConditionalDistribution(K cond) {
-		if ( mDistributions.containsKey(cond) ) {
-			return mDistributions.get(cond);
+		if ( distributions.containsKey(cond) ) {
+			return distributions.get(cond);
 		}
 
 		return new OpenFrequencyDistribution<K>();
@@ -96,7 +96,7 @@ public class OpenConditionalFrequencyDistribution<K extends Comparable<K>> imple
 
 	@Override
 	public long getSumOfAllFrequencies() {
-		return mSumOfAllFrequencies;
+		return sumOfAllFrequencies;
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class OpenConditionalFrequencyDistribution<K extends Comparable<K>> imple
 		OpenFrequencyDistribution<K> m = new OpenFrequencyDistribution<K>();
 
 		long totalSum = 0;
-		for (OpenFrequencyDistribution<K> fd : mDistributions.values()) {
+		for (OpenFrequencyDistribution<K> fd : distributions.values()) {
 			long conditionalSum = 0;
 
 			for (PairOfObjectInt<K> pair : fd.getSortedEvents()) {
@@ -123,7 +123,7 @@ public class OpenConditionalFrequencyDistribution<K extends Comparable<K>> imple
 		}
 
 		for (PairOfObjectInt<K> e : m.getSortedEvents()) {
-			if ( e.getRightElement() != mMarginals.get(e.getLeftElement()) ) {
+			if ( e.getRightElement() != marginals.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}
 		}

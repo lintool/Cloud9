@@ -127,6 +127,26 @@ public class OpenFrequencyDistributionTest {
 		assertEquals(5, fd.get("d"));
 	}
 
+	@Test
+	public void test3() {
+		FrequencyDistribution<String> fd = new OpenFrequencyDistribution<String>();
+
+		fd.increment("a");
+		fd.increment("a");
+		fd.increment("b");
+		fd.increment("c");
+
+		assertEquals(3, fd.getNumberOfEvents());
+		assertEquals(4, fd.getSumOfFrequencies());
+
+		assertEquals(2, fd.get("a"));
+		assertEquals(1, fd.get("b"));
+		assertEquals(1, fd.get("c"));
+
+		fd.clear();
+		assertEquals(0, fd.getNumberOfEvents());
+		assertEquals(0, fd.getSumOfFrequencies());
+	}
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {

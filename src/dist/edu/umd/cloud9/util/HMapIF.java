@@ -665,24 +665,19 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	}
 
 	private final class KeySet extends AbstractSet<Integer> {
+		@Override
 		public Iterator<Integer> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public boolean contains(int o) {
-			return containsKey(o);
-		}
-
-		public boolean remove(int o) {
-			return HMapIF.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			HMapIF.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			return containsKey((Integer) o);
 		}
 	}
 
@@ -693,20 +688,19 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	}
 
 	private final class Values extends AbstractCollection<Float> {
+		@Override
 		public Iterator<Float> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public boolean contains(float o) {
-			return containsValue(o);
-		}
-
-		public void clear() {
-			HMapIF.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			return containsValue((Float) o);
 		}
 	}
 
@@ -721,26 +715,21 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	}
 
 	private final class EntrySet extends AbstractSet<MapIF.Entry> {
+		@Override
 		public Iterator<MapIF.Entry> iterator() {
 			return newEntryIterator();
 		}
 
-		public boolean contains(Object o) {
-			MapIF.Entry e = (MapIF.Entry) o;
-			Entry candidate = getEntry(e.getKey());
-			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public void clear() {
-			HMapIF.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			MapIF.Entry e = (MapIF.Entry) o;
+			Entry candidate = getEntry(e.getKey());
+			return candidate != null && candidate.equals(e);
 		}
 	}
 
@@ -936,7 +925,6 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapIF.Entry>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapIF.Entry e1, MapIF.Entry e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;

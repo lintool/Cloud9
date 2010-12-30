@@ -41,8 +41,8 @@ import edu.umd.cloud9.io.PairOfInts;
  */
 public class OpenFrequencyDistributionOfInts implements FrequencyDistributionOfInts {
 
-	private Int2IntOpenHashMap mCounts = new Int2IntOpenHashMap();
-	private long mSumOfFrequencies = 0;
+	private Int2IntOpenHashMap counts = new Int2IntOpenHashMap();
+	private long sumOfFrequencies = 0;
 
 	@Override
 	public void increment(int key) {
@@ -94,35 +94,41 @@ public class OpenFrequencyDistributionOfInts implements FrequencyDistributionOfI
 
 	@Override
 	public boolean contains(int key) {
-		return mCounts.containsKey(key);
+		return counts.containsKey(key);
 	}
 
 	@Override
 	public int get(int key) {
-		return mCounts.get(key);
+		return counts.get(key);
 	}
 
 	@Override
 	public int set(int key, int cnt) {
-		int rv = mCounts.put(key, cnt);
-		mSumOfFrequencies = mSumOfFrequencies - rv + cnt;
+		int rv = counts.put(key, cnt);
+		sumOfFrequencies = sumOfFrequencies - rv + cnt;
 
 		return rv;
 	}
 
 	@Override
 	public int remove(int key) {
-		int rv = mCounts.remove(key);
-		mSumOfFrequencies -= rv;
+		int rv = counts.remove(key);
+		sumOfFrequencies -= rv;
 
 		return rv;
+	}
+
+	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
 	}
 
 	@Override
 	public List<PairOfInts> getFrequencySortedEvents() {
 		List<PairOfInts> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : mCounts.int2IntEntrySet()) {
+		for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
 			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
 		}
 
@@ -157,7 +163,7 @@ public class OpenFrequencyDistributionOfInts implements FrequencyDistributionOfI
 	public List<PairOfInts> getSortedEvents() {
 		List<PairOfInts> list = Lists.newArrayList();
 
-		for (Int2IntMap.Entry e : mCounts.int2IntEntrySet()) {
+		for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
 			list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
 		}
 
@@ -186,12 +192,12 @@ public class OpenFrequencyDistributionOfInts implements FrequencyDistributionOfI
 
 	@Override
 	public int getNumberOfEvents() {
-		return mCounts.size();
+		return counts.size();
 	}
 
 	@Override
 	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
+		return sumOfFrequencies;
 	}
 
 	/**
@@ -199,7 +205,7 @@ public class OpenFrequencyDistributionOfInts implements FrequencyDistributionOfI
 	 */
 	public Iterator<PairOfInts> iterator() {
 		return new Iterator<PairOfInts>() {
-			private Iterator<Int2IntMap.Entry> iter = OpenFrequencyDistributionOfInts.this.mCounts.int2IntEntrySet().iterator();
+			private Iterator<Int2IntMap.Entry> iter = OpenFrequencyDistributionOfInts.this.counts.int2IntEntrySet().iterator();
 			private final PairOfInts pair = new PairOfInts();
 
 			@Override

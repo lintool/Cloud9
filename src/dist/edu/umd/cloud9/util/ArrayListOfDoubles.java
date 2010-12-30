@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
  * Object representing a list of doubles, backed by an resizable-array.
  */
 public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Double> {
-	protected transient double[] mArray;
+	protected transient double[] array;
 	protected int size = 0;
 
 	private static final int INITIAL_CAPACITY_DEFAULT = 10;
@@ -42,7 +42,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
 
-		mArray = new double[initialCapacity];
+		array = new double[initialCapacity];
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	public ArrayListOfDoubles(double[] a) {
 		Preconditions.checkNotNull(a);
 
-		mArray = a;
-		size = mArray.length;
+		array = a;
+		size = array.length;
 	}
 
 	/**
@@ -65,9 +65,9 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * this object.
 	 */
 	public void trimToSize() {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (size < oldCapacity) {
-			mArray = Arrays.copyOf(mArray, size);
+			array = Arrays.copyOf(array, size);
 		}
 	}
 
@@ -79,13 +79,13 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @param minCapacity the desired minimum capacity
 	 */
 	public void ensureCapacity(int minCapacity) {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (minCapacity > oldCapacity) {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
 			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
 			}
-			mArray = Arrays.copyOf(mArray, newCapacity);
+			array = Arrays.copyOf(array, newCapacity);
 		}
 	}
 
@@ -131,7 +131,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 */
 	public int indexOf(double n) {
 		for (int i = 0; i < size; i++) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -144,7 +144,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 */
 	public int lastIndexOf(double n) {
 		for (int i = size - 1; i >= 0; i--) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -157,7 +157,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return a clone of this object
 	 */
 	public ArrayListOfDoubles clone() {
-		return new ArrayListOfDoubles(Arrays.copyOf(mArray, this.size()));
+		return new ArrayListOfDoubles(Arrays.copyOf(array, this.size()));
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return the element at the specified position in this list
 	 */
 	public double get(int index) {
-		return mArray[index];
+		return array[index];
 	}
 
 	/**
@@ -179,8 +179,8 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return the element previously at the specified position
 	 */
 	public double set(int index, double element) {
-		double oldValue = mArray[index];
-		mArray[index] = element;
+		double oldValue = array[index];
+		array[index] = element;
 		return oldValue;
 	}
 
@@ -191,7 +191,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 */
 	public void add(double e) {
 		ensureCapacity(size + 1); // Increments modCount!!
-		mArray[size++] = e;
+		array[size++] = e;
 	}
 
 	/**
@@ -208,8 +208,8 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 		}
 
 		ensureCapacity(size + 1); // Increments modCount!!
-		System.arraycopy(mArray, index, mArray, index + 1, size - index);
-		mArray[index] = element;
+		System.arraycopy(array, index, array, index + 1, size - index);
+		array[index] = element;
 		size++;
 	}
 
@@ -221,11 +221,11 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return the element that was removed from the list
 	 */
 	public double remove(int index) {
-		double oldValue = mArray[index];
+		double oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {
-			System.arraycopy(mArray, index + 1, mArray, index, numMoved);
+			System.arraycopy(array, index + 1, array, index, numMoved);
 		}
 
 		size--;
@@ -238,7 +238,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 */
 	public void clear() {
 		size = 0;
-		mArray = new double[INITIAL_CAPACITY_DEFAULT];
+		array = new double[INITIAL_CAPACITY_DEFAULT];
 	}
 
 	/**
@@ -248,7 +248,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return array backing this object
 	 */
 	public double[] getArray() {
-		return mArray;
+		return array;
 	}
 
 	/**

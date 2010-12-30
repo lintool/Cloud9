@@ -95,6 +95,12 @@ public class EntryFrequencyDistribution<K extends Comparable<K>> implements Freq
 	}
 
 	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
+	}
+
+	@Override
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 

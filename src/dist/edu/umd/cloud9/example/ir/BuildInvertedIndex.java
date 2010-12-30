@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,10 @@ package edu.umd.cloud9.example.ir;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
@@ -42,59 +42,63 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.PairOfInts;
-import edu.umd.cloud9.util.Histogram;
-import edu.umd.cloud9.util.MapKI;
+import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.util.EntryFrequencyDistribution;
+import edu.umd.cloud9.util.FrequencyDistribution;
+import edu.umd.cloud9.util.PairOfObjectInt;
 
 public class BuildInvertedIndex extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(BuildInvertedIndex.class);
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, Text, PairOfInts> {
-
+	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, PairOfInts> {
 		private static final Text word = new Text();
-		private Histogram<String> termCounts = new Histogram<String>();
+		private static final FrequencyDistribution<String> termCounts = new EntryFrequencyDistribution<String>();
 
-		public void map(LongWritable docno, Text doc, OutputCollector<Text, PairOfInts> output,
-				Reporter reporter) throws IOException {
+		public void map(LongWritable docno, Text doc, 
+				OutputCollector<Text, PairOfInts> output, Reporter reporter) throws IOException {
 			String text = doc.toString();
 			termCounts.clear();
 
 			String[] terms = text.split("\\s+");
 
-			// first build a histogram of the terms
+			// First build a histogram of the terms.
 			for (String term : terms) {
-				if (term == null || term.length() == 0)
+				if (term == null || term.length() == 0) {
 					continue;
+				}
 
-				termCounts.count(term);
+				termCounts.increment(term);
 			}
 
 			// emit postings
-			for (MapKI.Entry<String> e : termCounts.entrySet()) {
-				word.set(e.getKey());
-				output.collect(word, new PairOfInts((int) docno.get(), e.getValue()));
+			for (PairOfObjectInt<String> e : termCounts) {
+				word.set(e.getLeftElement());
+				output.collect(word, new PairOfInts((int) docno.get(), e.getRightElement()));
 			}
 		}
 	}
 
 	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, PairOfInts, Text, ArrayListWritable<PairOfInts>> {
+			Reducer<Text, PairOfInts, Text, PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>> {
+		private final static IntWritable dfIntWritable = new IntWritable();
 
 		public void reduce(Text key, Iterator<PairOfInts> values,
-				OutputCollector<Text, ArrayListWritable<PairOfInts>> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<Text, PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>> output, Reporter reporter)	throws IOException {
 			ArrayListWritable<PairOfInts> postings = new ArrayListWritable<PairOfInts>();
 
+			int df = 0;
 			while (values.hasNext()) {
 				postings.add(values.next().clone());
+				df++;
 			}
-			output.collect(key, postings);
+
+			dfIntWritable.set(df);
+			output.collect(key, new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>(dfIntWritable, postings));
 		}
 	}
 
-	private BuildInvertedIndex() {
-	}
+	private BuildInvertedIndex() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [input-path] [output-path] [num-mappers]");
@@ -106,7 +110,6 @@ public class BuildInvertedIndex extends Configured implements Tool {
 	 * Runs this tool.
 	 */
 	public int run(String[] args) throws Exception {
-
 		if (args.length != 3) {
 			printUsage();
 			return -1;
@@ -123,7 +126,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
 		sLogger.info(" - num mappers: " + mapTasks);
 		sLogger.info(" - num reducers: " + reduceTasks);
 
-		JobConf conf = new JobConf(BuildInvertedIndex.class);
+		JobConf conf = new JobConf(getConf(), BuildInvertedIndex.class);
 		conf.setJobName("BuildInvertIndex");
 
 		conf.setNumMapTasks(mapTasks);
@@ -135,7 +138,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
 		conf.setMapOutputKeyClass(Text.class);
 		conf.setMapOutputValueClass(PairOfInts.class);
 		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(ArrayListWritable.class);
+		conf.setOutputValueClass(PairOfWritables.class);
 		conf.setOutputFormat(MapFileOutputFormat.class);
 
 		conf.setMapperClass(MyMapper.class);
@@ -156,8 +159,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BuildInvertedIndex(), args);
+		int res = ToolRunner.run(new BuildInvertedIndex(), args);
 		System.exit(res);
 	}
-
 }

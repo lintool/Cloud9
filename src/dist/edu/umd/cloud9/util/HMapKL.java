@@ -710,25 +710,19 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 	}
 
 	private final class KeySet extends AbstractSet<K> {
+		@Override
 		public Iterator<K> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		@SuppressWarnings("unchecked")
+		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			return containsKey((K) o);
-		}
-
-		public boolean remove(Object o) {
-			return HMapKL.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			HMapKL.this.clear();
 		}
 	}
 
@@ -739,20 +733,19 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 	}
 
 	private final class Values extends AbstractCollection<Long> {
+		@Override
 		public Iterator<Long> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public boolean contains(long o) {
-			return containsValue(o);
-		}
-
-		public void clear() {
-			HMapKL.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			return containsValue((Long) o);
 		}
 	}
 
@@ -767,27 +760,21 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 	}
 
 	private final class EntrySet extends AbstractSet<MapKL.Entry<K>> {
+		@Override
 		public Iterator<MapKL.Entry<K>> iterator() {
 			return newEntryIterator();
 		}
 
-		@SuppressWarnings("unchecked")
-		public boolean contains(Object o) {
-			MapKL.Entry<K> e = (MapKL.Entry<K>) o;
-			Entry<K> candidate = getEntry(e.getKey());
-			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public void clear() {
-			HMapKL.this.clear();
+		@Override @SuppressWarnings("unchecked")
+		public boolean contains(Object o) {
+			MapKL.Entry<K> e = (MapKL.Entry<K>) o;
+			Entry<K> candidate = getEntry(e.getKey());
+			return candidate != null && candidate.equals(e);
 		}
 	}
 

@@ -55,6 +55,11 @@ public interface LargeFrequencyDistributionOfInts {
 	public long remove(int k);
 
 	/**
+	 * Removes all events.
+	 */
+	public void clear();
+
+	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
 	public List<PairOfIntLong> getFrequencySortedEvents();

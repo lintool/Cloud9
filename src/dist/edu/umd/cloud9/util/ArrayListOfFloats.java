@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,14 +26,14 @@ import com.google.common.base.Preconditions;
  * Object representing a list of floats, backed by an resizable-array.
  */
 public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Float> {
-	protected transient float[] mArray;
+	protected transient float[] array;
 	protected int size = 0;
 
 	private static final int INITIAL_CAPACITY_DEFAULT = 10;
 
 	/**
 	 * Constructs an empty list with the specified initial capacity.
-	 * 
+	 *
 	 * @param initialCapacity the initial capacity of the list
 	 * @exception IllegalArgumentException if the specified initial capacity is negative
 	 */
@@ -42,7 +42,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
 
-		mArray = new float[initialCapacity];
+		array = new float[initialCapacity];
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	public ArrayListOfFloats(float[] a) {
 		Preconditions.checkNotNull(a);
 
-		mArray = a;
-		size = mArray.length;
+		array = a;
+		size = array.length;
 	}
 
 	/**
@@ -65,9 +65,9 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 * this object.
 	 */
 	public void trimToSize() {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (size < oldCapacity) {
-			mArray = Arrays.copyOf(mArray, size);
+			array = Arrays.copyOf(array, size);
 		}
 	}
 
@@ -75,23 +75,23 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 * Increases the capacity of this object, if necessary, to ensure that it
 	 * can hold at least the number of elements specified by the minimum
 	 * capacity argument.
-	 * 
+	 *
 	 * @param minCapacity the desired minimum capacity
 	 */
 	public void ensureCapacity(int minCapacity) {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (minCapacity > oldCapacity) {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
 			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
 			}
-			mArray = Arrays.copyOf(mArray, newCapacity);
+			array = Arrays.copyOf(array, newCapacity);
 		}
 	}
 
 	/**
 	 * Returns the number of elements in this list.
-	 * 
+	 *
 	 * @return the number of elements in this list
 	 */
 	public int size() {
@@ -108,7 +108,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 * 
+	 *
 	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
@@ -117,7 +117,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns <tt>true</tt> if this list contains the specified element.
-	 * 
+	 *
 	 * @param n element whose presence in this list is to be tested
 	 * @return <tt>true</tt> if this list contains the specified element
 	 */
@@ -131,7 +131,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 */
 	public int indexOf(float n) {
 		for (int i = 0; i < size; i++) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -144,7 +144,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 */
 	public int lastIndexOf(float n) {
 		for (int i = size - 1; i >= 0; i--) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -153,52 +153,52 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns a clone of this object.
-	 * 
+	 *
 	 * @return a clone of this object
 	 */
 	public ArrayListOfFloats clone() {
-		return new ArrayListOfFloats(Arrays.copyOf(mArray, this.size()));
+		return new ArrayListOfFloats(Arrays.copyOf(array, this.size()));
 	}
 
 	/**
 	 * Returns the element at the specified position in this list.
-	 * 
+	 *
 	 * @param index index of the element to return
 	 * @return the element at the specified position in this list
 	 */
 	public float get(int index) {
-		return mArray[index];
+		return array[index];
 	}
 
 	/**
 	 * Replaces the element at the specified position in this list with the
 	 * specified element.
-	 * 
+	 *
 	 * @param index index of the element to replace
 	 * @param element element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 */
 	public float set(int index, float element) {
-		float oldValue = mArray[index];
-		mArray[index] = element;
+		float oldValue = array[index];
+		array[index] = element;
 		return oldValue;
 	}
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 * 
+	 *
 	 * @param e element to be appended to this list
 	 */
 	public void add(float e) {
 		ensureCapacity(size + 1); // Increments modCount!!
-		mArray[size++] = e;
+		array[size++] = e;
 	}
 
 	/**
 	 * Inserts the specified element at the specified position in this list.
 	 * Shifts the element currently at that position (if any) and any subsequent
 	 * elements to the right (adds one to their indices).
-	 * 
+	 *
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
@@ -208,24 +208,24 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 		}
 
 		ensureCapacity(size + 1); // Increments modCount!!
-		System.arraycopy(mArray, index, mArray, index + 1, size - index);
-		mArray[index] = element;
+		System.arraycopy(array, index, array, index + 1, size - index);
+		array[index] = element;
 		size++;
 	}
 
 	/**
 	 * Removes the element at the specified position in this list. Shifts any
 	 * subsequent elements to the left (subtracts one from their indices).
-	 * 
+	 *
 	 * @param index the index of the element to be removed
 	 * @return the element that was removed from the list
 	 */
 	public float remove(int index) {
-		float oldValue = mArray[index];
+		float oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {
-			System.arraycopy(mArray, index + 1, mArray, index, numMoved);
+			System.arraycopy(array, index + 1, array, index, numMoved);
 		}
 
 		size--;
@@ -238,17 +238,17 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 */
 	public void clear() {
 		size = 0;
-		mArray = new float[INITIAL_CAPACITY_DEFAULT];
+		array = new float[INITIAL_CAPACITY_DEFAULT];
 	}
 
 	/**
 	 * Returns the array backing this object. Note that this array may be longer
 	 * than the number of elements in the list.
-	 * 
+	 *
 	 * @return array backing this object
 	 */
 	public float[] getArray() {
-		return mArray;
+		return array;
 	}
 
 	/**

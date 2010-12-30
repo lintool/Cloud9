@@ -24,7 +24,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-public class LargeFrequencyDistributionTest {
+public class OpenLargeFrequencyDistributionTest {
 
 	@Test
 	public void test1() {
@@ -124,6 +124,26 @@ public class LargeFrequencyDistributionTest {
 		assertEquals(5, fd.get("d"));
 	}
 
+	@Test
+	public void test3() {
+		LargeFrequencyDistribution<String> fd = new OpenLargeFrequencyDistribution<String>();
+
+		fd.increment("a");
+		fd.increment("a");
+		fd.increment("b");
+		fd.increment("c");
+
+		assertEquals(3, fd.getNumberOfEvents());
+		assertEquals(4, fd.getSumOfFrequencies());
+
+		assertEquals(2, fd.get("a"));
+		assertEquals(1, fd.get("b"));
+		assertEquals(1, fd.get("c"));
+
+		fd.clear();
+		assertEquals(0, fd.getNumberOfEvents());
+		assertEquals(0, fd.getSumOfFrequencies());
+	}
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
@@ -286,6 +306,6 @@ public class LargeFrequencyDistributionTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(LargeFrequencyDistributionTest.class);
+		return new JUnit4TestAdapter(OpenLargeFrequencyDistributionTest.class);
 	}
 }

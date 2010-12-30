@@ -129,6 +129,27 @@ public class EntryFrequencyDistributionOfIntsTest {
 		assertEquals(5, fd.get(4));
 	}
 
+	@Test
+	public void test3() {
+		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();
+
+		fd.increment(1);
+		fd.increment(1);
+		fd.increment(2);
+		fd.increment(3);
+
+		assertEquals(3, fd.getNumberOfEvents());
+		assertEquals(4, fd.getSumOfFrequencies());
+
+		assertEquals(2, fd.get(1));
+		assertEquals(1, fd.get(2));
+		assertEquals(1, fd.get(3));
+
+		fd.clear();
+		assertEquals(0, fd.getNumberOfEvents());
+		assertEquals(0, fd.getSumOfFrequencies());
+	}
+
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
 		FrequencyDistributionOfInts fd = new EntryFrequencyDistributionOfInts();

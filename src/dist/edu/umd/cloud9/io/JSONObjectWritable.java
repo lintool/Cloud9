@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.io;
 
 import java.io.DataInput;
@@ -11,7 +27,7 @@ import org.json.JSONTokener;
 
 /**
  * Writable representing a JSON Object.
- * 
+ *
  * @author Jimmy Lin
  */
 public class JSONObjectWritable extends JSONObject implements Writable {
@@ -32,11 +48,9 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 
 	/**
 	 * Deserializes the JSON object.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
-	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
 		super.map.clear();
 
@@ -50,9 +64,8 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 
 	/**
 	 * Deserializes a JSON object from a string representation.
-	 * 
-	 * @param s
-	 *            string representation of the JSON object
+	 *
+	 * @param s string representation of the JSON object
 	 */
 	public void readJSONObject(String s) {
 		// following block of code copied from JSONObject
@@ -117,11 +130,9 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 
 	/**
 	 * Serializes this JSON object.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
-	@SuppressWarnings("unchecked")
 	public void write(DataOutput out) throws IOException {
 		byte[] buf = this.toString().getBytes();
 		out.writeInt(buf.length);
@@ -151,5 +162,4 @@ public class JSONObjectWritable extends JSONObject implements Writable {
 	public void clear() {
 		super.map.clear();
 	}
-
 }

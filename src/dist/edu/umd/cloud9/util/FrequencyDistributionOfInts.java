@@ -73,6 +73,11 @@ public interface FrequencyDistributionOfInts extends Iterable<PairOfInts> {
 	public int remove(int key);
 
 	/**
+	 * Removes all events.
+	 */
+	public void clear();
+
+	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
 	public List<PairOfInts> getFrequencySortedEvents();

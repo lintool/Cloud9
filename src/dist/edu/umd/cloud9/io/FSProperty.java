@@ -1,4 +1,4 @@
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.io;
 
 import java.io.IOException;
 
@@ -141,6 +141,5 @@ public class FSProperty {
 				System.exit(-1);
 			}
 		}
-
 	}
 }

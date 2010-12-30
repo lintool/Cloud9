@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,9 +31,6 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
 
-import edu.umd.cloud9.util.KeyValuePair;
-import edu.umd.cloud9.util.SequenceFileUtils;
-
 public class ArrayListOfIntsWritableTest {
 
 	@Test
@@ -50,20 +47,18 @@ public class ArrayListOfIntsWritableTest {
 
 		try {
 			fs = FileSystem.get(conf);
-			w = SequenceFile.createWriter(fs, conf, new Path("test"), IntWritable.class,
-					ArrayListOfIntsWritable.class);
+			w = SequenceFile.createWriter(fs, conf, new Path("test"), IntWritable.class, ArrayListOfIntsWritable.class);
 			w.append(new IntWritable(1), arr);
 			w.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		List<KeyValuePair<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs = SequenceFileUtils
-				.<IntWritable, ArrayListOfIntsWritable> readFile("test");
+		List<PairOfWritables<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs = SequenceFileUtils.<IntWritable, ArrayListOfIntsWritable> readFile(new Path("test"));
 		FileSystem.get(conf).delete(new Path("test"), true);
 
 		assertTrue(listOfKeysPairs.size() == 1);
-		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getValue();
+		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getRightElement();
 		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 4);
 		assertTrue(arrRead.get(0) == 1);
 		assertTrue(arrRead.get(1) == 3);
@@ -76,7 +71,6 @@ public class ArrayListOfIntsWritableTest {
 
 		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 1);
 		assertTrue("got wrong: " + arrRead.get(0), arrRead.get(0) == 5);
-
 	}
 
 	@Test
@@ -113,7 +107,6 @@ public class ArrayListOfIntsWritableTest {
 
 		assertTrue("got wrong: " + c.get(0), c.get(0) == 1);
 		assertTrue("got wrong: " + c.get(1), c.get(1) == 3);
-
 	}
 
 	@Test
@@ -151,11 +144,9 @@ public class ArrayListOfIntsWritableTest {
 
 		assertTrue(c.get(0) == 3);
 		assertTrue(c.size() == 1);
-
 	}
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsWritableTest.class);
 	}
-
 }

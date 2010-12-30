@@ -72,15 +72,9 @@ public class HMapKFW<K extends WritableComparable<?>> extends HMapKF<K> implemen
 				float s = in.readFloat();
 				put(objK, s);
 			}
-
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new IOException("Unable to create HMapKFW!");
 		}
-
 	}
 
 	/**

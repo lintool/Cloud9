@@ -19,7 +19,6 @@ package edu.umd.cloud9.example.cooccur;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -171,12 +170,11 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 		sLogger.info(" - window: " + window);
 		sLogger.info(" - number of reducers: " + reduceTasks);
 
-		Configuration conf = new Configuration();
-		Job job = new Job(conf, "CooccurrenceMatrixStripes");
+		Job job = new Job(getConf(), "CooccurrenceMatrixStripes");
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
+		FileSystem.get(getConf()).delete(outputDir, true);
 
 		job.getConfiguration().setInt("window", window);
 
@@ -195,8 +193,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-				+ " seconds");
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
 		return 0;
 	}
@@ -206,7 +203,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new ComputeCooccurrenceMatrixStripes(), args);
+		int res = ToolRunner.run(new ComputeCooccurrenceMatrixStripes(), args);
 		System.exit(res);
 	}
 }

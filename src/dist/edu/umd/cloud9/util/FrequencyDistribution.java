@@ -71,6 +71,11 @@ public interface FrequencyDistribution<K extends Comparable<K>> extends Iterable
 	public int remove(K k);
 
 	/**
+	 * Removes all events.
+	 */
+	public void clear();
+
+	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents();

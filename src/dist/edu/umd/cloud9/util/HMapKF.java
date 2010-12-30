@@ -712,25 +712,19 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 	}
 
 	private final class KeySet extends AbstractSet<K> {
+		@Override
 		public Iterator<K> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		@SuppressWarnings("unchecked")
+		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			return containsKey((K) o);
-		}
-
-		public boolean remove(Object o) {
-			return HMapKF.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			HMapKF.this.clear();
 		}
 	}
 
@@ -741,20 +735,19 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 	}
 
 	private final class Values extends AbstractCollection<Float> {
+		@Override
 		public Iterator<Float> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public boolean contains(float o) {
-			return containsValue(o);
-		}
-
-		public void clear() {
-			HMapKF.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			return containsValue((Float) o);
 		}
 	}
 
@@ -769,27 +762,21 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 	}
 
 	private final class EntrySet extends AbstractSet<MapKF.Entry<K>> {
+		@Override
 		public Iterator<MapKF.Entry<K>> iterator() {
 			return newEntryIterator();
 		}
 
-		@SuppressWarnings("unchecked")
-		public boolean contains(Object o) {
-			MapKF.Entry<K> e = (MapKF.Entry<K>) o;
-			Entry<K> candidate = getEntry(e.getKey());
-			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public void clear() {
-			HMapKF.this.clear();
+		@Override @SuppressWarnings("unchecked")
+		public boolean contains(Object o) {
+			MapKF.Entry<K> e = (MapKF.Entry<K>) o;
+			Entry<K> candidate = getEntry(e.getKey());
+			return candidate != null && candidate.equals(e);
 		}
 	}
 
@@ -987,7 +974,6 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapKF.Entry<K>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapKF.Entry<K> e1, MapKF.Entry<K> e2) {
 				if (e1.getValue() > e2.getValue()) {
 					return -1;

@@ -53,6 +53,11 @@ public interface LargeFrequencyDistribution<K extends Comparable<K>> {
 	public long remove(K k);
 
 	/**
+	 * Removes all events.
+	 */
+	public void clear();
+
+	/**
 	 * Returns events sorted by frequency of occurrence.
 	 */
 	public List<PairOfObjectLong<K>> getFrequencySortedEvents();

@@ -667,12 +667,19 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	}
 
 	private final class KeySet extends AbstractSet<Integer> {
+		@Override
 		public Iterator<Integer> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			return containsKey((Integer) o);
 		}
 	}
 
@@ -683,12 +690,19 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	}
 
 	private final class Values extends AbstractCollection<Integer> {
+		@Override
 		public Iterator<Integer> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			return containsValue((Integer) o);
 		}
 	}
 
@@ -703,26 +717,21 @@ public class HMapII implements MapII, Cloneable, Serializable {
 	}
 
 	private final class EntrySet extends AbstractSet<MapII.Entry> {
+		@Override
 		public Iterator<MapII.Entry> iterator() {
 			return newEntryIterator();
 		}
 
-		public boolean contains(Object o) {
-			MapII.Entry e = (MapII.Entry) o;
-			Entry candidate = getEntry(e.getKey());
-			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public void clear() {
-			HMapII.this.clear();
+		@Override
+		public boolean contains(Object o) {
+			MapII.Entry e = (MapII.Entry) o;
+			Entry candidate = getEntry(e.getKey());
+			return candidate != null && candidate.equals(e);
 		}
 	}
 

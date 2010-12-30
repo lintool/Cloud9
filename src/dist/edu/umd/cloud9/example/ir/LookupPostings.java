@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,16 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.PairOfInts;
-import edu.umd.cloud9.util.Histogram;
+import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.util.EntryFrequencyDistributionOfInts;
+import edu.umd.cloud9.util.FrequencyDistributionOfInts;
 
 public class LookupPostings {
 
@@ -51,14 +54,15 @@ public class LookupPostings {
 		BufferedReader d = new BufferedReader(new InputStreamReader(collection));
 
 		Text key = new Text();
-		ArrayListWritable<PairOfInts> value = new ArrayListWritable<PairOfInts>();
+		PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value = new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
 
 		System.out.println("Looking up postings for the term \"starcross'd\"");
 		key.set("starcross'd");
 
 		reader.get(key, value);
 
-		for (PairOfInts pair : value) {
+		ArrayListWritable<PairOfInts> postings = value.getRightElement();
+		for (PairOfInts pair : postings) {
 			System.out.println(pair);
 			collection.seek(pair.getLeftElement());
 			System.out.println(d.readLine());
@@ -66,31 +70,40 @@ public class LookupPostings {
 
 		key.set("gold");
 		reader.get(key, value);
+		System.out.println("Complete postings list for 'gold': " + value);
 
-		Histogram<Integer> goldHist = new Histogram<Integer>();
-		for (PairOfInts pair : value) {
-			goldHist.count(pair.getRightElement());
+		FrequencyDistributionOfInts goldHist = new EntryFrequencyDistributionOfInts();
+		postings = value.getRightElement();
+		for (PairOfInts pair : postings) {
+			goldHist.increment(pair.getRightElement());
 		}
 
 		System.out.println("histogram of tf values for gold");
-		goldHist.printCounts();
+		for ( PairOfInts pair : goldHist ) {
+			System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
+		}
 
 		key.set("silver");
 		reader.get(key, value);
+		System.out.println("Complete postings list for 'silver': " + value);
 
-		Histogram<Integer> silverHist = new Histogram<Integer>();
-		for (PairOfInts pair : value) {
-			silverHist.count(pair.getRightElement());
+		FrequencyDistributionOfInts silverHist = new EntryFrequencyDistributionOfInts();
+		postings = value.getRightElement();
+		for (PairOfInts pair : postings) {
+			silverHist.increment(pair.getRightElement());
 		}
 
 		System.out.println("histogram of tf values for silver");
-		silverHist.printCounts();
+		for ( PairOfInts pair : silverHist ) {
+			System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
+		}
 
 		key.set("bronze");
 		Writable w = reader.get(key, value);
 
-		if (w == null)
+		if (w == null) {
 			System.out.println("the term bronze does not appear in the collection");
+		}
 
 		collection.close();
 		reader.close();

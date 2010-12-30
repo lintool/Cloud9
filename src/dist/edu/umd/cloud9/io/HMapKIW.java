@@ -73,15 +73,9 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 				int s = in.readInt();
 				put(objK, s);
 			}
-
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new IOException("Unable to create HMapKIW!");
 		}
-
 	}
 
 	/**
