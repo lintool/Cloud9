@@ -143,9 +143,9 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 
 	/**
 	 * Constructs a new <tt>HMapKF</tt> with the same mappings as the
-	 * specified <tt>Map</tt>. The <tt>HMapKF</tt> is created with default
+	 * specified <tt>MapKF</tt>. The <tt>HMapKF</tt> is created with default
 	 * load factor (0.75) and an initial capacity sufficient to hold the
-	 * mappings in the specified <tt>Map</tt>.
+	 * mappings in the specified <tt>MapKF</tt>.
 	 * 
 	 * @param m
 	 *            the map whose mappings are to be placed in this map

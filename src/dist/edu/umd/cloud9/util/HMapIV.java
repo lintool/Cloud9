@@ -142,9 +142,9 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 
 	/**
 	 * Constructs a new <tt>HMapII</tt> with the same mappings as the
-	 * specified <tt>Map</tt>. The <tt>HMapII</tt> is created with default
+	 * specified <tt>MapIV</tt>. The <tt>HMapIV</tt> is created with default
 	 * load factor (0.75) and an initial capacity sufficient to hold the
-	 * mappings in the specified <tt>Map</tt>.
+	 * mappings in the specified <tt>MapIV</tt>.
 	 * 
 	 * @param m
 	 *            the map whose mappings are to be placed in this map
