@@ -37,8 +37,7 @@ public class PairOfInts implements WritableComparable<PairOfInts> {
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfInts() {
-	}
+	public PairOfInts() {}
 
 	/**
 	 * Creates a pair.
@@ -85,6 +84,24 @@ public class PairOfInts implements WritableComparable<PairOfInts> {
 	 * @return the right element
 	 */
 	public int getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public int getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public int getValue() {
 		return rightElement;
 	}
 

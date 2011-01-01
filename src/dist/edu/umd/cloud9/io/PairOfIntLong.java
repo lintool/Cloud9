@@ -38,8 +38,7 @@ public class PairOfIntLong implements WritableComparable<PairOfIntLong> {
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfIntLong() {
-	}
+	public PairOfIntLong() {}
 
 	/**
 	 * Creates a pair.
@@ -86,6 +85,24 @@ public class PairOfIntLong implements WritableComparable<PairOfIntLong> {
 	 * @return the right element
 	 */
 	public long getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public int getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public long getValue() {
 		return rightElement;
 	}
 

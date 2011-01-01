@@ -39,8 +39,7 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfIntString() {
-	}
+	public PairOfIntString() {}
 
 	/**
 	 * Creates a pair.
@@ -87,6 +86,24 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	 * @return the right element
 	 */
 	public String getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public int getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public String getValue() {
 		return rightElement;
 	}
 

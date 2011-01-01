@@ -33,41 +33,12 @@ public class PairOfWritables<L extends Writable, R extends Writable> implements 
 	/**
 	 * Creates a new <code>PairOfWritables</code>.
 	 */
-	public PairOfWritables(L left, R right) {
-		leftElement = left;
-		rightElement = right;
-	}
+	public PairOfWritables() {}
 
 	/**
 	 * Creates a new <code>PairOfWritables</code>.
 	 */
-	public PairOfWritables() {	}
-
-	/**
-	 * Returns the left element.
-	 *
-	 * @return the left element
-	 */
-	public L getLeftElement() {
-		return leftElement;
-	}
-
-	/**
-	 * Returns the right element.
-	 *
-	 * @return the right element
-	 */
-	public R getRightElement() {
-		return rightElement;
-	}
-
-	/**
-	 * Sets the right and left elements of this pair.
-	 *
-	 * @param left the left element
-	 * @param right the right element
-	 */
-	public void set(L left, R right) {
+	public PairOfWritables(L left, R right) {
 		leftElement = left;
 		rightElement = right;
 	}
@@ -107,6 +78,53 @@ public class PairOfWritables<L extends Writable, R extends Writable> implements 
 
 		leftElement.write(out);
 		rightElement.write(out);
+	}
+
+	/**
+	 * Returns the left element.
+	 *
+	 * @return the left element
+	 */
+	public L getLeftElement() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the right element.
+	 *
+	 * @return the right element
+	 */
+	public R getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public L getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public R getValue() {
+		return rightElement;
+	}
+
+	/**
+	 * Sets the right and left elements of this pair.
+	 *
+	 * @param left the left element
+	 * @param right the right element
+	 */
+	public void set(L left, R right) {
+		leftElement = left;
+		rightElement = right;
 	}
 
 	/**

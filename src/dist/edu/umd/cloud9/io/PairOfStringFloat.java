@@ -39,8 +39,7 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfStringFloat() {
-	}
+	public PairOfStringFloat() {}
 
 	/**
 	 * Creates a pair.
@@ -87,6 +86,24 @@ public class PairOfStringFloat implements WritableComparable<PairOfStringFloat> 
 	 * @return the right element
 	 */
 	public float getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public String getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public float getValue() {
 		return rightElement;
 	}
 
