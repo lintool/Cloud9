@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,15 +27,16 @@ import edu.umd.cloud9.mapred.NullInputFormat;
 import edu.umd.cloud9.mapred.NullMapper;
 import edu.umd.cloud9.mapred.NullOutputFormat;
 
-public class DemoNullInput {
+public class DemoMapredNullInput {
+	private static final Logger LOG = Logger.getLogger(DemoMapredNullInput.class);
 
-	private static final Logger sLogger = Logger.getLogger(DemoNullInput.class);
+	private DemoMapredNullInput() {}
 
 	private static class MyMapper extends NullMapper {
 		public void run(JobConf conf, Reporter reporter) throws IOException {
-			sLogger.info("Counting to 10:");
+			LOG.info("Counting to 10:");
 			for (int i = 0; i < 10; i++) {
-				sLogger.info(i + 1 + "...");
+				LOG.info(i + 1 + "...");
 				try {
 					Thread.sleep(10000);
 				} catch (Exception e) {
@@ -45,15 +46,12 @@ public class DemoNullInput {
 		}
 	}
 
-	protected DemoNullInput() {
-	}
-
 	/**
 	 * Runs the demo.
 	 */
 	public static void main(String[] args) throws IOException {
-		JobConf conf = new JobConf(DemoNullInput.class);
-		conf.setJobName("DemoNullInput");
+		JobConf conf = new JobConf(DemoMapredNullInput.class);
+		conf.setJobName("DemoMapredNullInput");
 
 		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(0);
