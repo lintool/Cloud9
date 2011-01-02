@@ -6,7 +6,7 @@ import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
 
-public class BenchmarkHashMapIntInt {
+public class Benchmark2HashMapIntInt {
 
 	public static void main(String[] args) {
 		int size = 5000000;

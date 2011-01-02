@@ -670,24 +670,19 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 	}
 
 	private final class KeySet extends AbstractSet<Integer> {
+		@Override
 		public Iterator<Integer> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public boolean contains(int o) {
-			return containsKey(o);
-		}
-
-		public boolean remove(int o) {
-			return HMapIV.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			this.clear();
+		@Override
+		public boolean contains(Object o) {
+			return containsKey((Integer) o);
 		}
 	}
 
@@ -698,21 +693,19 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 	}
 
 	private final class Values extends AbstractCollection<V> {
+		@Override
 		public Iterator<V> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		@SuppressWarnings("unchecked")
+		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			return containsValue((V) o);
-		}
-
-		public void clear() {
-			this.clear();
 		}
 	}
 
@@ -727,27 +720,21 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 	}
 
 	private final class EntrySet extends AbstractSet<MapIV.Entry<V>> {
+		@Override
 		public Iterator<MapIV.Entry<V>> iterator() {
 			return newEntryIterator();
 		}
 
-		@SuppressWarnings("unchecked")
-		public boolean contains(Object o) {
-			MapIV.Entry e = (MapIV.Entry<V>) o;
-			Entry<V> candidate = getEntry(e.getKey());
-			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
+		@Override
 		public int size() {
 			return size;
 		}
 
-		public void clear() {
-			this.clear();
+		@Override @SuppressWarnings("unchecked")
+		public boolean contains(Object o) {
+			MapIV.Entry e = (MapIV.Entry<V>) o;
+			Entry<V> candidate = getEntry(e.getKey());
+			return candidate != null && candidate.equals(e);
 		}
 	}
 
@@ -879,7 +866,6 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapIV.Entry<V>>() {
-			@SuppressWarnings("unchecked")
 			public int compare(MapIV.Entry e1, MapIV.Entry e2) {
 				return ((Comparable) e1.getValue()).compareTo(e2.getValue());
 			}

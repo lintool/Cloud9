@@ -35,8 +35,8 @@ import com.google.common.collect.Lists;
  */
 public class OpenLargeFrequencyDistribution<K extends Comparable<K>> implements LargeFrequencyDistribution<K> {
 
-	private Object2LongOpenHashMap<K> mCounts = new Object2LongOpenHashMap<K>();
-	private long mSumOfFrequencies = 0;
+	private Object2LongOpenHashMap<K> counts = new Object2LongOpenHashMap<K>();
+	private long sumOfFrequencies = 0;
 
 	@Override
 	public void increment(K key) {
@@ -88,35 +88,41 @@ public class OpenLargeFrequencyDistribution<K extends Comparable<K>> implements 
 
 	@Override
 	public boolean contains(K key) {
-		return mCounts.containsKey(key);
+		return counts.containsKey(key);
 	}
 
 	@Override
 	public long get(K key) {
-		return mCounts.getLong(key);
+		return counts.getLong(key);
 	}
 
 	@Override
 	public long set(K k, long v) {
-		long rv = mCounts.put(k, v);
-		mSumOfFrequencies = mSumOfFrequencies - rv + v;
+		long rv = counts.put(k, v);
+		sumOfFrequencies = sumOfFrequencies - rv + v;
 
 		return rv;
 	}
 
 	@Override
 	public long remove(K k) {
-		long rv = mCounts.remove(k);
-		mSumOfFrequencies -= rv;
+		long rv = counts.remove(k);
+		sumOfFrequencies -= rv;
 
 		return rv;
+	}
+
+	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
 	}
 
 	@Override
 	public List<PairOfObjectLong<K>> getFrequencySortedEvents() {
 		List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
-		for (Object2LongMap.Entry<K> e : mCounts.object2LongEntrySet()) {
+		for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
 			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
 		}
 
@@ -147,7 +153,7 @@ public class OpenLargeFrequencyDistribution<K extends Comparable<K>> implements 
 	public List<PairOfObjectLong<K>> getSortedEvents() {
 		List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
-		for (Object2LongMap.Entry<K> e : mCounts.object2LongEntrySet()) {
+		for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
 			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
 		}
 
@@ -173,11 +179,11 @@ public class OpenLargeFrequencyDistribution<K extends Comparable<K>> implements 
 
 	@Override
 	public int getNumberOfEvents() {
-		return mCounts.size();
+		return counts.size();
 	}
 
 	@Override
 	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
+		return sumOfFrequencies;
 	}
 }

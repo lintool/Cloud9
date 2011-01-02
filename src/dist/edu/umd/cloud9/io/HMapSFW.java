@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,15 +33,14 @@ import edu.umd.cloud9.util.MapKF;
  * Writable representing a map where keys are Strings and values are floats.
  * This class is specialized for String objects to avoid the overhead that comes
  * with wrapping Strings inside <code>Text</code> objects.
- * 
+ *
  * @author Jimmy Lin
  */
 public class HMapSFW extends HMapKF<String> implements Writable {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 3804087604196020037L;
 
 	/**
-	 * Creates a <code>OHMapSFW</code> object.
+	 * Creates a <code>HMapSFW</code> object.
 	 */
 	public HMapSFW() {
 		super();
@@ -49,13 +48,10 @@ public class HMapSFW extends HMapKF<String> implements Writable {
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
-	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-
 		this.clear();
 
 		int numEntries = in.readInt();
@@ -72,16 +68,15 @@ public class HMapSFW extends HMapKF<String> implements Writable {
 	/**
 	 * Serializes the map.
 	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
 
-		// Then write out each key/value pair
+		// Then write out each key/value pair.
 		for (MapKF.Entry<String> e : entrySet()) {
 			out.writeUTF(e.getKey());
 			out.writeFloat(e.getValue());
@@ -90,9 +85,8 @@ public class HMapSFW extends HMapKF<String> implements Writable {
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -104,12 +98,10 @@ public class HMapSFW extends HMapKF<String> implements Writable {
 	}
 
 	/**
-	 * Creates a <code>OHMapSFW</code> object from a <code>DataInput</code>.
+	 * Creates a <code>HMapSFW</code> object from a <code>DataInput</code>.
 	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapSFW</code> object
+	 * @param in source for reading the serialized representation
+	 * @return a newly-created <code>HMapSFW</code> object
 	 * @throws IOException
 	 */
 	public static HMapSFW create(DataInput in) throws IOException {
@@ -120,10 +112,10 @@ public class HMapSFW extends HMapKF<String> implements Writable {
 	}
 
 	/**
-	 * Returns the serialized representation of this object as a byte array.
+	 * Creates a <code>HMapSFW</code> object from a byte array.
 	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 * @param bytes source for reading the serialized representation
+	 * @return a newly-created <code>HMapSFW</code> object
 	 * @throws IOException
 	 */
 	public static HMapSFW create(byte[] bytes) throws IOException {

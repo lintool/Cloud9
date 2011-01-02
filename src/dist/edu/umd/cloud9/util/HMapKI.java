@@ -678,25 +678,19 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	}
 
 	private final class KeySet extends AbstractSet<K> {
+		@Override
 		public Iterator<K> iterator() {
 			return newKeyIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
 		}
 
-		@SuppressWarnings("unchecked")
+		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			return containsKey((K) o);
-		}
-
-		public boolean remove(Object o) {
-			return HMapKI.this.removeEntryForKey(o) != null;
-		}
-
-		public void clear() {
-			HMapKI.this.clear();
 		}
 	}
 
@@ -707,12 +701,19 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	}
 
 	private final class Values extends AbstractCollection<Integer> {
+		@Override
 		public Iterator<Integer> iterator() {
 			return newValueIterator();
 		}
 
+		@Override
 		public int size() {
 			return size;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			return containsValue((Integer) o);
 		}
 	}
 
@@ -727,29 +728,23 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 	}
 
 	private final class EntrySet extends AbstractSet<MapKI.Entry<K>> {
+		@Override
 		public Iterator<MapKI.Entry<K>> iterator() {
 			return newEntryIterator();
 		}
 
-		@SuppressWarnings("unchecked")
+		@Override
+		public int size() {
+			return size;
+		}
+
+		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
 			if (!(o instanceof Map.Entry))
 				return false;
 			MapKI.Entry<K> e = (MapKI.Entry<K>) o;
 			Entry<K> candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
-		}
-
-		public boolean remove(Object o) {
-			return removeMapping(o) != null;
-		}
-
-		public int size() {
-			return size;
-		}
-
-		public void clear() {
-			HMapKI.this.clear();
 		}
 	}
 

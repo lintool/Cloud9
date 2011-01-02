@@ -32,7 +32,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.util.FSLineReader;
+import edu.umd.cloud9.io.FSLineReader;
 
 public class Gov2DocnoMapping implements DocnoMapping {
 	private static final Logger sLogger = Logger.getLogger(Gov2DocnoMapping.class);

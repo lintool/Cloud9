@@ -18,7 +18,10 @@ package edu.umd.cloud9.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -124,6 +127,26 @@ public class EntryFrequencyDistributionTest {
 		assertEquals(5, fd.get("d"));
 	}
 
+	@Test
+	public void test3() {
+		FrequencyDistribution<String> fd = new EntryFrequencyDistribution<String>();
+
+		fd.increment("a");
+		fd.increment("a");
+		fd.increment("b");
+		fd.increment("c");
+
+		assertEquals(3, fd.getNumberOfEvents());
+		assertEquals(4, fd.getSumOfFrequencies());
+
+		assertEquals(2, fd.get("a"));
+		assertEquals(1, fd.get("b"));
+		assertEquals(1, fd.get("c"));
+
+		fd.clear();
+		assertEquals(0, fd.getNumberOfEvents());
+		assertEquals(0, fd.getSumOfFrequencies());
+	}
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
@@ -283,6 +306,49 @@ public class EntryFrequencyDistributionTest {
 		assertEquals(2, list.get(2).getRightElement());
 		assertEquals("d", list.get(3).getLeftElement());
 		assertEquals(3, list.get(3).getRightElement());
+	}
+
+	@Test
+	public void testIterable() {
+		FrequencyDistribution<String> fd = new EntryFrequencyDistribution<String>();
+
+		fd.set("a", 1);
+		fd.set("d", 3);
+		fd.set("b", 4);
+		fd.set("e", 7);
+		fd.set("f", 9);
+		fd.set("c", 2);
+
+		assertEquals(6, fd.getNumberOfEvents());
+		assertEquals(26, fd.getSumOfFrequencies());
+
+		SortedSet<PairOfObjectInt<String>> list = new TreeSet<PairOfObjectInt<String>>();
+
+		for ( PairOfObjectInt<String> pair : fd ) {
+			list.add(pair.clone());
+		}
+
+		assertEquals(6, list.size());
+
+		Iterator<PairOfObjectInt<String>> iter = list.iterator();
+		PairOfObjectInt<String> e = iter.next();
+		assertEquals("a", e.getLeftElement());
+		assertEquals(1, e.getRightElement());
+		e = iter.next();
+		assertEquals("b", e.getLeftElement());
+		assertEquals(4, e.getRightElement());
+		e = iter.next();
+		assertEquals("c", e.getLeftElement());
+		assertEquals(2, e.getRightElement());
+		e = iter.next();
+		assertEquals("d", e.getLeftElement());
+		assertEquals(3, e.getRightElement());
+		e = iter.next();
+		assertEquals("e", e.getLeftElement());
+		assertEquals(7, e.getRightElement());
+		e = iter.next();
+		assertEquals("f", e.getLeftElement());
+		assertEquals(9, e.getRightElement());
 	}
 
 	public static junit.framework.Test suite() {

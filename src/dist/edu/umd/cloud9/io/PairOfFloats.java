@@ -37,8 +37,7 @@ public class PairOfFloats implements WritableComparable<PairOfFloats> {
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfFloats() {
-	}
+	public PairOfFloats() {}
 
 	/**
 	 * Creates a pair.
@@ -85,6 +84,24 @@ public class PairOfFloats implements WritableComparable<PairOfFloats> {
 	 * @return the right element
 	 */
 	public float getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public float getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public float getValue() {
 		return rightElement;
 	}
 

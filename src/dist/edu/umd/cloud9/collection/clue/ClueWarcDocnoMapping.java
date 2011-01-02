@@ -9,7 +9,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.util.FSLineReader;
+import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.util.HMapKI;
 import edu.umd.cloud9.util.MapKI;
 

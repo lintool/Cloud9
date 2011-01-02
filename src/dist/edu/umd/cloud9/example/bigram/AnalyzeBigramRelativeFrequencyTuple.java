@@ -21,14 +21,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 
+import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.Tuple;
-import edu.umd.cloud9.util.KeyValuePair;
-import edu.umd.cloud9.util.SequenceFileUtils;
 
 public class AnalyzeBigramRelativeFrequencyTuple {
-
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("usage: [input-path]");
@@ -37,14 +37,13 @@ public class AnalyzeBigramRelativeFrequencyTuple {
 
 		System.out.println("input path: " + args[0]);
 
-		List<KeyValuePair<Tuple, FloatWritable>> pairs = SequenceFileUtils
-				.readDirectory(args[0]);
+		List<PairOfWritables<Tuple, FloatWritable>> pairs = SequenceFileUtils.readDirectory(new Path(args[0]));
 
-		List<KeyValuePair<Tuple, FloatWritable>> list1 = new ArrayList<KeyValuePair<Tuple, FloatWritable>>();
-		List<KeyValuePair<Tuple, FloatWritable>> list2 = new ArrayList<KeyValuePair<Tuple, FloatWritable>>();
+		List<PairOfWritables<Tuple, FloatWritable>> list1 = new ArrayList<PairOfWritables<Tuple, FloatWritable>>();
+		List<PairOfWritables<Tuple, FloatWritable>> list2 = new ArrayList<PairOfWritables<Tuple, FloatWritable>>();
 
-		for (KeyValuePair<Tuple, FloatWritable> p : pairs) {
-			Tuple bigram = p.getKey();
+		for (PairOfWritables<Tuple, FloatWritable> p : pairs) {
+			Tuple bigram = p.getLeftElement();
 
 			if (bigram.get("Left").equals("light")) {
 				list1.add(p);
@@ -55,47 +54,48 @@ public class AnalyzeBigramRelativeFrequencyTuple {
 			}
 		}
 
-		Collections.sort(list1, new Comparator<KeyValuePair<Tuple, FloatWritable>>() {
-			public int compare(KeyValuePair<Tuple, FloatWritable> e1,
-					KeyValuePair<Tuple, FloatWritable> e2) {
-				if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {
-					return e1.getKey().compareTo(e2.getKey());
+		Collections.sort(list1, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
+			public int compare(PairOfWritables<Tuple, FloatWritable> e1,
+					PairOfWritables<Tuple, FloatWritable> e2) {
+				if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+					return e1.getLeftElement().compareTo(e2.getLeftElement());
 				}
 
-				return ((FloatWritable) e2.getValue()).compareTo(e1.getValue());
+				return e2.getRightElement().compareTo(e1.getRightElement());
 			}
 		});
 
 		int i = 0;
-		for (KeyValuePair<Tuple, FloatWritable> p : list1) {
-			Tuple bigram = p.getKey();
-			System.out.println(bigram + "\t" + p.getValue());
+		for (PairOfWritables<Tuple, FloatWritable> p : list1) {
+			Tuple bigram = p.getLeftElement();
+			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 
-			if (i > 10)
+			if (i > 10) {
 				break;
+			}
 		}
 
-		Collections.sort(list2, new Comparator<KeyValuePair<Tuple, FloatWritable>>() {
-			public int compare(KeyValuePair<Tuple, FloatWritable> e1,
-					KeyValuePair<Tuple, FloatWritable> e2) {
-				if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {
-					return e1.getKey().compareTo(e2.getKey());
+		Collections.sort(list2, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
+			public int compare(PairOfWritables<Tuple, FloatWritable> e1,
+					PairOfWritables<Tuple, FloatWritable> e2) {
+				if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+					return e1.getLeftElement().compareTo(e2.getLeftElement());
 				}
 
-				return ((FloatWritable) e2.getValue()).compareTo(e1.getValue());
+				return e2.getRightElement().compareTo(e1.getRightElement());
 			}
 		});
 
 		i = 0;
-		for (KeyValuePair<Tuple, FloatWritable> p : list2) {
-			Tuple bigram = p.getKey();
-			System.out.println(bigram + "\t" + p.getValue());
+		for (PairOfWritables<Tuple, FloatWritable> p : list2) {
+			Tuple bigram = p.getLeftElement();
+			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 
-			if (i > 10)
+			if (i > 10) {
 				break;
+			}
 		}
-
 	}
 }

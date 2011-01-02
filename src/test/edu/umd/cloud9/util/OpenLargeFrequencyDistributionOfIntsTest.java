@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import edu.umd.cloud9.io.PairOfIntLong;
 
-public class LargeFrequencyDistributionOfIntsTest {
+public class OpenLargeFrequencyDistributionOfIntsTest {
 
 	@Test
 	public void test1() {
@@ -124,6 +124,27 @@ public class LargeFrequencyDistributionOfIntsTest {
 		assertEquals(1, fd.get(2));
 		assertEquals(1, fd.get(3));
 		assertEquals(5, fd.get(4));
+	}
+
+	@Test
+	public void test3() {
+		LargeFrequencyDistributionOfInts fd = new OpenLargeFrequencyDistributionOfInts();
+
+		fd.increment(1);
+		fd.increment(1);
+		fd.increment(2);
+		fd.increment(3);
+
+		assertEquals(3, fd.getNumberOfEvents());
+		assertEquals(4, fd.getSumOfFrequencies());
+
+		assertEquals(2, fd.get(1));
+		assertEquals(1, fd.get(2));
+		assertEquals(1, fd.get(3));
+
+		fd.clear();
+		assertEquals(0, fd.getNumberOfEvents());
+		assertEquals(0, fd.getSumOfFrequencies());
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -287,6 +308,6 @@ public class LargeFrequencyDistributionOfIntsTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(LargeFrequencyDistributionOfIntsTest.class);
+		return new JUnit4TestAdapter(OpenLargeFrequencyDistributionOfIntsTest.class);
 	}
 }

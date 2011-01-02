@@ -37,8 +37,8 @@ import edu.umd.cloud9.io.PairOfIntLong;
  */
 public class OpenLargeFrequencyDistributionOfInts implements LargeFrequencyDistributionOfInts {
 
-	private Int2LongOpenHashMap mCounts = new Int2LongOpenHashMap();
-	private long mSumOfFrequencies = 0;
+	private Int2LongOpenHashMap counts = new Int2LongOpenHashMap();
+	private long sumOfFrequencies = 0;
 
 	@Override
 	public void increment(int key) {
@@ -90,35 +90,41 @@ public class OpenLargeFrequencyDistributionOfInts implements LargeFrequencyDistr
 
 	@Override
 	public boolean contains(int key) {
-		return mCounts.containsKey(key);
+		return counts.containsKey(key);
 	}
 
 	@Override
 	public long get(int key) {
-		return mCounts.get(key);
+		return counts.get(key);
 	}
 
 	@Override
 	public long set(int k, long v) {
-		long rv = mCounts.put(k, v);
-		mSumOfFrequencies = mSumOfFrequencies - rv + v;
+		long rv = counts.put(k, v);
+		sumOfFrequencies = sumOfFrequencies - rv + v;
 
 		return rv;
 	}
 
 	@Override
 	public long remove(int k) {
-		long rv = mCounts.remove(k);
-		mSumOfFrequencies -= rv;
+		long rv = counts.remove(k);
+		sumOfFrequencies -= rv;
 
 		return rv;
+	}
+
+	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
 	}
 
 	@Override
 	public List<PairOfIntLong> getFrequencySortedEvents() {
 		List<PairOfIntLong> list = Lists.newArrayList();
 
-		for (Int2LongMap.Entry e : mCounts.int2LongEntrySet()) {
+		for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
 			list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
 		}
 
@@ -153,7 +159,7 @@ public class OpenLargeFrequencyDistributionOfInts implements LargeFrequencyDistr
 	public List<PairOfIntLong> getSortedEvents() {
 		List<PairOfIntLong> list = Lists.newArrayList();
 
-		for (Int2LongMap.Entry e : mCounts.int2LongEntrySet()) {
+		for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
 			list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
 		}
 
@@ -182,11 +188,11 @@ public class OpenLargeFrequencyDistributionOfInts implements LargeFrequencyDistr
 
 	@Override
 	public int getNumberOfEvents() {
-		return mCounts.size();
+		return counts.size();
 	}
 
 	@Override
 	public long getSumOfFrequencies() {
-		return mSumOfFrequencies;
+		return sumOfFrequencies;
 	}
 }

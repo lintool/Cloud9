@@ -3,10 +3,10 @@ package edu.umd.cloud9.util.benchmark;
 import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
-import edu.umd.cloud9.util.HMapKI;
-import edu.umd.cloud9.util.MapKI;
+import edu.umd.cloud9.util.HMapII;
+import edu.umd.cloud9.util.MapII;
 
-public class BenchmarkHMapKI {
+public class Benchmark2HMapII {
 
 	public static void main(String[] args) {
 		int size = 5000000;
@@ -17,8 +17,8 @@ public class BenchmarkHMapKI {
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
 
-		System.out.println("Benchmarking HMapKI<Integer>...");
-		MapKI<Integer> map = new HMapKI<Integer>();
+		System.out.println("Benchmarking HMapII...");
+		MapII map = new HMapII();
 
 		startTime = System.currentTimeMillis();
 		for (int i = 0; i < size; i++) {
@@ -47,5 +47,4 @@ public class BenchmarkHMapKI {
 		System.out.println("Memory usage per map entry: "
 				+ ((float) (usedMemory2 - usedMemory1) / size));
 	}
-
 }

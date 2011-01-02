@@ -72,7 +72,7 @@ import org.apache.hadoop.io.WritableComparable;
  * 
  * @author Jimmy Lin
  */
-public class Tuple implements WritableComparable {
+public class Tuple implements WritableComparable<Tuple> {
 
 	protected static final byte SYMBOL = 0;
 	protected static final byte INT = 1;
@@ -504,9 +504,7 @@ public class Tuple implements WritableComparable {
 	 *         this Tuple should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(Object obj) {
-		Tuple that = (Tuple) obj;
-
+	public int compareTo(Tuple that) {
 		// iterate through the fields
 		for (int i = 0; i < this.getFieldCount(); i++) {
 			// if both contain special symbol, then sort special symbols

@@ -448,6 +448,9 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 
 		// find out how much PageRank mass got lost at the dangling nodes
 		float missing = 1.0f - (float) StrictMath.exp(mass);
+		if ( missing < 0.0f ) {
+			missing = 0.0f;
+		}
 
 		// job2: distribute missing mass, take care of random jump factor
 		phase2(path, i, j, n, missing);
@@ -462,7 +465,6 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 		String outm = out + "-mass";
 
 		FileSystem fs = FileSystem.get(conf);
-
 		
 		// we need to actually count the number of part files to get the number
 		// of partitions (because the directory might contain _log)

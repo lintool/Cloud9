@@ -28,7 +28,7 @@ import java.util.List;
  * @author Jimmy Lin
  *
  */
-public interface FrequencyDistribution<K extends Comparable<K>> {
+public interface FrequencyDistribution<K extends Comparable<K>> extends Iterable<PairOfObjectInt<K>> {
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.
@@ -69,6 +69,11 @@ public interface FrequencyDistribution<K extends Comparable<K>> {
 	 * Removes the count of a particular event <code>key</code>.
 	 */
 	public int remove(K k);
+
+	/**
+	 * Removes all events.
+	 */
+	public void clear();
 
 	/**
 	 * Returns events sorted by frequency of occurrence.

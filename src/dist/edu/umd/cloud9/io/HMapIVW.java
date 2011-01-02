@@ -32,19 +32,17 @@ import edu.umd.cloud9.util.HMapIV;
 import edu.umd.cloud9.util.MapIV;
 
 /**
- * Writable representing a map from ints to values of arbitrary type.
- * 
- * @param <V>
- *            type of value
- * 
+ * Writable representing a map from ints to values of arbitrary WritableComparable.
+ *
+ * @param <V> type of value
+ *
  * @author Jimmy Lin
  */
 public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implements Writable {
-
-	private static final long serialVersionUID = 1089251365L;
+	private static final long serialVersionUID = 2532109344100674110L;
 
 	/**
-	 * Creates a <code>OFMapIVW</code> object.
+	 * Creates a <code>HMapIVW</code> object.
 	 */
 	public HMapIVW() {
 		super();
@@ -52,13 +50,11 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-
 		this.clear();
 
 		int numEntries = in.readInt();
@@ -87,29 +83,26 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
 	 * Serializes the map.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
 
-		// Write out the class names for keys and values
-		// assuming that data is homogeneous (i.e., all entries have same types)
+		// Write out the class names for keys and values, assuming that all entries have same types.
 		Set<MapIV.Entry<V>> entries = entrySet();
 		MapIV.Entry<V> first = entries.iterator().next();
 		V objV = first.getValue();
 		out.writeUTF(objV.getClass().getCanonicalName());
 
-		// Then write out each key/value pair
+		// Then write out each key/value pair.
 		for (MapIV.Entry<V> e : entrySet()) {
 			out.writeInt(e.getKey());
 			e.getValue().write(out);
@@ -118,9 +111,8 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -132,16 +124,13 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 	}
 
 	/**
-	 * Creates a <code>OHMapKIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapKIW</code> object
+	 * Creates a <code>HMapIVW</code> object from a <code>DataInput</code>.
+	 *
+	 * @param in source for reading the serialized representation
+	 * @return a newly-created <code>HMapIVW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> HMapIVW<T> create(DataInput in)
-			throws IOException {
+	public static <T extends WritableComparable<?>> HMapIVW<T> create(DataInput in) throws IOException {
 		HMapIVW<T> m = new HMapIVW<T>();
 		m.readFields(in);
 
@@ -149,14 +138,13 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 	}
 
 	/**
-	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 * Creates a <code>HMapIVW</code> object from a byte array.
+	 *
+	 * @param bytes source for reading the serialized representation
+	 * @return a newly-created <code>HMapIVW</code> object
 	 * @throws IOException
 	 */
-	public static <T extends WritableComparable<?>> HMapIVW<T> create(byte[] bytes)
-			throws IOException {
+	public static <T extends WritableComparable<?>> HMapIVW<T> create(byte[] bytes)	throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 }

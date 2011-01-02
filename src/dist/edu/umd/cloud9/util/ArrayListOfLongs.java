@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
  */
 
 public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long> {
-	protected transient long[] mArray;
+	protected transient long[] array;
 	protected int size = 0;
 
 	private static final int INITIAL_CAPACITY_DEFAULT = 10;
@@ -43,7 +43,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
 
-		mArray = new long[initialCapacity];
+		array = new long[initialCapacity];
 	}
 
 	/**
@@ -56,8 +56,8 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	public ArrayListOfLongs(long[] a) {
 		Preconditions.checkNotNull(a);
 
-		mArray = a;
-		size = mArray.length;
+		array = a;
+		size = array.length;
 	}
 
 	/**
@@ -66,9 +66,9 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * this object.
 	 */
 	public void trimToSize() {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (size < oldCapacity) {
-			mArray = Arrays.copyOf(mArray, size);
+			array = Arrays.copyOf(array, size);
 		}
 	}
 
@@ -80,13 +80,13 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @param minCapacity the desired minimum capacity
 	 */
 	public void ensureCapacity(int minCapacity) {
-		int oldCapacity = mArray.length;
+		int oldCapacity = array.length;
 		if (minCapacity > oldCapacity) {
 			int newCapacity = (oldCapacity * 3) / 2 + 1;
 			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
 			}
-			mArray = Arrays.copyOf(mArray, newCapacity);
+			array = Arrays.copyOf(array, newCapacity);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 */
 	public int indexOf(long n) {
 		for (int i = 0; i < size; i++) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -145,7 +145,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 */
 	public int lastIndexOf(long n) {
 		for (int i = size - 1; i >= 0; i--) {
-			if (n == mArray[i]) {
+			if (n == array[i]) {
 				return i;
 			}
 		}
@@ -158,7 +158,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return a clone of this object
 	 */
 	public ArrayListOfLongs clone() {
-		return new ArrayListOfLongs(Arrays.copyOf(mArray, this.size()));
+		return new ArrayListOfLongs(Arrays.copyOf(array, this.size()));
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return the element at the specified position in this list
 	 */
 	public long get(int index) {
-		return mArray[index];
+		return array[index];
 	}
 
 	/**
@@ -180,8 +180,8 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return the element previously at the specified position
 	 */
 	public long set(int index, long element) {
-		long oldValue = mArray[index];
-		mArray[index] = element;
+		long oldValue = array[index];
+		array[index] = element;
 		return oldValue;
 	}
 
@@ -192,7 +192,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 */
 	public void add(long e) {
 		ensureCapacity(size + 1); // Increments modCount!!
-		mArray[size++] = e;
+		array[size++] = e;
 	}
 
 	/**
@@ -209,8 +209,8 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 		}
 
 		ensureCapacity(size + 1); // Increments modCount!!
-		System.arraycopy(mArray, index, mArray, index + 1, size - index);
-		mArray[index] = element;
+		System.arraycopy(array, index, array, index + 1, size - index);
+		array[index] = element;
 		size++;
 	}
 
@@ -222,11 +222,11 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return the element that was removed from the list
 	 */
 	public long remove(int index) {
-		long oldValue = mArray[index];
+		long oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {
-			System.arraycopy(mArray, index + 1, mArray, index, numMoved);
+			System.arraycopy(array, index + 1, array, index, numMoved);
 		}
 
 		size--;
@@ -239,7 +239,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 */
 	public void clear() {
 		size = 0;
-		mArray = new long[INITIAL_CAPACITY_DEFAULT];
+		array = new long[INITIAL_CAPACITY_DEFAULT];
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return array backing this object
 	 */
 	public long[] getArray() {
-		return mArray;
+		return array;
 	}
 
 	/**

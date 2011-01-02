@@ -3,10 +3,10 @@ package edu.umd.cloud9.util.benchmark;
 import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
-import edu.umd.cloud9.util.HMapII;
-import edu.umd.cloud9.util.MapII;
+import edu.umd.cloud9.util.HMapKI;
+import edu.umd.cloud9.util.MapKI;
 
-public class BenchmarkHMapII {
+public class Benchmark1HMapKI {
 
 	public static void main(String[] args) {
 		int size = 5000000;
@@ -17,13 +17,13 @@ public class BenchmarkHMapII {
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
 
-		System.out.println("Benchmarking HMapII...");
-		MapII map = new HMapII();
+		System.out.println("Benchmarking HMapKI<Integer>...");
+		MapKI<String> map = new HMapKI<String>();
 
 		startTime = System.currentTimeMillis();
 		for (int i = 0; i < size; i++) {
 			int k = r.nextInt(size);
-			map.put(i, k);
+			map.put("" + i, k);
 			ints[i] = k;
 		}
 		duration = System.currentTimeMillis() - startTime;
@@ -31,7 +31,7 @@ public class BenchmarkHMapII {
 
 		startTime = System.currentTimeMillis();
 		for (int i = 0; i < size; i++) {
-			int v = map.get(i);
+			int v = map.get("" + i);
 
 			if (v != ints[i])
 				throw new RuntimeException("Values don't match!");
@@ -47,4 +47,5 @@ public class BenchmarkHMapII {
 		System.out.println("Memory usage per map entry: "
 				+ ((float) (usedMemory2 - usedMemory1) / size));
 	}
+
 }

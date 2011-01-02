@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -41,81 +40,69 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.PairOfStrings;
 
 public class BigramRelativeFrequency extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(BigramRelativeFrequency.class);
 
-	private static final Logger sLogger = Logger.getLogger(BigramRelativeFrequency.class);
-
-	// mapper: emits (token, 1) for every bigram occurrence
-	protected static class MyMapper extends
-			Mapper<LongWritable, Text, PairOfStrings, FloatWritable> {
-
-		// reuse objects to save overhead of object creation
-		private final static FloatWritable one = new FloatWritable(1);
-		private PairOfStrings bigrams = new PairOfStrings();
+	// Mapper: emits (token, 1) for every bigram occurrence.
+	protected static class MyMapper extends	Mapper<LongWritable, Text, PairOfStrings, FloatWritable> {
+		// Reuse objects to save overhead of object creation.
+		private static final FloatWritable one = new FloatWritable(1);
+		private static final PairOfStrings bigram = new PairOfStrings();
 
 		@Override
-		public void map(LongWritable key, Text value, Context context) throws IOException,
-				InterruptedException {
-			String line = ((Text) value).toString();
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
 
 			String prev = null;
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String cur = itr.nextToken();
 
-				// emit only if we have an actual bigram
+				// Emit only if we have an actual bigram.
 				if (prev != null) {
 
-					// simple way to truncate tokens that are too long
-					if (cur.length() > 100)
+					// Simple way to truncate tokens that are too long.
+					if (cur.length() > 100) {
 						cur = cur.substring(0, 100);
+					}
 
-					if (prev.length() > 100)
+					if (prev.length() > 100) {
 						prev = prev.substring(0, 100);
+					}
 
-					bigrams.set(prev, cur);
-					context.write(bigrams, one);
+					bigram.set(prev, cur);
+					context.write(bigram, one);
 
-					bigrams.set(prev, "*");
-					context.write(bigrams, one);
+					bigram.set(prev, "*");
+					context.write(bigram, one);
 				}
 				prev = cur;
 			}
 		}
 	}
 
-	// combiner: sums up all the counts
-	protected static class MyCombiner extends
-			Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
-
-		// reuse objects
-		private final static FloatWritable SumValue = new FloatWritable();
+	// Combiner: sums up all the counts.
+	protected static class MyCombiner extends Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
+		private static final FloatWritable sumWritable = new FloatWritable();
 
 		@Override
-		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context)
-				throws IOException, InterruptedException {
-			// sum up values
+		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
 			int sum = 0;
 			Iterator<FloatWritable> iter = values.iterator();
 			while (iter.hasNext()) {
 				sum += iter.next().get();
 			}
-			SumValue.set(sum);
-			context.write(key, SumValue);
+			sumWritable.set(sum);
+			context.write(key, sumWritable);
 		}
 	}
 
-	// reducer: sums up all the counts
-	protected static class MyReducer extends
-			Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
-
-		// reuse objects
-		private final static FloatWritable value = new FloatWritable();
+	// Reducer: sums up all the counts.
+	protected static class MyReducer extends Reducer<PairOfStrings, FloatWritable, PairOfStrings, FloatWritable> {
+		private static final FloatWritable value = new FloatWritable();
 		private float marginal = 0.0f;
 
 		@Override
-		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context)
-				throws IOException, InterruptedException {
-			// sum up values
+		public void reduce(PairOfStrings key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
 			float sum = 0.0f;
 			Iterator<FloatWritable> iter = values.iterator();
 			while (iter.hasNext()) {
@@ -140,8 +127,7 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 		}
 	}
 
-	private BigramRelativeFrequency() {
-	}
+	private BigramRelativeFrequency() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [input-path] [output-path] [num-reducers]");
@@ -162,13 +148,12 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 		String outputPath = args[1];
 		int reduceTasks = Integer.parseInt(args[2]);
 
-		sLogger.info("Tool name: BigramRelativeFrequency");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - num reducers: " + reduceTasks);
+		LOG.info("Tool name: BigramRelativeFrequency");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - num reducers: " + reduceTasks);
 
-		Configuration conf = new Configuration();
-		Job job = new Job(conf, "BigramRelativeFrequency");
+		Job job = new Job(getConf(), "BigramRelativeFrequency");
 		job.setJarByClass(BigramRelativeFrequency.class);
 
 		job.setNumReduceTasks(reduceTasks);
@@ -189,12 +174,11 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
+		FileSystem.get(getConf()).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-				+ " seconds");
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
 		return 0;
 	}
@@ -204,7 +188,7 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BigramRelativeFrequency(), args);
+		int res = ToolRunner.run(new BigramRelativeFrequency(), args);
 		System.exit(res);
 	}
 }

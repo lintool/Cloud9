@@ -30,7 +30,7 @@ import edu.umd.cloud9.io.PairOfInts;
  * @author Jimmy Lin
  *
  */
-public interface FrequencyDistributionOfInts {
+public interface FrequencyDistributionOfInts extends Iterable<PairOfInts> {
 
 	/**
 	 * Increments the frequency of an event <code>key</code>.
@@ -71,6 +71,11 @@ public interface FrequencyDistributionOfInts {
 	 * Removes the count of a particular event <code>key</code>.
 	 */
 	public int remove(int key);
+
+	/**
+	 * Removes all events.
+	 */
+	public void clear();
 
 	/**
 	 * Returns events sorted by frequency of occurrence.

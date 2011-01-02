@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.io;
 
 import java.io.IOException;
 
@@ -24,7 +24,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.JobConf;
 
 /**
  * <p>
@@ -35,14 +34,18 @@ import org.apache.hadoop.mapred.JobConf;
  * </p>
  * 
  * <pre>
- * args: [path] [max-num-of-records]
+ * args: [path] [max-num-of-records] (local)
  * </pre>
+ *
+ * <p>
+ * Note: specify "local" as the optional third argument for reading from local
+ * disk.
+ * </p>
  */
 public class ReadSequenceFile {
 
-	private ReadSequenceFile() {
-	}
-	
+	private ReadSequenceFile() {}
+
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
 			System.out.println("args: [path] [max-num-of-records-per-file]");
@@ -56,19 +59,24 @@ public class ReadSequenceFile {
 			max = Integer.parseInt(args[1]);
 		}
 
-		Configuration config = new JobConf();
-		FileSystem fileSys = FileSystem.get(config);
+		boolean useLocal = args.length >= 3 && args[2].equals("local") ? true : false;
+
+		if (useLocal) {
+			System.out.println("Reading from local filesystem");
+		}
+
+		FileSystem fs = useLocal? FileSystem.getLocal(new Configuration()) : FileSystem.get(new Configuration());
 		Path p = new Path(f);
 
-		if (fileSys.getFileStatus(p).isDir())
-			readSequenceFilesInDir(p, max);
-		else
-			readSequenceFile(p, max);
+		if (fs.getFileStatus(p).isDir()) {
+			readSequenceFilesInDir(p, fs, max);
+		} else {
+			readSequenceFile(p, fs, max);
+		}
 	}
 
-	private static int readSequenceFile(Path path, int max) throws IOException {
-		Configuration config = new Configuration();
-		SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(config), path, config);
+	private static int readSequenceFile(Path path, FileSystem fs, int max) throws IOException {
+		SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
 
 		System.out.println("Reading " + path + "...\n");
 		try {
@@ -102,21 +110,18 @@ public class ReadSequenceFile {
 		return n;
 	}
 
-	private static int readSequenceFilesInDir(Path path, int max) {
-		JobConf config = new JobConf();
+	private static int readSequenceFilesInDir(Path path, FileSystem fs, int max) {
 		int n = 0;
 		try {
-			FileSystem fileSys = FileSystem.get(config);
-			FileStatus[] stat = fileSys.listStatus(path);
+			FileStatus[] stat = fs.listStatus(path);
 			for (int i = 0; i < stat.length; ++i) {
-				n += readSequenceFile(stat[i].getPath(), max);
+				n += readSequenceFile(stat[i].getPath(), fs ,max);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		System.out.println(n + " records read.");
+		System.out.println(n + " records read in total.");
 		return n;
 	}
-
 }

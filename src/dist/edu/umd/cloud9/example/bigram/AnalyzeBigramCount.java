@@ -20,14 +20,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
-import edu.umd.cloud9.util.KeyValuePair;
-import edu.umd.cloud9.util.SequenceFileUtils;
+import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.io.SequenceFileUtils;
 
 public class AnalyzeBigramCount {
-
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("usage: [input-path]");
@@ -35,26 +35,27 @@ public class AnalyzeBigramCount {
 		}
 
 		System.out.println("input path: " + args[0]);
-		List<KeyValuePair<Text, IntWritable>> bigrams = SequenceFileUtils.readDirectory(args[0]);
+		List<PairOfWritables<Text, IntWritable>> bigrams = SequenceFileUtils.readDirectory(new Path(args[0]));
 
-		Collections.sort(bigrams, new Comparator<KeyValuePair<Text, IntWritable>>() {
-			public int compare(KeyValuePair<Text, IntWritable> e1,
-					KeyValuePair<Text, IntWritable> e2) {
-				if (((IntWritable) e2.getValue()).compareTo(e1.getValue()) == 0) {
-					return e1.getKey().compareTo(e2.getKey());
+		Collections.sort(bigrams, new Comparator<PairOfWritables<Text, IntWritable>>() {
+			public int compare(PairOfWritables<Text, IntWritable> e1,
+					PairOfWritables<Text, IntWritable> e2) {
+				if ( e2.getRightElement().compareTo(e1.getRightElement()) == 0) {
+					return e1.getLeftElement().compareTo(e2.getLeftElement());
 				}
 
-				return ((IntWritable) e2.getValue()).compareTo(e1.getValue());
+				return e2.getRightElement().compareTo(e1.getRightElement());
 			}
 		});
 
 		int singletons = 0;
 		int sum = 0;
-		for (KeyValuePair<Text, IntWritable> bigram : bigrams) {
-			sum += ((IntWritable) bigram.getValue()).get();
+		for (PairOfWritables<Text, IntWritable> bigram : bigrams) {
+			sum += bigram.getRightElement().get();
 
-			if (((IntWritable) bigram.getValue()).get() == 1)
+			if ( bigram.getRightElement().get() == 1) {
 				singletons++;
+			}
 		}
 
 		System.out.println("total number of unique bigrams: " + bigrams.size());
@@ -64,14 +65,13 @@ public class AnalyzeBigramCount {
 		System.out.println("\nten most frequent bigrams: ");
 
 		int cnt = 0;
-		for (KeyValuePair<Text, IntWritable> bigram : bigrams) {
-			System.out.println(bigram.getKey() + "\t" + bigram.getValue());
+		for (PairOfWritables<Text, IntWritable> bigram : bigrams) {
+			System.out.println(bigram.getLeftElement() + "\t" + bigram.getRightElement());
 			cnt++;
 			
-			if (cnt > 10)
+			if (cnt > 10) {
 				break;
+			}
 		}
-
 	}
-
 }

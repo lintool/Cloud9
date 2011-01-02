@@ -38,8 +38,7 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 	/**
 	 * Creates a pair.
 	 */
-	public PairOfLongFloat() {
-	}
+	public PairOfLongFloat() {}
 
 	/**
 	 * Creates a pair.
@@ -86,6 +85,24 @@ public class PairOfLongFloat implements WritableComparable<PairOfLongFloat> {
 	 * @return the right element
 	 */
 	public float getRightElement() {
+		return rightElement;
+	}
+
+	/**
+	 * Returns the key (left element).
+	 *
+	 * @return the key
+	 */
+	public long getKey() {
+		return leftElement;
+	}
+
+	/**
+	 * Returns the value (right element).
+	 *
+	 * @return the value
+	 */
+	public float getValue() {
 		return rightElement;
 	}
 

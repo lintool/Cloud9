@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,36 +33,30 @@ import org.apache.hadoop.io.Writable;
  * {@link HMapKFW}, and a family of related classes provides a more efficient
  * implementation.
  * </p>
- * 
+ *
  * <p>
  * There are a number of key differences between this class and Hadoop's
  * {@link MapWritable}:
  * </p>
- * 
+ *
  * <ul>
- * 
+ *
  * <li><code>MapWritable</code> is more flexible in that it supports
  * heterogeneous elements. In this class, all keys must be of the same type and
  * all values must be of the same type. This assumption allows a simpler
  * serialization protocol and thus is more efficient. Run <code>main</code> in
  * this class for a simple efficiency test.</li>
- * 
- * <li>This class is generic, whereas <code>MapWritable</code> isn't.</li>
- * 
+ *
  * </ul>
- * 
- * @param <K>
- *            type of the key
- * @param <V>
- *            type of the value
- * 
+ *
+ * @param <K> type of the key
+ * @param <V> type of the value
+ *
  * @author Jimmy Lin
  * @author Tamer Elsayed
  */
-public class HashMapWritable<K extends Writable, V extends Writable> extends HashMap<K, V>
-		implements Writable {
-
-	private static final long serialVersionUID = 1L;
+public class HashMapWritable<K extends Writable, V extends Writable> extends HashMap<K, V> implements Writable {
+	private static final long serialVersionUID = -7549423384046548469L;
 
 	/**
 	 * Creates a HashMapWritable object.
@@ -80,9 +74,8 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 
 	/**
 	 * Deserializes the array.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
@@ -116,24 +109,20 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
 	 * Serializes this array.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
-	@SuppressWarnings("unchecked")
 	public void write(DataOutput out) throws IOException {
-		// Write out the number of entries in the map
+		// Write out the number of entries in the map.
 		out.writeInt(size());
 		if (size() == 0)
 			return;
 
-		// Write out the class names for keys and values
-		// assuming that data is homogeneous (i.e., all entries have same types)
+		// Write out the class names for keys and values assuming that all entries have the same type.
 		Set<Map.Entry<K, V>> entries = entrySet();
 		Map.Entry<K, V> first = entries.iterator().next();
 		K objK = first.getKey();
@@ -141,11 +130,10 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 		out.writeUTF(objK.getClass().getCanonicalName());
 		out.writeUTF(objV.getClass().getCanonicalName());
 
-		// Then write out each key/value pair
+		// Then write out each key/value pair.
 		for (Map.Entry<K, V> e : entrySet()) {
 			e.getKey().write(out);
 			e.getValue().write(out);
 		}
 	}
-
 }

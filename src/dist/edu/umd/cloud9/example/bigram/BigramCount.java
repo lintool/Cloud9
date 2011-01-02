@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -38,27 +37,25 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 public class BigramCount extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(BigramCount.class);
 
-	private static final Logger sLogger = Logger.getLogger(BigramCount.class);
-
-	// mapper: emits (token, 1) for every bigram occurrence
+	// Mapper: emits (token, 1) for every bigram occurrence.
 	protected static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
-		// reuse objects to save overhead of object creation
-		private final static IntWritable one = new IntWritable(1);
-		private Text bigram = new Text();
+		// Reuse objects to save overhead of object creation.
+		private static final IntWritable one = new IntWritable(1);
+		private static final Text bigram = new Text();
 
 		@Override
-		public void map(LongWritable key, Text value, Context context) throws IOException,
-				InterruptedException {
-			String line = ((Text) value).toString();
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
 
 			String prev = null;
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String cur = itr.nextToken();
 
-				// emit only if we have an actual bigram
+				// Emit only if we have an actual bigram.
 				if (prev != null) {
 					bigram.set(prev + " " + cur);
 					context.write(bigram, one);
@@ -68,23 +65,22 @@ public class BigramCount extends Configured implements Tool {
 		}
 	}
 
-	// reducer: sums up all the counts
+	// Reducer: sums up all the counts.
 	protected static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-		// reuse objects
-		private final static IntWritable SumValue = new IntWritable();
+		// Reuse objects
+		private final static IntWritable sumWritable = new IntWritable();
 
 		@Override
-		public void reduce(Text key, Iterable<IntWritable> values, Context context)
-				throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<IntWritable> values, Context context)	throws IOException, InterruptedException {
 			// sum up values
 			int sum = 0;
 			Iterator<IntWritable> iter = values.iterator();
 			while (iter.hasNext()) {
 				sum += iter.next().get();
 			}
-			SumValue.set(sum);
-			context.write(key, SumValue);
+			sumWritable.set(sum);
+			context.write(key, sumWritable);
 		}
 	}
 
@@ -110,13 +106,12 @@ public class BigramCount extends Configured implements Tool {
 		String outputPath = args[1];
 		int reduceTasks = Integer.parseInt(args[2]);
 
-		sLogger.info("Tool name: BigramCount");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - num reducers: " + reduceTasks);
+		LOG.info("Tool name: BigramCount");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - num reducers: " + reduceTasks);
 
-		Configuration conf = new Configuration();
-		Job job = new Job(conf, "BigramCount");
+		Job job = new Job(getConf(), "BigramCount");
 		job.setJarByClass(BigramCount.class);
 
 		job.setNumReduceTasks(reduceTasks);
@@ -136,12 +131,11 @@ public class BigramCount extends Configured implements Tool {
 
 		// Delete the output directory if it exists already
 		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
+		FileSystem.get(getConf()).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-				+ " seconds");
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
 		return 0;
 	}
@@ -151,8 +145,7 @@ public class BigramCount extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BigramCount(), args);
+		int res = ToolRunner.run(new BigramCount(), args);
 		System.exit(res);
 	}
-
 }

@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.io;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,16 +34,15 @@ import org.apache.hadoop.mapred.JobConf;
  * key is a LongWritable that sequentially counts the line number. The value is
  * a Text containing each line, without a trailing newline.
  * </p>
- * 
+ *
  * <pre>
  * args: [input-file] [output-file]
  * </pre>
  */
 public class PackTextFile {
 
-	private PackTextFile() {		
-	}
-	
+	private PackTextFile() {}
+
 	public static void main(String[] args) throws IOException {
 
 		if (args.length < 2) {

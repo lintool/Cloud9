@@ -18,6 +18,7 @@ package edu.umd.cloud9.util;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -94,6 +95,12 @@ public class EntryFrequencyDistribution<K extends Comparable<K>> implements Freq
 	}
 
 	@Override
+	public void clear() {
+		counts.clear();
+		sumOfFrequencies = 0;
+	}
+
+	@Override
 	public List<PairOfObjectInt<K>> getFrequencySortedEvents() {
 		List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
@@ -160,5 +167,36 @@ public class EntryFrequencyDistribution<K extends Comparable<K>> implements Freq
 	@Override
 	public long getSumOfFrequencies() {
 		return sumOfFrequencies;
+	}
+
+	/**
+	 * Iterator returns the same object every time, just with a different payload.
+	 */
+	public Iterator<PairOfObjectInt<K>> iterator() {
+		return new Iterator<PairOfObjectInt<K>>() {
+			private Iterator<MapKI.Entry<K>> iter = EntryFrequencyDistribution.this.counts.entrySet().iterator();
+			private final PairOfObjectInt<K> pair = new PairOfObjectInt<K>();
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public PairOfObjectInt<K> next() {
+				if (!hasNext()) {
+					return null;
+				}
+
+				MapKI.Entry<K> entry = iter.next();
+				pair.set(entry.getKey(), entry.getValue());
+				return pair;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 }

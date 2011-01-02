@@ -31,29 +31,29 @@ import edu.umd.cloud9.io.PairOfInts;
  */
 public class OpenConditionalFrequencyDistributionOfInts implements ConditionalFrequencyDistributionOfInts {
 
-	private final Int2ObjectMap<OpenFrequencyDistributionOfInts> mDistributions = new Int2ObjectOpenHashMap<OpenFrequencyDistributionOfInts>();
-	private final OpenFrequencyDistributionOfInts mMarginals = new OpenFrequencyDistributionOfInts();
+	private final Int2ObjectMap<OpenFrequencyDistributionOfInts> distributions = new Int2ObjectOpenHashMap<OpenFrequencyDistributionOfInts>();
+	private final OpenFrequencyDistributionOfInts marginals = new OpenFrequencyDistributionOfInts();
 
-	private long mSumOfAllFrequencies = 0;
+	private long sumOfAllFrequencies = 0;
 
 	@Override
 	public void set(int k, int cond, int v) {
-		if (!mDistributions.containsKey(cond)) {
+		if (!distributions.containsKey(cond)) {
 			OpenFrequencyDistributionOfInts fd = new OpenFrequencyDistributionOfInts();
 			fd.set(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, v);
+			distributions.put(cond, fd);
+			marginals.increment(k, v);
 
-			mSumOfAllFrequencies += v;
+			sumOfAllFrequencies += v;
 		} else {
-			OpenFrequencyDistributionOfInts fd = mDistributions.get(cond);
+			OpenFrequencyDistributionOfInts fd = distributions.get(cond);
 			int rv = fd.get(k);
 
 			fd.set(k, v);
-			mDistributions.put(cond, fd);
-			mMarginals.increment(k, -rv + v);
+			distributions.put(cond, fd);
+			marginals.increment(k, -rv + v);
 
-			mSumOfAllFrequencies = mSumOfAllFrequencies - rv + v;
+			sumOfAllFrequencies = sumOfAllFrequencies - rv + v;
 		}
 	}
 
@@ -74,22 +74,22 @@ public class OpenConditionalFrequencyDistributionOfInts implements ConditionalFr
 
 	@Override
 	public int get(int k, int cond) {
-		if ( !mDistributions.containsKey(cond)) {
+		if ( !distributions.containsKey(cond)) {
 			return 0;
 		}
 
-		return mDistributions.get(cond).get(k);
+		return distributions.get(cond).get(k);
 	}
 
 	@Override
 	public int getMarginalCount(int k) {
-		return mMarginals.get(k);
+		return marginals.get(k);
 	}
 
 	@Override
 	public OpenFrequencyDistributionOfInts getConditionalDistribution(int cond) {
-		if ( mDistributions.containsKey(cond) ) {
-			return mDistributions.get(cond);
+		if ( distributions.containsKey(cond) ) {
+			return distributions.get(cond);
 		}
 
 		return new OpenFrequencyDistributionOfInts();
@@ -97,7 +97,7 @@ public class OpenConditionalFrequencyDistributionOfInts implements ConditionalFr
 
 	@Override
 	public long getSumOfAllFrequencies() {
-		return mSumOfAllFrequencies;
+		return sumOfAllFrequencies;
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class OpenConditionalFrequencyDistributionOfInts implements ConditionalFr
 		OpenFrequencyDistributionOfInts m = new OpenFrequencyDistributionOfInts();
 
 		long totalSum = 0;
-		for (OpenFrequencyDistributionOfInts fd : mDistributions.values()) {
+		for (OpenFrequencyDistributionOfInts fd : distributions.values()) {
 			long conditionalSum = 0;
 
 			for (PairOfInts pair : fd.getSortedEvents()) {
@@ -124,7 +124,7 @@ public class OpenConditionalFrequencyDistributionOfInts implements ConditionalFr
 		}
 
 		for (PairOfInts e : m.getSortedEvents()) {
-			if ( e.getRightElement() != mMarginals.get(e.getLeftElement()) ) {
+			if ( e.getRightElement() != marginals.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}
 		}

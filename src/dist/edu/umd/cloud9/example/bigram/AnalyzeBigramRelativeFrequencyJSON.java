@@ -5,7 +5,7 @@
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,14 +21,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.json.JSONException;
 
-import edu.umd.cloud9.util.KeyValuePair;
-import edu.umd.cloud9.util.SequenceFileUtils;
+import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.io.SequenceFileUtils;
 
 public class AnalyzeBigramRelativeFrequencyJSON {
-
 	public static void main(String[] args) throws JSONException {
 		if (args.length != 1) {
 			System.out.println("usage: [input-path]");
@@ -37,14 +37,13 @@ public class AnalyzeBigramRelativeFrequencyJSON {
 
 		System.out.println("input path: " + args[0]);
 
-		List<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> pairs = SequenceFileUtils
-				.readDirectory(args[0]);
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> pairs = SequenceFileUtils.readDirectory(new Path(args[0]));
 
-		List<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list1 = new ArrayList<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
-		List<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list2 = new ArrayList<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list1 = new ArrayList<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list2 = new ArrayList<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
 
-		for (KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : pairs) {
-			BigramRelativeFrequencyJSON.MyTuple bigram = p.getKey();
+		for (PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : pairs) {
+			BigramRelativeFrequencyJSON.MyTuple bigram = p.getLeftElement();
 
 			if (bigram.getStringUnchecked("Left").equals("light")) {
 				list1.add(p);
@@ -56,50 +55,51 @@ public class AnalyzeBigramRelativeFrequencyJSON {
 		}
 
 		Collections.sort(list1,
-				new Comparator<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>() {
+				new Comparator<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>() {
 					public int compare(
-							KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e1,
-							KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e2) {
-						if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {
-							return e1.getKey().compareTo(e2.getKey());
+							PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e1,
+							PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e2) {
+						if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+							return e1.getLeftElement().compareTo(e2.getLeftElement());
 						}
 
-						return ((FloatWritable) e2.getValue()).compareTo(e1.getValue());
+						return e2.getRightElement().compareTo(e1.getRightElement());
 					}
 				});
 
 		int i = 0;
-		for (KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : list1) {
-			BigramRelativeFrequencyJSON.MyTuple bigram = p.getKey();
-			System.out.println(bigram + "\t" + p.getValue());
+		for (PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : list1) {
+			BigramRelativeFrequencyJSON.MyTuple bigram = p.getLeftElement();
+			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 
-			if (i > 10)
+			if (i > 10) {
 				break;
+			}
 		}
 
 		Collections.sort(list2,
-				new Comparator<KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>() {
+				new Comparator<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>() {
 					public int compare(
-							KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e1,
-							KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e2) {
-						if (((FloatWritable) e1.getValue()).compareTo(e2.getValue()) == 0) {
-							return e1.getKey().compareTo(e2.getKey());
+							PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e1,
+							PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> e2) {
+						if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+							return e1.getLeftElement().compareTo(e2.getLeftElement());
 						}
 
-						return ((FloatWritable) e2.getValue()).compareTo(e1.getValue());
+						return e2.getRightElement().compareTo(e1.getRightElement());
 					}
 				});
 
 		i = 0;
-		for (KeyValuePair<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : list2) {
-			BigramRelativeFrequencyJSON.MyTuple bigram = p.getKey();
-			System.out.println(bigram + "\t" + p.getValue());
+		for (PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : list2) {
+			BigramRelativeFrequencyJSON.MyTuple bigram = p.getLeftElement();
+			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 
-			if (i > 10)
+			if (i > 10) {
 				break;
+			}
 		}
-
 	}
 }
