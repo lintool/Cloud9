@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -28,7 +27,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
-
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.util.FSLineReader;
 
@@ -39,7 +37,7 @@ import edu.umd.cloud9.util.FSLineReader;
  * </p>
 
  * 
- * @author Jimmy Lin
+ * @author Ferhan Ture
  */
 public class TextDocnoMapping implements DocnoMapping {
 

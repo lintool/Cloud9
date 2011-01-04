@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
  * </p>
  * 
  * 
- * @author Jimmy Lin
+ * @author Ferhan Ture
  */
 public class NumberTextDocuments extends Configured implements Tool {
 
