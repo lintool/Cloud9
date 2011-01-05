@@ -8,7 +8,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfInts;
 
 /**
  * Generates one million random PairOfInts. Each is populated with two

@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfInts;
 
 /**
  * <p>

@@ -30,10 +30,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import edu.umd.cloud9.io.ArrayListWritable;
-import edu.umd.cloud9.io.PairOfInts;
-import edu.umd.cloud9.io.PairOfWritables;
-import edu.umd.cloud9.util.EntryFrequencyDistributionOfInts;
-import edu.umd.cloud9.util.FrequencyDistributionOfInts;
+import edu.umd.cloud9.io.pair.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfWritables;
+import edu.umd.cloud9.util.count.EntryInt2IntFrequencyDistribution;
+import edu.umd.cloud9.util.count.Int2IntFrequencyDistribution;
 
 public class LookupPostings {
 
@@ -72,7 +72,7 @@ public class LookupPostings {
 		reader.get(key, value);
 		System.out.println("Complete postings list for 'gold': " + value);
 
-		FrequencyDistributionOfInts goldHist = new EntryFrequencyDistributionOfInts();
+		Int2IntFrequencyDistribution goldHist = new EntryInt2IntFrequencyDistribution();
 		postings = value.getRightElement();
 		for (PairOfInts pair : postings) {
 			goldHist.increment(pair.getRightElement());
@@ -87,7 +87,7 @@ public class LookupPostings {
 		reader.get(key, value);
 		System.out.println("Complete postings list for 'silver': " + value);
 
-		FrequencyDistributionOfInts silverHist = new EntryFrequencyDistributionOfInts();
+		Int2IntFrequencyDistribution silverHist = new EntryInt2IntFrequencyDistribution();
 		postings = value.getRightElement();
 		for (PairOfInts pair : postings) {
 			silverHist.increment(pair.getRightElement());

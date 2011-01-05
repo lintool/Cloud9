@@ -31,6 +31,8 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
 
+import edu.umd.cloud9.io.pair.PairOfWritables;
+
 public class ArrayListOfIntsWritableTest {
 
 	@Test

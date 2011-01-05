@@ -24,9 +24,9 @@ import java.util.List;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 
-import edu.umd.cloud9.io.PairOfStrings;
-import edu.umd.cloud9.io.PairOfWritables;
 import edu.umd.cloud9.io.SequenceFileUtils;
+import edu.umd.cloud9.io.pair.PairOfStrings;
+import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequency {
 	public static void main(String[] args) {

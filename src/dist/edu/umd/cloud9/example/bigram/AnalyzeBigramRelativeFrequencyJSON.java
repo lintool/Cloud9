@@ -25,8 +25,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.json.JSONException;
 
-import edu.umd.cloud9.io.PairOfWritables;
 import edu.umd.cloud9.io.SequenceFileUtils;
+import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequencyJSON {
 	public static void main(String[] args) throws JSONException {

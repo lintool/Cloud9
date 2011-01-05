@@ -24,8 +24,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
-import edu.umd.cloud9.io.PairOfWritables;
 import edu.umd.cloud9.io.SequenceFileUtils;
+import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramCount {
 	public static void main(String[] args) {

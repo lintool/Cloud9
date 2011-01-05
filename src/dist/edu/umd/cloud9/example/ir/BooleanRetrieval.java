@@ -32,8 +32,8 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 
 import edu.umd.cloud9.io.ArrayListWritable;
-import edu.umd.cloud9.io.PairOfInts;
-import edu.umd.cloud9.io.PairOfWritables;
+import edu.umd.cloud9.io.pair.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class BooleanRetrieval {
 
