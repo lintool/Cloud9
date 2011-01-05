@@ -24,8 +24,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.io.pair.PairOfInts;
-import edu.umd.cloud9.util.HMapII;
-import edu.umd.cloud9.util.MapII;
+import edu.umd.cloud9.util.map.HMapII;
+import edu.umd.cloud9.util.map.MapII;
 
 /**
  * Implementation of {@link Int2IntFrequencyDistribution} based on {@link HMapII}.

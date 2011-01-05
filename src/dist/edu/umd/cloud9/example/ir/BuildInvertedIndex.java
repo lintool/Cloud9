@@ -40,12 +40,12 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListWritable;
+import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.PairOfObjectInt;
 import edu.umd.cloud9.util.count.EntryObject2IntFrequencyDistribution;
 import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 public class BuildInvertedIndex extends Configured implements Tool {
 

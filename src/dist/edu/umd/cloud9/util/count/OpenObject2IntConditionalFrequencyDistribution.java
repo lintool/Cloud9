@@ -16,7 +16,7 @@
 
 package edu.umd.cloud9.util.count;
 
-import edu.umd.cloud9.util.PairOfObjectInt;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 

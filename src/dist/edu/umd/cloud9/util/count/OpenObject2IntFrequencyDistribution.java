@@ -28,7 +28,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.util.PairOfObjectInt;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
  * Implementation of {@link Object2IntFrequencyDistribution} based on

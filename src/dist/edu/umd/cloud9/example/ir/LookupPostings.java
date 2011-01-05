@@ -29,7 +29,7 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.io.ArrayListWritable;
+import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 import edu.umd.cloud9.util.count.EntryInt2IntFrequencyDistribution;

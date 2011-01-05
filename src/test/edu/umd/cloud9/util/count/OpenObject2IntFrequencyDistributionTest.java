@@ -27,9 +27,9 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.util.PairOfObjectInt;
 import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
 import edu.umd.cloud9.util.count.OpenObject2IntFrequencyDistribution;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 public class OpenObject2IntFrequencyDistributionTest {
 

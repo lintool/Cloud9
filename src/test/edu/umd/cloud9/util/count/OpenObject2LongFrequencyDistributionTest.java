@@ -27,7 +27,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.util.PairOfObjectLong;
+import edu.umd.cloud9.util.pair.PairOfObjectLong;
 
 public class OpenObject2LongFrequencyDistributionTest {
 

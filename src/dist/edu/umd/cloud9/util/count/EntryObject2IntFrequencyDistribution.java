@@ -23,9 +23,9 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.util.HMapKI;
-import edu.umd.cloud9.util.MapKI;
-import edu.umd.cloud9.util.PairOfObjectInt;
+import edu.umd.cloud9.util.map.HMapKI;
+import edu.umd.cloud9.util.map.MapKI;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
  * Implementation of {@link Object2IntFrequencyDistribution} based on {@link HMapKI}.

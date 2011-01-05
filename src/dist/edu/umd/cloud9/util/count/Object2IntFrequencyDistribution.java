@@ -18,7 +18,7 @@ package edu.umd.cloud9.util.count;
 
 import java.util.List;
 
-import edu.umd.cloud9.util.PairOfObjectInt;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
  * A frequency distribution where events are arbitrary objects and counts are ints.

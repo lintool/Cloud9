@@ -28,7 +28,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.util.PairOfObjectLong;
+import edu.umd.cloud9.util.pair.PairOfObjectLong;
 
 /**
  * Implementation of {@link Object2LongFrequencyDistribution} based on
