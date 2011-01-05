@@ -141,9 +141,9 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 
 	/**
 	 * Constructs a new <tt>HMapKL</tt> with the same mappings as the
-	 * specified <tt>Map</tt>. The <tt>HMapKL</tt> is created with default
+	 * specified <tt>MapKL</tt>. The <tt>HMapKL</tt> is created with default
 	 * load factor (0.75) and an initial capacity sufficient to hold the
-	 * mappings in the specified <tt>Map</tt>.
+	 * mappings in the specified <tt>MapKL</tt>.
 	 * 
 	 * @param m
 	 *            the map whose mappings are to be placed in this map
