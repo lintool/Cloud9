@@ -1,4 +1,4 @@
-package edu.umd.cloud9.memcached.demo;
+package edu.umd.cloud9.example.memcached.demo;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
