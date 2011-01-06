@@ -230,13 +230,13 @@ public class HMapIS implements MapIS, Cloneable, Serializable {
 	}
 
 	@Override
-	public int put(int key, short value) {
+	public short put(int key, short value) {
 		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 		for (Entry e = table[i]; e != null; e = e.next) {
 			int k;
 			if (e.hash == hash && ((k = e.key) == key || key == k)) {
-				int oldValue = e.value;
+				short oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
 				return oldValue;
@@ -813,7 +813,7 @@ public class HMapIS implements MapIS, Cloneable, Serializable {
 		for (;;) {
 			MapIS.Entry e = i.next();
 			int key = e.getKey();
-			int value = e.getValue();
+			short value = e.getValue();
 			sb.append(key);
 			sb.append('=');
 			sb.append(value);

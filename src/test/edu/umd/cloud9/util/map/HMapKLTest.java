@@ -108,5 +108,4 @@ public class HMapKLTest {
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapKLTest.class);
 	}
-
 }

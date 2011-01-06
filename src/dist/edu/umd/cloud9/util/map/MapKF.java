@@ -13,13 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps keys to floats. This is a variant of the standard Java
- * {@link Map}, except that the type of the values is hard coded as float for
- * efficiency reasons. This implementation was adapted from Map version 1.56,
- * 04/21/06.
- * 
- * @param <K>
- *            the type of keys maintained by this map
+ * Map from arbitrary objects to floats.
+ * @param <K> type of the keys
  */
 public interface MapKF<K> {
 	// Query Operations
@@ -145,7 +140,7 @@ public interface MapKF<K> {
 
 	/**
 	 * A map entry (key-value pair) for <tt>MapKF</tt>. The
-	 * <tt>MapKI.entrySet</tt> method returns a collection-view of the map,
+	 * <tt>MapKF.entrySet</tt> method returns a collection-view of the map,
 	 * whose elements are of this class. The <i>only</i> way to obtain a
 	 * reference to a map entry is from the iterator of this collection-view.
 	 * These <tt>MapKF.Entry</tt> objects are valid <i>only</i> for the

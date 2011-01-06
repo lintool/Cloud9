@@ -13,10 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps ints to ints. This is a variant of the standard Java
- * {@link Map}, except that the types of the keys and values are both hard
- * coded as ints for efficiency reasons. This implementation was adapted from
- * Map version 1.56, 04/21/06.
+ * Map from ints to ints.
  */
 public interface MapII {
 	public static final int DEFAULT_VALUE = 0;

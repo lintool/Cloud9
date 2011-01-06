@@ -13,13 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps keys to longs. This is a variant of the standard Java
- * {@link Map}, except that the type of the values is hard coded as long for
- * efficiency reasons. This implementation was adapted from Map version 1.56,
- * 04/21/06.
- * 
- * @param <K>
- *            the type of keys maintained by this map
+ * Map from arbitrary objects to longs.
+ * @param <K> type of the keys
  */
 public interface MapKL<K> {
 	// Query Operations
@@ -144,11 +139,11 @@ public interface MapKL<K> {
 	Set<MapKL.Entry<K>> entrySet();
 
 	/**
-	 * A map entry (key-value pair) for <tt>MapKF</tt>. The
-	 * <tt>MapKI.entrySet</tt> method returns a collection-view of the map,
+	 * A map entry (key-value pair) for <tt>MapKL</tt>. The
+	 * <tt>MapKL.entrySet</tt> method returns a collection-view of the map,
 	 * whose elements are of this class. The <i>only</i> way to obtain a
 	 * reference to a map entry is from the iterator of this collection-view.
-	 * These <tt>MapKF.Entry</tt> objects are valid <i>only</i> for the
+	 * These <tt>MapKL.Entry</tt> objects are valid <i>only</i> for the
 	 * duration of the iteration; more formally, the behavior of a map entry is
 	 * undefined if the backing map has been modified after the entry was
 	 * returned by the iterator, except through the <tt>setValue</tt>
@@ -225,7 +220,7 @@ public interface MapKL<K> {
 	 * <tt>m2</tt> represent the same mappings if
 	 * <tt>m1.entrySet().equals(m2.entrySet())</tt>. This ensures that the
 	 * <tt>equals</tt> method works properly across different implementations
-	 * of the <tt>MapKF</tt> interface.
+	 * of the <tt>MapKL</tt> interface.
 	 * 
 	 * @param o
 	 *            object to be compared for equality with this map

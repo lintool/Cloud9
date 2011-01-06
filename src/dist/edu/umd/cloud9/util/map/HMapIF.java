@@ -17,19 +17,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Hash-based implementation of the <tt>MapIF</tt> interface. {@link MapIF} is
- * a specialized variant the standard Java {@link Map} interface, except that
- * the keys are hard coded as ints and values are hard coded as floats for
- * efficiency reasons. This implementation was adapted from {@link HashMap}
- * version 1.73, 03/13/07. See <a href="{@docRoot}/../content/map.html">this
- * benchmark</a> for an efficiency comparison.
+ * Hash-based implementation of {@link MapIF}.
  */
 public class HMapIF implements MapIF, Cloneable, Serializable {
 

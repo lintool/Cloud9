@@ -13,13 +13,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps keys to ints. This is a variant of the standard Java
- * {@link Map}, except that the type of the values is hard coded as int for
- * efficiency reasons. This implementation was adapted from Map version 1.56,
- * 04/21/06.
- * 
- * @param <K>
- *            the type of keys maintained by this map
+ * Map from arbitrary objects to ints.
+ * @param <K> type of the keys
  */
 public interface MapKI<K> {
 	public static final int DEFAULT_VALUE = 0;

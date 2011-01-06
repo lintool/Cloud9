@@ -13,10 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps ints to shorts. This is a variant of the standard Java
- * {@link Map}, except that the type of the keys is hard coded as int and the
- * type of the values is hard coded as short for efficiency reasons. This
- * implementation was adapted from Map version 1.56, 04/21/06.
+ * Map from ints to shorts.
  */
 public interface MapIS {
 	public static final int DEFAULT_VALUE = 0;
@@ -73,7 +70,7 @@ public interface MapIS {
 	 * @param key   key with which the specified value is to be associated
 	 * @param value value to be associated with the specified key
 	 */
-	int put(int key, short value);
+	short put(int key, short value);
 
 	/**
 	 * Removes the mapping for a key from this map if it is present. No action

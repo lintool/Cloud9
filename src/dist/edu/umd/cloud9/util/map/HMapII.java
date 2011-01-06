@@ -17,21 +17,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Hash-based implementation of the <tt>MapII</tt> interface. {@link MapII} is
- * a specialized variant the standard Java {@link Map} interface, except that
- * the keys and values are hard coded as ints for efficiency reasons. This
- * implementation was adapted from {@link HashMap} version 1.73, 03/13/07. See
- * <a href="{@docRoot}/../content/map.html">this benchmark</a> for an
- * efficiency comparison.
+ * Hash-based implementation of {@link MapII}.
  */
-
 public class HMapII implements MapII, Cloneable, Serializable {
 
 	/**

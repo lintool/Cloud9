@@ -34,7 +34,6 @@ public class HMapIITest {
 
 	@Test
 	public void testBasic1() {
-
 		int size = 100000;
 		Random r = new Random();
 		int[] ints = new int[size];

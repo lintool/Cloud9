@@ -190,19 +190,19 @@ public class HMapIFTest {
 		assertEquals(5, e.length);
 
 		assertEquals(1, e[0].getKey());
-		assertEquals(5.0f, (float) e[0].getValue(), 10E-6);
+		assertEquals(5.0f, e[0].getValue(), 10E-6);
 
 		assertEquals(3, e[1].getKey());
-		assertEquals(3.0f, (float) e[1].getValue(), 10E-6);
+		assertEquals(3.0f, e[1].getValue(), 10E-6);
 
 		assertEquals(4, e[2].getKey());
-		assertEquals(3.0f, (float) e[2].getValue(), 10E-6);
+		assertEquals(3.0f, e[2].getValue(), 10E-6);
 
 		assertEquals(2, e[3].getKey());
-		assertEquals(2.0f, (float) e[3].getValue(), 10E-6);
+		assertEquals(2.0f, e[3].getValue(), 10E-6);
 
 		assertEquals(5, e[4].getKey());
-		assertEquals(1.0f, (float) e[4].getValue(), 10E-6);
+		assertEquals(1.0f, e[4].getValue(), 10E-6);
 	}
 
 	@Test
@@ -220,10 +220,10 @@ public class HMapIFTest {
 		assertEquals(2, e.length);
 
 		assertEquals(1, e[0].getKey());
-		assertEquals(5.0f, (float) e[0].getValue(), 10E-6);
+		assertEquals(5.0f, e[0].getValue(), 10E-6);
 
 		assertEquals(3, e[1].getKey());
-		assertEquals(3.0f, (float) e[1].getValue(), 10E-6);
+		assertEquals(3.0f, e[1].getValue(), 10E-6);
 	}
 	
 	@Test
@@ -238,10 +238,10 @@ public class HMapIFTest {
 		assertEquals(2, e.length);
 
 		assertEquals(1, e[0].getKey());
-		assertEquals(5.0f, (float) e[0].getValue(), 10E-6);
+		assertEquals(5.0f, e[0].getValue(), 10E-6);
 
 		assertEquals(2, e[1].getKey());
-		assertEquals(2.0f, (float) e[1].getValue(), 10E-6);
+		assertEquals(2.0f, e[1].getValue(), 10E-6);
 	}
 	
 	@Test

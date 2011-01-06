@@ -220,23 +220,23 @@ public class HMapKFTest {
 
 		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
-		assertEquals(5.0f, (float) e.getValue(), 10E-6);
+		assertEquals(5.0f, e.getValue(), 10E-6);
 
 		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
-		assertEquals(3.0f, (float) e.getValue(), 10E-6);
+		assertEquals(3.0f, e.getValue(), 10E-6);
 
 		e = entries[2];
 		assertEquals(new Text("d"), e.getKey());
-		assertEquals(3.0f, (float) e.getValue(), 10E-6);
+		assertEquals(3.0f, e.getValue(), 10E-6);
 
 		e = entries[3];
 		assertEquals(new Text("b"), e.getKey());
-		assertEquals(2.0f, (float) e.getValue(), 10E-6);
+		assertEquals(2.0f, e.getValue(), 10E-6);
 
 		e = entries[4];
 		assertEquals(new Text("e"), e.getKey());
-		assertEquals(1.0f, (float) e.getValue(), 10E-6);
+		assertEquals(1.0f, e.getValue(), 10E-6);
 
 	}
 
@@ -257,11 +257,11 @@ public class HMapKFTest {
 
 		e = entries[0];
 		assertEquals(new Text("a"), e.getKey());
-		assertEquals(5.0f, (float) e.getValue(), 10E-6);
+		assertEquals(5.0f, e.getValue(), 10E-6);
 
 		e = entries[1];
 		assertEquals(new Text("c"), e.getKey());
-		assertEquals(3.0f, (float) e.getValue(), 10E-6);
+		assertEquals(3.0f, e.getValue(), 10E-6);
 	}
 
 	public static junit.framework.Test suite() {

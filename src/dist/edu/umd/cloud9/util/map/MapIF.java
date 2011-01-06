@@ -13,10 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An object that maps ints to floats. This is a variant of the standard Java
- * {@link Map}, except that the type of the keys is hard coded as int and the
- * type of the values is hard coded as float for efficiency reasons. This
- * implementation was adapted from Map version 1.56, 04/21/06.
+ * Map from ints to floats.
  */
 public interface MapIF {
 	// Query Operations
