@@ -48,7 +48,23 @@ import edu.umd.cloud9.util.MapIV;
 import edu.umd.cloud9.example.hits.HITSNode;
 
 /**
- * @author michaelmcgrath
+ * <p>
+ * Driver program that takes a plain-text encoding of a directed graph and
+ * builds corresponding Hadoop structures for representing the graph. This
+ * program constructs a list of nodes with their incoming links from a encoding
+ * of nodes with outgoing links. It expects to
+ * Command-line parameters are as follows:
+ * </p>
+ * 
+ * <ul>
+ * 
+ * <li>[input-path]: input directory</li>
+ * <li>[output-path]: output directory</li>
+ * <li>[num-mappers]: number of mappers to start</li>
+ * <li>[num-reducers]: number of reducers to start</li>
+ * <li>[stoplist-path]: path to file containing nodeIDs to ignore</li>
+ * </ul>
+ * @author Mike McGrath
  * 
  */
 public class AFormatterWG extends Configured implements Tool {
@@ -197,7 +213,7 @@ public class AFormatterWG extends Configured implements Tool {
 
 	private static int printUsage() {
 		System.out
-				.println("usage: [input-path] [output-path] [num-mappers] [num-reducers]");
+				.println("usage: [input-path] [output-path] [num-mappers] [num-reducers] [stoplist-path]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
