@@ -28,7 +28,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.util.FSLineReader;
+import edu.umd.cloud9.io.FSLineReader;
 
 /**
  * <p>
@@ -37,7 +37,7 @@ import edu.umd.cloud9.util.FSLineReader;
  * </p>
 
  * 
- * @author Ferhan Ture
+ * @author Jimmy Lin
  */
 public class TextDocnoMapping implements DocnoMapping {
 
