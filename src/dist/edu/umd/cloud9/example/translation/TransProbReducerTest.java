@@ -21,8 +21,6 @@ import org.junit.Test;
 
 import edu.umd.cloud9.io.PairOfStrings;
 
-import edu.umd.cloud9.example.translation.TranslationProbability.*;
- 
 /**
  * Test cases for the inverted index mapper.
  */
