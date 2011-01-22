@@ -68,7 +68,7 @@ public class TransProbMapperTest extends TestCase {
  
         List<Pair<PairOfStrings, FloatWritable>> expected = new ArrayList<Pair<PairOfStrings, FloatWritable>>();
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("evil", "mal"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("evil", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("evil", ""), EXPECTED_COUNT));
  
         assertListEquals(expected, out);
     }
@@ -85,15 +85,15 @@ public class TransProbMapperTest extends TestCase {
  
         List<Pair<PairOfStrings, FloatWritable>> expected = new ArrayList<Pair<PairOfStrings, FloatWritable>>();
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("banks", "banques"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("banks", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("banks", ""), EXPECTED_COUNT));
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("are", "sont"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("are", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("are", ""), EXPECTED_COUNT));
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("on", "sur"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("on", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("on", ""), EXPECTED_COUNT));
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("the", "la"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("the", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("the", ""), EXPECTED_COUNT));
         expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("bank", "rive"), EXPECTED_COUNT));
-        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("bank", "*"), EXPECTED_COUNT));
+        expected.add(new Pair<PairOfStrings, FloatWritable>(new PairOfStrings("bank", ""), EXPECTED_COUNT));
 
         assertListEquals(expected, out);
     }
