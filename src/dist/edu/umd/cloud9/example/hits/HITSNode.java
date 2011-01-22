@@ -9,6 +9,7 @@ import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 /**
  * 
  * <p>Representation of a Hubs and Authorities Node for HITS algorithm computation</p>
+ * <p> lets try git stuff</p>
  * 
  * @author Mike McGrath
  *
