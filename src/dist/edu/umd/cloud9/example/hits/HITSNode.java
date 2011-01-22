@@ -23,21 +23,34 @@ public class HITSNode implements Writable {
 	public static final int TYPE_AUTH_COMPLETE = 2;
 	public static final int TYPE_AUTH_MASS = 4;
 	public static final int TYPE_AUTH_STRUCTURE = 6;
+	public static final int TYPE_NODE_COMPLETE = 7;
+	public static final int TYPE_NODE_MASS = 8;
+	public static final int TYPE_NODE_STRUCTURE = 9;
 
 	private int mType;
 	private int mNodeId;
-	private float mHARank;
-	private ArrayListOfIntsWritable mAdjacencyList;
+	private float mHRank;
+	private float mARank;
+	private ArrayListOfIntsWritable mInlinks;
+	private ArrayListOfIntsWritable mOutlinks;
 
 	public HITSNode() {
 	}
 
-	public float getHARank() {
-		return mHARank;
+	public float getHRank() {
+		return mHRank;
+	}
+	
+	public float getARank() {
+		return mHRank;
 	}
 
-	public void setHARank(float r) {
-		mHARank = r;
+	public void setHRank(float r) {
+		mHRank = r;
+	}
+	
+	public void setARank(float r) {
+		mARank = r;
 	}
 
 	public int getNodeId() {
@@ -48,12 +61,20 @@ public class HITSNode implements Writable {
 		mNodeId = n;
 	}
 
-	public ArrayListOfIntsWritable getAdjacencyList() {
-		return mAdjacencyList;
+	public ArrayListOfIntsWritable getInlinks() {
+		return mInlinks;
 	}
 
-	public void setAdjacencyList(ArrayListOfIntsWritable l) {
-		mAdjacencyList = l;
+	public void setInlinkst(ArrayListOfIntsWritable l) {
+		mInlinks = l;
+	}
+	
+	public ArrayListOfIntsWritable getOutlinks() {
+		return mOutlinks;
+	}
+
+	public void setOutlinks(ArrayListOfIntsWritable l) {
+		mOutlinks = l;
 	}
 
 	public int getType() {
@@ -80,17 +101,36 @@ public class HITSNode implements Writable {
 
 		mNodeId = in.readInt();
 
-		if (mType == TYPE_HUB_MASS || mType == TYPE_AUTH_MASS) {
-			mHARank = in.readFloat();
+		if (mType == TYPE_HUB_MASS || mType == TYPE_NODE_MASS) {
+			mHRank = in.readFloat();
+			return;
+		}
+		
+		if (mType == TYPE_AUTH_MASS || mType == TYPE_NODE_MASS) {
+			mARank = in.readFloat();
 			return;
 		}
 
-		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_AUTH_COMPLETE) {
-			mHARank = in.readFloat();
+		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_NODE_COMPLETE) {
+			mHRank = in.readFloat();
+		}
+		
+		if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_NODE_COMPLETE) {
+			mARank = in.readFloat();
 		}
 
-		mAdjacencyList = new ArrayListOfIntsWritable();
-		mAdjacencyList.readFields(in);
+		if (mType == TYPE_HUB_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
+		{
+			mInlinks = new ArrayListOfIntsWritable();
+			mInlinks.readFields(in);
+		}
+		
+		//is this right -- inlinks go with hub and outlinks go with auth???
+		if (mType == TYPE_AUTH_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
+		{
+			mOutlinks = new ArrayListOfIntsWritable();
+			mOutlinks.readFields(in);
+		}
 	}
 
 	/**
@@ -103,16 +143,26 @@ public class HITSNode implements Writable {
 		out.writeByte((byte) mType);
 		out.writeInt(mNodeId);
 
-		if (mType == TYPE_HUB_MASS || mType == TYPE_AUTH_MASS) {
-			out.writeFloat(mHARank);
+		if (mType == TYPE_HUB_MASS || mType == TYPE_NODE_MASS) {
+			out.writeFloat(mHRank);
+			return;
+		}
+		
+		if (mType == TYPE_AUTH_MASS || mType == TYPE_NODE_MASS) {
+			out.writeFloat(mARank);
 			return;
 		}
 
-		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_AUTH_COMPLETE) {
-			out.writeFloat(mHARank);
+		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_NODE_COMPLETE) {
+			out.writeFloat(mHRank);
+		}
+		
+		if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_NODE_COMPLETE) {
+			out.writeFloat(mARank);
 		}
 
-		mAdjacencyList.write(out);
+		mInlinks.write(out);
+		mOutlinks.write(out);
 	}
 
 	public String toString() {
