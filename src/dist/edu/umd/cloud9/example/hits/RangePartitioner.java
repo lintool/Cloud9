@@ -5,6 +5,14 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.Partitioner;
 import org.apache.hadoop.mapred.JobConf;
 
+/**
+ * Range partitioner. In the context of graph algorithms, ensures that
+ * consecutive node ids are blocked together.
+ * 
+ * @author Jimmy Lin
+ * 
+ */
+
 public class RangePartitioner<K, V> implements
 		Partitioner<IntWritable, Writable> {
 	private int mNodeCnt = 0;

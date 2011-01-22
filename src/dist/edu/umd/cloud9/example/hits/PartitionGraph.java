@@ -32,6 +32,28 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.example.hits.RangePartitioner;
 
+/**
+ * <p>
+ * Driver program for partitioning the graph. This version reads & writes HITSNode writables. Command-line arguments are as
+ * follows:
+ * </p>
+ * 
+ * <ul>
+ * 
+ * <li>[inputDir]: input directory</li>
+ * <li>[outputDir]: output directory</li>
+ * <li>[numPartitions]: number of partitions</li>
+ * <li>[useRange?]: 1 to use range partitioning or 0 otherwise</li>
+ * <li>[nodeCount]: number of nodes in the graph</li>
+ * 
+ * </ul>
+ * 
+ * @see edu.umd.cloud9.example.PartitionGraph
+ * @author Jimmy Lin
+ * @author Mike McGrath
+ * 
+ */
+
 public class PartitionGraph extends Configured implements Tool {
 	private static final Logger sLogger = Logger
 			.getLogger(PartitionGraph.class);

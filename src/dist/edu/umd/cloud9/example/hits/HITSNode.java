@@ -3,10 +3,17 @@ package edu.umd.cloud9.example.hits;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.apache.hadoop.io.Writable;
-
 import edu.umd.cloud9.io.ArrayListOfIntsWritable;
+
+/**
+ * 
+ * <p>Representation of a Hubs and Authorities Node for HITS algorithm computation</p>
+ * 
+ * @author Mike McGrath
+ *
+ */
+
 
 public class HITSNode implements Writable {
 	public static final int TYPE_HUB_COMPLETE = 1;
