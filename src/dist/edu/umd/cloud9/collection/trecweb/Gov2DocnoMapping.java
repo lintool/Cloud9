@@ -53,8 +53,8 @@ public class Gov2DocnoMapping implements DocnoMapping {
 		int subdirNum = Integer.parseInt(docid.substring(6, 8));
 		int num = Integer.parseInt(docid.substring(9));
 		int offset = Arrays.binarySearch(mDocIds[dirNum * 100 + subdirNum], num);
-		sLogger.info("Document name: " + docid + ", id: "
-				+ (mOffsets[dirNum * 100 + subdirNum] + offset + 1));
+		//sLogger.info("Document name: " + docid + ", id: "
+		//		+ (mOffsets[dirNum * 100 + subdirNum] + offset + 1));
 		return mOffsets[dirNum * 100 + subdirNum] + offset + 1;
 	}
 
