@@ -51,8 +51,8 @@ public class Wt10gDocnoMapping implements DocnoMapping {
 		int subdirNum = Integer.parseInt(docid.substring(8, 10));
 		int num = Integer.parseInt(docid.substring(11));
 		int offset = Arrays.binarySearch(mDocIds[dirNum * 50 + subdirNum], num);
-		sLogger.info("Document name: " + docid + ", id: "
-				+ (mOffsets[dirNum * 50 + subdirNum] + offset + 1));
+		//sLogger.info("Document name: " + docid + ", id: "
+		//		+ (mOffsets[dirNum * 50 + subdirNum] + offset + 1));
 		return mOffsets[dirNum * 50 + subdirNum] + offset + 1;
 	}
 
