@@ -28,6 +28,27 @@ import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 
 import edu.umd.cloud9.example.hits.HITSNode;
 
+/**
+ * 
+ * <p>
+ * Driver program to merges the output of HFormatterWG and AFormatterWG into a 
+ * single set of  of output files. It takes five command line arguments:
+ * </p>
+ * 
+ * <ul>
+ * <li>[hub-input-path]: input directory containing output of HFormatterWG</li>
+ * <li>[auth-input-path]: input directory containing output of AFormatterWG</li>
+ * <li>[output-path]: output directory</li>
+ * <li>[num-mappers]: number of mappers to use (may be overridden by Hadoop)</li>
+ * <li>[num-reducers]: number of reducers to use, also the number of output files</li>
+ * </ul>
+ * 
+ * @see HFormatterWG
+ * @see AFormatterWG
+ * @author Mike McGrath
+ *
+ */
+
 public class MergeFormattedRecords extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(AFormatterWG.class);

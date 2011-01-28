@@ -61,6 +61,7 @@ import edu.umd.cloud9.example.hits.HITSNode;
  * @author Mike McGrath
  * 
  */
+
 public class HFormatterWG extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(HFormatterWG.class);

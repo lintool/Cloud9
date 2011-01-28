@@ -58,9 +58,38 @@ import edu.umd.cloud9.util.MapIF;
 import edu.umd.cloud9.util.HMapIF;
 
 /**
- * @author michaelmcgrath
+ * <p>
+ * Main driver program for running the schimmy version of Kleinberg's
+ * Hubs and Authorities/Hyperlink-Induced Topic Search (HITS) algorithm
+ * Command line arguments are:
+ * </p>
+ * 
+ * <ul>
+ * <li>[basePath]: the base path</li>
+ * <li>[numNodes]: number of nodes in the graph</li>
+ * <li>[start]: starting iteration</li>
+ * <li>[end]: ending iteration</li>
+ * <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
+ * <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
+ * <li>[useRange?]: 1 for range partitioning, 0 for not</li>
+ * <li>[num Mappers]: number of mappers to use</li>
+ * <li>[numReducers]: number of reducers to use. This should remain constant between iterations</li>
+ * </ul>
+ * 
+ * <p>
+ * The starting and ending iterations will correspond to paths
+ * <code>/base/path/iterXXXX</code> and <code>/base/path/iterYYYY</code>. As a
+ * example, if you specify 0 and 10 as the starting and ending iterations, the
+ * driver program will start with the graph structure stored at
+ * <code>/base/path/iter0000</code>; final results will be stored at
+ * <code>/base/path/iter0010</code>.
+ * </p> 
+ * 
+ * @see HubsAndAuthorities
+ * @author Mike McGrath
  * 
  */
+
 public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger
