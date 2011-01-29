@@ -18,7 +18,6 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -70,56 +69,38 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  * 
  */
+@SuppressWarnings("deprecation")
 public class RepackWikipedia extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(RepackWikipedia.class);
 
-	private static final Logger sLogger = Logger.getLogger(RepackWikipedia.class);
-
-	private static enum Records {
-		TOTAL
-	};
+	private static enum Records { TOTAL	};
 
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, IntWritable, WikipediaPage> {
 
-		private static final IntWritable sDocno = new IntWritable();
-		private WikipediaDocnoMapping mDocnoMapping = new WikipediaDocnoMapping();
+		private static final IntWritable docno = new IntWritable();
+		private static final WikipediaDocnoMapping docnoMapping = new WikipediaDocnoMapping();
 
 		public void configure(JobConf job) {
 			try {
-				mDocnoMapping.loadMapping(new Path(job.get("DocnoMappingDataFile")), FileSystem
-						.get(job));
+				docnoMapping.loadMapping(new Path(job.get("DocnoMappingDataFile")), FileSystem.get(job));
 			} catch (Exception e) {
 				throw new RuntimeException("Error loading docno mapping data file!");
 			}
 		}
 
 		public void map(LongWritable key, WikipediaPage doc,
-				OutputCollector<IntWritable, WikipediaPage> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<IntWritable, WikipediaPage> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(Records.TOTAL, 1);
-
 			String id = doc.getDocid();
 
 			if (id != null) {
 				reporter.incrCounter(Records.TOTAL, 1);
 
-				sDocno.set(mDocnoMapping.getDocno(id));
-				output.collect(sDocno, doc);
+				docno.set(docnoMapping.getDocno(id));
+				output.collect(docno, doc);
 			}
 		}
-	}
-
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public RepackWikipedia() {
-	}
-
-	private static int printUsage() {
-		System.out
-				.println("usage: [xml-dump-file] [output-path] [docno-mapping-data-file] (block|record|none)");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
 	}
 
 	/**
@@ -127,7 +108,8 @@ public class RepackWikipedia extends Configured implements Tool {
 	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			printUsage();
+			System.out.println("usage: [xml-dump-file] [output-path] [docno-mapping-data-file] (block|record|none)");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -136,8 +118,7 @@ public class RepackWikipedia extends Configured implements Tool {
 		String data = args[2];
 		String compressionType = args[3];
 
-		if (!compressionType.equals("block") && !compressionType.equals("record")
-				&& !compressionType.equals("none")) {
+		if (!"block".equals(compressionType) && !"record".equals(compressionType) && !"none".equals(compressionType)) {
 			System.err.println("Error: \"" + compressionType + "\" unknown compression type!");
 			System.exit(-1);
 		}
@@ -150,14 +131,14 @@ public class RepackWikipedia extends Configured implements Tool {
 
 		conf.set("DocnoMappingDataFile", data);
 
-		sLogger.info("Tool name: RepackWikipedia");
-		sLogger.info(" - xml dump file: " + basePath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - docno mapping data file: " + data);
-		sLogger.info(" - compression type: " + compressionType);
+		LOG.info("Tool name: RepackWikipedia");
+		LOG.info(" - xml dump file: " + basePath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - docno mapping data file: " + data);
+		LOG.info(" - compression type: " + compressionType);
 
-		if (compressionType.equals("block")) {
-			sLogger.info(" - block size: " + blocksize);
+		if ("block".equals(compressionType)) {
+			LOG.info(" - block size: " + blocksize);
 		}
 
 		int mapTasks = 10;
@@ -168,17 +149,15 @@ public class RepackWikipedia extends Configured implements Tool {
 		SequenceFileInputFormat.addInputPath(conf, new Path(basePath));
 		SequenceFileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		if (compressionType.equals("none")) {
+		if ("none".equals(compressionType)) {
 			SequenceFileOutputFormat.setCompressOutput(conf, false);
 		} else {
 			SequenceFileOutputFormat.setCompressOutput(conf, true);
 
-			if (compressionType.equals("record")) {
-				SequenceFileOutputFormat.setOutputCompressionType(conf,
-						SequenceFile.CompressionType.RECORD);
+			if ("record".equals(compressionType)) {
+				SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.RECORD);
 			} else {
-				SequenceFileOutputFormat.setOutputCompressionType(conf,
-						SequenceFile.CompressionType.BLOCK);
+				SequenceFileOutputFormat.setOutputCompressionType(conf,	SequenceFile.CompressionType.BLOCK);
 				conf.setInt("io.seqfile.compress.blocksize", blocksize);
 			}
 		}
@@ -190,7 +169,7 @@ public class RepackWikipedia extends Configured implements Tool {
 
 		conf.setMapperClass(MyMapper.class);
 
-		// delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
@@ -198,13 +177,9 @@ public class RepackWikipedia extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new RepackWikipedia(), args);
-		System.exit(res);
-	}
+	public RepackWikipedia() {}
 
+	public static void main(String[] args) throws Exception {
+		ToolRunner.run(new RepackWikipedia(), args);
+	}
 }

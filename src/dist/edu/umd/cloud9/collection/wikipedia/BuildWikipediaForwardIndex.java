@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -18,7 +18,6 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -58,24 +57,18 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
  * @author Jimmy Lin
  * 
  */
+@SuppressWarnings("deprecation")
 public class BuildWikipediaForwardIndex extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(BuildWikipediaForwardIndex.class);
 
-	private static final Logger sLogger = Logger.getLogger(BuildWikipediaForwardIndex.class);
+	private static enum Blocks { Total };
 
-	private static enum Blocks {
-		Total
-	};
+	private static class MyMapRunner implements MapRunnable<IntWritable, WikipediaPage, IntWritable, Text> {
+		private static final IntWritable keyOut = new IntWritable();
+		private static final Text valOut = new Text();
 
-	private static class MyMapRunner implements
-			MapRunnable<IntWritable, WikipediaPage, IntWritable, Text> {
+		private int fileno;
 
-		int fileno;
-		long pos = -1;
-
-		private static final IntWritable sOutputKey = new IntWritable();
-		private static final Text sOutputValue = new Text();
-
-		@SuppressWarnings("unchecked")
 		public void configure(JobConf job) {
 			String file = job.get("map.input.file");
 			fileno = Integer.parseInt(file.substring(file.indexOf("part-") + 5));
@@ -83,7 +76,6 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 
 		public void run(RecordReader<IntWritable, WikipediaPage> input,
 				OutputCollector<IntWritable, Text> output, Reporter reporter) throws IOException {
-
 			IntWritable key = new IntWritable();
 			WikipediaPage value = new WikipediaPage();
 
@@ -95,11 +87,10 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 			pos = input.getPos();
 			while (input.next(key, value)) {
 				if (prevPos != -1 && prevPos != pos) {
-					sLogger.info("- beginning of block at " + prevPos + ", docno:" + prevDocno
-							+ ", file:" + fileno);
-					sOutputKey.set(prevDocno);
-					sOutputValue.set(prevPos + "\t" + fileno);
-					output.collect(sOutputKey, sOutputValue);
+					LOG.info("- beginning of block at " + prevPos + ", docno:" + prevDocno + ", file:" + fileno);
+					keyOut.set(prevDocno);
+					valOut.set(prevPos + "\t" + fileno);
+					output.collect(keyOut, valOut);
 					reporter.incrCounter(Blocks.Total, 1);
 				}
 
@@ -107,26 +98,13 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 				pos = input.getPos();
 				prevDocno = key.get();
 			}
-
 		}
-
 	}
 
-	public BuildWikipediaForwardIndex() {
-	}
-
-	private static int printUsage() {
-		System.out.println("usage: [collection-path] [output-path] [index-file]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 3) {
-			printUsage();
+			System.out.println("usage: [collection-path] [output-path] [index-file]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -137,11 +115,11 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		String outputPath = args[1];
 		String indexFile = args[2];
 
-		sLogger.info("Tool name: BuildWikipediaForwardIndex");
-		sLogger.info(" - collection path: " + collectionPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - index file: " + indexFile);
-		sLogger.info("Note: This tool only works on block-compressed SequenceFiles!");
+		LOG.info("Tool name: BuildWikipediaForwardIndex");
+		LOG.info(" - collection path: " + collectionPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - index file: " + indexFile);
+		LOG.info("Note: This tool only works on block-compressed SequenceFiles!");
 
 		conf.setJobName("BuildWikipediaForwardIndex:" + collectionPath);
 
@@ -167,9 +145,9 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		Counters counters = job.getCounters();
 		int blocks = (int) counters.findCounter(Blocks.Total).getCounter();
 
-		sLogger.info("number of blocks: " + blocks);
+		LOG.info("number of blocks: " + blocks);
 
-		sLogger.info("Writing index file...");
+		LOG.info("Writing index file...");
 		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
@@ -193,9 +171,8 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 			cnt++;
 
 			if (cnt % 100000 == 0) {
-				sLogger.info(cnt + " blocks written");
+				LOG.info(cnt + " blocks written");
 			}
-
 		}
 
 		reader.close();
@@ -208,12 +185,9 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	public BuildWikipediaForwardIndex() {}
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BuildWikipediaForwardIndex(), args);
-		System.exit(res);
+		ToolRunner.run(new BuildWikipediaForwardIndex(), args);
 	}
 }

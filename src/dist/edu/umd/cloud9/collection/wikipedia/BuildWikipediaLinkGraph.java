@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -60,44 +59,37 @@ import edu.umd.cloud9.io.PairOfStringInt;
  * @author Jimmy Lin
  *
  */
+@SuppressWarnings("deprecation")
 public class BuildWikipediaLinkGraph extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(BuildWikipediaLinkGraph.class);
 
-	private static final Logger sLogger = Logger.getLogger(BuildWikipediaLinkGraph.class);
-
-	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
-	};
+	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
 
 	private static class MyMapper1 extends MapReduceBase implements
 			Mapper<IntWritable, WikipediaPage, PairOfStringInt, Text> {
-
-		private static Text sText = new Text();
-		private static PairOfStringInt sPair = new PairOfStringInt();
+		private static Text text = new Text();
+		private static PairOfStringInt pair = new PairOfStringInt();
 
 		public void map(IntWritable key, WikipediaPage p,
-				OutputCollector<PairOfStringInt, Text> output, Reporter reporter)
-				throws IOException {
+				OutputCollector<PairOfStringInt, Text> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(PageTypes.TOTAL, 1);
+
+			String title = p.getTitle();
 
 			// This is a caveat and a potential gotcha: Wikipedia article titles
 			// are not case sensitive on the initial character, so a link to
 			// "commodity" will go to the article titled "Commodity" without any
 			// issue. Therefore we need to emit two versions of article titles.
-
-			sText.set(p.getDocid());
-
-			String title = p.getTitle();
-
-			sPair.set(title, 0);
-			output.collect(sPair, sText);
+			text.set(p.getDocid());
+			pair.set(title, 0);
+			output.collect(pair, text);
 
 			String fc = title.substring(0, 1);
-
 			if (fc.matches("[A-Z]")) {
 				title = title.replaceFirst(fc, fc.toLowerCase());
 
-				sPair.set(title, 0);
-				output.collect(sPair, sText);
+				pair.set(title, 0);
+				output.collect(pair, text);
 			}
 
 			if (p.isRedirect()) {
@@ -117,54 +109,51 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 			}
 
 			for (String t : p.extractLinkDestinations()) {
-				sText.set(t);
+				pair.set(t, 1);
+				text.set(p.getDocid());
 
-				sPair.set(t, 1);
-				sText.set(p.getDocid());
-
-				output.collect(sPair, sText);
+				output.collect(pair, text);
 			}
-
 		}
 	}
 
 	private static class MyReducer1 extends MapReduceBase implements
 			Reducer<PairOfStringInt, Text, IntWritable, IntWritable> {
 
-		private final static IntWritable sFinalSrc = new IntWritable();
-		private final static IntWritable sFinalDest = new IntWritable();
+		private static final IntWritable finalSrc = new IntWritable();
+		private static final IntWritable finalDest = new IntWritable();
 
-		private static String sCurrentArticle;
-		private static int sCurrentDocid;
+		private static String curArticle;
+		private static int curDocid;
 
 		public void reduce(PairOfStringInt key, Iterator<Text> values,
 				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
 				throws IOException {
 
 			if (key.getRightElement() == 0) {
-				// we want to emit a placeholder in case this is a dangling node
-				sCurrentArticle = key.getLeftElement();
-				sCurrentDocid = Integer.parseInt(values.next().toString());
+				// We want to emit a placeholder in case this is a dangling node.
+				curArticle = key.getLeftElement();
+				curDocid = Integer.parseInt(values.next().toString());
 
-				sFinalSrc.set(sCurrentDocid);
-				sFinalDest.set(sCurrentDocid);
-				output.collect(sFinalSrc, sFinalDest);
+				finalSrc.set(curDocid);
+				finalDest.set(curDocid);
+				output.collect(finalSrc, finalDest);
 			} else {
-				if (!key.getLeftElement().equals(sCurrentArticle))
+				if (!key.getLeftElement().equals(curArticle)) {
 					return;
+				}
 
 				while (values.hasNext()) {
-					sFinalSrc.set(Integer.parseInt(values.next().toString()));
-					sFinalDest.set(sCurrentDocid);
-					output.collect(sFinalSrc, sFinalDest);
+					finalSrc.set(Integer.parseInt(values.next().toString()));
+					finalDest.set(curDocid);
+					output.collect(finalSrc, finalDest);
 				}
 			}
 		}
 	}
 
 	private static class MyPartitioner1 implements Partitioner<PairOfStringInt, Text> {
-		public void configure(JobConf job) {
-		}
+		public void configure(JobConf job) {}
 
 		public int getPartition(PairOfStringInt key, Text value, int numReduceTasks) {
 			return (key.getLeftElement().hashCode() & Integer.MAX_VALUE) % numReduceTasks;
@@ -174,25 +163,25 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 	private static class MyMapper2 extends MapReduceBase implements
 			Mapper<LongWritable, Text, IntWritable, IntWritable> {
 
-		private static IntWritable sOutKey = new IntWritable();
-		private static IntWritable sOutValue = new IntWritable();
+		private static IntWritable keyOut = new IntWritable();
+		private static IntWritable valOut = new IntWritable();
 
 		public void map(LongWritable key, Text t, OutputCollector<IntWritable, IntWritable> output,
 				Reporter reporter) throws IOException {
 
 			String[] arr = t.toString().split("\\s+");
 
-			sOutKey.set(Integer.parseInt(arr[0]));
-			sOutValue.set(Integer.parseInt(arr[1]));
+			keyOut.set(Integer.parseInt(arr[0]));
+			valOut.set(Integer.parseInt(arr[1]));
 
-			output.collect(sOutKey, sOutValue);
+			output.collect(keyOut, valOut);
 		}
 	}
 
 	private static class MyReducer2 extends MapReduceBase implements
 			Reducer<IntWritable, IntWritable, IntWritable, Text> {
 
-		private final static Text sText = new Text();
+		private final static Text text = new Text();
 
 		public void reduce(IntWritable key, Iterator<IntWritable> values,
 				OutputCollector<IntWritable, Text> output, Reporter reporter) throws IOException {
@@ -204,12 +193,8 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 			while (values.hasNext()) {
 				cur = values.next();
 
-				if (cur.get() == key.get())
-					continue;
-
-				// keep only one link to target
-				if (set.contains(cur.get()))
-					continue;
+				if (cur.get() == key.get()) { continue;	}
+				if (set.contains(cur.get())) { continue; }  // Keep only one link to target.
 
 				set.add(cur.get());
 
@@ -217,31 +202,15 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 				sb.append("\t");
 			}
 
-			sText.set(sb.toString());
-			output.collect(key, sText);
-
+			text.set(sb.toString());
+			output.collect(key, text);
 		}
 	}
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public BuildWikipediaLinkGraph() {
-	}
-
-	private static int printUsage() {
-		System.out
-				.println("usage: [input] [edges-output] [adjacency-list-output] [num-partitions]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			printUsage();
+			System.out.println("usage: [input] [edges-output] [adjacency-list-output] [num-partitions]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -254,9 +223,9 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 	}
 
 	private void task1(String inputPath, String outputPath, int partitions) throws IOException {
-		sLogger.info("Exracting edges...");
-		sLogger.info(" - input: " + inputPath);
-		sLogger.info(" - output: " + outputPath);
+		LOG.info("Exracting edges...");
+		LOG.info(" - input: " + inputPath);
+		LOG.info(" - output: " + outputPath);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
 		conf.setJobName("BuildWikipediaLinkGraph:Edges");
@@ -280,16 +249,16 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		conf.setReducerClass(MyReducer1.class);
 		conf.setPartitionerClass(MyPartitioner1.class);
 
-		// delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
 	}
 
 	private void task2(String inputPath, String outputPath, int partitions) throws IOException {
-		sLogger.info("Building adjacency lists...");
-		sLogger.info(" - input: " + inputPath);
-		sLogger.info(" - output: " + outputPath);
+		LOG.info("Building adjacency lists...");
+		LOG.info(" - input: " + inputPath);
+		LOG.info(" - output: " + outputPath);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
 		conf.setJobName("BuildWikipediaLinkGraph:AdjacencyList");
@@ -312,16 +281,14 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		conf.setMapperClass(MyMapper2.class);
 		conf.setReducerClass(MyReducer2.class);
 
-		// delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		JobClient.runJob(conf);
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	public BuildWikipediaLinkGraph() {}
+
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new BuildWikipediaLinkGraph(), args);
 		System.exit(res);

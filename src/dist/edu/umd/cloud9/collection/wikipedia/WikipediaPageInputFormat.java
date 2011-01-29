@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,6 +36,7 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
  * 
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
 
 	/**
@@ -50,12 +51,10 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 	 * Hadoop <code>RecordReader</code> for reading Wikipedia pages from the
 	 * XML dumps.
 	 */
-	public static class WikipediaPageRecordReader implements
-			RecordReader<LongWritable, WikipediaPage> {
-
-		private XMLRecordReader mReader;
-		private Text mText = new Text();
-		private LongWritable mLong = new LongWritable();
+	public static class WikipediaPageRecordReader implements RecordReader<LongWritable, WikipediaPage> {
+		private XMLRecordReader reader;
+		private Text text = new Text();
+		private LongWritable offset = new LongWritable();
 
 		/**
 		 * Creates a <code>WikipediaPageRecordReader</code>.
@@ -64,17 +63,17 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 			conf.set(XMLInputFormat.START_TAG_KEY, WikipediaPage.XML_START_TAG);
 			conf.set(XMLInputFormat.END_TAG_KEY, WikipediaPage.XML_END_TAG);
 
-			mReader = new XMLRecordReader(split, conf);
+			reader = new XMLRecordReader(split, conf);
 		}
 
 		/**
 		 * Reads the next key-value pair.
 		 */
 		public boolean next(LongWritable key, WikipediaPage value) throws IOException {
-			if (mReader.next(mLong, mText) == false)
+			if (reader.next(offset, text) == false)
 				return false;
-			key.set(mLong.get());
-			WikipediaPage.readPage(value, mText.toString());
+			key.set(offset.get());
+			WikipediaPage.readPage(value, text.toString());
 			return true;
 		}
 
@@ -96,23 +95,22 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 		 * Returns the current position in the input.
 		 */
 		public long getPos() throws IOException {
-			return mReader.getPos();
+			return reader.getPos();
 		}
 
 		/**
 		 * Closes this InputSplit.
 		 */
 		public void close() throws IOException {
-			mReader.close();
+			reader.close();
 		}
 
 		/**
 		 * Returns progress on how much input has been consumed.
 		 */
 		public float getProgress() throws IOException {
-			return ((float) (mReader.getPos() - mReader.getStart()))
-					/ ((float) (mReader.getEnd() - mReader.getStart()));
+			return ((float) (reader.getPos() - reader.getStart()))
+					/ ((float) (reader.getEnd() - reader.getStart()));
 		}
-
 	}
 }
