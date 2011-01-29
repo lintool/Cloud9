@@ -34,10 +34,10 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
-import edu.umd.cloud9.util.ArrayListOfInts;
-import edu.umd.cloud9.util.HMapII;
-import edu.umd.cloud9.util.MapII;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import edu.umd.cloud9.util.array.ArrayListOfInts;
+import edu.umd.cloud9.util.map.HMapII;
+import edu.umd.cloud9.util.map.MapII;
 
 /**
  * <p>

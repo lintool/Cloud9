@@ -25,7 +25,7 @@ import java.util.Random;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 
-import edu.umd.cloud9.io.HashMapWritable;
+import edu.umd.cloud9.io.map.HashMapWritable;
 
 /**
  * <p>

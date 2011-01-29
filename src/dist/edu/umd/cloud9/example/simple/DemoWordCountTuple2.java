@@ -37,9 +37,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListWritable;
 import edu.umd.cloud9.io.Schema;
 import edu.umd.cloud9.io.Tuple;
+import edu.umd.cloud9.io.array.ArrayListWritable;
 
 /**
  * <p>

@@ -45,9 +45,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
-import edu.umd.cloud9.util.HMapIF;
-import edu.umd.cloud9.util.MapIF;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import edu.umd.cloud9.util.map.HMapIF;
+import edu.umd.cloud9.util.map.MapIF;
 
 /**
  * <p>

@@ -2,8 +2,8 @@ package edu.umd.cloud9.util.benchmark;
 
 import java.util.Random;
 
-import edu.umd.cloud9.util.HMapII;
-import edu.umd.cloud9.util.MapII;
+import edu.umd.cloud9.util.map.HMapII;
+import edu.umd.cloud9.util.map.MapII;
 
 public class BenchmarkRandomWalk1HMapII {
 

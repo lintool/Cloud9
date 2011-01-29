@@ -40,12 +40,12 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListWritable;
-import edu.umd.cloud9.io.PairOfInts;
-import edu.umd.cloud9.io.PairOfWritables;
-import edu.umd.cloud9.util.EntryFrequencyDistribution;
-import edu.umd.cloud9.util.FrequencyDistribution;
-import edu.umd.cloud9.util.PairOfObjectInt;
+import edu.umd.cloud9.io.array.ArrayListWritable;
+import edu.umd.cloud9.io.pair.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfWritables;
+import edu.umd.cloud9.util.count.EntryObject2IntFrequencyDistribution;
+import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 public class BuildInvertedIndex extends Configured implements Tool {
 
@@ -53,7 +53,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
 
 	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, PairOfInts> {
 		private static final Text word = new Text();
-		private static final FrequencyDistribution<String> termCounts = new EntryFrequencyDistribution<String>();
+		private static final Object2IntFrequencyDistribution<String> termCounts = new EntryObject2IntFrequencyDistribution<String>();
 
 		public void map(LongWritable docno, Text doc, 
 				OutputCollector<Text, PairOfInts> output, Reporter reporter) throws IOException {

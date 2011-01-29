@@ -1,4 +1,4 @@
-<project name="umd-hadoop-core" default="scripts" basedir=".">
+<project name="Cloud9" default="scripts" basedir=".">
 	<description>Cloud9, University of Maryland's Hadoop Library</description>
 
 	<property name="src" location="src" />
@@ -86,6 +86,7 @@
 			</fileset>
 			<link href="http://java.sun.com/javase/6/docs/api/" />
 			<link href="http://hadoop.apache.org/common/docs/r0.20.1/api/" />
+                        <link href="http://fastutil.dsi.unimi.it/docs/" />
 		</javadoc>
 		<copy todir="${javadoc}">
 			<fileset dir="${src}/dist">

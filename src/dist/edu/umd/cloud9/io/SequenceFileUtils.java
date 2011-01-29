@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 
+import edu.umd.cloud9.io.pair.PairOfWritables;
+
 /**
  * Class containing a number of utility methods for manipulating SequenceFiles.
  */

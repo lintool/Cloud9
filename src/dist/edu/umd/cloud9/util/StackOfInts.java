@@ -16,6 +16,8 @@
 
 package edu.umd.cloud9.util;
 
+import edu.umd.cloud9.util.array.ArrayListOfInts;
+
 /**
  * @author Tamer
  *

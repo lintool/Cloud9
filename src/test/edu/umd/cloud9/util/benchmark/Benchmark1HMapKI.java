@@ -3,8 +3,8 @@ package edu.umd.cloud9.util.benchmark;
 import java.util.Random;
 
 import edu.umd.cloud9.debug.MemoryUsageUtils;
-import edu.umd.cloud9.util.HMapKI;
-import edu.umd.cloud9.util.MapKI;
+import edu.umd.cloud9.util.map.HMapKI;
+import edu.umd.cloud9.util.map.MapKI;
 
 public class Benchmark1HMapKI {
 
