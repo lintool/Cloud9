@@ -19,14 +19,11 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
-import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
-
-import edu.umd.cloud9.example.hits.HITSNode;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
  * 
