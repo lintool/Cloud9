@@ -1,6 +1,8 @@
 
 package edu.umd.cloud9.example.translation;
 
+import static org.apache.hadoop.mrunit.testutil.ExtendedAssert.assertListEquals;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +11,11 @@ import junit.framework.TestCase;
 
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
+import org.apache.hadoop.mrunit.types.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.umd.cloud9.io.pair.Pair;
 import edu.umd.cloud9.io.pair.PairOfStrings;
 
 /**

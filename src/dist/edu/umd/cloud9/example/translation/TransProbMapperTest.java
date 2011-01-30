@@ -2,24 +2,23 @@
 package edu.umd.cloud9.example.translation;
 
 import static org.apache.hadoop.mrunit.testutil.ExtendedAssert.assertListEquals;
- 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 import junit.framework.TestCase;
- 
+
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
-import org.apache.hadoop.mrunit.mock.MockInputSplit;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.umd.cloud9.io.PairOfStrings;
+import edu.umd.cloud9.io.pair.PairOfStrings;
 
 /**
  * Test cases for the inverted index mapper.
@@ -35,8 +34,7 @@ public class TransProbMapperTest extends TestCase {
     @Before
     public void setUp() {
         mapper = new TransProbMapper();
-        driver = new MapDriver<LongWritable, Text, PairOfStrings, FloatWritable>
-(mapper);
+        driver = new MapDriver<LongWritable, Text, PairOfStrings, FloatWritable>(mapper);
     }
  
     @Test
