@@ -64,7 +64,7 @@
 			<batchtest todir="${regression_results}">
 				<fileset dir="${build}">
 					<include name="**/*Test.class" />
-					<exclude name="**/regression/*Test.class" />
+					<exclude name="edu/umd/cloud9/example/translation/*.class" />
 				</fileset>
 			</batchtest>
 		</junit>
