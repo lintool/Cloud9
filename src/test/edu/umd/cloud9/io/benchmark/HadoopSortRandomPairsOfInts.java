@@ -14,7 +14,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 
-import edu.umd.cloud9.io.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfInts;
 
 /**
  * <p>

@@ -29,37 +29,31 @@ import org.apache.hadoop.util.ToolRunner;
  * <p>
  * Here's a sample invocation:
  * </p>
- *
+ * 
  * <blockquote>
- *
+ * 
  * <pre>
  * hadoop jar cloud9all.jar edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
  *   /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat \
  *   /user/jimmy/Wikipedia/docno-en-20101011.dat
  * </pre>
- *
+ * 
  * </blockquote>
  *
- * @author Jimmy Lin
+ * <p>
+ * Note, you'll have to build a jar that contains the contents of
+ * bliki-core-3.0.15.jar and commons-lang-2.5.jar, since -libjars won't work for
+ * this program (since it's not a MapReduce job).
+ * </p>
  *
+ * @author Jimmy Lin
+ * 
  */
 public class LookupWikipediaArticle extends Configured implements Tool {
-
-	private LookupWikipediaArticle() {
-	}
-
-	private static int printUsage() {
-		System.out.println("usage:  [forward-index-path] [docno-mapping-data-file]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 2) {
-			printUsage();
+			System.out.println("usage: [forward-index-path] [docno-mapping-data-file]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -83,12 +77,24 @@ public class LookupWikipediaArticle extends Configured implements Tool {
 				continue;
 			}
 
-			if (tokens[0].equals("docno")) {
-				page = f.getDocument(Integer.parseInt(tokens[1]));
-				System.out.println(page.getDocid() + ": " + page.getTitle());
-			} else if (tokens[0].equals("docid")) {
+			if ("docno".equals(tokens[0])) {
+				try {
+					page = f.getDocument(Integer.parseInt(tokens[1]));
+					if (page != null) {
+						System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
+					} else {
+						System.out.println("docno " + tokens[1] + " not found!");
+					}
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid docno " + tokens[1]);
+				}
+			} else if ("docid".equals(tokens[0])) {
 				page = f.getDocument(tokens[1]);
-				System.out.println(page.getDocid() + ": " + page.getTitle());
+				if (page != null) {
+					System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
+				} else {
+					System.out.println("docid " + tokens[1] + " not found!");
+				}
 			}
 
 			System.out.print("lookup > ");
@@ -97,12 +103,9 @@ public class LookupWikipediaArticle extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	private LookupWikipediaArticle() {}
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new LookupWikipediaArticle(), args);
-		System.exit(res);
+		ToolRunner.run(new LookupWikipediaArticle(), args);
 	}
 }

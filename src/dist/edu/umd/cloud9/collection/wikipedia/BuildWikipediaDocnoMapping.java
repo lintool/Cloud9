@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -72,8 +71,9 @@ import org.apache.log4j.Logger;
  * 
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class BuildWikipediaDocnoMapping extends Configured implements Tool {
-	private static final Logger sLogger = Logger.getLogger(BuildWikipediaDocnoMapping.class);
+	private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 
 	private static enum PageTypes {
 		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
@@ -82,8 +82,8 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, IntWritable, IntWritable> {
 
-		private final static IntWritable sKey = new IntWritable();
-		private final static IntWritable sInt = new IntWritable(1);
+		private final static IntWritable keyOut = new IntWritable();
+		private final static IntWritable valOut = new IntWritable(1);
 
 		public void map(LongWritable key, WikipediaPage p,
 				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
@@ -104,8 +104,8 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 				}
 			}
 
-			sKey.set(Integer.parseInt(p.getDocid()));
-			output.collect(sKey, sInt);
+			keyOut.set(Integer.parseInt(p.getDocid()));
+			output.collect(keyOut, valOut);
 
 		}
 	}
@@ -113,35 +113,21 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 	private static class MyReducer extends MapReduceBase implements
 			Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
-		private final static IntWritable sCnt = new IntWritable(1);
+		private final static IntWritable cnt = new IntWritable(1);
 
 		public void reduce(IntWritable key, Iterator<IntWritable> values,
 				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
 				throws IOException {
-			output.collect(key, sCnt);
+			output.collect(key, cnt);
 
-			sCnt.set(sCnt.get() + 1);
+			cnt.set(cnt.get() + 1);
 		}
 	}
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public BuildWikipediaDocnoMapping() {
-	}
-
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
-			printUsage();
+			System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -150,11 +136,11 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		String outputFile = args[2];
 		int mapTasks = Integer.parseInt(args[3]);
 
-		sLogger.info("Tool name: BuildWikipediaDocnoMapping");
-		sLogger.info("input: " + inputPath);
-		sLogger.info("output path: " + outputPath);
-		sLogger.info("output file: " + outputFile);
-		sLogger.info("number of mappers: " + mapTasks);
+		LOG.info("Tool name: BuildWikipediaDocnoMapping");
+		LOG.info(" - input: " + inputPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - output file: " + outputFile);
+		LOG.info(" - number of mappers: " + mapTasks);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
 		conf.setJobName("BuildWikipediaDocnoMapping");
@@ -174,7 +160,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		conf.setMapperClass(MyMapper.class);
 		conf.setReducerClass(MyReducer.class);
 
-		// delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
 		RunningJob job = JobClient.runJob(conf);
@@ -186,12 +172,9 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	public BuildWikipediaDocnoMapping() {}
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
-		System.exit(res);
+		ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
 	}
 }

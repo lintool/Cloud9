@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
@@ -58,19 +57,15 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class DumpWikipediaToPlainText extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(DumpWikipediaToPlainText.class);
 
-	private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
+	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
 
-	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
-	};
-
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, Text, Text> {
-
-		private static final Text mArticleName = new Text();
-		private static final Text mArticleText = new Text();
+	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, WikipediaPage, Text, Text> {
+		private static final Text articleName = new Text();
+		private static final Text articleContent = new Text();
 
 		public void map(LongWritable key, WikipediaPage p,
 				OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
@@ -90,34 +85,20 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
 
-				mArticleName.set(p.getTitle().replaceAll("[\\r\\n]+", " "));
-				mArticleText.set(p.getContent().replaceAll("[\\r\\n]+", " "));
+				articleName.set(p.getTitle().replaceAll("[\\r\\n]+", " "));
+				articleContent.set(p.getContent().replaceAll("[\\r\\n]+", " "));
 
-				output.collect(mArticleName, mArticleText);
+				output.collect(articleName, articleContent);
 			} else {
 				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
 		}
 	}
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public DumpWikipediaToPlainText() {
-	}
-
-	private static int printUsage() {
-		System.out.println("usage: [input] [output]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 2) {
-			printUsage();
+			System.out.println("usage: [input] [output]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -149,12 +130,9 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	public DumpWikipediaToPlainText() {}
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new DumpWikipediaToPlainText(), args);
-		System.exit(res);
+		ToolRunner.run(new DumpWikipediaToPlainText(), args);
 	}
 }

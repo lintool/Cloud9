@@ -29,6 +29,9 @@ import java.util.Map;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
+import edu.umd.cloud9.io.array.ArrayListWritable;
+import edu.umd.cloud9.io.map.HashMapWritable;
+
 /**
  * <p>
  * Writable representing an arbitrary tuple. Tuples are instantiated from a

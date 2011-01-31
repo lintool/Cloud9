@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,13 +62,11 @@ import org.apache.log4j.Logger;
  * 
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class DemoCountWikipediaPages extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
 
-	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
-	};
+	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
 
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
@@ -96,24 +94,10 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
 		}
 	}
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public DemoCountWikipediaPages() {
-	}
-
-	private static int printUsage() {
-		System.out.println("usage: [input]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-
-	/**
-	 * Runs this tool.
-	 */
 	public int run(String[] args) throws Exception {
 		if (args.length != 1) {
-			printUsage();
+			System.out.println("usage: [input]");
+			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
@@ -140,12 +124,9 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
+	public DemoCountWikipediaPages() {}
+
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new DemoCountWikipediaPages(), args);
-		System.exit(res);
+		ToolRunner.run(new DemoCountWikipediaPages(), args);
 	}
 }
