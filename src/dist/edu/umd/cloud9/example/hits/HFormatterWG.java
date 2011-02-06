@@ -32,7 +32,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import edu.umd.cloud9.io.ArrayListOfIntsWritable;
 
 /**
  * <p>
