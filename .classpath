@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="lib/guava-r07.jar"/>
 	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-mrunit-0.20.2-320.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
