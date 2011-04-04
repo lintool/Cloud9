@@ -3,7 +3,7 @@
   <resolvers>
     <chain name="chain-example">
       <filesystem name="libraries">
-        <artifact pattern="${basedir}/jars/[artifact]-[revision].[ext]" />
+        <artifact pattern="${basedir}/ivy/local-repo/[artifact]-[revision].[ext]" />
       </filesystem>
       <ibiblio name="ibiblio" m2compatible="true" />
       <!-- for MRUnit -->

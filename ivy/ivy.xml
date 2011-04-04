@@ -1,9 +1,8 @@
 <ivy-module version="2.0">
-  <info organisation="edu.umd" module="cloud9" revision="${revision}"/>
+  <info organisation="edu.umd" module="cloud9" revision="${version}"/>
   <publications>
     <artifact type="pom" ext="pom" conf="default"/>
     <artifact type="jar" ext="jar" conf="default"/>
-    <!-- artifact type="source" ext="jar" conf="sources" m:classifier="sources"/-->
   </publications>
 
   <dependencies>
