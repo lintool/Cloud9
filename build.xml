@@ -1,11 +1,11 @@
-<project name="Cloud9" default="scripts" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
+<project name="Cloud9" default="scripts" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant" basedir=".">
   <description>Cloud9, University of Maryland's Hadoop Library</description>
 
   <property name="lib.dir" value="lib" />
   <property name="build.dir" value="build"/>
   <property name="src.dir" value="src"/>
   <property name="dist.dir" value="dist"/>
-  <property name="revision" value="1.0"/>
+  <property name="version" value="1.0.0"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -20,11 +20,42 @@
   <property name="regression_results" location="regression-results" />
   <property name="javadoc" location="docs/api/" />
 
+  <property name="maven.ant.task.version" value="2.1.2"/>
+  <property name="maven.jar.dir" value="${basedir}/${lib.dir}"/>
+  <property name="maven.jar.file" value="${maven.jar.dir}/maven.jar"/>
+
   <property name="ivy.install.version" value="2.2.0"/>
   <property name="ivy.jar.dir" value="${basedir}/ivy"/>
   <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
   <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
   <property name="ivy.dep.file" value="${basedir}/ivy/ivy.xml" />
+
+  <!-- define Maven coordinates, repository url and artifacts name etc -->
+  <property name="groupId" value="edu.umd" />
+  <property name="artifactId" value="cloud9" />
+  <property name="version" value="${version}" />
+
+  <property name="maven-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+  <property name="maven-repository-id" value="sonatype-nexus-staging" />
+  <property name="maven-jar" value="${dist.dir}/${artifactId}-${version}.jar" />
+  <property name="maven-javadoc-jar" value="${dist.dir}/${artifactId}-${version}-javadoc.jar" />
+  <property name="maven-sources-jar" value="${dist.dir}/${artifactId}-${version}-sources.jar" />
+
+	<target name="init">
+		<tstamp />
+		<condition property="platform" value="unix">
+			<os family="unix" />
+		</condition>
+		<condition property="platform" value="unix">
+			<os family="mac" />
+		</condition>
+		<condition property="platform" value="windows">
+			<os family="windows" />
+		</condition>
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
 
   <target name="download-ivy" unless="skip.download">
     <mkdir dir="${ivy.jar.dir}"/>
@@ -45,6 +76,25 @@
     <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
   </target>
 
+  <target name="download-maven" depends="init" unless="skip.download">
+    <mkdir dir="${maven.jar.dir}"/>
+    <!-- download maven from web site so that it can be used even without any special installation -->
+    <echo message="installing maven ant tasks..."/>
+    <get src="http://repo1.maven.org/maven2/org/apache/maven/maven-ant-tasks/${maven.ant.task.version}/maven-ant-tasks-${maven.ant.task.version}.jar"
+         dest="${maven.jar.file}" usetimestamp="true"/>
+  </target>
+
+  <target name="install-maven" depends="download-maven" description="--> install ivy">
+  <!-- try to load ivy here from local ivy dir, in case the user has not already dropped
+       it into ant's lib dir (note that the latter copy will always take precedence).
+       We will not fail as long as local lib dir exists (it may be empty) and
+       ivy is in at least one of ant's lib dir or the local lib dir. -->
+    <path id="maven.lib.path">
+      <fileset dir="${maven.jar.dir}" includes="*.jar"/>
+    </path>
+    <taskdef uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.lib.path"/>
+  </target>
+
   <target name="resolve" depends="install-ivy" description="--> retreive dependencies with ivy">
     <ivy:retrieve/>
   </target>
@@ -52,22 +102,6 @@
   <target name="report" depends="resolve" description="--> generates a report of dependencies">
       <ivy:report todir="${build.dir}"/>
   </target>
-
-	<target name="init">
-		<tstamp />
-		<condition property="platform" value="unix">
-			<os family="unix" />
-		</condition>
-		<condition property="platform" value="unix">
-			<os family="mac" />
-		</condition>
-		<condition property="platform" value="windows">
-			<os family="windows" />
-		</condition>
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${lib.dir}" />
-		<mkdir dir="${dist.dir}" />
-	</target>
 
 	<target name="compile" depends="init,resolve" description="compile the source ">
 		<javac classpathref="lib.path.id" srcdir="${src.dir}/dist" destdir="${build.dir}" optimize="on" debug="on">
@@ -83,7 +117,12 @@
 	</target>
 
 	<target name="jar" depends="compile" description="generate the distribution">
-		<jar jarfile="${dist.dir}/cloud9.jar" basedir="${build.dir}" />
+		<jar jarfile="${dist.dir}/cloud9-${version}.jar" basedir="${build.dir}" />
+	</target>
+
+	<target name="dist" depends="jar,javadoc" description="generate the distribution">
+		<jar jarfile="${dist.dir}/cloud9-${version}-sources.jar" basedir="${src.dir}" />
+		<jar jarfile="${dist.dir}/cloud9-${version}-javadoc.jar" basedir="${javadoc}" />
 	</target>
 
 	<target name="clean" description="clean up">
@@ -91,6 +130,7 @@
 		<delete dir="${build.dir}" />
 		<delete dir="${lib.dir}" />
 		<delete dir="${dist.dir}" />
+		<delete dir="${javadoc}" />
 	</target>
 
 	<target name="test" depends="jar" description="Execute Unit Tests">
@@ -189,14 +229,48 @@
 	</target>
 
   <target name="gen-pom" depends="install-ivy">
-    <ivy:makepom ivyfile="ivy.xml" pomfile="cloud9.pom" />
+    <ivy:makepom ivyfile="ivy/ivy.xml" pomfile="cloud9.pom" />
   </target>
 
-  <target name="publish-local" depends="jar,gen-pom" description="publish jar/source to maven repo mounted at ~/.m2/repository">
+  <target name="publish-local" depends="jar" description="publish jar/source to maven repo mounted at ~/.m2/repository">
     <copy tofile="${dist.dir}/cloud9.pom" file="src/dist/edu/umd/cloud9/cloud9.pom"/>
     <ivy:publish resolver="local-m2-publish" forcedeliver="true" overwrite="true" publishivy="false">
       <artifacts pattern="${dist.dir}/[artifact].[ext]"/>
     </ivy:publish>
+  </target>
+
+  <target name="deploy" depends="dist,install-maven" description="deploy to Nexus">
+		<!-- sign and deploy the main artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-jar}" />
+                        <arg value="-Pgpg" />
+		</artifact:mvn>
+
+<!-- sign and deploy the sources artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-sources-jar}" />
+			<arg value="-Dclassifier=sources" />
+                        <arg value="-Pgpg" />
+		</artifact:mvn>
+
+		<!-- sign and deploy the javadoc artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-javadoc-jar}" />
+			<arg value="-Dclassifier=javadoc" />
+                        <arg value="-Pgpg" />
+		</artifact:mvn>
   </target>
 
 </project>
