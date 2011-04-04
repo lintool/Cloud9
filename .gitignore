@@ -1,7 +1,7 @@
-build
-cloud9.jar
-ivy/
+build/
+dist/
 lib/
+ivy/ivy.jar
 etc/junit.*
 etc/run.*
 docs/api

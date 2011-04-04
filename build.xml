@@ -4,6 +4,8 @@
   <property name="lib.dir" value="lib" />
   <property name="build.dir" value="build"/>
   <property name="src.dir" value="src"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="revision" value="1.0"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -21,7 +23,8 @@
   <property name="ivy.install.version" value="2.2.0"/>
   <property name="ivy.jar.dir" value="${basedir}/ivy"/>
   <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
-  <property name="ivy.settings.file" value="${basedir}/ivysettings.xml" />
+  <property name="ivy.settings.file" value="${basedir}/ivy/ivysettings.xml" />
+  <property name="ivy.dep.file" value="${basedir}/ivy/ivy.xml" />
 
   <target name="download-ivy" unless="skip.download">
     <mkdir dir="${ivy.jar.dir}"/>
@@ -47,7 +50,7 @@
   </target>
 
   <target name="report" depends="resolve" description="--> generates a report of dependencies">
-    <ivy:report todir="${build.dir}"/>
+      <ivy:report todir="${build.dir}"/>
   </target>
 
 	<target name="init">
@@ -63,6 +66,7 @@
 		</condition>
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${dist.dir}" />
 	</target>
 
 	<target name="compile" depends="init,resolve" description="compile the source ">
@@ -78,17 +82,18 @@
 		</copy>
 	</target>
 
-	<target name="lib" depends="compile" description="generate the distribution">
-		<jar jarfile="cloud9.jar" basedir="${build.dir}" />
+	<target name="jar" depends="compile" description="generate the distribution">
+		<jar jarfile="${dist.dir}/cloud9.jar" basedir="${build.dir}" />
 	</target>
 
 	<target name="clean" description="clean up">
 		<delete dir="${regression_results}" />
 		<delete dir="${build.dir}" />
 		<delete dir="${lib.dir}" />
+		<delete dir="${dist.dir}" />
 	</target>
 
-	<target name="test" depends="lib" description="Execute Unit Tests">
+	<target name="test" depends="jar" description="Execute Unit Tests">
 		<mkdir dir="${regression_results}" />
 		<junit printsummary="yes" fork="yes" maxmemory="1024m">
 			<sysproperty key="java.library.path" path="${lib.dir}" />
@@ -133,7 +138,7 @@
 		</copy>
 	</target>
 
-	<target name="scripts" depends="lib">
+	<target name="scripts" depends="jar">
 		<pathconvert property="run.path.id" refid="run.path.id" targetos="${platform}" />
 
 		<condition property="suffix" value="sh">
@@ -182,5 +187,16 @@
 		<echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
 
 	</target>
+
+  <target name="gen-pom" depends="install-ivy">
+    <ivy:makepom ivyfile="ivy.xml" pomfile="cloud9.pom" />
+  </target>
+
+  <target name="publish-local" depends="jar,gen-pom" description="publish jar/source to maven repo mounted at ~/.m2/repository">
+    <copy tofile="${dist.dir}/cloud9.pom" file="src/dist/edu/umd/cloud9/cloud9.pom"/>
+    <ivy:publish resolver="local-m2-publish" forcedeliver="true" overwrite="true" publishivy="false">
+      <artifacts pattern="${dist.dir}/[artifact].[ext]"/>
+    </ivy:publish>
+  </target>
 
 </project>

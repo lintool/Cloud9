@@ -12,6 +12,12 @@
       <ibiblio name="spy" m2compatible="true" root="http://bleu.west.spy.net/~dustin/m2repo/"/>
       <!-- for bliki -->
       <ibiblio name="bliki" m2compatible="true" root="http://gwtwiki.googlecode.com/svn/maven-repository/"/>
+
+      <!-- for *publishing* artifacts for local testing builds -->
+      <filesystem name="local-m2-publish" m2compatible="true">
+        <artifact pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+      </filesystem>
+
     </chain>
   </resolvers>
 </ivysettings>
