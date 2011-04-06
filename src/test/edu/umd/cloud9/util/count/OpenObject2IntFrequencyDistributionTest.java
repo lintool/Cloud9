@@ -27,6 +27,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
+import edu.umd.cloud9.util.SortableEntries.Order;
 import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
 import edu.umd.cloud9.util.count.OpenObject2IntFrequencyDistribution;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
@@ -47,29 +48,51 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("c");
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(6, fd.getSumOfFrequencies());
+		assertEquals(6, fd.getSumOfCounts());
 
 		assertEquals(1, fd.get("a"));
 		assertEquals(2, fd.get("b"));
 		assertEquals(3, fd.get("c"));
 
+    assertEquals((float) 1 / 6, fd.getFrequency("a"), 10e-6);
+    assertEquals((float) 2 / 6, fd.getFrequency("b"), 10e-6);
+    assertEquals((float) 3 / 6, fd.getFrequency("c"), 10e-6);
+
+    assertEquals(Math.log((float) 1 / 6), fd.getLogFrequency("a"), 10e-6);
+    assertEquals(Math.log((float) 2 / 6), fd.getLogFrequency("b"), 10e-6);
+    assertEquals(Math.log((float) 3 / 6), fd.getLogFrequency("c"), 10e-6);
+
 		fd.decrement("c");
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(5, fd.getSumOfFrequencies());
+		assertEquals(5, fd.getSumOfCounts());
 
 		assertEquals(1, fd.get("a"));
 		assertEquals(2, fd.get("b"));
 		assertEquals(2, fd.get("c"));
 
+    assertEquals((float) 1 / 5, fd.getFrequency("a"), 10e-6);
+    assertEquals((float) 2 / 5, fd.getFrequency("b"), 10e-6);
+    assertEquals((float) 2 / 5, fd.getFrequency("c"), 10e-6);
+
+    assertEquals(Math.log((float) 1 / 5), fd.getLogFrequency("a"), 10e-6);
+    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency("b"), 10e-6);
+    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency("c"), 10e-6);
+
 		fd.decrement("a");
 
 		assertEquals(2, fd.getNumberOfEvents());
-		assertEquals(4, fd.getSumOfFrequencies());
+		assertEquals(4, fd.getSumOfCounts());
 
 		assertEquals(0, fd.get("a"));
 		assertEquals(2, fd.get("b"));
 		assertEquals(2, fd.get("c"));
+
+    assertEquals((float) 2 / 4, fd.getFrequency("b"), 10e-6);
+    assertEquals((float) 2 / 4, fd.getFrequency("c"), 10e-6);
+
+    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency("b"), 10e-6);
+    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency("c"), 10e-6);
 	}
 
 	@Test
@@ -82,7 +105,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("c");
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(4, fd.getSumOfFrequencies());
+		assertEquals(4, fd.getSumOfCounts());
 
 		assertEquals(2, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -91,7 +114,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("d", 5);
 
 		assertEquals(4, fd.getNumberOfEvents());
-		assertEquals(9, fd.getSumOfFrequencies());
+		assertEquals(9, fd.getSumOfCounts());
 
 		assertEquals(2, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -101,7 +124,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("a", 5);
 
 		assertEquals(4, fd.getNumberOfEvents());
-		assertEquals(12, fd.getSumOfFrequencies());
+		assertEquals(12, fd.getSumOfCounts());
 
 		assertEquals(5, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -113,7 +136,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("c");
 
 		assertEquals(4, fd.getNumberOfEvents());
-		assertEquals(15, fd.getSumOfFrequencies());
+		assertEquals(15, fd.getSumOfCounts());
 
 		assertEquals(5, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -123,7 +146,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("c", 1);
 
 		assertEquals(4, fd.getNumberOfEvents());
-		assertEquals(12, fd.getSumOfFrequencies());
+		assertEquals(12, fd.getSumOfCounts());
 
 		assertEquals(5, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -141,7 +164,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("c");
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(4, fd.getSumOfFrequencies());
+		assertEquals(4, fd.getSumOfCounts());
 
 		assertEquals(2, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -149,7 +172,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 		fd.clear();
 		assertEquals(0, fd.getNumberOfEvents());
-		assertEquals(0, fd.getSumOfFrequencies());
+		assertEquals(0, fd.getSumOfCounts());
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -159,13 +182,13 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("a");
 
 		assertEquals(1, fd.getNumberOfEvents());
-		assertEquals(1, fd.getSumOfFrequencies());
+		assertEquals(1, fd.getSumOfCounts());
 		assertEquals(1, fd.get("a"));
 
 		fd.decrement("a");
 
 		assertEquals(0, fd.getNumberOfEvents());
-		assertEquals(0, fd.getSumOfFrequencies());
+		assertEquals(0, fd.getSumOfCounts());
 		assertEquals(0, fd.get("a"));
 
 		fd.decrement("a");
@@ -178,19 +201,19 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("a", 1000);
 
 		assertEquals(1, fd.getNumberOfEvents());
-		assertEquals(1000, fd.getSumOfFrequencies());
+		assertEquals(1000, fd.getSumOfCounts());
 		assertEquals(1000, fd.get("a"));
 
 		fd.decrement("a", 997);
 
 		assertEquals(1, fd.getNumberOfEvents());
-		assertEquals(3, fd.getSumOfFrequencies());
+		assertEquals(3, fd.getSumOfCounts());
 		assertEquals(3, fd.get("a"));
 
 		fd.decrement("a", 3);
 
 		assertEquals(0, fd.getNumberOfEvents());
-		assertEquals(0, fd.getSumOfFrequencies());
+		assertEquals(0, fd.getSumOfCounts());
 		assertEquals(0, fd.get("a"));
 
 		fd.increment("a", 3);
@@ -206,7 +229,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.increment("c", 4);
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(9, fd.getSumOfFrequencies());
+		assertEquals(9, fd.getSumOfCounts());
 
 		assertEquals(2, fd.get("a"));
 		assertEquals(3, fd.get("b"));
@@ -215,7 +238,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.decrement("b", 2);
 
 		assertEquals(3, fd.getNumberOfEvents());
-		assertEquals(7, fd.getSumOfFrequencies());
+		assertEquals(7, fd.getSumOfCounts());
 
 		assertEquals(2, fd.get("a"));
 		assertEquals(1, fd.get("b"));
@@ -234,9 +257,9 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("c", 5);
 
 		assertEquals(6, fd.getNumberOfEvents());
-		assertEquals(20, fd.getSumOfFrequencies());
+		assertEquals(20, fd.getSumOfCounts());
 
-		List<PairOfObjectInt<String>> list = fd.getFrequencySortedEvents();
+		List<PairOfObjectInt<String>> list = fd.getEntries(Order.ByRightElementDescending);
 
 		assertEquals(6, list.size());
 
@@ -253,7 +276,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		assertEquals("f", list.get(5).getLeftElement());
 		assertEquals(1, list.get(5).getRightElement());
 
-		list = fd.getFrequencySortedEvents(4);
+		list = fd.getEntries(Order.ByRightElementDescending, 4);
 
 		assertEquals(4, list.size());
 
@@ -279,9 +302,9 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("c", 2);
 
 		assertEquals(6, fd.getNumberOfEvents());
-		assertEquals(26, fd.getSumOfFrequencies());
+		assertEquals(26, fd.getSumOfCounts());
 
-		List<PairOfObjectInt<String>> list = fd.getSortedEvents();
+		List<PairOfObjectInt<String>> list = fd.getEntries(Order.ByLeftElementDescending);
 
 		assertEquals(6, list.size());
 
@@ -298,7 +321,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		assertEquals("f", list.get(5).getLeftElement());
 		assertEquals(9, list.get(5).getRightElement());
 
-		list = fd.getSortedEvents(4);
+		list = fd.getEntries(Order.ByLeftElementDescending, 4);
 
 		assertEquals(4, list.size());
 
@@ -324,7 +347,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 		fd.set("c", 2);
 
 		assertEquals(6, fd.getNumberOfEvents());
-		assertEquals(26, fd.getSumOfFrequencies());
+		assertEquals(26, fd.getSumOfCounts());
 
 		SortedSet<PairOfObjectInt<String>> list = new TreeSet<PairOfObjectInt<String>>();
 

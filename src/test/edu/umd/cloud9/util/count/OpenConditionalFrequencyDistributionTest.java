@@ -34,14 +34,14 @@ public class OpenConditionalFrequencyDistributionTest {
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
-		assertEquals(2, cdf.getSumOfAllFrequencies());
+		assertEquals(2, cdf.getSumOfAllCounts());
 
 		cdf.set("b", "a", 3);
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
 		assertEquals(3, cdf.get("b", "a"));
-		assertEquals(5, cdf.getSumOfAllFrequencies());
+		assertEquals(5, cdf.getSumOfAllCounts());
 
 		cdf.set("c", "a", 10);
 		cdf.check();
@@ -49,7 +49,7 @@ public class OpenConditionalFrequencyDistributionTest {
 		assertEquals(2, cdf.get("a", "a"));
 		assertEquals(3, cdf.get("b", "a"));
 		assertEquals(10, cdf.get("c", "a"));
-		assertEquals(15, cdf.getSumOfAllFrequencies());
+		assertEquals(15, cdf.getSumOfAllCounts());
 
 		cdf.set("x", "b", 1);
 		cdf.check();
@@ -58,7 +58,7 @@ public class OpenConditionalFrequencyDistributionTest {
 		assertEquals(3, cdf.get("b", "a"));
 		assertEquals(10, cdf.get("c", "a"));
 		assertEquals(1, cdf.get("x", "b"));
-		assertEquals(16, cdf.getSumOfAllFrequencies());
+		assertEquals(16, cdf.getSumOfAllCounts());
 
 		cdf.set("a", "a", 5);
 		cdf.check();
@@ -67,7 +67,7 @@ public class OpenConditionalFrequencyDistributionTest {
 		assertEquals(3, cdf.get("b", "a"));
 		assertEquals(10, cdf.get("c", "a"));
 		assertEquals(1, cdf.get("x", "b"));
-		assertEquals(19, cdf.getSumOfAllFrequencies());
+		assertEquals(19, cdf.getSumOfAllCounts());
 	}
 
 	@Test
@@ -78,30 +78,30 @@ public class OpenConditionalFrequencyDistributionTest {
 		cdf.check();
 
 		assertEquals(2, cdf.get("a", "a"));
-		assertEquals(2, cdf.getSumOfAllFrequencies());
+		assertEquals(2, cdf.getSumOfAllCounts());
 
 		cdf.increment("a", "a");
 		cdf.check();
 		assertEquals(3, cdf.get("a", "a"));
-		assertEquals(3, cdf.getSumOfAllFrequencies());
+		assertEquals(3, cdf.getSumOfAllCounts());
 
 		cdf.increment("a", "a", 2);
 		cdf.check();
 		assertEquals(5, cdf.get("a", "a"));
-		assertEquals(5, cdf.getSumOfAllFrequencies());
+		assertEquals(5, cdf.getSumOfAllCounts());
 
 		cdf.increment("b", "a");
 		cdf.check();
 		assertEquals(5, cdf.get("a", "a"));
 		assertEquals(1, cdf.get("b", "a"));
-		assertEquals(6, cdf.getSumOfAllFrequencies());
+		assertEquals(6, cdf.getSumOfAllCounts());
 
 		cdf.increment("a", "b", 10);
 		cdf.check();
 		assertEquals(5, cdf.get("a", "a"));
 		assertEquals(1, cdf.get("b", "a"));
 		assertEquals(10, cdf.get("a", "b"));
-		assertEquals(16, cdf.getSumOfAllFrequencies());
+		assertEquals(16, cdf.getSumOfAllCounts());
 	}
 
 	@Test
@@ -117,14 +117,14 @@ public class OpenConditionalFrequencyDistributionTest {
 		cdf.check();
 
 		assertEquals(17, cdf.getMarginalCount("a"));
-		assertEquals(27, cdf.getSumOfAllFrequencies());
+		assertEquals(27, cdf.getSumOfAllCounts());
 
 		cdf.increment("a", "a", 2);
 		cdf.increment("b", "a");
 
 		assertEquals(19, cdf.getMarginalCount("a"));
 		assertEquals(4, cdf.getMarginalCount("b"));
-		assertEquals(30, cdf.getSumOfAllFrequencies());
+		assertEquals(30, cdf.getSumOfAllCounts());
 	}
 
 	public static junit.framework.Test suite() {

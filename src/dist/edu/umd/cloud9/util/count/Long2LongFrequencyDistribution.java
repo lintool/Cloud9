@@ -16,9 +16,8 @@
 
 package edu.umd.cloud9.util.count;
 
-import java.util.List;
-
 import edu.umd.cloud9.io.pair.PairOfLongs;
+import edu.umd.cloud9.util.SortableEntries;
 
 /**
  * A frequency distribution where events are longs and counts are longs.
@@ -26,25 +25,25 @@ import edu.umd.cloud9.io.pair.PairOfLongs;
  * @author Jimmy Lin
  *
  */
-public interface Long2LongFrequencyDistribution extends Iterable<PairOfLongs> {
+public interface Long2LongFrequencyDistribution extends SortableEntries<PairOfLongs> {
 
 	/**
-	 * Increments the frequency of an event <code>key</code>.
+	 * Increments the count of an event <code>key</code>.
 	 */
 	public void increment(int key);
 
 	/**
-	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>.
+	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
 	 */
 	public void increment(int key, int cnt);
 
 	/**
-	 * Decrements the frequency of an event <code>key</code>.
+	 * Decrements the count of an event <code>key</code>.
 	 */
 	public void decrement(int key);
 
 	/**
-	 * Decrements the frequency of an event <code>key</code> by <code>cnt</code>.
+	 * Decrements the count of an event <code>key</code> by <code>cnt</code>.
 	 */
 	public void decrement(int key, int cnt);
 
@@ -54,12 +53,22 @@ public interface Long2LongFrequencyDistribution extends Iterable<PairOfLongs> {
 	public boolean contains(int key);
 
 	/**
-	 * Returns the frequency of a particular event <i>key</i>.
+	 * Returns the count of a particular event <i>key</i>.
 	 */
 	public int get(int key);
 
+  /**
+   * Returns the frequency of a particular event <i>key</i>.
+   */
+  public float getFrequency(int key);
+
+  /**
+   * Returns the log frequency of a particular event <i>key</i>.
+   */
+  public float getLogFrequency(int key);
+
 	/**
-	 * Sets the frequency of a particular event <code>key</code> to <code>cnt</code>.
+	 * Sets the count of a particular event <code>key</code> to <code>cnt</code>.
 	 */
 	public int set(int key, int cnt);
 
@@ -74,26 +83,6 @@ public interface Long2LongFrequencyDistribution extends Iterable<PairOfLongs> {
 	public void clear();
 
 	/**
-	 * Returns events sorted by frequency of occurrence.
-	 */
-	public List<PairOfLongs> getFrequencySortedEvents();
-
-	/**
-	 * Returns top <i>n</i> events sorted by frequency of occurrence.
-	 */
-	public List<PairOfLongs> getFrequencySortedEvents(int n);
-
-	/**
-	 * Returns events in sorted order.
-	 */
-	public List<PairOfLongs> getSortedEvents();
-
-	/**
-	 * Returns top <i>n</i> events in sorted order.
-	 */
-	public List<PairOfLongs> getSortedEvents(int n);
-
-	/**
 	 * Returns number of distinct events observed. Note that if an event is
 	 * observed and then its count subsequently removed, the event will not be
 	 * included in this count.
@@ -101,7 +90,7 @@ public interface Long2LongFrequencyDistribution extends Iterable<PairOfLongs> {
 	public int getNumberOfEvents();
 
 	/**
-	 * Returns the sum of frequencies of all observed events.
+	 * Returns the sum of counts of all observed events.
 	 */
-	public long getSumOfFrequencies();
+	public long getSumOfCounts();
 }

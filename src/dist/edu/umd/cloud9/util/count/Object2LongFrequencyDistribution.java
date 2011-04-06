@@ -1,7 +1,6 @@
 package edu.umd.cloud9.util.count;
 
-import java.util.List;
-
+import edu.umd.cloud9.util.SortableEntries;
 import edu.umd.cloud9.util.pair.PairOfObjectLong;
 
 /**
@@ -10,25 +9,26 @@ import edu.umd.cloud9.util.pair.PairOfObjectLong;
  * @author Jimmy Lin
  * 
  */
-public interface Object2LongFrequencyDistribution<K extends Comparable<K>> extends Iterable<PairOfObjectLong<K>> {
+public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
+    extends SortableEntries<PairOfObjectLong<K>> {
 
 	/**
-	 * Increments the frequency of an event <code>key</code>.
+	 * Increments the count of an event <code>key</code>.
 	 */
 	public void increment(K key);
 
 	/**
-	 * Increments the frequency of an event <code>key</code> by <code>cnt</code>.
+	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
 	 */
 	public void increment(K key, long cnt);
 
 	/**
-	 * Decrements the frequency of an event <code>key</code>.
+	 * Decrements the count of an event <code>key</code>.
 	 */
 	public void decrement(K key);
 
 	/**
-	 * Decrements the frequency of a particular event <code>key</code> by <code>cnt</code>.
+	 * Decrements the count of a particular event <code>key</code> by <code>cnt</code>.
 	 */
 	public void decrement(K key, long cnt);
 
@@ -38,12 +38,22 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>> exten
 	public boolean contains(K key);
 
 	/**
-	 * Returns the frequency of a particular event <i>key</i>.
+	 * Returns the count of a particular event <i>key</i>.
 	 */
 	public long get(K key);
 
+  /**
+   * Returns the frequency of a particular event <i>key</i>.
+   */
+  public float getFrequency(K key);
+
+  /**
+   * Returns the log frequency of a particular event <i>key</i>.
+   */
+  public float getLogFrequency(K key);
+
 	/**
-	 * Sets the frequency of a particular event <i>key</i> to <code>cnt</code>.
+	 * Sets the count of a particular event <i>key</i> to <code>cnt</code>.
 	 */
 	public long set(K key, long cnt);
 
@@ -58,26 +68,6 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>> exten
 	public void clear();
 
 	/**
-	 * Returns events sorted by frequency of occurrence.
-	 */
-	public List<PairOfObjectLong<K>> getFrequencySortedEvents();
-
-	/**
-	 * Returns top <i>n</i> events sorted by frequency of occurrence.
-	 */
-	public List<PairOfObjectLong<K>> getFrequencySortedEvents(int n);
-
-	/**
-	 * Returns events in sorted order.
-	 */
-	public List<PairOfObjectLong<K>> getSortedEvents();
-
-	/**
-	 * Returns top <i>n</i> events in sorted order.
-	 */
-	public List<PairOfObjectLong<K>> getSortedEvents(int n);
-
-	/**
 	 * Returns number of distinct events observed. Note that if an event is
 	 * observed and then its count subsequently removed, the event will not be
 	 * included in this count.
@@ -85,7 +75,7 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>> exten
 	public int getNumberOfEvents();
 
 	/**
-	 * Returns the sum of frequencies of all observed events.
+	 * Returns the sum of counts of all observed events.
 	 */
-	public long getSumOfFrequencies();
+	public long getSumOfCounts();
 }

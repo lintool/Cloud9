@@ -87,6 +87,16 @@ public class EntryInt2IntFrequencyDistribution implements Int2IntFrequencyDistri
 		return counts.get(key);
 	}
 
+  @Override
+  public float getFrequency(int k) {
+    return (float) counts.get(k) / getSumOfCounts();
+  }
+
+  @Override
+  public float getLogFrequency(int k) {
+    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  }
+
 	@Override
 	public int set(int key, int cnt) {
 		int rv = counts.put(key, cnt);
@@ -110,78 +120,12 @@ public class EntryInt2IntFrequencyDistribution implements Int2IntFrequencyDistri
 	}
 
 	@Override
-	public List<PairOfInts> getFrequencySortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
-
-		for (MapII.Entry e : counts.entrySet()) {
-			list.add(new PairOfInts(e.getKey(), e.getValue()));
-		}
-
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
-				if (e1.getRightElement() > e2.getRightElement()) {
-					return -1;
-				}
-
-				if (e1.getRightElement() < e2.getRightElement()) {
-					return 1;
-				}
-
-				if (e1.getLeftElement() == e2.getLeftElement()) {
-					throw new RuntimeException("Event observed twice!");
-				}
-
-				return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
-			}
-		});
-
-		return list;
-	}
-
-	@Override
-	public List<PairOfInts> getFrequencySortedEvents(int n) {
-		List<PairOfInts> list = getFrequencySortedEvents();
-		return list.subList(0, n);
-	}
-
-	@Override
-	public List<PairOfInts> getSortedEvents() {
-		List<PairOfInts> list = Lists.newArrayList();
-
-		for (MapII.Entry e : counts.entrySet()) {
-			list.add(new PairOfInts(e.getKey(), e.getValue()));
-		}
-
-		Collections.sort(list, new Comparator<PairOfInts>() {
-			public int compare(PairOfInts e1, PairOfInts e2) {
-				if (e1.getLeftElement() > e2.getLeftElement()) {
-					return 1;
-				}
-
-				if (e1.getLeftElement() < e2.getLeftElement()) {
-					return -1;
-				}
-
-				throw new RuntimeException("Event observed twice!");
-			}
-		});
-
-		return list;
-	}
-
-	@Override
-	public List<PairOfInts> getSortedEvents(int n) {
-		List<PairOfInts> list = getSortedEvents();
-		return list.subList(0, n);
-	}
-
-	@Override
 	public int getNumberOfEvents() {
 		return counts.size();
 	}
 
 	@Override
-	public long getSumOfFrequencies() {
+	public long getSumOfCounts() {
 		return sumOfFrequencies;
 	}
 
@@ -215,4 +159,90 @@ public class EntryInt2IntFrequencyDistribution implements Int2IntFrequencyDistri
 			}
 		};
 	}
+
+  @Override
+  public List<PairOfInts> getEntries(Order ordering) {
+    if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getSortedEvents();
+    } else if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEventsSortedByCount();
+    }
+
+    // TODO: Implement other sort orders.
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<PairOfInts> getEntries(Order ordering, int n) {
+    if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getSortedEvents(n);
+    } else if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEventsSortedByCount(n);
+    }
+
+    // TODO: Implement other sort orders.
+    throw new UnsupportedOperationException();
+  }
+
+  private List<PairOfInts> getEventsSortedByCount() {
+    List<PairOfInts> list = Lists.newArrayList();
+
+    for (MapII.Entry e : counts.entrySet()) {
+      list.add(new PairOfInts(e.getKey(), e.getValue()));
+    }
+
+    Collections.sort(list, new Comparator<PairOfInts>() {
+      public int compare(PairOfInts e1, PairOfInts e2) {
+        if (e1.getRightElement() > e2.getRightElement()) {
+          return -1;
+        }
+
+        if (e1.getRightElement() < e2.getRightElement()) {
+          return 1;
+        }
+
+        if (e1.getLeftElement() == e2.getLeftElement()) {
+          throw new RuntimeException("Event observed twice!");
+        }
+
+        return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+      }
+    });
+
+    return list;
+  }
+
+  private List<PairOfInts> getEventsSortedByCount(int n) {
+    List<PairOfInts> list = getEventsSortedByCount();
+    return list.subList(0, n);
+  }
+
+  private List<PairOfInts> getSortedEvents() {
+    List<PairOfInts> list = Lists.newArrayList();
+
+    for (MapII.Entry e : counts.entrySet()) {
+      list.add(new PairOfInts(e.getKey(), e.getValue()));
+    }
+
+    Collections.sort(list, new Comparator<PairOfInts>() {
+      public int compare(PairOfInts e1, PairOfInts e2) {
+        if (e1.getLeftElement() > e2.getLeftElement()) {
+          return 1;
+        }
+
+        if (e1.getLeftElement() < e2.getLeftElement()) {
+          return -1;
+        }
+
+        throw new RuntimeException("Event observed twice!");
+      }
+    });
+
+    return list;
+  }
+
+  private List<PairOfInts> getSortedEvents(int n) {
+    List<PairOfInts> list = getSortedEvents();
+    return list.subList(0, n);
+  }
 }

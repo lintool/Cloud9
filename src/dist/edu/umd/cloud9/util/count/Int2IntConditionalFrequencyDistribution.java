@@ -9,22 +9,22 @@ package edu.umd.cloud9.util.count;
 public interface Int2IntConditionalFrequencyDistribution {
 
 	/**
-	 * Sets the observed frequency of <code>k</code> conditioned on <code>cond</code> to <code>v</code>.
+	 * Sets the observed count of <code>k</code> conditioned on <code>cond</code> to <code>v</code>.
 	 */
 	public void set(int k, int cond, int v);
 
 	/**
-	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code>.
+	 * Increments the observed count of <code>k</code> conditioned on <code>cond</code>.
 	 */
 	public void increment(int k, int cond);
 
 	/**
-	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code> by <code>v</code>.
+	 * Increments the observed count of <code>k</code> conditioned on <code>cond</code> by <code>v</code>.
 	 */
 	public void increment(int k, int cond, int v);
 
 	/**
-	 * Returns the observed frequency of <code>k</code> conditioned on <code>cond</code>.
+	 * Returns the observed count of <code>k</code> conditioned on <code>cond</code>.
 	 */
 	public int get(int k, int cond);
 
@@ -40,7 +40,7 @@ public interface Int2IntConditionalFrequencyDistribution {
 	public Int2IntFrequencyDistribution getConditionalDistribution(int cond);
 
 	/**
-	 * Returns the sum of all frequencies.
+	 * Returns the sum of all counts.
 	 */
 	public long getSumOfAllFrequencies();
 

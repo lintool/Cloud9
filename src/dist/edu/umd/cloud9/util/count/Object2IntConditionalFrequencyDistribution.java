@@ -26,22 +26,22 @@ package edu.umd.cloud9.util.count;
 public interface Object2IntConditionalFrequencyDistribution<K extends Comparable<K>> {
 
 	/**
-	 * Sets the observed frequency of <code>k</code> conditioned on <code>cond</code> to <code>v</code>.
+	 * Sets the observed count of <code>k</code> conditioned on <code>cond</code> to <code>v</code>.
 	 */
 	public void set(K k, K cond, int v);
 
 	/**
-	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code>.
+	 * Increments the observed count of <code>k</code> conditioned on <code>cond</code>.
 	 */
 	public void increment(K k, K cond);
 
 	/**
-	 * Increments the observed frequency of <code>k</code> conditioned on <code>cond</code> by <code>v</code>.
+	 * Increments the observed count of <code>k</code> conditioned on <code>cond</code> by <code>v</code>.
 	 */
 	public void increment(K k, K cond, int v);
 
 	/**
-	 * Returns the observed frequency of <code>k</code> conditioned on <code>cond</code>.
+	 * Returns the observed count of <code>k</code> conditioned on <code>cond</code>.
 	 */
 	public int get(K k, K cond);
 
@@ -57,9 +57,9 @@ public interface Object2IntConditionalFrequencyDistribution<K extends Comparable
 	public Object2IntFrequencyDistribution<K> getConditionalDistribution(K cond);
 
 	/**
-	 * Returns the sum of all frequencies.
+	 * Returns the sum of all counts.
 	 */
-	public long getSumOfAllFrequencies();
+	public long getSumOfAllCounts();
 
 	/**
 	 * Performs an internal consistency check of this data structure. An

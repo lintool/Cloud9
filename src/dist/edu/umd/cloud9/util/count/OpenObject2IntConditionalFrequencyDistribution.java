@@ -29,12 +29,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  * @author Jimmy Lin
  *
  */
-public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable<K>> implements Object2IntConditionalFrequencyDistribution<K> {
+public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable<K>>
+    implements Object2IntConditionalFrequencyDistribution<K> {
 
 	private final Object2ObjectMap<K, OpenObject2IntFrequencyDistribution<K>> distributions = new Object2ObjectOpenHashMap<K, OpenObject2IntFrequencyDistribution<K>>();
 	private final OpenObject2IntFrequencyDistribution<K> marginals = new OpenObject2IntFrequencyDistribution<K>();
 
-	private long sumOfAllFrequencies = 0;
+	private long sumOfAllCounts = 0;
 
 	@Override
 	public void set(K k, K cond, int v) {
@@ -44,7 +45,7 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 			distributions.put(cond, fd);
 			marginals.increment(k, v);
 
-			sumOfAllFrequencies += v;
+			sumOfAllCounts += v;
 		} else {
 			OpenObject2IntFrequencyDistribution<K> fd = distributions.get(cond);
 			int rv = fd.get(k);
@@ -53,7 +54,7 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 			distributions.put(cond, fd);
 			marginals.increment(k, -rv + v);
 
-			sumOfAllFrequencies = sumOfAllFrequencies - rv + v;
+			sumOfAllCounts = sumOfAllCounts - rv + v;
 		}
 	}
 
@@ -96,8 +97,8 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 	}
 
 	@Override
-	public long getSumOfAllFrequencies() {
-		return sumOfAllFrequencies;
+	public long getSumOfAllCounts() {
+		return sumOfAllCounts;
 	}
 
 	@Override
@@ -108,28 +109,28 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 		for (OpenObject2IntFrequencyDistribution<K> fd : distributions.values()) {
 			long conditionalSum = 0;
 
-			for (PairOfObjectInt<K> pair : fd.getSortedEvents()) {
+			for (PairOfObjectInt<K> pair : fd) {
 				conditionalSum += pair.getRightElement();
 				m.increment(pair.getLeftElement(), pair.getRightElement());
 			}
 
-			if (conditionalSum != fd.getSumOfFrequencies()) {
+			if (conditionalSum != fd.getSumOfCounts()) {
 				throw new RuntimeException("Internal Error!");
 			}
-			totalSum += fd.getSumOfFrequencies();
+			totalSum += fd.getSumOfCounts();
 		}
 
-		if (totalSum != getSumOfAllFrequencies()) {
-			throw new RuntimeException("Internal Error! Got " + totalSum + ", Expected "	+ getSumOfAllFrequencies());
+		if (totalSum != getSumOfAllCounts()) {
+			throw new RuntimeException("Internal Error! Got " + totalSum + ", Expected "	+ getSumOfAllCounts());
 		}
 
-		for (PairOfObjectInt<K> e : m.getSortedEvents()) {
+		for (PairOfObjectInt<K> e : m) {
 			if ( e.getRightElement() != marginals.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}
 		}
 
-		for (PairOfObjectInt<K> e : m.getSortedEvents()) {
+		for (PairOfObjectInt<K> e : m) {
 			if ( e.getRightElement() != m.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}

@@ -37,10 +37,11 @@ import edu.umd.cloud9.util.pair.PairOfObjectLong;
  * @author Jimmy Lin
  *
  */
-public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> implements Object2LongFrequencyDistribution<K> {
+public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>>
+    implements Object2LongFrequencyDistribution<K> {
 
 	private Object2LongOpenHashMap<K> counts = new Object2LongOpenHashMap<K>();
-	private long sumOfFrequencies = 0;
+	private long sumOfCounts = 0;
 
 	@Override
 	public void increment(K key) {
@@ -100,10 +101,20 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 		return counts.getLong(key);
 	}
 
+  @Override
+  public float getFrequency(K k) {
+    return (float) counts.getLong(k) / getSumOfCounts();
+  }
+
+  @Override
+  public float getLogFrequency(K k) {
+    return (float) (Math.log(counts.getLong(k)) - Math.log(getSumOfCounts()));
+  }
+
 	@Override
 	public long set(K k, long v) {
 		long rv = counts.put(k, v);
-		sumOfFrequencies = sumOfFrequencies - rv + v;
+		sumOfCounts = sumOfCounts - rv + v;
 
 		return rv;
 	}
@@ -111,7 +122,7 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 	@Override
 	public long remove(K k) {
 		long rv = counts.remove(k);
-		sumOfFrequencies -= rv;
+		sumOfCounts -= rv;
 
 		return rv;
 	}
@@ -119,7 +130,7 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 	@Override
 	public void clear() {
 		counts.clear();
-		sumOfFrequencies = 0;
+		sumOfCounts = 0;
 	}
 
 	/**
@@ -143,64 +154,6 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 		return counts.object2LongEntrySet();
 	}
 
-	@Override
-	public List<PairOfObjectLong<K>> getFrequencySortedEvents() {
-		List<PairOfObjectLong<K>> list = Lists.newArrayList();
-
-		for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
-			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
-		}
-
-		Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
-			public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
-				if (e1.getRightElement() > e2.getRightElement()) {
-					return -1;
-				}
-
-				if (e1.getRightElement() < e2.getRightElement()) {
-					return 1;
-				}
-
-				return e1.getLeftElement().compareTo(e2.getLeftElement());
-			}
-		});
-
-		return list;
-	}
-
-	@Override
-	public List<PairOfObjectLong<K>> getFrequencySortedEvents(int n) {
-		List<PairOfObjectLong<K>> list = getFrequencySortedEvents();
-		return list.subList(0, n);
-	}
-
-	@Override
-	public List<PairOfObjectLong<K>> getSortedEvents() {
-		List<PairOfObjectLong<K>> list = Lists.newArrayList();
-
-		for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
-			list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
-		}
-
-		// sort the entries
-		Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
-			public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
-				if (e1.getLeftElement().equals(e2.getLeftElement())) {
-					throw new RuntimeException("Event observed twice!");
-				}
-
-				return e1.getLeftElement().compareTo(e1.getLeftElement());
-			}
-		});
-
-		return list;
-	}
-
-	@Override
-	public List<PairOfObjectLong<K>> getSortedEvents(int n) {
-		List<PairOfObjectLong<K>> list = getSortedEvents();
-		return list.subList(0, n);
-	}
 
 	@Override
 	public int getNumberOfEvents() {
@@ -208,8 +161,8 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 	}
 
 	@Override
-	public long getSumOfFrequencies() {
-		return sumOfFrequencies;
+	public long getSumOfCounts() {
+		return sumOfCounts;
 	}
 
 	/**
@@ -242,4 +195,83 @@ public class OpenObject2LongFrequencyDistribution<K extends Comparable<K>> imple
 			}
 		};
 	}
+
+  @Override
+  public List<PairOfObjectLong<K>> getEntries(Order ordering) {
+    if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getSortedEvents();
+    } else if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEventsSortedByCount();
+    }
+
+    // TODO: Implement other sort orders.
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<PairOfObjectLong<K>> getEntries(Order ordering, int n) {
+    if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getSortedEvents(n);
+    } else if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEventsSortedByCount(n);
+    }
+
+    // TODO: Implement other sort orders.
+    throw new UnsupportedOperationException();
+  }
+
+  private List<PairOfObjectLong<K>> getEventsSortedByCount() {
+    List<PairOfObjectLong<K>> list = Lists.newArrayList();
+
+    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
+      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
+    }
+
+    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
+        if (e1.getRightElement() > e2.getRightElement()) {
+          return -1;
+        }
+
+        if (e1.getRightElement() < e2.getRightElement()) {
+          return 1;
+        }
+
+        return e1.getLeftElement().compareTo(e2.getLeftElement());
+      }
+    });
+
+    return list;
+  }
+
+  private List<PairOfObjectLong<K>> getEventsSortedByCount(int n) {
+    List<PairOfObjectLong<K>> list = getEventsSortedByCount();
+    return list.subList(0, n);
+  }
+
+  private List<PairOfObjectLong<K>> getSortedEvents() {
+    List<PairOfObjectLong<K>> list = Lists.newArrayList();
+
+    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
+      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
+    }
+
+    // sort the entries
+    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
+        if (e1.getLeftElement().equals(e2.getLeftElement())) {
+          throw new RuntimeException("Event observed twice!");
+        }
+
+        return e1.getLeftElement().compareTo(e1.getLeftElement());
+      }
+    });
+
+    return list;
+  }
+
+  private List<PairOfObjectLong<K>> getSortedEvents(int n) {
+    List<PairOfObjectLong<K>> list = getSortedEvents();
+    return list.subList(0, n);
+  }
 }

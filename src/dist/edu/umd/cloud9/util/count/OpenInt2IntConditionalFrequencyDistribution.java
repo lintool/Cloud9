@@ -107,28 +107,28 @@ public class OpenInt2IntConditionalFrequencyDistribution implements Int2IntCondi
 		for (OpenInt2IntFrequencyDistribution fd : distributions.values()) {
 			long conditionalSum = 0;
 
-			for (PairOfInts pair : fd.getSortedEvents()) {
+			for (PairOfInts pair : fd) {
 				conditionalSum += pair.getRightElement();
 				m.increment(pair.getLeftElement(), pair.getRightElement());
 			}
 
-			if (conditionalSum != fd.getSumOfFrequencies()) {
+			if (conditionalSum != fd.getSumOfCounts()) {
 				throw new RuntimeException("Internal Error!");
 			}
-			totalSum += fd.getSumOfFrequencies();
+			totalSum += fd.getSumOfCounts();
 		}
 
 		if (totalSum != getSumOfAllFrequencies()) {
 			throw new RuntimeException("Internal Error! Got " + totalSum + ", Expected "	+ getSumOfAllFrequencies());
 		}
 
-		for (PairOfInts e : m.getSortedEvents()) {
+		for (PairOfInts e : m) {
 			if ( e.getRightElement() != marginals.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}
 		}
 
-		for (PairOfInts e : m.getSortedEvents()) {
+		for (PairOfInts e : m) {
 			if ( e.getRightElement() != m.get(e.getLeftElement()) ) {
 				throw new RuntimeException("Internal Error!");
 			}
