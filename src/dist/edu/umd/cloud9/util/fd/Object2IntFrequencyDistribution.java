@@ -1,16 +1,32 @@
-package edu.umd.cloud9.util.count;
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package edu.umd.cloud9.util.fd;
 
 import edu.umd.cloud9.util.SortableEntries;
-import edu.umd.cloud9.util.pair.PairOfObjectLong;
+import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
  * A frequency distribution where events are arbitrary objects and counts are ints.
- * 
+ *
  * @author Jimmy Lin
- * 
+ *
  */
-public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
-    extends SortableEntries<PairOfObjectLong<K>> {
+public interface Object2IntFrequencyDistribution<K extends Comparable<K>>
+    extends SortableEntries<PairOfObjectInt<K>> {
 
 	/**
 	 * Increments the count of an event <code>key</code>.
@@ -20,7 +36,7 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
 	/**
 	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void increment(K key, long cnt);
+	public void increment(K key, int cnt);
 
 	/**
 	 * Decrements the count of an event <code>key</code>.
@@ -30,7 +46,7 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
 	/**
 	 * Decrements the count of a particular event <code>key</code> by <code>cnt</code>.
 	 */
-	public void decrement(K key, long cnt);
+	public void decrement(K key, int cnt);
 
 	/**
 	 * Returns true if <i>key</i> exists in this object.
@@ -40,7 +56,7 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
 	/**
 	 * Returns the count of a particular event <i>key</i>.
 	 */
-	public long get(K key);
+	public int get(K key);
 
   /**
    * Returns the frequency of a particular event <i>key</i>.
@@ -55,12 +71,12 @@ public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
 	/**
 	 * Sets the count of a particular event <i>key</i> to <code>cnt</code>.
 	 */
-	public long set(K key, long cnt);
+	public int set(K key, int cnt);
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
-	public long remove(K k);
+	public int remove(K k);
 
 	/**
 	 * Removes all events.

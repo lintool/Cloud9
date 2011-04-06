@@ -1,4 +1,6 @@
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.cfd;
+
+import edu.umd.cloud9.util.fd.Int2IntFrequencyDistribution;
 
 /**
  * A conditional frequency distribution where events are ints and counts are ints.

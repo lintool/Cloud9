@@ -14,12 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
-
-import it.unimi.dsi.fastutil.ints.IntCollection;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+package edu.umd.cloud9.util.fd;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,19 +23,20 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import edu.umd.cloud9.util.map.HMapKI;
+import edu.umd.cloud9.util.map.MapKI;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
- * Implementation of {@link Object2IntFrequencyDistribution} based on
- * {@link Object2IntOpenHashMap}.
+ * Implementation of {@link Object2IntFrequencyDistribution} based on {@link HMapKI}.
  *
  * @author Jimmy Lin
  *
  */
-public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
+public class Object2IntFrequencyDistributionEntry<K extends Comparable<K>>
     implements Object2IntFrequencyDistribution<K> {
 
-	private Object2IntOpenHashMap<K> counts = new Object2IntOpenHashMap<K>();
+	private MapKI<K> counts = new HMapKI<K>();
 	private long sumOfCounts = 0;
 
 	@Override
@@ -90,18 +86,8 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
 
 	@Override
 	public int get(K k) {
-		return counts.getInt(k);
+		return counts.get(k);
 	}
-
-  @Override
-  public float getFrequency(K k) {
-    return (float) counts.getInt(k) / getSumOfCounts();
-  }
-
-  @Override
-  public float getLogFrequency(K k) {
-    return (float) (Math.log(counts.getInt(k)) - Math.log(getSumOfCounts()));
-  }
 
 	@Override
 	public int set(K k, int v) {
@@ -110,6 +96,16 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
 
 		return rv;
 	}
+
+  @Override
+  public float getFrequency(K k) {
+    return (float) counts.get(k) / getSumOfCounts();
+  }
+
+  @Override
+  public float getLogFrequency(K k) {
+    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  }
 
 	@Override
 	public int remove(K k) {
@@ -125,26 +121,6 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
 		sumOfCounts = 0;
 	}
 
-	/**
-	 * Exposes efficient method for accessing keys in this map.
-	 */
-	public ObjectSet<K> keySet() {
-		return counts.keySet();
-	}
-
-	/**
-	 * Exposes efficient method for accessing values in this map.
-	 */
-	public IntCollection values() {
-		return counts.values();
-	}
-
-	/**
-	 * Exposes efficient method for accessing mappings in this map.
-	 */
-	public Object2IntMap.FastEntrySet<K> entrySet() {
-		return counts.object2IntEntrySet();
-	}
 
 	@Override
 	public int getNumberOfEvents() {
@@ -161,8 +137,7 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
 	 */
 	public Iterator<PairOfObjectInt<K>> iterator() {
 		return new Iterator<PairOfObjectInt<K>>() {
-			private Iterator<Object2IntMap.Entry<K>> iter =
-			  OpenObject2IntFrequencyDistribution.this.counts.object2IntEntrySet().iterator();
+			private Iterator<MapKI.Entry<K>> iter = Object2IntFrequencyDistributionEntry.this.counts.entrySet().iterator();
 			private final PairOfObjectInt<K> pair = new PairOfObjectInt<K>();
 
 			@Override
@@ -176,8 +151,8 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
 					return null;
 				}
 
-				Object2IntMap.Entry<K> entry = iter.next();
-				pair.set(entry.getKey(), entry.getIntValue());
+				MapKI.Entry<K> entry = iter.next();
+				pair.set(entry.getKey(), entry.getValue());
 				return pair;
 			}
 
@@ -215,8 +190,8 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
   private List<PairOfObjectInt<K>> getEventsSortedByCount() {
     List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-    for (Object2IntMap.Entry<K> e : counts.object2IntEntrySet()) {
-      list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
+    for (MapKI.Entry<K> e : counts.entrySet()) {
+      list.add(new PairOfObjectInt<K>(e.getKey(), e.getValue()));
     }
 
     Collections.sort(list, new Comparator<PairOfObjectInt<K>>() {
@@ -244,8 +219,8 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
   private List<PairOfObjectInt<K>> getSortedEvents() {
     List<PairOfObjectInt<K>> list = Lists.newArrayList();
 
-    for (Object2IntMap.Entry<K> e : counts.object2IntEntrySet()) {
-      list.add(new PairOfObjectInt<K>(e.getKey(), e.getIntValue()));
+    for (MapKI.Entry<K> e : counts.entrySet()) {
+      list.add(new PairOfObjectInt<K>(e.getKey(), e.getValue()));
     }
 
     // sort the entries
@@ -265,19 +240,5 @@ public class OpenObject2IntFrequencyDistribution<K extends Comparable<K>>
   private List<PairOfObjectInt<K>> getSortedEvents(int n) {
     List<PairOfObjectInt<K>> list = getSortedEvents();
     return list.subList(0, n);
-  }
-
-  public static <T extends Comparable<T>> OpenObject2IntFrequencyDistribution<T>
-      fromObject2IntOpenHashMap(Object2IntOpenHashMap<T> map) {
-    OpenObject2IntFrequencyDistribution<T> fd = new OpenObject2IntFrequencyDistribution<T>();
-
-    fd.counts = map;
-    long cnt = 0;
-    for ( Object2IntMap.Entry<T> entry : map.object2IntEntrySet() ) {
-      cnt += entry.getIntValue();
-    }
-    fd.sumOfCounts = cnt;
-
-    return fd;
   }
 }

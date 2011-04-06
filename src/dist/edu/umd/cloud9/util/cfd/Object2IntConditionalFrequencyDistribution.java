@@ -14,14 +14,16 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.cfd;
+
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
 
 /**
  * A conditional frequency distribution where events are arbitrary objects and
  * counts are ints.
- * 
+ *
  * @author Jimmy Lin
- * 
+ *
  */
 public interface Object2IntConditionalFrequencyDistribution<K extends Comparable<K>> {
 

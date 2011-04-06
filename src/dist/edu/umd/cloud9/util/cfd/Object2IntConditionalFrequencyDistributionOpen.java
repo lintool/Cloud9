@@ -14,8 +14,9 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.cfd;
 
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionOpen;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -29,25 +30,25 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  * @author Jimmy Lin
  *
  */
-public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable<K>>
+public class Object2IntConditionalFrequencyDistributionOpen<K extends Comparable<K>>
     implements Object2IntConditionalFrequencyDistribution<K> {
 
-	private final Object2ObjectMap<K, OpenObject2IntFrequencyDistribution<K>> distributions = new Object2ObjectOpenHashMap<K, OpenObject2IntFrequencyDistribution<K>>();
-	private final OpenObject2IntFrequencyDistribution<K> marginals = new OpenObject2IntFrequencyDistribution<K>();
+	private final Object2ObjectMap<K, Object2IntFrequencyDistributionOpen<K>> distributions = new Object2ObjectOpenHashMap<K, Object2IntFrequencyDistributionOpen<K>>();
+	private final Object2IntFrequencyDistributionOpen<K> marginals = new Object2IntFrequencyDistributionOpen<K>();
 
 	private long sumOfAllCounts = 0;
 
 	@Override
 	public void set(K k, K cond, int v) {
 		if (!distributions.containsKey(cond)) {
-			OpenObject2IntFrequencyDistribution<K> fd = new OpenObject2IntFrequencyDistribution<K>();
+			Object2IntFrequencyDistributionOpen<K> fd = new Object2IntFrequencyDistributionOpen<K>();
 			fd.set(k, v);
 			distributions.put(cond, fd);
 			marginals.increment(k, v);
 
 			sumOfAllCounts += v;
 		} else {
-			OpenObject2IntFrequencyDistribution<K> fd = distributions.get(cond);
+			Object2IntFrequencyDistributionOpen<K> fd = distributions.get(cond);
 			int rv = fd.get(k);
 
 			fd.set(k, v);
@@ -88,12 +89,12 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 	}
 
 	@Override
-	public OpenObject2IntFrequencyDistribution<K> getConditionalDistribution(K cond) {
+	public Object2IntFrequencyDistributionOpen<K> getConditionalDistribution(K cond) {
 		if ( distributions.containsKey(cond) ) {
 			return distributions.get(cond);
 		}
 
-		return new OpenObject2IntFrequencyDistribution<K>();
+		return new Object2IntFrequencyDistributionOpen<K>();
 	}
 
 	@Override
@@ -103,10 +104,10 @@ public class OpenObject2IntConditionalFrequencyDistribution<K extends Comparable
 
 	@Override
 	public void check() {
-		OpenObject2IntFrequencyDistribution<K> m = new OpenObject2IntFrequencyDistribution<K>();
+		Object2IntFrequencyDistributionOpen<K> m = new Object2IntFrequencyDistributionOpen<K>();
 
 		long totalSum = 0;
-		for (OpenObject2IntFrequencyDistribution<K> fd : distributions.values()) {
+		for (Object2IntFrequencyDistributionOpen<K> fd : distributions.values()) {
 			long conditionalSum = 0;
 
 			for (PairOfObjectInt<K> pair : fd) {

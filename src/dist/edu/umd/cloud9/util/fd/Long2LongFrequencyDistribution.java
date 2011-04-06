@@ -14,18 +14,18 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
-import edu.umd.cloud9.io.pair.PairOfLongInt;
+import edu.umd.cloud9.io.pair.PairOfLongs;
 import edu.umd.cloud9.util.SortableEntries;
 
 /**
- * A frequency distribution where events are longs and counts are ints.
+ * A frequency distribution where events are longs and counts are longs.
  *
  * @author Jimmy Lin
  *
  */
-public interface Long2IntFrequencyDistribution extends SortableEntries<PairOfLongInt> {
+public interface Long2LongFrequencyDistribution extends SortableEntries<PairOfLongs> {
 
 	/**
 	 * Increments the count of an event <code>key</code>.

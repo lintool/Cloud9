@@ -14,12 +14,13 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.cfd;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import edu.umd.cloud9.io.pair.PairOfInts;
+import edu.umd.cloud9.util.fd.Int2IntFrequencyDistributionOpen;
 
 /**
  * Implementation of {@link Int2IntConditionalFrequencyDistribution} based on
@@ -28,24 +29,24 @@ import edu.umd.cloud9.io.pair.PairOfInts;
  * @author Jimmy Lin
  *
  */
-public class OpenInt2IntConditionalFrequencyDistribution implements Int2IntConditionalFrequencyDistribution {
+public class Int2IntConditionalFrequencyDistributionOpen implements Int2IntConditionalFrequencyDistribution {
 
-	private final Int2ObjectMap<OpenInt2IntFrequencyDistribution> distributions = new Int2ObjectOpenHashMap<OpenInt2IntFrequencyDistribution>();
-	private final OpenInt2IntFrequencyDistribution marginals = new OpenInt2IntFrequencyDistribution();
+	private final Int2ObjectMap<Int2IntFrequencyDistributionOpen> distributions = new Int2ObjectOpenHashMap<Int2IntFrequencyDistributionOpen>();
+	private final Int2IntFrequencyDistributionOpen marginals = new Int2IntFrequencyDistributionOpen();
 
 	private long sumOfAllFrequencies = 0;
 
 	@Override
 	public void set(int k, int cond, int v) {
 		if (!distributions.containsKey(cond)) {
-			OpenInt2IntFrequencyDistribution fd = new OpenInt2IntFrequencyDistribution();
+			Int2IntFrequencyDistributionOpen fd = new Int2IntFrequencyDistributionOpen();
 			fd.set(k, v);
 			distributions.put(cond, fd);
 			marginals.increment(k, v);
 
 			sumOfAllFrequencies += v;
 		} else {
-			OpenInt2IntFrequencyDistribution fd = distributions.get(cond);
+			Int2IntFrequencyDistributionOpen fd = distributions.get(cond);
 			int rv = fd.get(k);
 
 			fd.set(k, v);
@@ -86,12 +87,12 @@ public class OpenInt2IntConditionalFrequencyDistribution implements Int2IntCondi
 	}
 
 	@Override
-	public OpenInt2IntFrequencyDistribution getConditionalDistribution(int cond) {
+	public Int2IntFrequencyDistributionOpen getConditionalDistribution(int cond) {
 		if ( distributions.containsKey(cond) ) {
 			return distributions.get(cond);
 		}
 
-		return new OpenInt2IntFrequencyDistribution();
+		return new Int2IntFrequencyDistributionOpen();
 	}
 
 	@Override
@@ -101,10 +102,10 @@ public class OpenInt2IntConditionalFrequencyDistribution implements Int2IntCondi
 
 	@Override
 	public void check() {
-		OpenInt2IntFrequencyDistribution m = new OpenInt2IntFrequencyDistribution();
+		Int2IntFrequencyDistributionOpen m = new Int2IntFrequencyDistributionOpen();
 
 		long totalSum = 0;
-		for (OpenInt2IntFrequencyDistribution fd : distributions.values()) {
+		for (Int2IntFrequencyDistributionOpen fd : distributions.values()) {
 			long conditionalSum = 0;
 
 			for (PairOfInts pair : fd) {

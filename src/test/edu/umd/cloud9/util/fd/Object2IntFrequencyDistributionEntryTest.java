@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,15 +28,15 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 
 import edu.umd.cloud9.util.SortableEntries.Order;
-import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
-import edu.umd.cloud9.util.count.OpenObject2IntFrequencyDistribution;
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
-public class OpenObject2IntFrequencyDistributionTest {
+public class Object2IntFrequencyDistributionEntryTest {
 
 	@Test
 	public void test1() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		assertEquals(0, fd.get("a"));
 
@@ -97,7 +97,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void test2() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.increment("a");
 		fd.increment("a");
@@ -156,7 +156,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void test3() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.increment("a");
 		fd.increment("a");
@@ -177,7 +177,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.increment("a");
 
@@ -196,7 +196,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.increment("a", 1000);
 
@@ -222,7 +222,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.increment("a", 2);
 		fd.increment("b", 3);
@@ -247,7 +247,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void testGetFrequencySortedEvents() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.set("a", 5);
 		fd.set("d", 2);
@@ -292,7 +292,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.set("a", 1);
 		fd.set("d", 3);
@@ -337,7 +337,7 @@ public class OpenObject2IntFrequencyDistributionTest {
 
 	@Test
 	public void testIterable() {
-		Object2IntFrequencyDistribution<String> fd = new OpenObject2IntFrequencyDistribution<String>();
+		Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
 
 		fd.set("a", 1);
 		fd.set("d", 3);
@@ -379,6 +379,6 @@ public class OpenObject2IntFrequencyDistributionTest {
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OpenObject2IntFrequencyDistributionTest.class);
+		return new JUnit4TestAdapter(Object2IntFrequencyDistributionEntryTest.class);
 	}
 }

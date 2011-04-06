@@ -14,69 +14,68 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
+import edu.umd.cloud9.io.pair.PairOfLongInt;
 import edu.umd.cloud9.util.SortableEntries;
-import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 /**
- * A frequency distribution where events are arbitrary objects and counts are ints.
+ * A frequency distribution where events are longs and counts are ints.
  *
  * @author Jimmy Lin
  *
  */
-public interface Object2IntFrequencyDistribution<K extends Comparable<K>>
-    extends SortableEntries<PairOfObjectInt<K>> {
+public interface Long2IntFrequencyDistribution extends SortableEntries<PairOfLongInt> {
 
 	/**
 	 * Increments the count of an event <code>key</code>.
 	 */
-	public void increment(K key);
+	public void increment(int key);
 
 	/**
 	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void increment(K key, int cnt);
+	public void increment(int key, int cnt);
 
 	/**
 	 * Decrements the count of an event <code>key</code>.
 	 */
-	public void decrement(K key);
+	public void decrement(int key);
 
 	/**
-	 * Decrements the count of a particular event <code>key</code> by <code>cnt</code>.
+	 * Decrements the count of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void decrement(K key, int cnt);
+	public void decrement(int key, int cnt);
 
 	/**
 	 * Returns true if <i>key</i> exists in this object.
 	 */
-	public boolean contains(K key);
+	public boolean contains(int key);
 
 	/**
 	 * Returns the count of a particular event <i>key</i>.
 	 */
-	public int get(K key);
+	public int get(int key);
 
   /**
    * Returns the frequency of a particular event <i>key</i>.
    */
-  public float getFrequency(K key);
+  public float getFrequency(int key);
 
   /**
    * Returns the log frequency of a particular event <i>key</i>.
    */
-  public float getLogFrequency(K key);
+  public float getLogFrequency(int key);
 
 	/**
-	 * Sets the count of a particular event <i>key</i> to <code>cnt</code>.
+	 * Sets the count of a particular event <code>key</code> to <code>cnt</code>.
 	 */
-	public int set(K key, int cnt);
+	public int set(int key, int cnt);
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
-	public int remove(K k);
+	public int remove(int key);
 
 	/**
 	 * Removes all events.

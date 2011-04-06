@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +33,7 @@ import edu.umd.cloud9.util.map.MapII;
  * @author Jimmy Lin
  *
  */
-public class EntryInt2IntFrequencyDistribution implements Int2IntFrequencyDistribution {
+public class Int2IntFrequencyDistributionEntry implements Int2IntFrequencyDistribution {
 	private HMapII counts = new HMapII();
 	private long sumOfFrequencies = 0;
 
@@ -134,7 +134,7 @@ public class EntryInt2IntFrequencyDistribution implements Int2IntFrequencyDistri
 	 */
 	public Iterator<PairOfInts> iterator() {
 		return new Iterator<PairOfInts>() {
-			private Iterator<MapII.Entry> iter = EntryInt2IntFrequencyDistribution.this.counts.entrySet().iterator();
+			private Iterator<MapII.Entry> iter = Int2IntFrequencyDistributionEntry.this.counts.entrySet().iterator();
 			private final PairOfInts pair = new PairOfInts();
 
 			@Override

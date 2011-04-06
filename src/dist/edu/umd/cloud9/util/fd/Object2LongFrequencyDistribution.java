@@ -1,65 +1,66 @@
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
-import edu.umd.cloud9.io.pair.PairOfIntLong;
 import edu.umd.cloud9.util.SortableEntries;
+import edu.umd.cloud9.util.pair.PairOfObjectLong;
 
 /**
- * A frequency distribution where events are ints and counts are longs.
+ * A frequency distribution where events are arbitrary objects and counts are ints.
  *
  * @author Jimmy Lin
  *
  */
-public interface Int2LongFrequencyDistribution extends SortableEntries<PairOfIntLong> {
+public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
+    extends SortableEntries<PairOfObjectLong<K>> {
 
 	/**
 	 * Increments the count of an event <code>key</code>.
 	 */
-	public void increment(int key);
+	public void increment(K key);
 
 	/**
 	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
 	 */
-	public void increment(int key, long cnt);
+	public void increment(K key, long cnt);
 
 	/**
 	 * Decrements the count of an event <code>key</code>.
 	 */
-	public void decrement(int key);
+	public void decrement(K key);
 
 	/**
 	 * Decrements the count of a particular event <code>key</code> by <code>cnt</code>.
 	 */
-	public void decrement(int key, long cnt);
+	public void decrement(K key, long cnt);
 
 	/**
 	 * Returns true if <i>key</i> exists in this object.
 	 */
-	public boolean contains(int key);
+	public boolean contains(K key);
 
 	/**
 	 * Returns the count of a particular event <i>key</i>.
 	 */
-	public long get(int key);
+	public long get(K key);
 
   /**
    * Returns the frequency of a particular event <i>key</i>.
    */
-  public float getFrequency(int key);
+  public float getFrequency(K key);
 
   /**
    * Returns the log frequency of a particular event <i>key</i>.
    */
-  public float getLogFrequency(int key);
+  public float getLogFrequency(K key);
 
 	/**
 	 * Sets the count of a particular event <i>key</i> to <code>cnt</code>.
 	 */
-	public long set(int key, long cnt);
+	public long set(K key, long cnt);
 
 	/**
 	 * Removes the count of a particular event <code>key</code>.
 	 */
-	public long remove(int k);
+	public long remove(K k);
 
 	/**
 	 * Removes all events.

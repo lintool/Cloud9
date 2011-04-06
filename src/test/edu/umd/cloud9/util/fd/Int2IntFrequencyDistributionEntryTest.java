@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,14 +27,16 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.pair.PairOfIntLong;
+import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.util.SortableEntries.Order;
+import edu.umd.cloud9.util.fd.Int2IntFrequencyDistributionEntry;
+import edu.umd.cloud9.util.fd.Int2IntFrequencyDistribution;
 
-public class OpenInt2LongFrequencyDistributionTest {
+public class Int2IntFrequencyDistributionEntryTest {
 
 	@Test
 	public void test1() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		assertEquals(0, fd.get(1));
 
@@ -95,7 +97,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void test2() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.increment(1);
 		fd.increment(1);
@@ -154,7 +156,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void test3() {
-		Int2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.increment(1);
 		fd.increment(1);
@@ -175,7 +177,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement1() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.increment(1);
 
@@ -194,7 +196,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testFailedDecrement2() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.increment(1, 1000);
 
@@ -220,7 +222,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void testMultiIncrementDecrement() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.increment(1, 2);
 		fd.increment(2, 3);
@@ -245,7 +247,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void testGetFrequencySortedEvents() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.set(1, 5);
 		fd.set(4, 2);
@@ -257,7 +259,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(20, fd.getSumOfCounts());
 
-		List<PairOfIntLong> list = fd.getEntries(Order.ByRightElementDescending);
+		List<PairOfInts> list = fd.getEntries(Order.ByRightElementDescending);
 
 		assertEquals(6, list.size());
 
@@ -290,7 +292,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void testGetSortedEvents() {
-		OpenInt2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
 		fd.set(1, 1);
 		fd.set(4, 3);
@@ -302,7 +304,7 @@ public class OpenInt2LongFrequencyDistributionTest {
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfCounts());
 
-		List<PairOfIntLong> list = fd.getEntries(Order.ByLeftElementDescending);
+		List<PairOfInts> list = fd.getEntries(Order.ByLeftElementDescending);
 
 		assertEquals(6, list.size());
 
@@ -335,48 +337,48 @@ public class OpenInt2LongFrequencyDistributionTest {
 
 	@Test
 	public void testIterable() {
-		Int2LongFrequencyDistribution fd = new OpenInt2LongFrequencyDistribution();
+		Int2IntFrequencyDistribution fd = new Int2IntFrequencyDistributionEntry();
 
-		fd.set(1, 1L);
-		fd.set(4, 3L);
-		fd.set(2, 4L);
-		fd.set(5, 7L);
-		fd.set(6, 9L);
-		fd.set(3, 2L);
+		fd.set(1, 1);
+		fd.set(4, 3);
+		fd.set(2, 4);
+		fd.set(5, 7);
+		fd.set(6, 9);
+		fd.set(3, 2);
 
 		assertEquals(6, fd.getNumberOfEvents());
 		assertEquals(26, fd.getSumOfCounts());
 
-		SortedSet<PairOfIntLong> list = new TreeSet<PairOfIntLong>();
+		SortedSet<PairOfInts> list = new TreeSet<PairOfInts>();
 
-		for ( PairOfIntLong pair : fd ) {
+		for ( PairOfInts pair : fd ) {
 			list.add(pair.clone());
 		}
 
 		assertEquals(6, list.size());
 
-		Iterator<PairOfIntLong> iter = list.iterator();
-		PairOfIntLong e = iter.next();
+		Iterator<PairOfInts> iter = list.iterator();
+		PairOfInts e = iter.next();
 		assertEquals(1, e.getLeftElement());
-		assertEquals(1L, e.getRightElement());
+		assertEquals(1, e.getRightElement());
 		e = iter.next();
 		assertEquals(2, e.getLeftElement());
-		assertEquals(4L, e.getRightElement());
+		assertEquals(4, e.getRightElement());
 		e = iter.next();
 		assertEquals(3, e.getLeftElement());
-		assertEquals(2L, e.getRightElement());
+		assertEquals(2, e.getRightElement());
 		e = iter.next();
 		assertEquals(4, e.getLeftElement());
-		assertEquals(3L, e.getRightElement());
+		assertEquals(3, e.getRightElement());
 		e = iter.next();
 		assertEquals(5, e.getLeftElement());
-		assertEquals(7L, e.getRightElement());
+		assertEquals(7, e.getRightElement());
 		e = iter.next();
 		assertEquals(6, e.getLeftElement());
-		assertEquals(9L, e.getRightElement());
+		assertEquals(9, e.getRightElement());
 	}
 
 	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(OpenInt2LongFrequencyDistributionTest.class);
+		return new JUnit4TestAdapter(Int2IntFrequencyDistributionEntryTest.class);
 	}
 }

@@ -14,12 +14,12 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.util.count;
+package edu.umd.cloud9.util.fd;
 
-import it.unimi.dsi.fastutil.ints.Int2LongMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,22 +28,23 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.pair.PairOfIntLong;
+import edu.umd.cloud9.util.pair.PairOfObjectLong;
 
 /**
- * Implementation of {@link Int2LongFrequencyDistribution} based on
- * {@link Int2LongOpenHashMap}.
+ * Implementation of {@link Object2LongFrequencyDistribution} based on
+ * {@link Object2LongOpenHashMap}.
  *
  * @author Jimmy Lin
  *
  */
-public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistribution {
+public class Object2LongFrequencyDistributionOpen<K extends Comparable<K>>
+    implements Object2LongFrequencyDistribution<K> {
 
-	private Int2LongOpenHashMap counts = new Int2LongOpenHashMap();
+	private Object2LongOpenHashMap<K> counts = new Object2LongOpenHashMap<K>();
 	private long sumOfCounts = 0;
 
 	@Override
-	public void increment(int key) {
+	public void increment(K key) {
 		if (contains(key)) {
 			set(key, get(key) + 1L);
 		} else {
@@ -52,7 +53,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
 	@Override
-	public void increment(int key, long cnt) {
+	public void increment(K key, long cnt) {
 		if (contains(key)) {
 			set(key, get(key) + cnt);
 		} else {
@@ -61,10 +62,10 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
 	@Override
-	public void decrement(int key) {
+	public void decrement(K key) {
 		if (contains(key)) {
 			long v = get(key);
-			if (v == 1L) {
+			if (v == 1) {
 				remove(key);
 			} else {
 				set(key, v - 1L);
@@ -75,7 +76,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
 	@Override
-	public void decrement(int key, long cnt) {
+	public void decrement(K key, long cnt) {
 		if (contains(key)) {
 			long v = get(key);
 			if (v < cnt) {
@@ -91,27 +92,27 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
 	@Override
-	public boolean contains(int key) {
+	public boolean contains(K key) {
 		return counts.containsKey(key);
 	}
 
 	@Override
-	public long get(int key) {
-		return counts.get(key);
+	public long get(K key) {
+		return counts.getLong(key);
 	}
 
   @Override
-  public float getFrequency(int k) {
-    return (float) counts.get(k) / getSumOfCounts();
+  public float getFrequency(K k) {
+    return (float) counts.getLong(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(int k) {
-    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  public float getLogFrequency(K k) {
+    return (float) (Math.log(counts.getLong(k)) - Math.log(getSumOfCounts()));
   }
 
 	@Override
-	public long set(int k, long v) {
+	public long set(K k, long v) {
 		long rv = counts.put(k, v);
 		sumOfCounts = sumOfCounts - rv + v;
 
@@ -119,7 +120,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
 	@Override
-	public long remove(int k) {
+	public long remove(K k) {
 		long rv = counts.remove(k);
 		sumOfCounts -= rv;
 
@@ -135,7 +136,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	/**
 	 * Exposes efficient method for accessing keys in this map.
 	 */
-	public IntSet keySet() {
+	public ObjectSet<K> keySet() {
 		return counts.keySet();
 	}
 
@@ -149,9 +150,10 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	/**
 	 * Exposes efficient method for accessing mappings in this map.
 	 */
-	public Int2LongMap.FastEntrySet entrySet() {
-		return counts.int2LongEntrySet();
+	public Object2LongMap.FastEntrySet<K> entrySet() {
+		return counts.object2LongEntrySet();
 	}
+
 
 	@Override
 	public int getNumberOfEvents() {
@@ -166,10 +168,10 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	/**
 	 * Iterator returns the same object every time, just with a different payload.
 	 */
-	public Iterator<PairOfIntLong> iterator() {
-		return new Iterator<PairOfIntLong>() {
-			private Iterator<Int2LongMap.Entry> iter = OpenInt2LongFrequencyDistribution.this.counts.int2LongEntrySet().iterator();
-			private final PairOfIntLong pair = new PairOfIntLong();
+	public Iterator<PairOfObjectLong<K>> iterator() {
+		return new Iterator<PairOfObjectLong<K>>() {
+			private Iterator<Object2LongMap.Entry<K>> iter = Object2LongFrequencyDistributionOpen.this.counts.object2LongEntrySet().iterator();
+			private final PairOfObjectLong<K> pair = new PairOfObjectLong<K>();
 
 			@Override
 			public boolean hasNext() {
@@ -177,13 +179,13 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 			}
 
 			@Override
-			public PairOfIntLong next() {
+			public PairOfObjectLong<K> next() {
 				if (!hasNext()) {
 					return null;
 				}
 
-				Int2LongMap.Entry entry = iter.next();
-				pair.set(entry.getIntKey(), entry.getLongValue());
+				Object2LongMap.Entry<K> entry = iter.next();
+				pair.set(entry.getKey(), entry.getLongValue());
 				return pair;
 			}
 
@@ -195,7 +197,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
 	}
 
   @Override
-  public List<PairOfIntLong> getEntries(Order ordering) {
+  public List<PairOfObjectLong<K>> getEntries(Order ordering) {
     if (ordering.equals(Order.ByLeftElementDescending)) {
       return getSortedEvents();
     } else if (ordering.equals(Order.ByRightElementDescending)) {
@@ -207,7 +209,7 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
   }
 
   @Override
-  public List<PairOfIntLong> getEntries(Order ordering, int n) {
+  public List<PairOfObjectLong<K>> getEntries(Order ordering, int n) {
     if (ordering.equals(Order.ByLeftElementDescending)) {
       return getSortedEvents(n);
     } else if (ordering.equals(Order.ByRightElementDescending)) {
@@ -218,15 +220,15 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
     throw new UnsupportedOperationException();
   }
 
-  private List<PairOfIntLong> getEventsSortedByCount() {
-    List<PairOfIntLong> list = Lists.newArrayList();
+  private List<PairOfObjectLong<K>> getEventsSortedByCount() {
+    List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
-    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
-      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
+    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
+      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
     }
 
-    Collections.sort(list, new Comparator<PairOfIntLong>() {
-      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
+    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
         if (e1.getRightElement() > e2.getRightElement()) {
           return -1;
         }
@@ -235,48 +237,41 @@ public class OpenInt2LongFrequencyDistribution implements Int2LongFrequencyDistr
           return 1;
         }
 
-        if (e1.getLeftElement() == e2.getLeftElement()) {
-          throw new RuntimeException("Event observed twice!");
-        }
-
-        return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+        return e1.getLeftElement().compareTo(e2.getLeftElement());
       }
     });
 
     return list;
   }
 
-  private List<PairOfIntLong> getEventsSortedByCount(int n) {
-    List<PairOfIntLong> list = getEventsSortedByCount();
+  private List<PairOfObjectLong<K>> getEventsSortedByCount(int n) {
+    List<PairOfObjectLong<K>> list = getEventsSortedByCount();
     return list.subList(0, n);
   }
 
-  private List<PairOfIntLong> getSortedEvents() {
-    List<PairOfIntLong> list = Lists.newArrayList();
+  private List<PairOfObjectLong<K>> getSortedEvents() {
+    List<PairOfObjectLong<K>> list = Lists.newArrayList();
 
-    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
-      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
+    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
+      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
     }
 
-    Collections.sort(list, new Comparator<PairOfIntLong>() {
-      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
-        if (e1.getLeftElement() > e2.getLeftElement()) {
-          return 1;
+    // sort the entries
+    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
+        if (e1.getLeftElement().equals(e2.getLeftElement())) {
+          throw new RuntimeException("Event observed twice!");
         }
 
-        if (e1.getLeftElement() < e2.getLeftElement()) {
-          return -1;
-        }
-
-        throw new RuntimeException("Event observed twice!");
+        return e1.getLeftElement().compareTo(e1.getLeftElement());
       }
     });
 
     return list;
   }
 
-  private List<PairOfIntLong> getSortedEvents(int n) {
-    List<PairOfIntLong> list = getSortedEvents();
+  private List<PairOfObjectLong<K>> getSortedEvents(int n) {
+    List<PairOfObjectLong<K>> list = getSortedEvents();
     return list.subList(0, n);
   }
 }
