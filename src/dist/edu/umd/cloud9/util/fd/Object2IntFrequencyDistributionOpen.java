@@ -146,6 +146,14 @@ public class Object2IntFrequencyDistributionOpen<K extends Comparable<K>>
 		return counts.object2IntEntrySet();
 	}
 
+  /**
+   * Returns the underlying map backing this frequency distribution. Manipulate
+   * this map at your own risk; may render this frequency distribution unusable.
+   */
+	public Object2IntOpenHashMap<K> getObject2IntOpenHashMap() {
+	  return counts;
+	}
+
 	@Override
 	public int getNumberOfEvents() {
 		return counts.size();
