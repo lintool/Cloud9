@@ -9,7 +9,7 @@
   <property name="test.dir" location="test" />
   <property name="javadoc.dir" location="docs/api/" />
 
-  <property name="version" value="1.0.0"/>
+  <property name="version" value="1.1.0"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -35,7 +35,7 @@
   <property name="artifactId" value="cloud9" />
   <property name="version" value="${version}" />
 
-  <property name="maven-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+  <property name="maven-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2" />
   <property name="maven-repository-id" value="sonatype-nexus-staging" />
   <property name="maven-jar" value="${dist.dir}/${artifactId}-${version}.jar" />
   <property name="maven-javadoc-jar" value="${dist.dir}/${artifactId}-${version}-javadoc.jar" />
