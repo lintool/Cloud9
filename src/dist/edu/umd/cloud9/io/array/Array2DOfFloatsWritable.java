@@ -66,6 +66,10 @@ public class Array2DOfFloatsWritable implements Writable {
 		return array.clone();
 	}
 
+	public float[][] getArray() {
+		return array;
+	}
+
 	/**
 	 * Returns the float value at position <i>i</i>.
 	 * 
