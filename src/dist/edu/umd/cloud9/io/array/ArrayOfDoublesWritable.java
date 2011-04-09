@@ -7,17 +7,17 @@ import java.io.IOException;
 import org.apache.hadoop.io.Writable;
 
 /**
- * An array of floats that implements Writable class.
+ * An array of doubles that implements Writable class.
  * 
- * @author Ferhan Ture
+ * @author Ke Zhai
  */
-public class ArrayOfFloatsWritable implements Writable {
-	float[] array;
+public class ArrayOfDoublesWritable implements Writable {
+	double[] array;
 
 	/**
 	 * Constructor with no arguments.
 	 */
-	public ArrayOfFloatsWritable() {
+	public ArrayOfDoublesWritable() {
 		super();
 	}
 
@@ -25,9 +25,9 @@ public class ArrayOfFloatsWritable implements Writable {
 	 * Constructor take in a one-dimensional array.
 	 * 
 	 * @param array
-	 *            input float array
+	 *            input double array
 	 */
-	public ArrayOfFloatsWritable(float[] array) {
+	public ArrayOfDoublesWritable(double[] array) {
 		this.array = array;
 	}
 
@@ -35,25 +35,25 @@ public class ArrayOfFloatsWritable implements Writable {
 	 * Constructor that takes the size of the array as an argument.
 	 * 
 	 * @param size
-	 *            number of floats in array
+	 *            number of doubles in array
 	 */
-	public ArrayOfFloatsWritable(int size) {
+	public ArrayOfDoublesWritable(int size) {
 		super();
-		array = new float[size];
+		array = new double[size];
 	}
 
 	public void readFields(DataInput in) throws IOException {
 		int size = in.readInt();
-		array = new float[size];
+		array = new double[size];
 		for (int i = 0; i < size; i++) {
-			set(i, in.readFloat());
+			set(i, in.readDouble());
 		}
 	}
 
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(size());
 		for (int i = 0; i < size(); i++) {
-			out.writeFloat(get(i));
+			out.writeDouble(get(i));
 		}
 	}
 
@@ -62,7 +62,7 @@ public class ArrayOfFloatsWritable implements Writable {
 	 * 
 	 * @return a clone of the array
 	 */
-	public float[] getClone() {
+	public double[] getClone() {
 		return array.clone();
 	}
 
@@ -71,7 +71,7 @@ public class ArrayOfFloatsWritable implements Writable {
 	 * 
 	 * @return a pointer to the array
 	 */
-	public float[] getArray() {
+	public double[] getArray() {
 		return array;
 	}
 
@@ -80,35 +80,35 @@ public class ArrayOfFloatsWritable implements Writable {
 	 * 
 	 * @param array
 	 */
-	public void setArray(float[] array) {
+	public void setArray(double[] array) {
 		this.array = array;
 	}
 
 	/**
-	 * Returns the float value at position <i>i</i>.
+	 * Returns the double value at position <i>i</i>.
 	 * 
 	 * @param i
-	 *            index of float to be returned
-	 * @return float value at position <i>i</i>
+	 *            index of double to be returned
+	 * @return double value at position <i>i</i>
 	 */
-	public float get(int i) {
+	public double get(int i) {
 		return array[i];
 	}
 
 	/**
-	 * Sets the float at position <i>i</i> to <i>f</i>.
+	 * Sets the double at position <i>i</i> to <i>f</i>.
 	 * 
 	 * @param i
 	 *            position in array
 	 * @param f
-	 *            float value to be set
+	 *            double value to be set
 	 */
-	public void set(int i, float f) {
+	public void set(int i, double f) {
 		array[i] = f;
 	}
 
 	/**
-	 * Returns the size of the float array.
+	 * Returns the size of the double array.
 	 * 
 	 * @return size of array
 	 */
