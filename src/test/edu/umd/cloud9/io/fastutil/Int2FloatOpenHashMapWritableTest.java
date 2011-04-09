@@ -37,6 +37,32 @@ public class Int2FloatOpenHashMapWritableTest {
 		assertEquals(22.0f, value, 10e-6);
 	}
 
+  @Test
+  public void testIncrement() throws IOException {
+    Int2FloatOpenHashMapWritable m = new Int2FloatOpenHashMapWritable();
+
+    m.put(2, 7.0f);
+    m.put(1, 29.0f);
+
+    assertEquals(7, m.get(2), 10e-6);
+    assertEquals(29, m.get(1), 10e-6);
+
+    m.increment(2);
+    m.increment(1);
+    m.increment(3);
+
+    assertEquals(8, m.get(2), 10e-6);
+    assertEquals(30, m.get(1), 10e-6);
+    assertEquals(1, m.get(3), 10e-6);
+
+    m.increment(1, 3.0f);
+    m.increment(3, 5.0f);
+
+    assertEquals(8, m.get(2), 10e-6);
+    assertEquals(33, m.get(1), 10e-6);
+    assertEquals(6, m.get(3), 10e-6);
+  }
+
 	@Test
 	public void testSerialize1() throws IOException {
 		Int2FloatOpenHashMapWritable m1 = new Int2FloatOpenHashMapWritable();

@@ -48,18 +48,20 @@ public class ArrayListOfIntsWritableTest {
 		FileSystem fs;
 		SequenceFile.Writer w;
 		Configuration conf = new Configuration();
+		Path tmp = new Path("tmp");
 
 		try {
 			fs = FileSystem.get(conf);
-			w = SequenceFile.createWriter(fs, conf, new Path("test"), IntWritable.class, ArrayListOfIntsWritable.class);
+			w = SequenceFile.createWriter(fs, conf, tmp, IntWritable.class, ArrayListOfIntsWritable.class);
 			w.append(new IntWritable(1), arr);
 			w.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		List<PairOfWritables<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs = SequenceFileUtils.<IntWritable, ArrayListOfIntsWritable> readFile(new Path("test"));
-		FileSystem.get(conf).delete(new Path("test"), true);
+		List<PairOfWritables<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs =
+			SequenceFileUtils.<IntWritable, ArrayListOfIntsWritable> readFile(tmp);
+		FileSystem.get(conf).delete(tmp, true);
 
 		assertTrue(listOfKeysPairs.size() == 1);
 		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getRightElement();
