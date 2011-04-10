@@ -95,10 +95,11 @@ public class RepackWikipedia extends Configured implements Tool {
 			String id = doc.getDocid();
 
 			if (id != null) {
-				reporter.incrCounter(Records.TOTAL, 1);
-
-				docno.set(docnoMapping.getDocno(id));
-				output.collect(docno, doc);
+				int no = docnoMapping.getDocno(id);
+				if(no >= 0){
+					docno.set(no);
+					output.collect(docno, doc);
+				}
 			}
 		}
 	}

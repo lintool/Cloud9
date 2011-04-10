@@ -76,7 +76,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 
 	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
+		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
 	};
 
 	private static class MyMapper extends MapReduceBase implements
@@ -96,17 +96,19 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
 			} else if (p.isEmpty()) {
 				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else {
+			} else if (p.isArticle()) {
 				reporter.incrCounter(PageTypes.ARTICLE, 1);
 
 				if (p.isStub()) {
 					reporter.incrCounter(PageTypes.STUB, 1);
 				}
+
+				keyOut.set(Integer.parseInt(p.getDocid()));
+				output.collect(keyOut, valOut);
+
+			} else {
+				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
-
-			keyOut.set(Integer.parseInt(p.getDocid()));
-			output.collect(keyOut, valOut);
-
 		}
 	}
 
@@ -165,7 +167,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 
 		RunningJob job = JobClient.runJob(conf);
 		Counters c = job.getCounters();
-		long cnt = c.getCounter(PageTypes.TOTAL);
+		long cnt = c.getCounter(PageTypes.ARTICLE);
 
 		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt, outputFile);
 
