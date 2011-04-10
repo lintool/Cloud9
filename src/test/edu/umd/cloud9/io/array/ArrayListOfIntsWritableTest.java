@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 package edu.umd.cloud9.io.array;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -36,6 +37,17 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class ArrayListOfIntsWritableTest {
+
+  @Test
+  public void testToString() {
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", new ArrayListOfIntsWritable(1, 11).toString());
+    assertEquals("[1, 2, 3, 4, 5 ... (5 more) ]", new ArrayListOfIntsWritable(1, 11).toString(5));
+
+    assertEquals("[1, 2, 3, 4, 5]", new ArrayListOfIntsWritable(1, 6).toString());
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]", new ArrayListOfIntsWritable(1, 12).toString());
+
+    assertEquals("[]", new ArrayListOfIntsWritable().toString());
+  }
 
 	@Test
 	public void testReadWrite() throws IOException {

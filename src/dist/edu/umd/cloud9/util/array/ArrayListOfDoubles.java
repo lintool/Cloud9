@@ -91,8 +91,6 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -108,8 +106,6 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -153,8 +149,6 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfDoubles clone() {
 		return new ArrayListOfDoubles(Arrays.copyOf(array, this.size()));
@@ -186,8 +180,6 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
 	public void add(double e) {
 		ensureCapacity(size + 1); // Increments modCount!!

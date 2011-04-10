@@ -25,6 +25,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.util.array.ArrayListOfInts;
 
 public class ArrayListOfIntsTest {
@@ -192,8 +193,19 @@ public class ArrayListOfIntsTest {
 		assertEquals(size, list.get(shift));
 	}
 
+  @Test
+  public void testToString() {
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", new ArrayListOfIntsWritable(1, 11).toString());
+    assertEquals("[1, 2, 3, 4, 5 ... (5 more) ]", new ArrayListOfIntsWritable(1, 11).toString(5));
+
+    assertEquals("[1, 2, 3, 4, 5]", new ArrayListOfIntsWritable(1, 6).toString());
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]", new ArrayListOfIntsWritable(1, 12).toString());
+
+    assertEquals("[]", new ArrayListOfIntsWritable().toString());
+  }
+
 	@Test
-	public void testToString() {
+	public void testToString1() {
 		int size = 10;
 		Random r = new Random();
 

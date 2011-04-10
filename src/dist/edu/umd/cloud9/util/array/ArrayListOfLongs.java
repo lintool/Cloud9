@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 /**
  * Object representing a list of longs, backed by an resizable-array.
  */
-
 public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long> {
 	protected transient long[] array;
 	protected int size = 0;
@@ -92,8 +91,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -109,8 +106,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -154,8 +149,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfLongs clone() {
 		return new ArrayListOfLongs(Arrays.copyOf(array, this.size()));
@@ -187,8 +180,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
 	public void add(long e) {
 		ensureCapacity(size + 1); // Increments modCount!!

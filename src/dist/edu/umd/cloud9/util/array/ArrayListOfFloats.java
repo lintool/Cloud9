@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -91,8 +91,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -108,8 +106,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -153,8 +149,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfFloats clone() {
 		return new ArrayListOfFloats(Arrays.copyOf(array, this.size()));
@@ -186,8 +180,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
 	public void add(float e) {
 		ensureCapacity(size + 1); // Increments modCount!!

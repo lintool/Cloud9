@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -92,8 +92,6 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -109,8 +107,6 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -154,8 +150,6 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfShorts clone() {
 		return new ArrayListOfShorts(Arrays.copyOf(array, this.size()));
@@ -187,8 +181,6 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
 	public void add(short e) {
 		ensureCapacity(size + 1); // Increments modCount!!
