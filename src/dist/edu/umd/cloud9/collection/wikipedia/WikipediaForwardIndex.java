@@ -96,7 +96,7 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 		DecimalFormat df = new DecimalFormat("00000");
 		String file = mCollectionPath + "/part-" + df.format(mFileno[idx]);
 
-//		sLogger.info("fetching docno " + docno + ": seeking to " + mOffsets[idx] + " at " + file);
+		sLogger.info("fetching docno " + docno + ": seeking to " + mOffsets[idx] + " at " + file);
 
 		try {
 
@@ -108,18 +108,14 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 			reader.seek(mOffsets[idx]);
 
 			while (reader.next(key)) {
-//				sLogger.info("at " + key);
 				if (key.get() == docno)
 					break;
 			}
-//			sLogger.info("1 out of loop: "+key.get()+"\n"+docno);
 			reader.getCurrentValue(value);
-//			sLogger.info("2 out of loop: "+key.get()+"\n"+docno);
 			reader.close();
-//			sLogger.info("3 out of loop: "+key.get()+"\n"+docno);
 			long duration = System.currentTimeMillis() - start;
 
-//			sLogger.info(" docno " + docno + " fetched in " + duration + "ms");
+			sLogger.info(" docno " + docno + " fetched in " + duration + "ms");
 			return value;
 		} catch (IOException e) {
 			e.printStackTrace();
