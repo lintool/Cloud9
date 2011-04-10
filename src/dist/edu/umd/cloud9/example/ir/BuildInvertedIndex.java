@@ -43,8 +43,8 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.count.EntryObject2IntFrequencyDistribution;
-import edu.umd.cloud9.util.count.Object2IntFrequencyDistribution;
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 @SuppressWarnings("deprecation")
@@ -54,7 +54,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
 
 	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, PairOfInts> {
 		private static final Text word = new Text();
-		private static final Object2IntFrequencyDistribution<String> termCounts = new EntryObject2IntFrequencyDistribution<String>();
+		private static final Object2IntFrequencyDistribution<String> termCounts = new Object2IntFrequencyDistributionEntry<String>();
 
 		public void map(LongWritable docno, Text doc, 
 				OutputCollector<Text, PairOfInts> output, Reporter reporter) throws IOException {

@@ -41,7 +41,7 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 	public WikipediaForwardIndex(Configuration conf) {
 		mConf = conf;
 	}
-
+	
 	@Override
 	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
 		sLogger.info("Loading forward index: " + indexFile);
@@ -108,14 +108,11 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 			reader.seek(mOffsets[idx]);
 
 			while (reader.next(key)) {
-				// sLogger.info("at " + key);
 				if (key.get() == docno)
 					break;
 			}
-
 			reader.getCurrentValue(value);
 			reader.close();
-
 			long duration = System.currentTimeMillis() - start;
 
 			sLogger.info(" docno " + docno + " fetched in " + duration + "ms");
