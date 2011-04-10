@@ -88,6 +88,7 @@ import edu.umd.cloud9.util.map.MapIF;
  * @author Michael Schatz
  * 
  */
+@SuppressWarnings("deprecation")
 public class RunPageRankSchimmy extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(RunPageRankSchimmy.class);

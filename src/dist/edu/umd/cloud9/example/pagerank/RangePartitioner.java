@@ -25,9 +25,11 @@ import org.apache.hadoop.mapred.Partitioner;
  * Ranger partitioner. In the context of graph algorithms, ensures that
  * consecutive node ids are blocked together.
  * 
- * @author jimmy
- * 
+ * @author Jimmy Lin
+ * @author Michael Schatz
+ *
  */
+@SuppressWarnings("deprecation")
 public class RangePartitioner<K, V> implements Partitioner<IntWritable, Writable> {
 	private int mNodeCnt = 0;
 

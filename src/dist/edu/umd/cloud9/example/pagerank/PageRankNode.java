@@ -25,134 +25,115 @@ import org.apache.hadoop.io.Writable;
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
- * Representation of a graph node for PageRank.
- * 
+ * Representation of a graph node for PageRank. 
+ *
  * @author Jimmy Lin
  * @author Michael Schatz
  *
  */
 public class PageRankNode implements Writable {
+  public static enum Type {
+    Complete(0),  // PageRank mass and adjacency list.
+    Mass(1),      // PageRank mass only.
+    Structure(2); // Adjacency list only.
 
-	public static final int TYPE_COMPLETE = 1;
-	public static final int TYPE_MASS = 2;
-	public static final int TYPE_STRUCTURE = 3;
+    public int val;
 
-	private int mType;
-	private int mNodeId;
-	private float mPageRank;
-	private ArrayListOfIntsWritable mAdjacenyList;
+    private Type(int v) {
+      this.val = v;
+    }
+  };
 
-	public PageRankNode() {
-	}
+	private Type[] mapping = new Type[] { Type.Complete, Type.Mass, Type.Structure };
+
+	private Type type;
+	private int nodeId;
+	private float pagerank;
+	private ArrayListOfIntsWritable adjacenyList;
+
+	public PageRankNode() {}
 
 	public float getPageRank() {
-		return mPageRank;
+		return pagerank;
 	}
 
 	public void setPageRank(float p) {
-		mPageRank = p;
+		this.pagerank = p;
 	}
 
 	public int getNodeId() {
-		return mNodeId;
+		return nodeId;
 	}
 
 	public void setNodeId(int n) {
-		mNodeId = n;
+		this.nodeId = n;
 	}
 
 	public ArrayListOfIntsWritable getAdjacenyList() {
-		return mAdjacenyList;
+		return adjacenyList;
 	}
 
-	public void setAdjacencyList(ArrayListOfIntsWritable l) {
-		mAdjacenyList = l;
+	public void setAdjacencyList(ArrayListOfIntsWritable list) {
+		this.adjacenyList = list;
 	}
 
-	public int getType() {
-		return mType;
+	public Type getType() {
+		return type;
 	}
 
-	public void setType(int type) {
-		if (type != TYPE_COMPLETE && type != TYPE_MASS && type != TYPE_STRUCTURE)
-			return;
-
-		mType = type;
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	/**
 	 * Deserializes this object.
 	 *
-	 * @param in
-	 *            source for raw byte representation
+	 * @param in source for raw byte representation
 	 */
-	//@Override
+	@Override
 	public void readFields(DataInput in) throws IOException {
-		mType = in.readByte();
+		int b = in.readByte();
+		type = mapping[b];
+		nodeId = in.readInt();
 
-		mNodeId = in.readInt();
-
-		if (mType == TYPE_MASS) {
-			mPageRank = in.readFloat();
+		if (type.equals(Type.Mass)) {
+			pagerank = in.readFloat();
 			return;
 		}
 
-		if (mType == TYPE_COMPLETE) {
-			mPageRank = in.readFloat();
+		if (type.equals(Type.Complete)) {
+			pagerank = in.readFloat();
 		}
 
-		mAdjacenyList = new ArrayListOfIntsWritable();
-		mAdjacenyList.readFields(in);
+		adjacenyList = new ArrayListOfIntsWritable();
+		adjacenyList.readFields(in);
 	}
 
 	/**
 	 * Serializes this object.
 	 *
-	 * @param out
-	 *            where to write the raw byte representation
+	 * @param out where to write the raw byte representation
 	 */
-	//@Override
+	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeByte((byte) mType);
-		out.writeInt(mNodeId);
+		out.writeByte((byte) type.val);
+		out.writeInt(nodeId);
 
-		if (mType == TYPE_MASS) {
-			out.writeFloat(mPageRank);
+		if (type.equals(Type.Mass)) {
+			out.writeFloat(pagerank);
 			return;
 		}
 
-		if (mType == TYPE_COMPLETE) {
-			out.writeFloat(mPageRank);
+		if (type.equals(Type.Complete)) {
+			out.writeFloat(pagerank);
 		}
 
-		mAdjacenyList.write(out);
+		adjacenyList.write(out);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-
-		s.append("{");
-		s.append(mNodeId);
-
-		s.append(" ");
-		s.append(mPageRank);
-		s.append(" ");
-
-		if (mAdjacenyList == null) {
-			s.append("{}");
-		} else {
-			s.append("{");
-			for (int i = 0; i < mAdjacenyList.size(); i++) {
-				s.append(mAdjacenyList.get(i));
-				if (i < mAdjacenyList.size() - 1)
-					s.append(", ");
-			}
-			s.append("}");
-		}
-
-		s.append(" }");
-
-		return s.toString();
+		return String.format("{%d %.4f %s }",
+				nodeId, pagerank, (adjacenyList == null ? "[]" : adjacenyList.toString(10)));
 	}
 }

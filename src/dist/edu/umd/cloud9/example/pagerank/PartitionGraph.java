@@ -59,6 +59,7 @@ import org.apache.log4j.Logger;
  * @author Michael Schatz
  * 
  */
+@SuppressWarnings("deprecation")
 public class PartitionGraph extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(PartitionGraph.class);
 

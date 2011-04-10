@@ -41,6 +41,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("deprecation")
 public class FindMaxPageRankNodes extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(FindMaxPageRankNodes.class);
@@ -86,8 +87,8 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 	private static class MyMapper extends MapReduceBase implements
 			Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable> {
 
-		private static OutputCollector<IntWritable, FloatWritable> output;
-		private static PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
+		private OutputCollector<IntWritable, FloatWritable> output;
+		private PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
 
 		private int n;
 		
@@ -129,8 +130,8 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 	private static class MyReducer extends MapReduceBase implements
 			Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
 
-		private static OutputCollector<IntWritable, FloatWritable> output;
-		private static PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
+		private OutputCollector<IntWritable, FloatWritable> output;
+		private PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
 
 		private int n = 100;
 		

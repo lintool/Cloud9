@@ -71,7 +71,7 @@ public class BuildPageRankRecords extends Configured implements Tool {
 
 		public void configure(JobConf job) {
 			int n = job.getInt("NodeCnt", 0);
-			node.setType(PageRankNode.TYPE_COMPLETE);
+			node.setType(PageRankNode.Type.Complete);
 			node.setPageRank((float) -StrictMath.log(n));
 		}
 
@@ -172,7 +172,7 @@ public class BuildPageRankRecords extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new BuildPageRankRecords(), args);
+		int res = ToolRunner.run(new BuildPageRankRecords(), args);
 		System.exit(res);
 	}
 }
