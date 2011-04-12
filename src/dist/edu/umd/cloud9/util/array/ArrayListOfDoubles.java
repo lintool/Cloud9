@@ -52,10 +52,16 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfDoubles(double[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+    // Be defensive and make a copy of the array.
+    array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
 
@@ -181,9 +187,10 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	/**
 	 * Appends the specified element to the end of this list.
 	 */
-	public void add(double e) {
+	public ArrayListOfDoubles add(double e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -194,7 +201,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, double element) {
+	public ArrayListOfDoubles add(int index, double element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -203,6 +210,7 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -262,25 +270,33 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * first <i>n</i> elements of this list.
 	 */
 	public String toString(int n) {
-		StringBuilder s = new StringBuilder();
+    StringBuilder s = new StringBuilder();
 
-		s.append("[");
-		int sz = size() > n ? n : size;
+    s.append("[");
+    int sz = size() > n ? n : size;
 
-		for (int i = 0; i < sz; i++) {
-			if (i != 0) {
-				s.append(", ");
-			}
-			s.append(get(i));
-		}
+    for (int i = 0; i < sz; i++) {
+      s.append(get(i));
+      if (i < sz - 1) {
+        s.append(", ");
+      }
+    }
 
-		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+    s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
-		return s.toString();
+    return s.toString();
 	}
 
 	@Override
 	public String toString() {
 		return toString(10);
 	}
+
+  /**
+   * Sorts this list.
+   */
+  public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+  }
 }

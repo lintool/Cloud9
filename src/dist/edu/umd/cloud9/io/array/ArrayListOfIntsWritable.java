@@ -19,6 +19,7 @@ package edu.umd.cloud9.io.array;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.hadoop.io.Writable;
 
@@ -39,10 +40,6 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		super();
 	}
 
-	public ArrayListOfIntsWritable(int firstNumber, int lastNumber) {
-		super(firstNumber, lastNumber);
-	}
-
 	/**
 	 * Constructs an empty list with the specified initial capacity.
 	 *
@@ -52,6 +49,16 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 		super(initialCapacity);
 	}
 
+  /**
+   * Constructs a list populated with shorts in range [first, last).
+   *
+   * @param first the smallest short in the range (inclusive)
+   * @param last  the largest short in the range (exclusive)
+   */
+  public ArrayListOfIntsWritable(int first, int last) {
+    super(first, last);
+  }
+
 	/**
 	 * Constructs a deep copy of the ArrayListOfIntsWritable object 
 	 * given as parameter.
@@ -60,16 +67,14 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	 */
 	public ArrayListOfIntsWritable(ArrayListOfIntsWritable other) {
     super();
-    for (int i = 0; i < other.size(); i++) {
-      add(i, other.get(i));
-    }
+    size = other.size();
+    array = Arrays.copyOf(other.getArray(), size);
   }
 
   /**
-   * Constructs a list with the array backing the object. Beware when
-   * subsequently manipulating the array.
+   * Constructs a list from an array. Defensively makes a copy of the array.
    *
-   * @param arr backing array
+   * @param arr source array
    */
 	public ArrayListOfIntsWritable(int[] arr) {
     super(arr);
@@ -81,11 +86,11 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		this.clear();
-		int size = in.readInt();
-		for(int i=0;i<size;i++){
-			add(i,in.readInt());
-		}
+    this.clear();
+    int size = in.readInt();
+    for (int i = 0; i < size; i++) {
+      add(i, in.readInt());
+    }
 	}
 
 	/**
@@ -94,11 +99,11 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	 * @param out	where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		int size = size();
-		out.writeInt(size);
-		for(int i=0;i<size;i++){
-			out.writeInt(get(i));
-		}
+    int size = size();
+    out.writeInt(size);
+    for (int i = 0; i < size; i++) {
+      out.writeInt(get(i));
+    }
 	}
 
 	@Override
@@ -106,9 +111,12 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	  return toString(size());
 	}
 
+	/**
+	 * Creates a Writable version of this list.
+	 */
 	public static ArrayListOfIntsWritable fromArrayListOfInts(ArrayListOfInts a) {
 	  ArrayListOfIntsWritable list = new ArrayListOfIntsWritable();
-	  list.array = a.getArray();
+	  list.array = Arrays.copyOf(a.getArray(), a.size());
 	  list.size = a.size();
 
 	  return list;

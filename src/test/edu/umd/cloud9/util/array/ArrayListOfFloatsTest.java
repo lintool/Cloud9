@@ -47,6 +47,22 @@ public class ArrayListOfFloatsTest {
 		}
 	}
 
+  @Test
+  public void testArrayConstructor() {
+    float[] arr = new float[] { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
+    assertEquals(5, arr.length);
+
+    ArrayListOfFloats list = new ArrayListOfFloats(arr);
+    list.remove(2);
+
+    // Make sure the original array remains untouched.
+    assertEquals(1.0f, arr[0], 10e-6);
+    assertEquals(2.0f, arr[1], 10e-6);
+    assertEquals(3.0f, arr[2], 10e-6);
+    assertEquals(4.0f, arr[3], 10e-6);
+    assertEquals(5.0f, arr[4], 10e-6);
+  }
+
 	@Test
 	public void testRemove() {
 		ArrayListOfFloats list = new ArrayListOfFloats();
@@ -218,7 +234,6 @@ public class ArrayListOfFloatsTest {
 		for ( Float v : list) {
 			assertEquals(floats[i++], v, 10e-5);
 		}
-
 	}
 
 	@Test

@@ -50,10 +50,7 @@ public class ArrayListOfIntsWritableTest {
 	@Test
 	public void testReadWrite() throws IOException {
 		ArrayListOfIntsWritable arr = new ArrayListOfIntsWritable();
-		arr.add(0, 1);
-		arr.add(1, 3);
-		arr.add(2, 5);
-		arr.add(3, 7);
+		arr.add(0, 1).add(1, 3).add(2, 5).add(3, 7);
 
 		FileSystem fs;
 		SequenceFile.Writer w;
@@ -75,32 +72,30 @@ public class ArrayListOfIntsWritableTest {
 
 		assertTrue(listOfKeysPairs.size() == 1);
 		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getRightElement();
-		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 4);
-		assertTrue(arrRead.get(0) == 1);
-		assertTrue(arrRead.get(1) == 3);
-		assertTrue(arrRead.get(2) == 5);
-		assertTrue(arrRead.get(3) == 7);
+		assertEquals(4, arrRead.size());
+		assertEquals(1, arrRead.get(0));
+		assertEquals(3, arrRead.get(1));
+		assertEquals(5, arrRead.get(2));
+		assertEquals(7, arrRead.get(3));
 
 		arrRead.remove(0);
 		arrRead.remove(0);
 		arrRead.remove(1);
 
-		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 1);
-		assertTrue("got wrong: " + arrRead.get(0), arrRead.get(0) == 5);
+		assertEquals(1, arrRead.size());
+		assertEquals(5, arrRead.get(0));
 	}
 
 	@Test
 	public void testCopyConstructor() {
 		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(1);
-		a.add(3);
-		a.add(5);
+		a.add(1).add(3).add(5);
 
 		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable(a);
 		a.remove(0);
-		assertTrue(b.get(0) == 1);
-		assertTrue(b.get(1) == 3);
-		assertTrue(b.get(2) == 5);
+		assertEquals(1, b.get(0));
+		assertEquals(3, b.get(1));
+		assertEquals(5, b.get(2));
 	}
 
 	public static junit.framework.Test suite() {

@@ -52,15 +52,21 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfShorts(short[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+    // Be defensive and make a copy of the array.
+    array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
 
   /**
-   * Constructs an ArrayListOfShorts object from a given range [first, last).
+   * Constructs a list populated with shorts in range [first, last).
    *
    * @param first the smallest short in the range (inclusive)
    * @param last  the largest short in the range (exclusive)

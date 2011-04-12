@@ -52,15 +52,21 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfLongs(long[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+    // Be defensive and make a copy of the array.
+    array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
 
   /**
-   * Constructs an ArrayListOfLongs object from a given range [first, last).
+   * Constructs a list populated with longs in range [first, last).
    *
    * @param first the smallest int in the range (inclusive)
    * @param last  the largest int in the range (exclusive)

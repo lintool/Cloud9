@@ -48,6 +48,22 @@ public class ArrayListOfLongsTest {
   }
 
   @Test
+  public void testArrayConstructor() {
+    long[] arr = new long[] { 1, 2, 3, 4, 5 };
+    assertEquals(5, arr.length);
+
+    ArrayListOfLongs list = new ArrayListOfLongs(arr);
+    list.remove(2);
+
+    // Make sure the original array remains untouched.
+    assertEquals(1, arr[0]);
+    assertEquals(2, arr[1]);
+    assertEquals(3, arr[2]);
+    assertEquals(4, arr[3]);
+    assertEquals(5, arr[4]);
+  }
+
+  @Test
   public void testRemove() {
     ArrayListOfLongs list = new ArrayListOfLongs();
     for (int i = 0; i < 10; i++) {
