@@ -25,9 +25,8 @@ import org.apache.hadoop.io.Writable;
 import edu.umd.cloud9.util.array.ArrayListOfInts;
 
 /**
- * Writable extension of the ArrayListOfInts class. This class allows the user to have an efficient 
- * data structure to store a list of integers in MapReduce tasks. It is especially useful for storing 
- * index lists, as it has an efficient intersection method.
+ * Writable extension of the ArrayListOfInts class. This class provides an
+ * efficient data structure to store a list of ints for MapReduce jobs.
  *
  * @author Ferhan Ture
  */
@@ -60,18 +59,21 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	 * @param other object to be copied
 	 */
 	public ArrayListOfIntsWritable(ArrayListOfIntsWritable other) {
-		super();
-		for(int i=0;i<other.size();i++){
-			add(i, other.get(i));
-		}
-	}
+    super();
+    for (int i = 0; i < other.size(); i++) {
+      add(i, other.get(i));
+    }
+  }
 
+  /**
+   * Constructs a list with the array backing the object. Beware when
+   * subsequently manipulating the array.
+   *
+   * @param arr backing array
+   */
 	public ArrayListOfIntsWritable(int[] arr) {
-		super();
-		for(int i=0;i<arr.length;i++){
-			add(i, arr[i]);
-		}	
-	}
+    super(arr);
+  }
 
 	/**
 	 * Deserializes this object.
@@ -104,68 +106,11 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
 	  return toString(size());
 	}
 
-  /**
-   * Computes the intersection of two sorted lists of this type.
-   * This method is tuned for efficiency, therefore this ArrayListOfIntsWritable
-   * and the parameter are both assumed to be sorted in an increasing
-   * order.
-   *
-   * The ArrayListOfIntsWritable that is returned is the intersection of this object
-   * and the parameter. That is, the returned list will only contain the elements that
-   * occur in both this object and <code>other</code>.
-   *
-   * @param other
-   *      other ArrayListOfIntsWritable that is intersected with this object
-   * @return
-   *      intersection of <code>other</code> and this object
-   */
-  public ArrayListOfIntsWritable intersection(ArrayListOfIntsWritable other) {
-    ArrayListOfIntsWritable intDomain = new ArrayListOfIntsWritable();
-    int len, curPos=0;
-    if(size()<other.size()){
-      len=size();
-      for(int i=0;i<len;i++){
-        int elt=this.get(i);
-        while(curPos<other.size() && other.get(curPos)<elt){
-          curPos++;
-        }
-        if(curPos>=other.size()){
-          return intDomain;
-        }else if(other.get(curPos)==elt){
-          intDomain.add(elt);
-        }
-      }
-    }else{
-      len=other.size();
-      for(int i=0;i<len;i++){
-        int elt=other.get(i);
-        while(curPos<size() && get(curPos)<elt){
-          curPos++;
-        }
-        if(curPos>=size()){
-          return intDomain;
-        }else if(get(curPos)==elt){
-          intDomain.add(elt);
-        }
-      }
-    }
-    if(intDomain.size()==0){
-      intDomain=null;
-    }
-    return intDomain;
-  }
+	public static ArrayListOfIntsWritable fromArrayListOfInts(ArrayListOfInts a) {
+	  ArrayListOfIntsWritable list = new ArrayListOfIntsWritable();
+	  list.array = a.getArray();
+	  list.size = a.size();
 
-  /**
-   * @param start first index to be included in sub-list
-   * @param end last index to be included in sub-list
-   * @return return a new ArrayListOfInts object, containing the ints of
-   *         this object from <code>start</code> to <code>end</code>
-   */
-  public ArrayListOfIntsWritable sub(int start, int end) {
-    ArrayListOfIntsWritable sublst = new ArrayListOfIntsWritable(end - start + 1);
-    for (int i = start; i <= end; i++) {
-      sublst.add(get(i));
-    }
-    return sublst;
-  }
+	  return list;
+	}
 }

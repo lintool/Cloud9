@@ -59,6 +59,21 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 		size = array.length;
 	}
 
+  /**
+   * Constructs an ArrayListOfShorts object from a given range [first, last).
+   *
+   * @param first the smallest short in the range (inclusive)
+   * @param last  the largest short in the range (exclusive)
+   */
+  public ArrayListOfShorts(short first, short last) {
+    this(last - first);
+
+    short j = 0;
+    for (short i = first; i < last; i++) {
+      this.add(j++, i);
+    }
+  }
+
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
 	 * application can use this operation to minimize the memory footprint of
@@ -182,9 +197,10 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 	/**
 	 * Appends the specified element to the end of this list.
 	 */
-	public void add(short e) {
+	public ArrayListOfShorts add(short e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -195,7 +211,7 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, short element) {
+	public ArrayListOfShorts add(int index, short element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -204,6 +220,7 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -269,13 +286,13 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 		int sz = size() > n ? n : size;
 
 		for (int i = 0; i < sz; i++) {
-			if (i != 0) {
-				s.append(", ");
-			}
-			s.append(get(i));
+      s.append(get(i));
+      if (i < sz - 1) {
+        s.append(", ");
+      }
 		}
 
-		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+    s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
 		return s.toString();
 	}
@@ -284,4 +301,81 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 	public String toString() {
 		return toString(10);
 	}
+
+  /**
+   * Sorts this list.
+   */
+  public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+  }
+
+
+  /**
+   * Computes the intersection of two sorted lists of unique shorts.
+   *
+   * @param other other list to be intersected with this list
+   * @return intersection of the two lists
+   */
+  public ArrayListOfShorts intersection(ArrayListOfShorts other) {
+    ArrayListOfShorts result = new ArrayListOfShorts();
+    int len, curPos = 0;
+    if (size() < other.size()) {
+      len = size();
+      for (int i = 0; i < len; i++) {
+        short elt = this.get(i);
+        while (curPos < other.size() && other.get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= other.size()) {
+          return result;
+        } else if (other.get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    } else {
+      len = other.size();
+      for (int i = 0; i < len; i++) {
+        short elt = other.get(i);
+        while (curPos < size() && get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= size()) {
+          return result;
+        } else if (get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Extracts a sub-list.
+   *
+   * @param start  first index to be included in sub-list
+   * @param end    last index to be included in sub-list
+   * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
+   */
+  public ArrayListOfShorts subList(int start, int end) {
+    ArrayListOfShorts sublst = new ArrayListOfShorts(end - start + 1);
+    for (int i = start; i <= end; i++) {
+      sublst.add(get(i));
+    }
+    return sublst;
+  }
+
+  /**
+   * Add all shorts in the specified array into this list, ignoring duplicates.
+   *
+   * @param arr array of shorts to add to this object
+   */
+  public void addUnique(short[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+      short elt = arr[i];
+      if (!contains(elt)) {
+        add(elt);
+      }
+    }
+  }
 }

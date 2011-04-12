@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.JUnit4TestAdapter;
@@ -33,7 +32,6 @@ import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class ArrayListOfIntsWritableTest {
@@ -103,65 +101,6 @@ public class ArrayListOfIntsWritableTest {
 		assertTrue(b.get(0) == 1);
 		assertTrue(b.get(1) == 3);
 		assertTrue(b.get(2) == 5);
-	}
-
-	@Test
-	public void testIntersection() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(5);
-		a.add(3);
-		a.add(1);
-
-		a.trimToSize();
-		Arrays.sort(a.getArray());
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue("got wrong: " + c.get(0), c.get(0) == 1);
-		assertTrue("got wrong: " + c.get(1), c.get(1) == 3);
-	}
-
-	@Test
-	public void testIntersection2() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(5);
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue(c.size() == 0);
-	}
-
-	@Test
-	public void testIntersection3() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(3);
-		a.add(5);
-		a.add(7);
-		a.add(8);
-		a.add(9);
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue(c.get(0) == 3);
-		assertTrue(c.size() == 1);
 	}
 
 	public static junit.framework.Test suite() {

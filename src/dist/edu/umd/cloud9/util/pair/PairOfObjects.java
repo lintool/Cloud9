@@ -16,7 +16,8 @@
 
 package edu.umd.cloud9.util.pair;
 
-public class PairOfObjects<L extends Comparable<L>, R extends Comparable<R>> implements Comparable<PairOfObjects<L, R>>{
+public class PairOfObjects<L extends Comparable<L>, R extends Comparable<R>>
+    implements Comparable<PairOfObjects<L, R>> {
 
 	private L left;
 	private R right;

@@ -174,8 +174,23 @@ public class ArrayListOfShortsTest {
 		}
 	}
 
+  @Test
+  public void testToString1() {
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]",
+        new ArrayListOfShorts((short) 1, (short) 11).toString());
+    assertEquals("[1, 2, 3, 4, 5 ... (5 more) ]",
+        new ArrayListOfShorts((short) 1, (short) 11).toString(5));
+
+    assertEquals("[1, 2, 3, 4, 5]",
+        new ArrayListOfShorts((short) 1, (short) 6).toString());
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]",
+        new ArrayListOfShorts((short) 1, (short) 12).toString(11));
+
+    assertEquals("[]", new ArrayListOfShorts().toString());
+  }
+
 	@Test
-	public void testToString() {
+	public void testToString2() {
 		int size = 10;
 		Random r = new Random();
 
@@ -246,6 +261,128 @@ public class ArrayListOfShortsTest {
 		assertEquals(6, list.size);
 		assertEquals(12, list.get(5));
 	}
+  @Test
+  public void testSort() {
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    assertEquals(0, a.size());
+
+    a.add((short) 5);
+    a.add((short) 6);
+    a.add((short) 1);
+    a.add((short) 4);
+    assertEquals(4, a.size());
+
+    a.sort();
+    assertEquals(4, a.size());
+
+    assertEquals(1, a.get(0));
+    assertEquals(4, a.get(1));
+    assertEquals(5, a.get(2));
+    assertEquals(6, a.get(3));
+  }
+
+  @Test
+  public void testIntersection1() {
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 5);
+    a.add((short) 3);
+    a.add((short) 1);
+
+    a.sort();
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 0);
+    b.add((short) 1);
+    b.add((short) 2);
+    b.add((short) 3);
+
+    ArrayListOfShorts c = a.intersection(b);
+
+    assertEquals(1, c.get(0));
+    assertEquals(3, c.get(1));
+    assertEquals(2, c.size());
+  }
+
+  @Test
+  public void testIntersection2() {
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 5);
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 0);
+    b.add((short) 1);
+    b.add((short) 2);
+    b.add((short) 3);
+
+    ArrayListOfShorts c = a.intersection(b);
+    assertTrue(c.size() == 0);
+  }
+
+  @Test
+  public void testIntersection3() {
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 3);
+    a.add((short) 5);
+    a.add((short) 7);
+    a.add((short) 8);
+    a.add((short) 9);
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 0);
+    b.add((short) 1);
+    b.add((short) 2);
+    b.add((short) 3);
+
+    ArrayListOfShorts c = a.intersection(b);
+
+    assertEquals(3, c.get(0));
+    assertEquals(1, c.size());
+  }
+
+  @Test
+  public void testIntersection4() {
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 3);
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 0);
+
+    ArrayListOfShorts c = a.intersection(b);
+
+    assertEquals(0, c.size());
+  }
+
+  @Test
+  public void testSubList() {
+    ArrayListOfShorts a = new ArrayListOfShorts(new short[] {1, 2, 3, 4, 5, 6, 7});
+    ArrayListOfShorts b = a.subList(1, 5);
+    assertEquals(5, b.size());
+    assertEquals(2, b.get(0));
+    assertEquals(3, b.get(1));
+    assertEquals(4, b.get(2));
+    assertEquals(5, b.get(3));
+    assertEquals(6, b.get(4));
+
+    a.clear();
+    // Make sure b is a new object.
+    assertEquals(5, b.size());
+    assertEquals(2, b.get(0));
+    assertEquals(3, b.get(1));
+    assertEquals(4, b.get(2));
+    assertEquals(5, b.get(3));
+    assertEquals(6, b.get(4));
+  }
+
+  @Test
+  public void testAddUnique() {
+    ArrayListOfShorts a = new ArrayListOfShorts(new short[] {1, 2, 3, 4, 5, 6, 7});
+    a.addUnique(new short[] {8, 0, 2, 5, -1, 11, 9});
+    assertEquals(12, a.size());
+    assertEquals(0, a.get(8));
+    assertEquals(-1, a.get(9));
+    assertEquals(11, a.get(10));
+    assertEquals(9, a.get(11));
+  }
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfShortsTest.class);

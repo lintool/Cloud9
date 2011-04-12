@@ -52,6 +52,12 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list with the array backing the object. Beware when
+   * subsequently manipulating the array.
+   *
+   * @param arr backing array
+   */
 	public ArrayListOfInts(int[] a) {
 		Preconditions.checkNotNull(a);
 
@@ -59,18 +65,17 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		size = array.length;
 	}
 
-	 /**
-   * Constructs an ArrayListOfInts object from a given integer range [ first , last ).
-   * The created list includes the first parameter but excludes the second.
+  /**
+   * Constructs an ArrayListOfInts object from a given range [first, last).
    *
-   * @param firstNumber the smallest integer in the range
-   * @param lastNumber the largest integer in the range
+   * @param first the smallest int in the range (inclusive)
+   * @param last  the largest int in the range (exclusive)
    */
-  public ArrayListOfInts(int firstNumber, int lastNumber) {
-    this(lastNumber-firstNumber);
+  public ArrayListOfInts(int first, int last) {
+    this(last - first);
 
-    int j=0;
-    for(int i=firstNumber;i<lastNumber;i++){
+    int j = 0;
+    for (int i = first; i < last; i++) {
       this.add(j++, i);
     }
   }
@@ -197,9 +202,10 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 	/**
 	 * Appends the specified element to the end of this list.
 	 */
-	public void add(int e) {
+	public ArrayListOfInts add(int e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -210,7 +216,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, int element) {
+	public ArrayListOfInts add(int index, int element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -219,6 +225,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -259,18 +266,6 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		return array;
 	}
 
-	public void shiftLastNToTop(int n) {
-		if (n >= size) {
-			return;
-		}
-		int j = 0;
-		for (int i = size - n; i < size; i++) {
-			array[j] = array[i];
-			j++;
-		}
-		size = n;
-	}
-
 	/**
 	 * Returns an iterator for this list. Note that this method is included only
 	 * for convenience to conform to the <code>Iterable</code> interface; this
@@ -295,12 +290,12 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		s.append("[");
 		int sz = size() > n ? n : size;
 
-		for (int i = 0; i < sz; i++) {
-			s.append(get(i));
-      if (i < sz-1) {
+    for (int i = 0; i < sz; i++) {
+      s.append(get(i));
+      if (i < sz - 1) {
         s.append(", ");
       }
-		}
+    }
 
 		s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
@@ -312,64 +307,61 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		return toString(10);
 	}
 
+	/**
+	 * Sorts this list.
+	 */
+	public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+	}
+
   /**
-   * Computes the intersection of two sorted lists of this type.
-   * This method is tuned for efficiency, therefore this ArrayListOfIntsWritable
-   * and the parameter are both assumed to be sorted in an increasing
-   * order.
+   * Computes the intersection of two sorted lists of unique ints.
    *
-   * The ArrayListOfIntsWritable that is returned is the intersection of this object
-   * and the parameter. That is, the returned list will only contain the elements that
-   * occur in both this object and <code>other</code>.
-   *
-   * @param other
-   *      other ArrayListOfIntsWritable that is intersected with this object
-   * @return
-   *      intersection of <code>other</code> and this object
+   * @param other other list to be intersected with this list
+   * @return intersection of the two lists
    */
   public ArrayListOfInts intersection(ArrayListOfInts other) {
-    ArrayListOfInts intDomain = new ArrayListOfInts();
-    int len, curPos=0;
-    if(size()<other.size()){
-      len=size();
-      for(int i=0;i<len;i++){
-        int elt=this.get(i);
-        while(curPos<other.size() && other.get(curPos)<elt){
+    ArrayListOfInts result = new ArrayListOfInts();
+    int len, curPos = 0;
+    if (size() < other.size()) {
+      len = size();
+      for (int i = 0; i < len; i++) {
+        int elt = this.get(i);
+        while (curPos < other.size() && other.get(curPos) < elt) {
           curPos++;
         }
-        if(curPos>=other.size()){
-          return intDomain;
-        }else if(other.get(curPos)==elt){
-          intDomain.add(elt);
+        if (curPos >= other.size()) {
+          return result;
+        } else if (other.get(curPos) == elt) {
+          result.add(elt);
         }
       }
-    }else{
-      len=other.size();
-      for(int i=0;i<len;i++){
-        int elt=other.get(i);
-        while(curPos<size() && get(curPos)<elt){
+    } else {
+      len = other.size();
+      for (int i = 0; i < len; i++) {
+        int elt = other.get(i);
+        while (curPos < size() && get(curPos) < elt) {
           curPos++;
         }
-        if(curPos>=size()){
-          return intDomain;
-        }else if(get(curPos)==elt){
-          intDomain.add(elt);
+        if (curPos >= size()) {
+          return result;
+        } else if (get(curPos) == elt) {
+          result.add(elt);
         }
       }
     }
-    if(intDomain.size()==0){
-      intDomain=null;
-    }
-    return intDomain;
+    return result;
   }
 
   /**
-   * @param start first index to be included in sub-list
-   * @param end last index to be included in sub-list
-   * @return return a new ArrayListOfInts object, containing the ints of
-   *         this object from <code>start</code> to <code>end</code>
+   * Extracts a sub-list.
+   *
+   * @param start  first index to be included in sub-list
+   * @param end    last index to be included in sub-list
+   * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
    */
-  public ArrayListOfInts sub(int start, int end) {
+  public ArrayListOfInts subList(int start, int end) {
     ArrayListOfInts sublst = new ArrayListOfInts(end - start + 1);
     for (int i = start; i <= end; i++) {
       sublst.add(get(i));
@@ -378,16 +370,28 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Add all ints in the specified array into this object. Check for duplicates.
+   * Add all ints in the specified array into this list, ignoring duplicates.
    *
    * @param arr array of ints to add to this object
    */
-  public void addAll(int[] arr) {
+  public void addUnique(int[] arr) {
     for (int i = 0; i < arr.length; i++) {
       int elt = arr[i];
       if (!contains(elt)) {
         add(elt);
       }
     }
+  }
+
+  public void shiftLastNToTop(int n) {
+    if (n >= size) {
+      return;
+    }
+    int j = 0;
+    for (int i = size - n; i < size; i++) {
+      array[j] = array[i];
+      j++;
+    }
+    size = n;
   }
 }
