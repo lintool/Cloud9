@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -16,10 +16,10 @@
 
 package edu.umd.cloud9.io.array;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.JUnit4TestAdapter;
@@ -32,18 +32,25 @@ import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class ArrayListOfIntsWritableTest {
 
+  @Test
+  public void testToString() {
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", new ArrayListOfIntsWritable(1, 11).toString());
+    assertEquals("[1, 2, 3, 4, 5 ... (5 more) ]", new ArrayListOfIntsWritable(1, 11).toString(5));
+
+    assertEquals("[1, 2, 3, 4, 5]", new ArrayListOfIntsWritable(1, 6).toString());
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]", new ArrayListOfIntsWritable(1, 12).toString());
+
+    assertEquals("[]", new ArrayListOfIntsWritable().toString());
+  }
+
 	@Test
 	public void testReadWrite() throws IOException {
 		ArrayListOfIntsWritable arr = new ArrayListOfIntsWritable();
-		arr.add(0, 1);
-		arr.add(1, 3);
-		arr.add(2, 5);
-		arr.add(3, 7);
+		arr.add(0, 1).add(1, 3).add(2, 5).add(3, 7);
 
 		FileSystem fs;
 		SequenceFile.Writer w;
@@ -65,91 +72,30 @@ public class ArrayListOfIntsWritableTest {
 
 		assertTrue(listOfKeysPairs.size() == 1);
 		ArrayListOfIntsWritable arrRead = listOfKeysPairs.get(0).getRightElement();
-		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 4);
-		assertTrue(arrRead.get(0) == 1);
-		assertTrue(arrRead.get(1) == 3);
-		assertTrue(arrRead.get(2) == 5);
-		assertTrue(arrRead.get(3) == 7);
+		assertEquals(4, arrRead.size());
+		assertEquals(1, arrRead.get(0));
+		assertEquals(3, arrRead.get(1));
+		assertEquals(5, arrRead.get(2));
+		assertEquals(7, arrRead.get(3));
 
 		arrRead.remove(0);
 		arrRead.remove(0);
 		arrRead.remove(1);
 
-		assertTrue("got wrong: " + arrRead.size(), arrRead.size() >= 1);
-		assertTrue("got wrong: " + arrRead.get(0), arrRead.get(0) == 5);
+		assertEquals(1, arrRead.size());
+		assertEquals(5, arrRead.get(0));
 	}
 
 	@Test
 	public void testCopyConstructor() {
 		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(1);
-		a.add(3);
-		a.add(5);
+		a.add(1).add(3).add(5);
 
 		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable(a);
 		a.remove(0);
-		assertTrue(b.get(0) == 1);
-		assertTrue(b.get(1) == 3);
-		assertTrue(b.get(2) == 5);
-	}
-
-	@Test
-	public void testIntersection() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(5);
-		a.add(3);
-		a.add(1);
-
-		a.trimToSize();
-		Arrays.sort(a.getArray());
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue("got wrong: " + c.get(0), c.get(0) == 1);
-		assertTrue("got wrong: " + c.get(1), c.get(1) == 3);
-	}
-
-	@Test
-	public void testIntersection2() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(5);
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue(c.size() == 0);
-	}
-
-	@Test
-	public void testIntersection3() {
-		ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-		a.add(3);
-		a.add(5);
-		a.add(7);
-		a.add(8);
-		a.add(9);
-
-		ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-		b.add(0);
-		b.add(1);
-		b.add(2);
-		b.add(3);
-
-		ArrayListOfIntsWritable c = a.intersection(b);
-
-		assertTrue(c.get(0) == 3);
-		assertTrue(c.size() == 1);
+		assertEquals(1, b.get(0));
+		assertEquals(3, b.get(1));
+		assertEquals(5, b.get(2));
 	}
 
 	public static junit.framework.Test suite() {

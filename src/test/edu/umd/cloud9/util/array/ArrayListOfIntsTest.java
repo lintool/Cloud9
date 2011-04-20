@@ -25,8 +25,6 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.util.array.ArrayListOfInts;
-
 public class ArrayListOfIntsTest {
 
 	@Test
@@ -48,6 +46,22 @@ public class ArrayListOfIntsTest {
 			assertEquals(ints[i], v);
 		}
 	}
+
+  @Test
+  public void testArrayConstructor() {
+    int[] arr = new int[] { 1, 2, 3, 4, 5 };
+    assertEquals(5, arr.length);
+
+    ArrayListOfInts list = new ArrayListOfInts(arr);
+    list.remove(2);
+
+    // Make sure the original array remains untouched.
+    assertEquals(1, arr[0]);
+    assertEquals(2, arr[1]);
+    assertEquals(3, arr[2]);
+    assertEquals(4, arr[3]);
+    assertEquals(5, arr[4]);
+  }
 
 	@Test
 	public void testRemove() {
@@ -174,26 +188,19 @@ public class ArrayListOfIntsTest {
 		}
 	}
 
-	@Test
-	public void testShift() {
-		int size = 100;
-		int shift = 10;
+  @Test
+  public void testToString1() {
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", new ArrayListOfInts(1, 11).toString());
+    assertEquals("[1, 2, 3, 4, 5 ... (5 more) ]", new ArrayListOfInts(1, 11).toString(5));
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++)
-			list.add(i);
-		list.shiftLastNToTop(shift);
+    assertEquals("[1, 2, 3, 4, 5]", new ArrayListOfInts(1, 6).toString());
+    assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]", new ArrayListOfInts(1, 12).toString(11));
 
-		for (int i = 0; i < list.size(); i++) {
-			assertEquals(size - shift + i, list.get(i));
-		}
-		list.add(size);
-		assertEquals(shift + 1, list.size());
-		assertEquals(size, list.get(shift));
-	}
+    assertEquals("[]", new ArrayListOfInts().toString());
+  }
 
 	@Test
-	public void testToString() {
+	public void testToString2() {
 		int size = 10;
 		Random r = new Random();
 
@@ -264,6 +271,129 @@ public class ArrayListOfIntsTest {
 		assertEquals(6, list.size);
 		assertEquals(12, list.get(5));
 	}
+
+	@Test
+	public void testSort() {
+	  ArrayListOfInts a = new ArrayListOfInts();
+	  assertEquals(0, a.size());
+
+	  a.add(5).add(6).add(1).add(4);
+    assertEquals(4, a.size());
+
+	  a.sort();
+    assertEquals(4, a.size());
+
+    assertEquals(1, a.get(0));
+    assertEquals(4, a.get(1));
+    assertEquals(5, a.get(2));
+    assertEquals(6, a.get(3));
+	}
+
+  @Test
+  public void testIntersection1() {
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(5).add(3).add(1);
+
+    a.sort();
+
+    ArrayListOfInts b = new ArrayListOfInts();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfInts c = a.intersection(b);
+
+    assertEquals(1, c.get(0));
+    assertEquals(3, c.get(1));
+    assertEquals(2, c.size());
+  }
+
+  @Test
+  public void testIntersection2() {
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(5);
+
+    ArrayListOfInts b = new ArrayListOfInts();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfInts c = a.intersection(b);
+    assertTrue(c.size() == 0);
+  }
+
+  @Test
+  public void testIntersection3() {
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(3).add(5).add(7).add(8).add(9);
+
+    ArrayListOfInts b = new ArrayListOfInts();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfInts c = a.intersection(b);
+
+    assertEquals(3, c.get(0));
+    assertEquals(1, c.size());
+  }
+
+  @Test
+  public void testIntersection4() {
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(3);
+
+    ArrayListOfInts b = new ArrayListOfInts();
+    b.add(0);
+
+    ArrayListOfInts c = a.intersection(b);
+
+    assertEquals(0, c.size());
+  }
+
+  @Test
+  public void testSubList() {
+    ArrayListOfInts a = new ArrayListOfInts(new int[] {1, 2, 3, 4, 5, 6, 7});
+    ArrayListOfInts b = a.subList(1, 5);
+    assertEquals(5, b.size());
+    assertEquals(2, b.get(0));
+    assertEquals(3, b.get(1));
+    assertEquals(4, b.get(2));
+    assertEquals(5, b.get(3));
+    assertEquals(6, b.get(4));
+
+    a.clear();
+    // Make sure b is a new object.
+    assertEquals(5, b.size());
+    assertEquals(2, b.get(0));
+    assertEquals(3, b.get(1));
+    assertEquals(4, b.get(2));
+    assertEquals(5, b.get(3));
+    assertEquals(6, b.get(4));
+  }
+
+  @Test
+  public void testAddUnique() {
+    ArrayListOfInts a = new ArrayListOfInts(new int[] {1, 2, 3, 4, 5, 6, 7});
+    a.addUnique(new int[] {8, 0, 2, 5, -1, 11, 9});
+    assertEquals(12, a.size());
+    assertEquals(0, a.get(8));
+    assertEquals(-1, a.get(9));
+    assertEquals(11, a.get(10));
+    assertEquals(9, a.get(11));
+  }
+
+  @Test
+  public void testShift() {
+    int size = 100;
+    int shift = 10;
+
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++)
+      list.add(i);
+    list.shiftLastNToTop(shift);
+
+    for (int i = 0; i < list.size(); i++) {
+      assertEquals(size - shift + i, list.get(i));
+    }
+    list.add(size);
+    assertEquals(shift + 1, list.size());
+    assertEquals(size, list.get(shift));
+  }
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);

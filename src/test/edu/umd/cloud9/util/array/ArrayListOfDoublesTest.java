@@ -26,7 +26,6 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 
 import edu.umd.cloud9.util.array.ArrayListOfDoubles;
-import edu.umd.cloud9.util.array.ArrayListOfInts;
 
 public class ArrayListOfDoublesTest {
 
@@ -47,6 +46,22 @@ public class ArrayListOfDoublesTest {
 			assertEquals(doubles[i], list.get(i), 10e-5);
 		}
 	}
+
+  @Test
+  public void testArrayConstructor() {
+    double[] arr = new double[] { 1.0, 2.0, 3.0, 4.0, 5.0 };
+    assertEquals(5, arr.length);
+
+    ArrayListOfDoubles list = new ArrayListOfDoubles(arr);
+    list.remove(2);
+
+    // Make sure the original array remains untouched.
+    assertEquals(1.0, arr[0], 10e-6);
+    assertEquals(2.0, arr[1], 10e-6);
+    assertEquals(3.0, arr[2], 10e-6);
+    assertEquals(4.0, arr[3], 10e-6);
+    assertEquals(5.0, arr[4], 10e-6);
+  }
 
 	@Test
 	public void testRemove() {
@@ -218,27 +233,40 @@ public class ArrayListOfDoublesTest {
 		for ( Double v : list) {
 			assertEquals(doubles[i++], v, 10e-5);
 		}
-
 	}
 
 	@Test
 	public void testSetSize() {
-		ArrayListOfInts list = new ArrayListOfInts();
+		ArrayListOfDoubles list = new ArrayListOfDoubles();
 
 		list.add(5);
 		assertEquals(1, list.size);
-		assertEquals(5, list.get(0));
+		assertEquals(5, list.get(0), 10e-6);
 
 		list.setSize(5);
 		assertEquals(5, list.size);
-		assertEquals(0, list.get(1));
-		assertEquals(0, list.get(2));
-		assertEquals(0, list.get(3));
-		assertEquals(0, list.get(4));
+		assertEquals(0, list.get(1), 10e-6);
+		assertEquals(0, list.get(2), 10e-6);
+		assertEquals(0, list.get(3), 10e-6);
+		assertEquals(0, list.get(4), 10e-6);
 
 		list.add(12);
 		assertEquals(6, list.size);
-		assertEquals(12, list.get(5));
+		assertEquals(12, list.get(5), 10e-6);
+	}
+
+	@Test
+	public void testSort() {
+    ArrayListOfDoubles list = new ArrayListOfDoubles();
+    list.add(5.0).add(3.12).add(9.71).add(4.2).add(-0.6);
+    list.sort();
+
+    assertEquals(5, list.size());
+    assertEquals(-0.6, list.get(0), 10e-6);
+    assertEquals(3.12, list.get(1), 10e-6);
+    assertEquals(4.2, list.get(2), 10e-6);
+    assertEquals(5.0, list.get(3), 10e-6);
+    assertEquals(9.71, list.get(4), 10e-6);
 	}
 
 	public static junit.framework.Test suite() {

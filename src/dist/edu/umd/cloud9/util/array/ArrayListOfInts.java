@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 /**
  * Object representing a list of ints, backed by an resizable-array.
  */
-
 public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Integer> {
 	protected transient int[] array;
 	protected int size = 0;
@@ -53,12 +52,33 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfInts(int[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+		// Be defensive and make a copy of the array.
+		array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
+
+  /**
+   * Constructs a list populated with ints in range [first, last).
+   *
+   * @param first the smallest int in the range (inclusive)
+   * @param last  the largest int in the range (exclusive)
+   */
+  public ArrayListOfInts(int first, int last) {
+    this(last - first);
+
+    int j = 0;
+    for (int i = first; i < last; i++) {
+      this.add(j++, i);
+    }
+  }
 
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
@@ -92,8 +112,6 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -109,8 +127,6 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -154,8 +170,6 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfInts clone() {
 		return new ArrayListOfInts(Arrays.copyOf(array, this.size()));
@@ -187,12 +201,11 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
-	public void add(int e) {
+	public ArrayListOfInts add(int e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -203,7 +216,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, int element) {
+	public ArrayListOfInts add(int index, int element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -212,6 +225,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -252,18 +266,6 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		return array;
 	}
 
-	public void shiftLastNToTop(int n) {
-		if (n >= size) {
-			return;
-		}
-		int j = 0;
-		for (int i = size - n; i < size; i++) {
-			array[j] = array[i];
-			j++;
-		}
-		size = n;
-	}
-
 	/**
 	 * Returns an iterator for this list. Note that this method is included only
 	 * for convenience to conform to the <code>Iterable</code> interface; this
@@ -288,14 +290,14 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 		s.append("[");
 		int sz = size() > n ? n : size;
 
-		for (int i = 0; i < sz; i++) {
-			if (i != 0) {
-				s.append(", ");
-			}
-			s.append(get(i));
-		}
+    for (int i = 0; i < sz; i++) {
+      s.append(get(i));
+      if (i < sz - 1) {
+        s.append(", ");
+      }
+    }
 
-		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+		s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
 		return s.toString();
 	}
@@ -304,4 +306,92 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 	public String toString() {
 		return toString(10);
 	}
+
+	/**
+	 * Sorts this list.
+	 */
+	public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+	}
+
+  /**
+   * Computes the intersection of two sorted lists of unique ints.
+   *
+   * @param other other list to be intersected with this list
+   * @return intersection of the two lists
+   */
+  public ArrayListOfInts intersection(ArrayListOfInts other) {
+    ArrayListOfInts result = new ArrayListOfInts();
+    int len, curPos = 0;
+    if (size() < other.size()) {
+      len = size();
+      for (int i = 0; i < len; i++) {
+        int elt = this.get(i);
+        while (curPos < other.size() && other.get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= other.size()) {
+          return result;
+        } else if (other.get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    } else {
+      len = other.size();
+      for (int i = 0; i < len; i++) {
+        int elt = other.get(i);
+        while (curPos < size() && get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= size()) {
+          return result;
+        } else if (get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Extracts a sub-list.
+   *
+   * @param start  first index to be included in sub-list
+   * @param end    last index to be included in sub-list
+   * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
+   */
+  public ArrayListOfInts subList(int start, int end) {
+    ArrayListOfInts sublst = new ArrayListOfInts(end - start + 1);
+    for (int i = start; i <= end; i++) {
+      sublst.add(get(i));
+    }
+    return sublst;
+  }
+
+  /**
+   * Add all ints in the specified array into this list, ignoring duplicates.
+   *
+   * @param arr array of ints to add to this object
+   */
+  public void addUnique(int[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+      int elt = arr[i];
+      if (!contains(elt)) {
+        add(elt);
+      }
+    }
+  }
+
+  public void shiftLastNToTop(int n) {
+    if (n >= size) {
+      return;
+    }
+    int j = 0;
+    for (int i = size - n; i < size; i++) {
+      array[j] = array[i];
+      j++;
+    }
+    size = n;
+  }
 }

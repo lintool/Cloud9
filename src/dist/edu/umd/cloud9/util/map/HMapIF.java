@@ -354,6 +354,23 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 		}
 	}
 
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(int key, float value) {
+    if (this.containsKey(key)) {
+      this.put(key, (float) this.get(key) + value);
+    } else {
+      this.put(key, value);
+    }
+  }
+
 	// doc copied from interface
 	public float remove(int key) {
 		Entry e = removeEntryForKey(key);
