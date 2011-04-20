@@ -59,8 +59,8 @@ public class PairOfFloatString implements WritableComparable<PairOfFloatString> 
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
+	  leftElement = in.readFloat();
 		rightElement = in.readUTF();
-		leftElement = in.readFloat();
 	}
 
 	/**
@@ -69,8 +69,8 @@ public class PairOfFloatString implements WritableComparable<PairOfFloatString> 
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
+	  out.writeFloat(leftElement);
 		out.writeUTF(rightElement);
-		out.writeFloat(leftElement);
 	}
 
 	/**
@@ -204,11 +204,8 @@ public class PairOfFloatString implements WritableComparable<PairOfFloatString> 
 		  float thatLeftValue = readFloat(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
-
-				String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 2 + s1offset);
-				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 2 + s2offset);
+			  String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 4);
+				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 4);
 
 				return (thisRightValue.compareTo(thatRightValue));
 			}
