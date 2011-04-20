@@ -893,6 +893,23 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		}
 	}
 
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(K key, int value) {
+    if (this.containsKey(key)) {
+      this.put(key, this.get(key) + value);
+    } else {
+      this.put(key, value);
+    }
+  }
+
 	/**
 	 * Returns entries sorted by descending value. Ties broken by the key.
 	 * 

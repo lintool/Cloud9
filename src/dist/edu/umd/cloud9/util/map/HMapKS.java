@@ -399,6 +399,38 @@ public class HMapKS<K> implements MapKS<K>, Cloneable, Serializable {
 		}
 	}
 
+	 /**
+   * Increments the key. If the key does not exist in the map, its value is
+   * set to one.
+   * 
+   * @param key
+   *            key to increment
+   */
+  public void increment(K key) {
+    if (this.containsKey(key)) {
+      this.put(key, (short) (this.get(key) + 1));
+    } else {
+      this.put(key, (short) 1);
+    }
+  }
+  
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(K key, short value) {
+    if (this.containsKey(key)) {
+      this.put(key, (short) (this.get(key) + value));
+    } else {
+      this.put(key, value);
+    }
+  }
+
 	// doc copied from interface
 	public short remove(K key) {
 		Entry<K> e = removeEntryForKey(key);

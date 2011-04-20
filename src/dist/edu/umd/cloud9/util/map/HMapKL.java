@@ -248,6 +248,38 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 		return null;
 	}
 
+	 /**
+   * Increments the key. If the key does not exist in the map, its value is
+   * set to one.
+   * 
+   * @param key
+   *            key to increment
+   */
+  public void increment(K key) {
+    if (this.containsKey(key)) {
+      this.put(key, (long) this.get(key) + 1);
+    } else {
+      this.put(key, (long) 1);
+    }
+  }
+
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(K key, long value) {
+    if (this.containsKey(key)) {
+      this.put(key, (long) this.get(key) + value);
+    } else {
+      this.put(key, value);
+    }
+  }
+
 	// doc copied from interface
 	public void put(K key, long value) {
 		if (key == null) {
