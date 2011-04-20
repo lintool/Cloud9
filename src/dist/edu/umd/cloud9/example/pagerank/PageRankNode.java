@@ -133,7 +133,7 @@ public class PageRankNode implements Writable {
 
 	@Override
 	public String toString() {
-		return String.format("{%d %.4f %s }",
+		return String.format("{%d %.4f %s}",
 				nodeId, pagerank, (adjacenyList == null ? "[]" : adjacenyList.toString(10)));
 	}
 }

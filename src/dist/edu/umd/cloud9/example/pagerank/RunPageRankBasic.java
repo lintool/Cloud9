@@ -30,11 +30,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -44,6 +42,7 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import edu.umd.cloud9.mapreduce.lib.input.NonSplitableSequenceFileInputFormat;
 import edu.umd.cloud9.util.map.HMapIF;
 import edu.umd.cloud9.util.map.MapIF;
 
@@ -561,12 +560,5 @@ public class RunPageRankBasic extends Configured implements Tool {
     }
 
     return (float) (a + StrictMath.log1p(StrictMath.exp(b - a)));
-  }
-
-  private static class NonSplitableSequenceFileInputFormat<K, V> extends
-      SequenceFileInputFormat<K, V> {
-    protected boolean isSplitable(JobContext context, Path filename) {
-      return false;
-    }
   }
 }

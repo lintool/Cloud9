@@ -68,13 +68,13 @@ public class PageRankNodeTest {
 		node.setNodeId(1);
 		node.setPageRank(0.1f);
 
-		assertEquals("{1 0.1000 [] }", node.toString());
+		assertEquals("{1 0.1000 []}", node.toString());
 
 		node.setAdjacencyList(new ArrayListOfIntsWritable(new int[] {1,2,3,4,5,6}));
-		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6] }", node.toString());
+		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6]}", node.toString());
 
 		node.setAdjacencyList(new ArrayListOfIntsWritable(new int[] {1,2,3,4,5,6,7,8,9,10,11,12}));
-		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10... (2 more) ] }", node.toString());
+		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10... (2 more) ]}", node.toString());
 	}
 
 	

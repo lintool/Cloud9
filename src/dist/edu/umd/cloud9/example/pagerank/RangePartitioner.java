@@ -16,10 +16,11 @@
 
 package edu.umd.cloud9.example.pagerank;
 
+import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Partitioner;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
  * Ranger partitioner. In the context of graph algorithms, ensures that
@@ -29,18 +30,27 @@ import org.apache.hadoop.mapred.Partitioner;
  * @author Michael Schatz
  *
  */
-@SuppressWarnings("deprecation")
-public class RangePartitioner<K, V> implements Partitioner<IntWritable, Writable> {
-	private int mNodeCnt = 0;
+public class RangePartitioner extends Partitioner<IntWritable, Writable> implements Configurable {
+	private int nodeCnt = 0;
+	private Configuration conf;
 
-	public RangePartitioner() {
-	}
+	public RangePartitioner() {}
 
+	@Override
 	public int getPartition(IntWritable key, Writable value, int numReduceTasks) {
-		return (int) (((float) key.get() / (float) mNodeCnt) * numReduceTasks) % numReduceTasks;
+		return (int) (((float) key.get() / (float) nodeCnt) * numReduceTasks) % numReduceTasks;
 	}
 
-	public void configure(JobConf job) {
-		mNodeCnt = job.getInt("NodeCount", 0);
+  public Configuration getConf() {
+    return conf;
+  }
+
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    configure();
+  }
+
+	private void configure() {
+		nodeCnt = conf.getInt("NodeCount", 0);
 	}
 }

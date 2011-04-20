@@ -18,7 +18,6 @@ package edu.umd.cloud9.example.pagerank;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.PriorityQueue;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -26,153 +25,90 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-@SuppressWarnings("deprecation")
+import edu.umd.cloud9.util.TopNScoredObjects;
+import edu.umd.cloud9.util.pair.PairOfObjectFloat;
+
 public class FindMaxPageRankNodes extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(FindMaxPageRankNodes.class);
 
-	private static final Logger sLogger = Logger.getLogger(FindMaxPageRankNodes.class);
+	private static class MyMapper extends Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable> {
+    private TopNScoredObjects<Integer> queue;
 
-	private static class NodeRanking implements Comparable<NodeRanking> {
+    @Override
+    public void setup(Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable>.Context context)
+        throws IOException {
+      int k = context.getConfiguration().getInt("n", 100);
+      queue = new TopNScoredObjects<Integer>(k);
+    }
 
-		private int nid;
-		private float score;
+    @Override
+    public void map(IntWritable nid, PageRankNode node, Context context)
+        throws IOException, InterruptedException {
+      queue.add(node.getNodeId(), node.getPageRank());
+    }
 
-		public NodeRanking(int n, float s) {
-			nid = n;
-			score = s;
-		}
+    @Override
+    public void cleanup(Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable>.Context context)
+        throws IOException, InterruptedException {
+      IntWritable key = new IntWritable();
+      FloatWritable value = new FloatWritable();
 
-		public int getNodeId() {
-			return nid;
-		}
-
-		public float getPageRank() {
-			return score;
-		}
-
-		public int compareTo(NodeRanking that) {
-			if (this.getPageRank() < that.getPageRank()) {
-				return -1;
-			}
-
-			if (this.getPageRank() > that.getPageRank())
-				return 1;
-
-			if (this.getNodeId() < that.getNodeId()) {
-				return -1;
-			}
-
-			if (this.getNodeId() > that.getNodeId()) {
-				return 1;
-			}
-
-			return 0;
-		}
+      for (PairOfObjectFloat<Integer> pair : queue.extractAll()) {
+        key.set(pair.getLeftElement());
+        value.set(pair.getRightElement());
+        context.write(key, value);
+      }
+    }
 	}
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable> {
+	private static class MyReducer extends Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
+    private TopNScoredObjects<Integer> queue;
 
-		private OutputCollector<IntWritable, FloatWritable> output;
-		private PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
+    @Override
+    public void setup(Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable>.Context context)
+        throws IOException {
+      int k = context.getConfiguration().getInt("n", 100);
+      queue = new TopNScoredObjects<Integer>(k);
+    }
 
-		private int n;
-		
-		public void configure(JobConf job) {
-			n = job.getInt("n", 100);
-		}
+    @Override
+    public void reduce(IntWritable nid, Iterable<FloatWritable> iterable, Context context)
+        throws IOException {
+      Iterator<FloatWritable> iter = iterable.iterator();
+      queue.add(nid.get(), iter.next().get());
 
-		public void map(IntWritable nid, PageRankNode node,
-				OutputCollector<IntWritable, FloatWritable> output, Reporter reporter)
-				throws IOException {
+      // Shouldn't happen. Throw an exception.
+      if (iter.hasNext()) {
+        throw new RuntimeException();
+      }
+    }
 
-			this.output = output;
+    @Override
+    public void cleanup(Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable>.Context context)
+        throws IOException, InterruptedException {
+      IntWritable key = new IntWritable();
+      FloatWritable value = new FloatWritable();
 
-			if (q.size() < n) {
-				q.add(new NodeRanking(node.getNodeId(), node.getPageRank()));
-			} else {
-				if (q.peek().getPageRank() < node.getPageRank()) {
-					q.poll();
-					q.add(new NodeRanking(node.getNodeId(), node.getPageRank()));
-				}
-			}
-		}
-
-		public void close() throws IOException {
-			IntWritable k = new IntWritable();
-			FloatWritable v = new FloatWritable();
-
-			NodeRanking n;
-			while ((n = q.poll()) != null) {
-				sLogger.info(n.getPageRank() + "\t" + n.getNodeId());
-
-				k.set(n.getNodeId());
-				v.set(n.getPageRank());
-				output.collect(k, v);
-			}
-		}
+      for (PairOfObjectFloat<Integer> pair : queue.extractAll()) {
+        key.set(pair.getLeftElement());
+        value.set(pair.getRightElement());
+        context.write(key, value);
+      }
+    }
 	}
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
-
-		private OutputCollector<IntWritable, FloatWritable> output;
-		private PriorityQueue<NodeRanking> q = new PriorityQueue<NodeRanking>();
-
-		private int n = 100;
-		
-		public void configure(JobConf job) {
-			n = job.getInt("n", 100);
-		}
-
-		public void reduce(IntWritable nid, Iterator<FloatWritable> iter,
-				OutputCollector<IntWritable, FloatWritable> output, Reporter reporter)
-				throws IOException {
-
-			this.output = output;
-
-			FloatWritable p = iter.next();
-			if (q.size() < n) {
-				q.add(new NodeRanking(nid.get(), p.get()));
-			} else {
-				if (q.peek().getPageRank() < p.get()) {
-					q.poll();
-					q.add(new NodeRanking(nid.get(), p.get()));
-				}
-			}
-		}
-
-		public void close() throws IOException {
-			IntWritable k = new IntWritable();
-			FloatWritable v = new FloatWritable();
-
-			NodeRanking n;
-			while ((n = q.poll()) != null) {
-				sLogger.info(n.getPageRank() + "\t" + n.getNodeId());
-
-				k.set(n.getNodeId());
-				v.set(n.getPageRank());
-				output.collect(k, v);
-			}
-		}
-	}
-
-	public FindMaxPageRankNodes() {
-	}
+	public FindMaxPageRankNodes() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [input] [output] [n]");
@@ -193,39 +129,39 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 		String outputPath = args[1];
 		int n = Integer.parseInt(args[2]);
 		
-		sLogger.info("Tool name: FindMaxPageRankNodes");
-		sLogger.info(" - input: " + inputPath);
-		sLogger.info(" - output: " + outputPath);
-		sLogger.info(" - n: " + n);
+		LOG.info("Tool name: FindMaxPageRankNodes");
+		LOG.info(" - input: " + inputPath);
+		LOG.info(" - output: " + outputPath);
+		LOG.info(" - n: " + n);
 
-		JobConf conf = new JobConf(FindMaxPageRankNodes.class);
-		conf.setJobName("FindMaxPageRankNodes");
+		Configuration conf = new Configuration();
+    conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
+    conf.setInt("n", n);
 
-		conf.setNumMapTasks(1);
-		conf.setNumReduceTasks(1);
+		Job job = new Job(conf, "FindMaxPageRankNodes");
+		job.setJarByClass(FindMaxPageRankNodes.class);
 
-		conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
-		conf.setInt("n", n);
+		job.setNumReduceTasks(1);
 
-		FileInputFormat.addInputPath(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileInputFormat.addInputPath(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+		job.setInputFormatClass(SequenceFileInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
 
-		conf.setMapOutputKeyClass(IntWritable.class);
-		conf.setMapOutputValueClass(FloatWritable.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(FloatWritable.class);
 
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(FloatWritable.class);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(FloatWritable.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(MyReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setReducerClass(MyReducer.class);
 
 		// delete the output directory if it exists already
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 
 		return 0;
 	}

@@ -25,15 +25,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -46,39 +43,39 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
  * builds corresponding Hadoop structures for representing the graph.
  * Command-line parameters are as follows:
  * </p>
- * 
+ *
  * <ul>
- * 
  * <li>[inputDir]: input directory</li>
  * <li>[outputDir]: output directory</li>
  * <li>[numNodes]: number of nodes in the graph</li>
- * 
  * </ul>
- * 
+ *
  * @author Jimmy Lin
  * @author Michael Schatz
- * 
- */
+s */
 public class BuildPageRankRecords extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(BuildPageRankRecords.class);
 
-	private static final Logger sLogger = Logger.getLogger(BuildPageRankRecords.class);
+	private static final String NODE_CNT_FIELD = "node.cnt";
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, IntWritable, PageRankNode> {
+	private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, PageRankNode> {
 
 		private static IntWritable nid = new IntWritable();
 		private static PageRankNode node = new PageRankNode();
 
-		public void configure(JobConf job) {
-			int n = job.getInt("NodeCnt", 0);
+		@Override
+		public void setup(Mapper<LongWritable, Text, IntWritable, PageRankNode>.Context context) {
+			int n = context.getConfiguration().getInt(NODE_CNT_FIELD, 0);
+      if (n == 0) {
+        throw new RuntimeException(NODE_CNT_FIELD + " cannot be 0!");
+      }
 			node.setType(PageRankNode.Type.Complete);
 			node.setPageRank((float) -StrictMath.log(n));
 		}
 
-		public void map(LongWritable key, Text t,
-				OutputCollector<IntWritable, PageRankNode> output, Reporter reporter)
-				throws IOException {
-
+    @Override
+    public void map(LongWritable key, Text t, Context context)
+        throws IOException, InterruptedException {
 			String[] arr = t.toString().trim().split("\\s+");
 
 			nid.set(Integer.parseInt(arr[0]));
@@ -97,19 +94,18 @@ public class BuildPageRankRecords extends Configured implements Tool {
 				node.setAdjacencyList(new ArrayListOfIntsWritable(neighbors));
 			}
 
-			reporter.incrCounter("graph", "numNodes", 1);
-			reporter.incrCounter("graph", "numEdges", arr.length - 1);
+			context.getCounter("graph", "numNodes").increment(1);
+			context.getCounter("graph", "numEdges").increment(arr.length - 1);
 
 			if (arr.length > 1) {
-				reporter.incrCounter("graph", "numActiveNodes", 1);
+			  context.getCounter("graph", "numActiveNodes").increment(1);
 			}
 
-			output.collect(nid, node);
+			context.write(nid, node);
 		}
 	}
 
-	public BuildPageRankRecords() {
-	}
+	public BuildPageRankRecords() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [numNodes]");
@@ -130,39 +126,38 @@ public class BuildPageRankRecords extends Configured implements Tool {
 		String outputPath = args[1];
 		int n = Integer.parseInt(args[2]);
 
-		sLogger.info("Tool name: BuildPageRankRecords");
-		sLogger.info(" - inputDir: " + inputPath);
-		sLogger.info(" - outputDir: " + outputPath);
-		sLogger.info(" - numNodes: " + n);
+		LOG.info("Tool name: BuildPageRankRecords");
+		LOG.info(" - inputDir: " + inputPath);
+		LOG.info(" - outputDir: " + outputPath);
+		LOG.info(" - numNodes: " + n);
 
-		JobConf conf = new JobConf(BuildPageRankRecords.class);
-		conf.setJobName("PackageLinkGraph");
+		Configuration conf = getConf();
+    conf.setInt(NODE_CNT_FIELD, n);
+    conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
-		conf.setNumMapTasks(1);
-		conf.setNumReduceTasks(0);
+		Job job = new Job(conf, "BuildPageRankRecords");
+		job.setJarByClass(BuildPageRankRecords.class);
 
-		conf.setInt("NodeCnt", n);
-		conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
+		job.setNumReduceTasks(0);
 
-		TextInputFormat.addInputPath(conf, new Path(inputPath));
-		SequenceFileOutputFormat.setOutputPath(conf, new Path(outputPath));
+		FileInputFormat.addInputPath(job, new Path(inputPath));
+		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		conf.setInputFormat(TextInputFormat.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		conf.setMapOutputKeyClass(IntWritable.class);
-		conf.setMapOutputValueClass(PageRankNode.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(PageRankNode.class);
 
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(PageRankNode.class);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(PageRankNode.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(IdentityReducer.class);
+		job.setMapperClass(MyMapper.class);
 
-		// delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 
 		return 0;
 	}
