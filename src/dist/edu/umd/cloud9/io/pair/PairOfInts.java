@@ -135,9 +135,7 @@ public class PairOfInts implements WritableComparable<PairOfInts> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfInts obj) {
-		PairOfInts pair = (PairOfInts) obj;
-
+	public int compareTo(PairOfInts pair) {
 		int pl = pair.getLeftElement();
 		int pr = pair.getRightElement();
 

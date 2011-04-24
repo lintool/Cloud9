@@ -138,9 +138,7 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfStrings obj) {
-		PairOfStrings pair = (PairOfStrings) obj;
-
+	public int compareTo(PairOfStrings pair) {
 		String pl = pair.getLeftElement();
 		String pr = pair.getRightElement();
 
