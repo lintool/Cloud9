@@ -33,30 +33,24 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
  * Tool for extracting nodes that are reachable from the source node.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class FindReachableNodes extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(FindReachableNodes.class);
 
 	private static class MyMapper extends Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
-
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context) throws IOException,
-				InterruptedException {
+		public void map(IntWritable nid, BFSNode node, Context context)
+		    throws IOException, InterruptedException {
 			if (node.getDistance() < Integer.MAX_VALUE) {
 				context.write(nid, node);
 			}
 		}
 	}
 
-	public FindReachableNodes() {
-	}
+	public FindReachableNodes() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir]");

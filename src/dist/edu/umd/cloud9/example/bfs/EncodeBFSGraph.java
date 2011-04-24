@@ -37,16 +37,12 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
- * <p>
  * Tool for taking a plain-text encoding of a directed graph and building
  * corresponding Hadoop structures for running parallel breadth-first search.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class EncodeBFSGraph extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(EncodeBFSGraph.class);
 
 	private static enum Graph {
@@ -54,7 +50,6 @@ public class EncodeBFSGraph extends Configured implements Tool {
 	};
 
 	private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, BFSNode> {
-
 		private static final IntWritable nid = new IntWritable();
 		private static final BFSNode node = new BFSNode();
 		private static int src;
@@ -62,13 +57,12 @@ public class EncodeBFSGraph extends Configured implements Tool {
 		@Override
 		public void setup(Context context) {
 			src = context.getConfiguration().getInt("src", 0);
-			node.setType(BFSNode.TYPE_COMPLETE);
+			node.setType(BFSNode.Type.Complete);
 		}
 
 		@Override
-		public void map(LongWritable key, Text t, Context context) throws IOException,
-				InterruptedException {
-
+		public void map(LongWritable key, Text t, Context context)
+		    throws IOException,	InterruptedException {
 			String[] arr = t.toString().trim().split("\\s+");
 
 			int cur = Integer.parseInt(arr[0]);
@@ -83,7 +77,6 @@ public class EncodeBFSGraph extends Configured implements Tool {
 				for (int i = 1; i < arr.length; i++) {
 					neighbors[i - 1] = Integer.parseInt(arr[i]);
 				}
-
 				node.setAdjacencyList(new ArrayListOfIntsWritable(neighbors));
 			}
 
@@ -94,8 +87,7 @@ public class EncodeBFSGraph extends Configured implements Tool {
 		}
 	}
 
-	public EncodeBFSGraph() {
-	}
+	public EncodeBFSGraph() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [src]");

@@ -18,10 +18,6 @@ package edu.umd.cloud9.example.pagerank;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import junit.framework.JUnit4TestAdapter;
@@ -41,13 +37,8 @@ public class PageRankNodeTest {
 		node1.setPageRank(0.1f);
 		node1.setAdjacencyList(new ArrayListOfIntsWritable(new int[] {1,2,3,4,5,6}));
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
-		node1.write(dataOut);
-
-		PageRankNode node2 = new PageRankNode();
-
-		node2.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
+		byte[] bytes = node1.serialize();
+		PageRankNode node2 = PageRankNode.create(bytes);
 
 		assertEquals(0.1f, node2.getPageRank(), 10e-6);
 		assertEquals(Type.Complete, node2.getType());
@@ -74,9 +65,8 @@ public class PageRankNodeTest {
 		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6]}", node.toString());
 
 		node.setAdjacencyList(new ArrayListOfIntsWritable(new int[] {1,2,3,4,5,6,7,8,9,10,11,12}));
-		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10... (2 more) ]}", node.toString());
+		assertEquals("{1 0.1000 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ... (2 more) ]}", node.toString());
 	}
-
 	
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(PageRankNodeTest.class);

@@ -33,20 +33,15 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
  * Tool for extracting nodes that are a particular distance from the source
  * node.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class FindNodeAtDistance extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(FindNodeAtDistance.class);
 
 	private static class MyMapper extends Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
-
 		private static int distance;
 
 		@Override
@@ -55,16 +50,15 @@ public class FindNodeAtDistance extends Configured implements Tool {
 		}
 
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context) throws IOException,
-				InterruptedException {
+		public void map(IntWritable nid, BFSNode node, Context context)
+		    throws IOException, InterruptedException {
 			if (node.getDistance() == distance) {
 				context.write(nid, node);
 			}
 		}
 	}
 
-	public FindNodeAtDistance() {
-	}
+	public FindNodeAtDistance() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [distance]");

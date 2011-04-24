@@ -40,15 +40,11 @@ import edu.umd.cloud9.util.map.HMapII;
 import edu.umd.cloud9.util.map.MapII;
 
 /**
- * <p>
  * Tool for running one iteration of parallel breadth-first search.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class IterateBFS extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(IterateBFS.class);
 
 	private static enum ReachableNodes {
@@ -56,9 +52,7 @@ public class IterateBFS extends Configured implements Tool {
 	};
 
 	// Mapper with in-mapper combiner optimization.
-	private static class MapClass extends
-			Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
-
+	private static class MapClass extends	Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
 		// For buffering distances keyed by destination node.
 		private static final HMapII map = new HMapII();
 
@@ -66,12 +60,11 @@ public class IterateBFS extends Configured implements Tool {
 		private static final BFSNode intermediateStructure = new BFSNode();
 
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context) throws IOException,
-				InterruptedException {
-
+		public void map(IntWritable nid, BFSNode node, Context context)
+		    throws IOException, InterruptedException {
 			// Pass along node structure.
 			intermediateStructure.setNodeId(node.getNodeId());
-			intermediateStructure.setType(BFSNode.TYPE_STRUCTURE);
+			intermediateStructure.setType(BFSNode.Type.Structure);
 			intermediateStructure.setAdjacencyList(node.getAdjacenyList());
 
 			context.write(nid, intermediateStructure);
@@ -110,7 +103,7 @@ public class IterateBFS extends Configured implements Tool {
 				k.set(e.getKey());
 
 				dist.setNodeId(e.getKey());
-				dist.setType(BFSNode.TYPE_DISTANCE);
+				dist.setType(BFSNode.Type.Distance);
 				dist.setDistance(e.getValue());
 
 				context.write(k, dist);
@@ -120,7 +113,6 @@ public class IterateBFS extends Configured implements Tool {
 
 	// Reduce: sums incoming PageRank contributions, rewrite graph structure.
 	private static class ReduceClass extends Reducer<IntWritable, BFSNode, IntWritable, BFSNode> {
-
 		private static final BFSNode node = new BFSNode();
 
 		@Override
@@ -134,7 +126,7 @@ public class IterateBFS extends Configured implements Tool {
 			while (values.hasNext()) {
 				BFSNode n = values.next();
 
-				if (n.getType() == BFSNode.TYPE_STRUCTURE) {
+				if (n.getType() == BFSNode.Type.Structure) {
 					// This is the structure; update accordingly.
 					ArrayListOfIntsWritable list = n.getAdjacenyList();
 					structureReceived++;
@@ -153,7 +145,7 @@ public class IterateBFS extends Configured implements Tool {
 				}
 			}
 
-			node.setType(BFSNode.TYPE_COMPLETE);
+			node.setType(BFSNode.Type.Complete);
 			node.setNodeId(nid.get());
 			node.setDistance(dist); // Update the final distance.
 
@@ -180,8 +172,7 @@ public class IterateBFS extends Configured implements Tool {
 		}
 	}
 
-	public IterateBFS() {
-	}
+	public IterateBFS() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [numPartitions]");
