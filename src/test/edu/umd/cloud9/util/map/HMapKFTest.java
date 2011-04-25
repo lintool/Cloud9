@@ -264,6 +264,23 @@ public class HMapKFTest {
 		assertEquals(3.0f, e.getValue(), 10E-6);
 	}
 
+  @Test
+  public void testIncrement() {
+    HMapKF<String> m = new HMapKF<String>();
+    assertEquals(0.0f, m.get("one"), 10E-6);
+
+    m.increment("one", 0.5f);
+    assertEquals(0.5f, m.get("one"), 10E-6);
+
+    m.increment("one", 1.0f);
+    m.increment("two", 0.0f);
+    m.increment("three", -0.5f);
+    
+    assertEquals(1.5f, m.get("one"), 10E-6);
+    assertEquals(0.0f, m.get("two"), 10E-6);
+    assertEquals(-0.5f, m.get("three"), 10E-6);
+  }
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapKFTest.class);
 	}

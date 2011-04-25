@@ -16,7 +16,7 @@ import java.util.Set;
  * Map from ints to shorts.
  */
 public interface MapIS {
-	public static final int DEFAULT_VALUE = 0;
+	public static final short DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**
