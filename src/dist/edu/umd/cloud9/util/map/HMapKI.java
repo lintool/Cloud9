@@ -235,7 +235,6 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 	@Override
 	public boolean containsKey(K key) {
-		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
 		return getEntry(key) != null;
 	}
 
