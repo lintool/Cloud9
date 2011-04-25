@@ -33,6 +33,7 @@
 	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-mrunit-0.20.2-320.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb-1.8.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/htmlparser-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/jasper-compiler-5.5.12.jar"/>
 	<classpathentry kind="lib" path="lib/jasper-runtime-5.5.12.jar"/>
 	<classpathentry kind="lib" path="lib/jets3t-0.7.1.jar"/>
@@ -58,6 +59,7 @@
 	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="lib/oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/pcj-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.0.b2.jar"/>

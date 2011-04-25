@@ -23,5 +23,7 @@
     <dependency org="org.mockito" name="mockito-all" rev="1.8.5" />
     <dependency org="spy" name="memcached" rev="2.2" />
     <dependency org="spy" name="spy" rev="2.4" />
+    <dependency org="org.htmlparser" name="htmlparser" rev="1.6" />
+    <dependency org="pcj" name="pcj" rev="1.2" />
   </dependencies>
 </ivy-module>
