@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.driver;
+package edu.umd.cloud9.webgraph.driver;
 
 
 import java.io.IOException;
@@ -41,11 +41,11 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
-import edu.umd.cloud9.anchor.data.IndexableAnchorTextForwardIndex;
 import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
+import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.data.IndexableAnchorTextForwardIndex;
 
 /**
  * <p>
@@ -59,7 +59,7 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
  * </ul>
  * 
  * <p>Please sort the anchor text/web graph before running this program.
- * @see SortAnchorText
+ * @see SortWebGraph
  * </p>
  * 
  * @author Nima Asadi
@@ -69,7 +69,7 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 @SuppressWarnings("deprecation")
 public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(BuildAnchorTextForwardIndex.class);
+	private static final Logger LOG = Logger.getLogger(BuildAnchorTextForwardIndex.class);
 
 	private static enum Blocks {
 		Total
@@ -78,7 +78,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 	private static class MyMapRunner implements
 			MapRunnable<IntWritable, ArrayListWritable<AnchorText>, IntWritable, Text> {
 
-		int fileno;
+		private static int fileno;
 
 		private static final IntWritable sOutputKey = new IntWritable();
 		private static final Text sOutputValue = new Text();
@@ -102,7 +102,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 			pos = input.getPos();
 			while (input.next(key, value)) {
 				if (prevPos != -1 && prevPos != pos) {
-					sLogger.info("- beginning of block at " + prevPos + ", docno:" + prevDocno
+					LOG.info("- beginning of block at " + prevPos + ", docno:" + prevDocno
 							+ ", file:" + fileno);
 					sOutputKey.set(prevDocno);
 					sOutputValue.set(prevPos + "\t" + fileno);
@@ -114,9 +114,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 				pos = input.getPos();
 				prevDocno = key.get();
 			}
-
 		}
-
 	}
 
 	public BuildAnchorTextForwardIndex() {
@@ -144,11 +142,11 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 		String outputPath = args[1];
 		String indexFile = args[2];
 
-		sLogger.info("Tool name: BuildAnchorTextForwardIndex");
-		sLogger.info(" - collection path: " + collectionPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - index file: " + indexFile);
-		sLogger.info("Note: This tool only works on block-compressed SequenceFiles!");
+		LOG.info("Tool name: BuildAnchorTextForwardIndex");
+		LOG.info(" - collection path: " + collectionPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - index file: " + indexFile);
+		LOG.info("Note: This tool only works on block-compressed SequenceFiles!");
 
 		conf.set("mapred.child.java.opts", "-Xmx2048m");
 
@@ -176,9 +174,9 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 		Counters counters = job.getCounters();
 		int blocks = (int) counters.findCounter(Blocks.Total).getCounter();
 
-		sLogger.info("number of blocks: " + blocks);
+		LOG.info("number of blocks: " + blocks);
 
-		sLogger.info("Writing index file...");
+		LOG.info("Writing index file...");
 		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
@@ -202,7 +200,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 			cnt++;
 
 			if (cnt % 1000 == 0) {
-				sLogger.info(cnt + " blocks written");
+				LOG.info(cnt + " blocks written");
 			}
 
 		}

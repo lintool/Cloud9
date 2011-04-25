@@ -14,17 +14,18 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.data;
+package edu.umd.cloud9.webgraph.data;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Iterator;
 
-import bak.pcj.IntIterator;
-import bak.pcj.set.IntOpenHashSet;
 
 import org.apache.hadoop.io.WritableComparable;
+
+import bak.pcj.IntIterator;
+import bak.pcj.set.IntOpenHashSet;
 
 
 /**
@@ -47,7 +48,7 @@ import org.apache.hadoop.io.WritableComparable;
 
 public class AnchorText implements WritableComparable<AnchorText>, AnchorTextConstants, Iterable<Integer> {
 	
-	private byte flag;		//AnchorText objects can be incoming or outgoing, external or internal, etc. depending on the flag
+	private byte type;		//AnchorText objects can be incoming or outgoing, external or internal, etc. depending on the type
 	
 	private String text;	//holds the text for a line of anchor text
 	
@@ -61,19 +62,21 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 */
 	public AnchorText() {
 		sourceList = new IntOpenHashSet();
+		resetToType(Type.INTERNAL_IN_LINK.val);
 	}
 	
 	/**
 	 * Creates a new AnchorText object
 	 * 
-	 * @param flag
+	 * @param type
 	 * 				Internal or external, incoming or outgoing, etc. (Use AnchorTextConstants interface)
 	 * @param text
 	 * 				Text associated with a line of anchor text
 	 */
-	public AnchorText(byte flag, String text) {
+	public AnchorText(byte type, String text) {
 		this();
-		set(flag, text);
+		resetToType(type);
+		setText(text);
 	}
 	
 	
@@ -81,16 +84,17 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * Creates a new AnchorText object and adds a new source/target document if 
 	 * the AnchorText object is allowed to have text. (Please refer to AnchorTextConstants interface)
 	 * 
-	 * @param flag
+	 * @param type
 	 * 				Internal or external, incoming or outgoing, etc. (Use AnchorTextConstants interface)
 	 * @param text
 	 * 				Text associated with a line of anchor text
 	 * @param docno
 	 * 				Source/Target document id
 	 */
-	public AnchorText(byte flag, String text, int docno) {
+	public AnchorText(byte type, String text, int docno) {
 		this();
-		set(flag, text);
+		resetToType(type);
+		setText(text);
 		
 		if(hasValidSourceList())
 			addSource(docno);
@@ -103,21 +107,21 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 *		     Input Stream
 	 */
 	public void readFields(DataInput in) throws IOException {
-		sourceList.clear();
-		flag = in.readByte();
+		this.type = in.readByte();
+		resetToType(this.type);
 		
 		if(hasValidText())
-			text = in.readUTF();
+			this.text = in.readUTF();
 		
 		if(hasValidSourceList()) {
 			int size = in.readInt();
-			for(int i = 0; i < size; i++)
-				sourceList.add(in.readInt());
+			for(int i = 0; i < size; i++) {
+				this.sourceList.add(in.readInt());
+			}
 		} 
 		
 		if(hasValidWeight())
-			weight = in.readFloat();
-		
+			this.weight = in.readFloat();
 	}
 
 	/**
@@ -127,7 +131,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 				Output Stream
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeByte(flag);
+		out.writeByte(type);
 		
 		if(hasValidText())
 			out.writeUTF(text);
@@ -135,8 +139,9 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		if(hasValidSourceList()) {
 			out.writeInt(sourceList.size());
 			IntIterator iterator = sourceList.iterator();
-			while(iterator.hasNext())
+			while(iterator.hasNext()) {
 				out.writeInt(iterator.next());
+			}
 		}
 		
 		if(hasValidWeight())
@@ -146,18 +151,26 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	/**
 	 * @return the type of this AnchorText
 	 */
-	public byte getFlag() {
-		return flag;
+	public byte getType() {
+		return type;
 	}
 	
 	/**
-	 * Sets the type of this AnchorText to flag
+	 * Clears this object and initializes the type
 	 * 
-	 * @param flag
+	 * @param type
 	 * 				New type
 	 */
-	public void setFlag(byte flag) {
-		this.flag = flag;
+	public void resetToType(byte type) {
+		this.type = type;
+		
+		if(hasValidText())
+			this.text = EMPTY_STRING;
+		else
+			this.text = null;
+		
+		weight = 0;
+		sourceList.clear();
 	}
 	
 	
@@ -175,7 +188,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 			New text for this anchor text
 	 */
 	public void setText(String text) {
-		this.text = text;
+		if(hasValidText())
+			this.text = text;
 	}
 	
 	
@@ -187,29 +201,23 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	}
 	
 	/**
-	 * Sets a new weight for this line of anchor text
+	 * Sets a new weight for this line of anchor text and changes the type to "weighted"
 	 * 
 	 * @param weight
 	 * 			New weight
 	 */
 	public void setWeight(float weight) {
-		this.weight = weight;
-		flag = WEIGHTED_EXTERNAL_IN_LINK;
+		if(this.type == Type.EXTERNAL_IN_LINK.val) {
+			this.weight = weight;
+			this.type = Type.WEIGHTED_EXTERNAL_IN_LINK.val;
+		}
 	}
 	
 	/**
 	 * @return the cardinality of the set of sources/targets
 	 */
 	public int getSize() {
-		if(hasValidSourceList())
-			return sourceList.size();
-		
-		return 0;
-	}
-	
-	//returns the list of sources/targets
-	private IntOpenHashSet getSourceList() {
-		return sourceList;
+		return sourceList.size();
 	}
 	
 	/**
@@ -229,7 +237,6 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 		The new document id to be added to the source/target list
 	 */
 	public void addSource(int docno) {
-		
 		if(!hasValidSourceList())
 			return;
 			
@@ -246,9 +253,10 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		if(!hasValidSourceList())
 			return;
 		
-		IntIterator iterator = other.getSourceList().iterator();
-		while(iterator.hasNext())
+		IntIterator iterator = other.sourceList.iterator();
+		while(iterator.hasNext()) {
 			addSource(iterator.next());
+		}
 	}
 	
 	/**
@@ -277,34 +285,26 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 			with the other line of anchor text.
 	 */
 	public boolean intersects(AnchorText other) {
-		
 		if(!hasValidSourceList() || !other.hasValidSourceList())
 			return false;
 		
 		//For efficiency, iterate through the elements of the smallest set
 		if(getSize() < other.getSize()) {
 			IntIterator iterator = sourceList.iterator();
-			while(iterator.hasNext())
+			while(iterator.hasNext()) {
 				if(other.containsSource(iterator.next()))
 					return true;
+			}
 		}
 		else {
-			IntIterator iterator = other.getSourceList().iterator();
-			while(iterator.hasNext())
+			IntIterator iterator = other.sourceList.iterator();
+			while(iterator.hasNext()) {
 				if(sourceList.contains(iterator.next()))
 					return true;
+			}
 		}
 			
-			
 		return false;
-	}
-
-	//sets the type of this anchor text and associates some text to it 
-	private void set(byte flag, String text) {
-		this.flag = flag;
-		
-		if(hasValidText())
-			this.text = text;
 	}
 	
 	/**
@@ -318,8 +318,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 			of their source/targets lists.
 	 */
 	public boolean equalsIgnoreSources(AnchorText other) {
-		
-		if(flag != other.getFlag())
+		if(type != other.getType())
 			return false;
 		
 		if(hasValidWeight() && weight != other.getWeight())
@@ -338,13 +337,14 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		AnchorText other = (AnchorText) obj;
 		
 		if(hasValidSourceList() && other.hasValidSourceList()) {
-			if(sourceList.size() != other.getSourceList().size())
+			if(sourceList.size() != other.sourceList.size())
 				return false;
 			
 			IntIterator iterator = sourceList.iterator();
-			while(iterator.hasNext())
+			while(iterator.hasNext()) {
 				if(!other.containsSource(iterator.next()))
 					return false;
+			}
 		}
 		
 		return equalsIgnoreSources(other);
@@ -355,50 +355,48 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * of two AnchorText objects. To check complete equality of the objects use the equals method.
 	 */
 	public int compareTo(AnchorText obj) {
-		
-		byte fl = obj.getFlag();
+		byte fl = obj.getType();
 		String text = obj.getText();
 
-		if(flag != fl)
-			return flag < fl ? -1 : 1;
+		if(type != fl)
+			return type < fl ? -1 : 1;
 		
 		if(hasValidText())
 			return this.text.compareTo(text);
 		
 		return 0;
-		
 	}
 	
 	public int hashCode() {
-		
 		if(hasValidText())
-			return text.hashCode() + flag;
+			return text.hashCode() + type;
 		
-		return flag;
+		return type;
 	}
 	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("(");
 		
-		if(isExternalInLink())
+		if(isExternalInLink()) {
 			builder.append("ExternalInLink");
-		else if(isInternalInLink())
+		} else if(isInternalInLink()) {
 			builder.append("InternalInLink");
-		else if(isExternalOutLink())
+		} else if(isExternalOutLink()) {
 			builder.append("ExternalOutLink");
-		else if(isInternalOutLink())
+		} else if(isInternalOutLink()) {
 			builder.append("InternalOutLink");
-		else if(isDocnoField())
+		} else if(isDocnoField()) {
 			builder.append("Docno");
-		else if(isURL())
+		} else if(isURL()) {
 			builder.append("URL");
-		else if(isInDegree())
+		} else if(isInDegree()) {
 			builder.append("Indegree");
-		else if(isOutDegree())
+		} else if(isOutDegree()) {
 			builder.append("Outdegree");
-		else
+		} else {
 			builder.append("OtherType");
+		}
 		
 		if(hasValidText())
 			builder.append(", " + text);
@@ -423,7 +421,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	public AnchorText clone() {
 		AnchorText cloned = new AnchorText();
 		
-		cloned.set(flag, text);
+		cloned.resetToType(type);
+		cloned.setText(text);
 
 		if(hasValidSourceList())
 			cloned.addSourcesFrom(this);
@@ -432,64 +431,62 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 			cloned.weight = weight;
 		
 		return cloned;
-		
 	}
-	
 	
 	/**
 	 * @return True if the current object is any type of external incoming link (i.e., Weighted, non-weighted, etc.).
 	 */
 	public boolean isExternalInLink() {
-		return flag == EXTERNAL_IN_LINK || flag == WEIGHTED_EXTERNAL_IN_LINK;
+		return type == Type.EXTERNAL_IN_LINK.val || type == Type.WEIGHTED_EXTERNAL_IN_LINK.val;
 	}
 	
 	/**
 	 * @return True if the current object is any type of internal incoming link.
 	 */
 	public boolean isInternalInLink() {
-		return flag == INTERNAL_IN_LINK;
+		return type == Type.INTERNAL_IN_LINK.val;
 	}
 	
 	/**
 	 * @return True if the current object is any type of external outgoing link.
 	 */
 	public boolean isExternalOutLink() {
-		return flag == EXTERNAL_OUT_LINK;
+		return type == Type.EXTERNAL_OUT_LINK.val;
 	}
 	
 	/**
 	 * @return True if the current object is any type of internal outgoing link.
 	 */
 	public boolean isInternalOutLink() {
-		return flag == INTERNAL_OUT_LINK;
+		return type == Type.INTERNAL_OUT_LINK.val;
 	}
 	
 	/**
 	 * @return True if the current line of anchor text has a weight associated with it.
 	 */
 	public boolean isWeighted() {
-		return flag == WEIGHTED_EXTERNAL_IN_LINK;
+		return type == Type.WEIGHTED_EXTERNAL_IN_LINK.val;
 	}
 	
 	/**
 	 * @return True if the current object is a special type of AnchorText (i.e., is not a real line of anchor text) - InDegree
 	 */
 	public boolean isInDegree() {
-		return flag == IN_DEGREE;
+		return type == Type.IN_DEGREE.val;
 	}
 	
 	/**
 	 * @return True if the current object is a special type of AnchorText (i.e., is not a real line of anchor text) - OutDegree
 	 */
 	public boolean isOutDegree() {
-		return flag == OUT_DEGREE;
+		return type == Type.OUT_DEGREE.val;
 	}
 	
 	/**
 	 * @return True if the current object is a special type of AnchorText (i.e., is not a real line of anchor text) - Holds document number
 	 */
 	public boolean isDocnoField() {
-		return flag == DOCNO_FIELD;
+		return type == Type.DOCNO_FIELD.val;
 	}
 	
 	/**
@@ -497,7 +494,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * (i.e., is not a real line of anchor text) - Holds a URL address
 	 */
 	public boolean isURL() {
-		return flag == URL_FIELD;
+		return type == Type.URL_FIELD.val;
 	}
 	
 	/**
@@ -505,16 +502,16 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * (i.e., is not a real line of anchor text) - Any other types of AnchorText
 	 */
 	public boolean isOfOtherTypes() {
-		return flag == OTHER_TYPES;
+		return type == Type.OTHER_TYPES.val;
 	}
 	
 	
 	//checks whether the anchor text object has a valid text field.
 	private boolean hasValidText() {
 		
-		if(flag == EXTERNAL_IN_LINK || flag == INTERNAL_IN_LINK ||
-				flag == URL_FIELD || flag == OTHER_TYPES || 
-					flag == WEIGHTED_EXTERNAL_IN_LINK)
+		if(type == Type.EXTERNAL_IN_LINK.val || type == Type.INTERNAL_IN_LINK.val ||
+				type == Type.URL_FIELD.val || type == Type.OTHER_TYPES.val || 
+					type == Type.WEIGHTED_EXTERNAL_IN_LINK.val)
 			return true;
 		
 		return false;
@@ -522,12 +519,12 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	
 	//checks whether the current object has a valid list of sources/targets.
 	private boolean hasValidSourceList() {
-		return flag != URL_FIELD;
+		return type != Type.URL_FIELD.val;
 	}
 	
 	//checks wether the current object has a valid weight associated with it.
 	private boolean hasValidWeight() {
-		return flag == WEIGHTED_EXTERNAL_IN_LINK;
+		return type == Type.WEIGHTED_EXTERNAL_IN_LINK.val;
 	}
 
 	/**
@@ -538,7 +535,6 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 */
 	public Iterator<Integer> iterator() {
 		return new Iterator<Integer>() {
-			
 			IntIterator iterator = sourceList.iterator();
 
 			public boolean hasNext() {
@@ -552,8 +548,6 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 			public void remove() {
 				iterator.remove();
 			}
-			
 		};
 	}
-
 }

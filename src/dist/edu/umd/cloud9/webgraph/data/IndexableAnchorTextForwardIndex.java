@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.data;
+package edu.umd.cloud9.webgraph.data;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -26,102 +26,87 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 
 public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<IndexableAnchorText> {
-
-	private static final Logger sLogger = Logger.getLogger(IndexableAnchorTextForwardIndex.class);
 	
 	private static final IndexableAnchorText indexableAnchorText = new IndexableAnchorText();
+	private static final DecimalFormat df = new DecimalFormat("00000");
 
-	private Configuration mConf;
-	private FileSystem mFS;
+	private Configuration conf;
+	private FileSystem fs;
 
-	private int[] mDocnos;
-	private int[] mOffsets;
-	private short[] mFileno;
-	private String mCollectionPath;
+	private int[] docnos;
+	private int[] offsets;
+	private short[] filenos;
+	private String collectionPath;
 
-	private DocnoMapping mDocnoMapping;
+	private DocnoMapping docnoMapping;
 
-	public IndexableAnchorTextForwardIndex(DocnoMapping mDocnoMapping) {
-		this.mDocnoMapping = mDocnoMapping; 
+	public IndexableAnchorTextForwardIndex(DocnoMapping docnoMapping) {
+		this.docnoMapping = docnoMapping; 
 	}
 
 	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
-		sLogger.info("Loading forward index: " + indexFile);
 
-		mConf = new Configuration();
-		mFS = FileSystem.get(mConf);
+		conf = new Configuration();
+		fs = FileSystem.get(conf);
 
-		mDocnoMapping.loadMapping(new Path(mappingDataFile), mFS);
+		docnoMapping.loadMapping(new Path(mappingDataFile), fs);
 
-		FSDataInputStream in = mFS.open(new Path(indexFile));
+		FSDataInputStream in = fs.open(new Path(indexFile));
 
 		// class name; throw away
 		in.readUTF();
-		mCollectionPath = in.readUTF();
+		collectionPath = in.readUTF();
 
 		int blocks = in.readInt();
 
-		sLogger.info(blocks + " blocks expected");
-		mDocnos = new int[blocks];
-		mOffsets = new int[blocks];
-		mFileno = new short[blocks];
+		docnos = new int[blocks];
+		offsets = new int[blocks];
+		filenos = new short[blocks];
 
 		for (int i = 0; i < blocks; i++) {
-			mDocnos[i] = in.readInt();
-			mOffsets[i] = in.readInt();
-			mFileno[i] = in.readShort();
-
-			if (i > 0 && i % 100000 == 0)
-				sLogger.info(i + " blocks read");
+			docnos[i] = in.readInt();
+			offsets[i] = in.readInt();
+			filenos[i] = in.readShort();
 		}
 
 		in.close();
 	}
 
 	public String getCollectionPath() {
-		return mCollectionPath;
+		return collectionPath;
 	}
 
 	public IndexableAnchorText getDocument(int docno) {
-		long start = System.currentTimeMillis();
-		int idx = Arrays.binarySearch(mDocnos, docno);
+		int idx = Arrays.binarySearch(docnos, docno);
 
 		if (idx < 0)
 			idx = -idx - 2;
 
 		DecimalFormat df = new DecimalFormat("00000");
-		String file = mCollectionPath + "/part-" + df.format(mFileno[idx]);
-
-		sLogger.info("fetching docno " + docno + ": seeking to " + mOffsets[idx] + " at " + file);
-
+		String file = collectionPath + "/part-" + df.format(filenos[idx]);
+		
 		try {
 
-			SequenceFile.Reader reader = new SequenceFile.Reader(mFS, new Path(file), mConf);
+			SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
 
 			IntWritable key = new IntWritable();
 			ArrayListWritable<AnchorText> value = new ArrayListWritable<AnchorText>();
 
-			reader.seek(mOffsets[idx]);
+			reader.seek(offsets[idx]);
 
 			while (reader.next(key)) {
-				// sLogger.info("at " + key);
 				if (key.get() == docno)
 					break;
 			}
 
 			reader.getCurrentValue(value);
 			reader.close();
-
-			long duration = System.currentTimeMillis() - start;
-
-			sLogger.info(" docno " + docno + " fetched in " + duration + "ms");
 			
 			indexableAnchorText.process(value);
 			return indexableAnchorText;
@@ -133,19 +118,19 @@ public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<Ind
 	}
 
 	public IndexableAnchorText getDocument(String docid) {
-		return getDocument(mDocnoMapping.getDocno(docid));
+		return getDocument(docnoMapping.getDocno(docid));
 	}
 
 	public int getDocno(String docid) {
-		return mDocnoMapping.getDocno(docid);
+		return docnoMapping.getDocno(docid);
 	}
 
 	public String getDocid(int docno) {
-		return mDocnoMapping.getDocid(docno);
+		return docnoMapping.getDocid(docno);
 	}
 
 	public int getFirstDocno() {
-		return mDocnos[0];
+		return docnos[0];
 	}
 
 	private int mLastDocno = -1;
@@ -156,16 +141,15 @@ public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<Ind
 
 		// find the last entry, and then see all the way to the end of the
 		// collection
-		int idx = mDocnos.length - 1;
+		int idx = docnos.length - 1;
 
-		DecimalFormat df = new DecimalFormat("00000");
-		String file = mCollectionPath + "/part-" + df.format(mFileno[idx]);
+		String file = collectionPath + "/part-" + df.format(filenos[idx]);
 
 		try {
-			SequenceFile.Reader reader = new SequenceFile.Reader(mFS, new Path(file), mConf);
+			SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
 			IntWritable key = new IntWritable();
 
-			reader.seek(mOffsets[idx]);
+			reader.seek(offsets[idx]);
 
 			while (reader.next(key))
 				;

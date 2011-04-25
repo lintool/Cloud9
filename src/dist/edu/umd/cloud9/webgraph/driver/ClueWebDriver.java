@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.driver;
+package edu.umd.cloud9.webgraph.driver;
 
 
 import org.apache.hadoop.conf.Configuration;
@@ -22,11 +22,11 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.anchor.BuildInverseWebGraph;
-import edu.umd.cloud9.anchor.BuildWebGraph;
-import edu.umd.cloud9.anchor.CollectHostnames;
-import edu.umd.cloud9.anchor.ComputeWeight;
-import edu.umd.cloud9.anchor.ExtractLinks;
+import edu.umd.cloud9.webgraph.BuildInverseWebGraph;
+import edu.umd.cloud9.webgraph.BuildWebGraph;
+import edu.umd.cloud9.webgraph.CollectHostnames;
+import edu.umd.cloud9.webgraph.ComputeWeight;
+import edu.umd.cloud9.webgraph.ExtractLinks;
 
 /**
  * <p>
@@ -41,7 +41,7 @@ import edu.umd.cloud9.anchor.ExtractLinks;
  * <li>[from-segment]: starting segment number</li>
  * <li>[to-segment]: ending segment number</li>
  * <li>[includeInternalLinks?]: 1 for including the internal links (i.e., links within a domain), 0 for not</li>
- * <li>[compute-default-anchor-weight?]: 1 to compute the default weights for lines of anchor text, 0 for not</li>
+ * <li>[compute-default-anchor-weight?]: 1 to compute the default weights for lines of external anchor text, 0 for not</li>
  * <li>[normalizer] A normalizer class used to normalize the lines of anchor text, 
  * 					must extend *.anchor.normalize.AnchorTextNormalizer.</li>
  * </ul>
@@ -102,7 +102,7 @@ public class ClueWebDriver extends Configured implements Tool {
 			final String docnoMapping = args[2];
 			final int fromSegment = Integer.parseInt(args[3]);
 			final int toSegment = Integer.parseInt(args[4]);
-			final boolean includeInLinks = Integer.parseInt(args[5]) == 1;
+			final boolean includeInternalLinks = Integer.parseInt(args[5]) == 1;
 			final boolean computeAnchorWeights = Integer.parseInt(args[6]) == 1;
 			final String normalizer = args[7];
 			
@@ -111,7 +111,7 @@ public class ClueWebDriver extends Configured implements Tool {
 			conf.setInt("Ivory.Mappers", 2000);
 			conf.setInt("Ivory.Reducers", defaultReducers);
 			conf.set("Ivory.DocnoMappingFile", docnoMapping);		
-			conf.setBoolean("Ivory.IncludeInLinks", includeInLinks);
+			conf.setBoolean("Ivory.IncludeInternalLinks", includeInternalLinks);
 			conf.set("Ivory.AnchorTextNormalizer", normalizer);		
 						
 			//Extract link information for each segment separately
@@ -126,18 +126,19 @@ public class ClueWebDriver extends Configured implements Tool {
 				
 				if(r != 0)
 					return -1;
-				
 			}
 			
 			//Construct the inverse web graph (i.e., collect incoming link information)
 			String inputPath = "";
-			for (int i = fromSegment; i < toSegment; i++)
+			for (int i = fromSegment; i < toSegment; i++) {
 				inputPath += outputBase + outputExtractLinks + "/en.0" + i + "/,";
+			}
 	
-			if (toSegment == 10)
+			if (toSegment == 10) {
 				inputPath +=  outputBase + outputExtractLinks + "/en.10/";
-			else
+			} else {
 				inputPath += outputBase + outputExtractLinks + "/en.0" + toSegment + "/";
+			}
 			
 			String outputPath = outputBase +  outputInverseWebGraph + "/";
 			
@@ -151,7 +152,7 @@ public class ClueWebDriver extends Configured implements Tool {
 				return -1;
 			
 			
-			//Construct the web graph and append the information to the current data structure
+			//Construct the web graph
 			inputPath = outputBase + outputInverseWebGraph + "/";
 			outputPath = outputBase +  outputWebGraph + "/";
 			
@@ -178,7 +179,7 @@ public class ClueWebDriver extends Configured implements Tool {
 					return -1;
 				
 				//Compute the weights
-				inputPath = outputBase + outputWebGraph + "/," + outputBase + outputHostnames + "/";
+				inputPath = outputBase + outputInverseWebGraph + "/," + outputBase + outputHostnames + "/";
 				outputPath = outputBase +  outputWeightedInverseWebGraph + "/";
 				
 				conf.set("Ivory.InputPath", inputPath);
@@ -192,7 +193,6 @@ public class ClueWebDriver extends Configured implements Tool {
 			}
 			
 			return 0;
-			
 		}
 	
 		public static void main(String[] args) throws Exception {

@@ -14,23 +14,34 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor;
-
+package edu.umd.cloud9.webgraph;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Partitioner;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.util.PowerTool;
+import edu.umd.cloud9.webgraph.data.AnchorText;
 
 /**
  * 
@@ -41,7 +52,7 @@ import edu.umd.cloud9.util.PowerTool;
 @SuppressWarnings("deprecation")
 public class ComputeWeight extends PowerTool {
 
-	private static final Logger sLogger = Logger.getLogger(ComputeWeight.class);
+	private static final Logger LOG = Logger.getLogger(ComputeWeight.class);
 	private static final int HOSTMAP = 1;
 	private static final int DATA = 0;
 	
@@ -69,11 +80,8 @@ public class ComputeWeight extends PowerTool {
 				arrayList.clear();
 				arrayList.add(data);
 				output.collect(keyWord, arrayList);
-				
 			}
-			
 		}
-	
 	}
 	
 	protected static class Partition implements Partitioner<PairOfInts, ArrayListWritable<AnchorText>> {
@@ -106,7 +114,6 @@ public class ComputeWeight extends PowerTool {
 		public void reduce(PairOfInts key, Iterator<ArrayListWritable<AnchorText>> values,
 				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
 			
-			
 			//should receive the DATA packet first, which contains the anchor text information
 			if(key.getRightElement() == DATA) {
 				
@@ -137,15 +144,16 @@ public class ComputeWeight extends PowerTool {
 				//have the same anchor text, their numbers will be equal.
 				linkCounter = 0;
 				simMap = new int[arrayList.size()];
-				for(int i = 1; i < arrayList.size(); i++)
-					if(arrayList.get(i).equalsIgnoreSources(arrayList.get(i - 1)))
+				for(int i = 1; i < arrayList.size(); i++) {
+					if(arrayList.get(i).equalsIgnoreSources(arrayList.get(i - 1))) {
 						simMap[i] = simMap[i-1];
-					else {
+					} else {
 						simMap[i] = i;
 						
 						if(arrayList.get(i).isExternalInLink())
 							linkCounter++;
 					}
+				}
 				lastHost = "";
 				intersects.clear();
 				
@@ -156,10 +164,13 @@ public class ComputeWeight extends PowerTool {
 						
 						if(!data.getText().equals(lastHost)) {
 							
-							if(intersects.size() > 0)
-								for(int i = 0; i < simMap.length; i++)
-									if(intersects.contains(simMap[i]))
+							if(intersects.size() > 0) {
+								for(int i = 0; i < simMap.length; i++) {
+									if(intersects.contains(simMap[i])) {
 										arrayList.get(i).setWeight(arrayList.get(i).getWeight() + (1.0f / intersects.size()));
+									}
+								}
+							}
 							
 							intersects.clear();
 						}
@@ -175,32 +186,31 @@ public class ComputeWeight extends PowerTool {
 						
 							//if there is only one line of anchor text, then definitely it intersects 
 							//with any host map associated with this object
-							if(linkCounter == 1)
+							if(linkCounter == 1) {
 								intersects.add(simMap[i]);
-							else if(data.intersects(arrayList.get(i)))
+							} else if(data.intersects(arrayList.get(i))) {
 								intersects.add(simMap[i]);
+							}
 						}
-						
 					}
-					
 				}
 				
-				if(intersects.size() > 0)
-					for(int i = 0; i < simMap.length; i++)
-						if(intersects.contains(simMap[i]))
+				if(intersects.size() > 0) {
+					for(int i = 0; i < simMap.length; i++) {
+						if(intersects.contains(simMap[i])) {
 							arrayList.get(i).setWeight(arrayList.get(i).getWeight() + (1.0f / intersects.size()));
+						}
+					}
+				}
 				
 				intersects.clear();
-								
 			}
-					
 		}
 		
 		public void close() throws IOException {
 			keyWord.set(currentDocument);
 			outputCollector.collect(keyWord, arrayList);
 		}
-		
 	}
 	
 	public static final String[] RequiredParameters = {
@@ -256,17 +266,16 @@ public class ComputeWeight extends PowerTool {
 		SequenceFileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		sLogger.info("ComputeWeight");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);		
+		LOG.info("ComputeWeight");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);		
 
-		if(!fs.exists(new Path(outputPath)))
+		if(!fs.exists(new Path(outputPath))) {
 			JobClient.runJob(conf);
-		else
-			sLogger.info(outputPath + " already exists! Skipping this step...");
-
+		} else {
+			LOG.info(outputPath + " already exists! Skipping this step...");
+		}
 
 		return 0;
 	}
-
 }

@@ -14,22 +14,28 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.driver;
+package edu.umd.cloud9.webgraph.driver;
 
-
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Partitioner;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
 import edu.umd.cloud9.io.array.ArrayListWritable;
+import edu.umd.cloud9.webgraph.data.AnchorText;
 
 /**
  * <p>
@@ -48,14 +54,12 @@ import edu.umd.cloud9.io.array.ArrayListWritable;
  */
 
 @SuppressWarnings("deprecation")
-public class SortAnchorText extends Configured implements Tool {
+public class SortWebGraph extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(SortAnchorText.class);
-	
-	public static final int DEFAULT_NUMBER_OF_DOCUMENTS = 503903810;
+	private static final Logger LOG = Logger.getLogger(SortWebGraph.class);
+	private static final int DEFAULT_NUMBER_OF_DOCUMENTS = 503903810;
 	
 	protected static class Partition implements Partitioner<IntWritable, ArrayListWritable<AnchorText>> {
-		
 		int totalDocuments;
 		
 		public void configure(JobConf job) {
@@ -79,13 +83,12 @@ public class SortAnchorText extends Configured implements Tool {
 	}
 	
 	public int run(String[] args) throws Exception {
-		
 		if(args.length != 4) {
 			printUsage();
 			return -1;
 		}
 
-		JobConf conf = new JobConf(getConf(), SortAnchorText.class);
+		JobConf conf = new JobConf(getConf(), SortWebGraph.class);
 		FileSystem fs = FileSystem.get(conf);
 		
 		String inputPath = args[0];
@@ -94,7 +97,7 @@ public class SortAnchorText extends Configured implements Tool {
 		int numMappers = 1;
 		int numReducers = Integer.parseInt(args[3]);
 		
-		conf.setJobName("SortAnchorText");
+		conf.setJobName("SortWebGraph");
 		conf.set("mapred.child.java.opts", "-Xmx4096m");
 		conf.setInt("mapred.task.timeout", 60000000);
 		
@@ -125,10 +128,10 @@ public class SortAnchorText extends Configured implements Tool {
 		SequenceFileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		sLogger.info("SortAnchorText");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);	
-		sLogger.info(" - number of documents: " + conf.getInt("Ivory.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS));
+		LOG.info("SortAnchorText");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);	
+		LOG.info(" - number of documents: " + conf.getInt("Ivory.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS));
 
 		fs.delete(new Path(outputPath));
 		JobClient.runJob(conf);
@@ -137,7 +140,7 @@ public class SortAnchorText extends Configured implements Tool {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new SortAnchorText(), args);
+		int res = ToolRunner.run(new Configuration(), new SortWebGraph(), args);
 		System.exit(res);
 	}
 

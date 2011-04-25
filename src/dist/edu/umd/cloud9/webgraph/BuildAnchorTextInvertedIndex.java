@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor;
+package edu.umd.cloud9.webgraph;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -41,31 +41,27 @@ import org.apache.log4j.Logger;
 
 
 import edu.umd.cloud9.util.PowerTool;
-import edu.umd.cloud9.anchor.data.AnchorText;
-import edu.umd.cloud9.anchor.data.AnchorTextTarget;
+import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.data.AnchorTextTarget;
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 
 /**
- * <p>
- * Indexer for building document-sorted inverted indexes.
- * </p>
- * 
  * @author Nima Asadi
  * @author Tamer Elsayed
  * 
  */
 @SuppressWarnings("deprecation")
 public class BuildAnchorTextInvertedIndex extends PowerTool {
-	private static final Logger sLogger = Logger.getLogger(BuildAnchorTextInvertedIndex.class);
+	private static final Logger LOG = Logger.getLogger(BuildAnchorTextInvertedIndex.class);
 	{
-		sLogger.setLevel(Level.INFO);
+		LOG.setLevel(Level.INFO);
 	}
 
 	private static class MyMapper extends MapReduceBase implements
 	Mapper<IntWritable, ArrayListWritable<AnchorText>, Text, AnchorTextTarget> {
 
-		AnchorTextTarget anchorTextTarget = new AnchorTextTarget();
+		private static final AnchorTextTarget anchorTextTarget = new AnchorTextTarget();
 		private static final Text keyOut = new Text();
 		
 		public void configure(JobConf job) {
@@ -94,7 +90,7 @@ public class BuildAnchorTextInvertedIndex extends PowerTool {
 	private static class MyReducer extends MapReduceBase implements
 	Reducer<Text, AnchorTextTarget, Text, ArrayListWritable<AnchorTextTarget>> {
 
-		private static ArrayListWritable<AnchorTextTarget> outList = 
+		private static final ArrayListWritable<AnchorTextTarget> outList = 
 			new ArrayListWritable<AnchorTextTarget>();
 		
 		private static AnchorTextTarget next;
@@ -110,12 +106,13 @@ public class BuildAnchorTextInvertedIndex extends PowerTool {
 				
 				pushed = false;
 				
-				for(int i = 0; i < outList.size(); i++)
+				for(int i = 0; i < outList.size(); i++) {
 					if(outList.get(i).equals(next)) {
 						outList.get(i).addSources(next.getSources());
 						pushed = true;
 						break;
 					}
+				}
 				
 				if(!pushed)
 					outList.add(new AnchorTextTarget(next));
@@ -156,7 +153,7 @@ public class BuildAnchorTextInvertedIndex extends PowerTool {
 		int reduceTasks = conf.getInt("Ivory.NumReduceTasks", 0);
 
 		if (fs.exists(outputPath)) {
-			sLogger.info("Index already exist: no indexing will be performed.");
+			LOG.info("Index already exist: no indexing will be performed.");
 			return 0;
 		}
 
@@ -166,6 +163,7 @@ public class BuildAnchorTextInvertedIndex extends PowerTool {
 		conf.setNumReduceTasks(reduceTasks);
 
 		conf.set("mapred.child.java.opts", "-Xmx4096m");
+		conf.setInt("mapred.task.timeout", 60000000);
 
 		FileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, outputPath);
@@ -184,7 +182,7 @@ public class BuildAnchorTextInvertedIndex extends PowerTool {
 
 		long startTime = System.currentTimeMillis();
 		JobClient.runJob(conf);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		LOG.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 
 		return 0;

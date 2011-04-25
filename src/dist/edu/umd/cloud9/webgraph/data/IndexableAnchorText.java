@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.data;
+package edu.umd.cloud9.webgraph.data;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -43,23 +43,27 @@ public class IndexableAnchorText extends Indexable {
 		
 		String url = "";
 		
-		for(AnchorText anchor : anchors)
-			if(anchor.isURL())
+		for(AnchorText anchor : anchors) {
+			if(anchor.isURL()) {
 				url = anchor.getText();
-				
+			}
+		}
 				
 		content.append("<html><head><title>" + url + "</title></head><body> Incoming Links:<br />");
 		
-		for(AnchorText anchor : anchors)
-			if(anchor.isExternalInLink() || anchor.isInternalInLink())
+		for(AnchorText anchor : anchors) {
+			if(anchor.isExternalInLink() || anchor.isInternalInLink()) {
 				content.append(anchor.toString() + "<br />");
+			}
+		}
 		
 		content.append("<br />Outgoing Links: <br />");
 		
-		for(AnchorText anchor : anchors)
-			if(anchor.isExternalOutLink() || anchor.isInternalOutLink())
+		for(AnchorText anchor : anchors) {
+			if(anchor.isExternalOutLink() || anchor.isInternalOutLink()) {
 				content.append(anchor.toString() + "<br />");
-		
+			}
+		}
 		
 		String html = content.toString();
 		
@@ -74,7 +78,6 @@ public class IndexableAnchorText extends Indexable {
 		
 		content.delete(0, content.length());
 		content.append(html);
-				
 	}
 
 	@Override
@@ -100,7 +103,4 @@ public class IndexableAnchorText extends Indexable {
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(content.toString());
 	}
-	
-	
-
 }

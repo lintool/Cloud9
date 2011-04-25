@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.normalize;
+package edu.umd.cloud9.webgraph.normalizer;
 
 import java.util.HashSet;
 import java.util.StringTokenizer;
@@ -123,11 +123,12 @@ public class AnchorTextBasicNormalizer implements AnchorTextNormalizer {
 		"new", "window", "webpage", "website", "site", "homepage", "home", "click", "here", "main",
 		"link", "url", "www"};
 	
-	static private HashSet<String> stopwords = new HashSet<String>();
+	private static final HashSet<String> stopwords = new HashSet<String>();
 
 	static {
-		for (int i=0; i<STOP_WORDS.length; i++)
+		for (int i=0; i<STOP_WORDS.length; i++) {
 			stopwords.add(STOP_WORDS[i]);
+		}
 	}
 
 	public boolean isStopWord(String word){
@@ -135,7 +136,6 @@ public class AnchorTextBasicNormalizer implements AnchorTextNormalizer {
 	}
 
 	public String normalize(String anchor) {
-	
 		//processing the anchor text token by token
 		StringBuilder builder = new StringBuilder();
 		StringTokenizer tokenizer = new StringTokenizer(anchor);
@@ -146,20 +146,15 @@ public class AnchorTextBasicNormalizer implements AnchorTextNormalizer {
 			
 			if(!next.contains("://") && !next.contains("."))
 				builder.append(next.trim() + " ");
-			
 		}
 		
 		anchor = builder.toString().trim();
-		
 		anchor = anchor.toLowerCase();					//convert everything to lower case
 		anchor = anchor.replaceAll("\\s+", " ");		//remove extra space
 		anchor = anchor.replaceAll("-", " ");			//replace dashes with space
-						
 		anchor = anchor.replaceAll("&[^;]*;", "");			//remove html special entities
-		
 		anchor = anchor.replaceAll("[^a-zA-Z\\s]", "");		//remove symbols
 
-		
 		//processing the anchor text token by token
 		builder = new StringBuilder();
 		tokenizer = new StringTokenizer(anchor);
@@ -172,7 +167,6 @@ public class AnchorTextBasicNormalizer implements AnchorTextNormalizer {
 				continue;
 			
 			builder.append(next.trim() + " ");
-			
 		}
 		
 		anchor = builder.toString().trim();
@@ -181,35 +175,27 @@ public class AnchorTextBasicNormalizer implements AnchorTextNormalizer {
 	}
 
 	public String removeStopWords(String anchor) {
-		//return anchor;
-		
 		StringBuilder builder = new StringBuilder();
 		
 		StringTokenizer tokenizer = new StringTokenizer(anchor);
 		String token;
 		
 		while(tokenizer.hasMoreTokens()) {
-			
 			token = tokenizer.nextToken();
 			
-			if(!isStopWord(token))
+			if(!isStopWord(token)) {
 				builder.append(token + " ");
+			}
 		}
-		
 		
 		return builder.toString().trim();
 	}
 
-	public String stem(String anchor) {	//does nothing!
-		
+	public String stem(String anchor) {
 		return anchor;
-
 	}
 	
 	public String process(String anchor) {
-		
 		return removeStopWords(normalize(anchor));
-		
 	}
-	
 }

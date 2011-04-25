@@ -14,24 +14,36 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor;
+package edu.umd.cloud9.webgraph;
 
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
-import edu.umd.cloud9.anchor.data.AnchorTextConstants;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
+import edu.umd.cloud9.util.array.ArrayListOfInts;
+import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
 /**
  * 
@@ -42,7 +54,7 @@ import edu.umd.cloud9.util.PowerTool;
 @SuppressWarnings("deprecation")
 public class BuildInverseWebGraph extends PowerTool {
 
-	private static final Logger sLogger = Logger.getLogger(BuildInverseWebGraph.class);
+	private static final Logger LOG = Logger.getLogger(BuildInverseWebGraph.class);
 
 	public static class Reduce extends MapReduceBase implements
 			Reducer<Text, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
@@ -54,9 +66,8 @@ public class BuildInverseWebGraph extends PowerTool {
 		private static boolean pushed;
 		
 		private int indegree, outdegree;
-		private ArrayList<Integer> docnos = new ArrayList<Integer>();
+		private static final ArrayListOfInts docnos = new ArrayListOfInts();
 		
-
 		public void reduce(Text key, Iterator<ArrayListWritable<AnchorText>> values,
 				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
 			
@@ -69,19 +80,19 @@ public class BuildInverseWebGraph extends PowerTool {
 				packet = values.next();
 				
 				for(AnchorText data : packet) {
-					
 					//outdegree data
 					if(data.isOutDegree()) {
-						for(int degree: data)	//in theory, there must be only one "outdegree" packet. Unless there are duplicate pages
+						for(int degree: data) {	//in theory, there must be only one "outdegree" packet. Unless there are duplicate pages
 							outdegree = degree;
+						}
 						continue;
 					}
 					
 					//docno field data
 					if(data.isDocnoField()) {
-						for(int docno: data)	//again, in theory, there must be only one "outdegree" packet. Unless there are duplicate pages.
+						for(int docno: data) {	//again, in theory, there must be only one "outdegree" packet. Unless there are duplicate pages.
 							docnos.add(docno);
-						
+						}						
 						continue;
 					}
 					
@@ -89,12 +100,13 @@ public class BuildInverseWebGraph extends PowerTool {
 					
 					indegree += data.getSize();
 					
-					for(int i = 0; i < arrayList.size(); i++)
+					for(int i = 0; i < arrayList.size(); i++) {
 						if(arrayList.get(i).equalsIgnoreSources(data)) {
 							arrayList.get(i).addSourcesFrom(data);
 							pushed = true;
 							break;
 						}
+					}
 					
 					if(!pushed)
 						arrayList.add(data.clone());
@@ -102,9 +114,9 @@ public class BuildInverseWebGraph extends PowerTool {
 						
 			}
 			
-			arrayList.add(new AnchorText(AnchorTextConstants.IN_DEGREE, AnchorTextConstants.EMPTY_STRING, indegree));
-			arrayList.add(new AnchorText(AnchorTextConstants.OUT_DEGREE, AnchorTextConstants.EMPTY_STRING, outdegree));
-			arrayList.add(new AnchorText(AnchorTextConstants.URL_FIELD, key.toString()));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.IN_DEGREE.val, AnchorTextConstants.EMPTY_STRING, indegree));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val, AnchorTextConstants.EMPTY_STRING, outdegree));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.URL_FIELD.val, key.toString()));
 			
 			Collections.sort(arrayList);
 			
@@ -113,11 +125,7 @@ public class BuildInverseWebGraph extends PowerTool {
 				keyWord.set(docno);
 				output.collect(keyWord, arrayList);
 			}
-
 		}
-
-		
-
 	}
 	
 	public static final String[] RequiredParameters = {
@@ -172,14 +180,15 @@ public class BuildInverseWebGraph extends PowerTool {
 		SequenceFileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		sLogger.info("BuildInverseWebGraph");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);		
+		LOG.info("BuildInverseWebGraph");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);		
 
-		if(!fs.exists(new Path(outputPath)))
+		if(!fs.exists(new Path(outputPath))) {
 			JobClient.runJob(conf);
-		else
-			sLogger.info(outputPath + " already exists! Skipping this step...");
+		} else {
+			LOG.info(outputPath + " already exists! Skipping this step...");
+		}
 
 		return 0;
 	}

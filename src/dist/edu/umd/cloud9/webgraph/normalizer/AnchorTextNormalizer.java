@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.normalize;
+package edu.umd.cloud9.webgraph.normalizer;
 
 /**
  * 
@@ -26,8 +26,7 @@ package edu.umd.cloud9.anchor.normalize;
  *
  */
 
-public interface AnchorTextNormalizer {
-	
+public interface AnchorTextNormalizer {	
 	/**
 	 * 
 	 * Stemmer.
@@ -36,7 +35,6 @@ public interface AnchorTextNormalizer {
 	 * @return			A line of anchor text where every word from the original anchor text is stemmed.
 	 */
 	public String stem(String anchor);
-	
 
 	/**
 	 * 
@@ -44,7 +42,6 @@ public interface AnchorTextNormalizer {
 	 * @return			A line of anchor text where the anchor text is normalized (lower-case, etc.)
 	 */
 	public String normalize(String anchor);
-
 
 	/**
 	 * 
@@ -54,7 +51,6 @@ public interface AnchorTextNormalizer {
 	 * @return			A line of anchor text without the stop-words
 	 */
 	public String removeStopWords(String anchor);
-	
 
 	/**
 	 * 
@@ -64,5 +60,4 @@ public interface AnchorTextNormalizer {
 	 * @return			A processed line of anchor text.
 	 */
 	public String process(String anchor);
-
 }

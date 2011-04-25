@@ -14,23 +14,34 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor;
+package edu.umd.cloud9.webgraph;
 
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
-import edu.umd.cloud9.anchor.data.AnchorTextConstants;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
+import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
 /**
  * 
@@ -41,7 +52,7 @@ import edu.umd.cloud9.util.PowerTool;
 @SuppressWarnings("deprecation")
 public class BuildWebGraph extends PowerTool {
 
-	private static final Logger sLogger = Logger.getLogger(BuildWebGraph.class);
+	private static final Logger LOG = Logger.getLogger(BuildWebGraph.class);
 	
 	public static class Map extends MapReduceBase implements
 		Mapper<IntWritable, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
@@ -66,8 +77,8 @@ public class BuildWebGraph extends PowerTool {
 					continue;
 				
 				//set the flag to "outgoing link"
-				flag = data.isExternalInLink() ? AnchorTextConstants.EXTERNAL_OUT_LINK :
-													AnchorTextConstants.INTERNAL_OUT_LINK;
+				flag = data.isExternalInLink() ? AnchorTextConstants.Type.EXTERNAL_OUT_LINK.val :
+													AnchorTextConstants.Type.INTERNAL_OUT_LINK.val;
 				
 				arrayList.clear();
 				arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, key.get()));
@@ -101,25 +112,22 @@ public class BuildWebGraph extends PowerTool {
 					
 					pushed = false;
 					
-					for(int i = 0; i < arrayList.size(); i++)
+					for(int i = 0; i < arrayList.size(); i++) {
 						if(arrayList.get(i).equalsIgnoreSources(data)) {
 							arrayList.get(i).addSourcesFrom(data);
 							pushed = true;
 							break;
 						}
+					}
 					
 					if(!pushed)
 						arrayList.add(data.clone());
 				}
-					
-				
 			}
 			
 			Collections.sort(arrayList);
 			output.collect(key, arrayList);
-			
 		}
-		
 	}
 	
 	public static final String[] RequiredParameters = {
@@ -151,6 +159,7 @@ public class BuildWebGraph extends PowerTool {
 		
 		conf.setJobName("ConstructWebGraph");
 		conf.set("mapred.child.java.opts", "-Xmx4096m");
+		conf.setInt("mapred.task.timeout", 60000000);
 
 		conf.setNumMapTasks(numMappers);
 		conf.setNumReduceTasks(numReducers);
@@ -174,17 +183,16 @@ public class BuildWebGraph extends PowerTool {
 		SequenceFileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		sLogger.info("BuildWebGraph");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);		
+		LOG.info("BuildWebGraph");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);		
 
-		if(!fs.exists(new Path(outputPath)))
+		if(!fs.exists(new Path(outputPath))) {
 			JobClient.runJob(conf);
-		else
-			sLogger.info(outputPath + " already exists! Skipping this step...");
-
+		} else {
+			LOG.info(outputPath + " already exists! Skipping this step...");
+		}
 
 		return 0;
 	}
-
 }

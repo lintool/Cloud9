@@ -14,8 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.driver;
-
+package edu.umd.cloud9.webgraph.driver;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,13 +41,13 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import edu.umd.cloud9.anchor.data.IndexableAnchorTextForwardIndex;
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 import edu.umd.cloud9.collection.Indexable;
 import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
 import edu.umd.cloud9.mapred.NullInputFormat;
 import edu.umd.cloud9.mapred.NullMapper;
 import edu.umd.cloud9.mapred.NullOutputFormat;
+import edu.umd.cloud9.webgraph.data.IndexableAnchorTextForwardIndex;
 
 /**
  * <p>
@@ -74,7 +73,7 @@ import edu.umd.cloud9.mapred.NullOutputFormat;
 @SuppressWarnings("deprecation")
 public class ClueWebAnchorTextForwardIndexHttpServer {
 
-	private static final Logger sLogger = Logger.getLogger(ClueWebAnchorTextForwardIndexHttpServer.class);
+	private static final Logger LOG = Logger.getLogger(ClueWebAnchorTextForwardIndexHttpServer.class);
 	private static final String SEPARATOR = ",";
 
 	private static final int[] lastDocs = new int[10];
@@ -95,15 +94,15 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 
 			String host = InetAddress.getLocalHost().toString();
 
-			sLogger.info("host: " + host);
-			sLogger.info("port: " + port);
-			sLogger.info("forward index: " + indexFile);
+			LOG.info("host: " + host);
+			LOG.info("port: " + port);
+			LOG.info("forward index: " + indexFile);
 
 			FSDataInputStream in = FileSystem.get(conf).open(new Path(indexFile));
 			String indexClass = in.readUTF();
 			in.close();
 
-			sLogger.info("index class: " + indexClass);
+			LOG.info("index class: " + indexClass);
 
 			try {
 				sForwardIndex = new IndexableAnchorTextForwardIndex(new ClueWarcDocnoMapping());
@@ -262,7 +261,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 
 		public void doPost(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching document content");
+			LOG.info("triggered servlet for fetching document content");
 
 			int docno = 0;
 			try {
@@ -280,7 +279,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 					}
 
 				if (doc != null) {
-					sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
+					LOG.info("fetched: " + doc.getDocid() + " = docno " + docno);
 					res.setContentType(doc.getDisplayContentType());
 
 					PrintWriter out = res.getWriter();
@@ -291,7 +290,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 					throw new Exception();
 				}
 			} catch (Exception e) {
-				sLogger.info("trapped error fetching " + docno);
+				LOG.info("trapped error fetching " + docno);
 				res.setContentType("text/html");
 
 				PrintWriter out = res.getWriter();
@@ -316,7 +315,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 
 		public void doPost(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching document by docid");
+			LOG.info("triggered servlet for fetching document by docid");
 			String docid = null;
 
 			try {
@@ -327,7 +326,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 				Indexable doc = sForwardIndex.getDocument(docid);
 				
 				if (doc != null) {
-					sLogger.info("fetched: " + doc.getDocid());
+					LOG.info("fetched: " + doc.getDocid());
 					res.setContentType(doc.getDisplayContentType());
 
 					PrintWriter out = res.getWriter();
@@ -339,7 +338,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 				}
 			} catch (Exception e) {
 				// catch-all, in case anything goes wrong
-				sLogger.info("trapped error fetching " + docid);
+				LOG.info("trapped error fetching " + docid);
 				res.setContentType("text/html");
 
 				PrintWriter out = res.getWriter();
@@ -365,7 +364,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 
 		public void doPost(HttpServletRequest req, HttpServletResponse res)
 				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching document by docno");
+			LOG.info("triggered servlet for fetching document by docno");
 
 			int docno = 0;
 			try {
@@ -376,7 +375,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 				Indexable doc = sForwardIndex.getDocument(docno);
 	
 				if (doc != null) {
-					sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
+					LOG.info("fetched: " + doc.getDocid() + " = docno " + docno);
 					res.setContentType(doc.getDisplayContentType());
 					
 					PrintWriter out = res.getWriter();
@@ -387,7 +386,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 					throw new Exception();
 				}
 			} catch (Exception e) {
-				sLogger.info("trapped error fetching " + docno);
+				LOG.info("trapped error fetching " + docno);
 				res.setContentType("text/html");
 
 				PrintWriter out = res.getWriter();
@@ -420,10 +419,10 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 			cluewebForwardIndex += clueIndexRoot + "findex.en.0" + i + ".dat" + SEPARATOR + " ";
 		cluewebForwardIndex += clueIndexRoot + "findex.en.10.dat";
 
-		sLogger.info("Launching DocumentForwardIndexHttpServer");
-		sLogger.info(" - index file: " + indexFile);
-		sLogger.info(" - docno mapping data file: " + mappingFile);
-		sLogger.info(" - ClueWeb09 index root:" + clueIndexRoot);
+		LOG.info("Launching DocumentForwardIndexHttpServer");
+		LOG.info(" - index file: " + indexFile);
+		LOG.info(" - docno mapping data file: " + mappingFile);
+		LOG.info(" - ClueWeb09 index root:" + clueIndexRoot);
 
 		FileSystem fs = FileSystem.get(conf);
 
@@ -458,18 +457,18 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 		JobClient client = new JobClient(job);
 		client.submitJob(job);
 
-		sLogger.info("Waiting for server to start up...");
+		LOG.info("Waiting for server to start up...");
 
 		while (!fs.exists(tmpPath)) {
 			Thread.sleep(50000);
-			sLogger.info("...");
+			LOG.info("...");
 		}
 
 		FSDataInputStream in = fs.open(tmpPath);
 		String host = in.readUTF();
 		in.close();
 
-		sLogger.info("host: " + host);
-		sLogger.info("port: 8888");
+		LOG.info("host: " + host);
+		LOG.info("port: 8888");
 	}
 }

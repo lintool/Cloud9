@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor.driver;
+package edu.umd.cloud9.webgraph.driver;
 
 import java.io.IOException;
 
@@ -37,8 +37,8 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
 import edu.umd.cloud9.io.array.ArrayListWritable;
+import edu.umd.cloud9.webgraph.data.AnchorText;
 
 
 /**
@@ -50,7 +50,7 @@ import edu.umd.cloud9.io.array.ArrayListWritable;
  * </p>
  * 
  * <ul>
- * <li>[base-path]: the base path to the webgraph</li>
+ * <li>[input-path]: the base path to the webgraph</li>
  * <li>[output-path]: the output path</li>
  * </ul>
  * 
@@ -65,8 +65,8 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
 	private static class MyMapper extends MapReduceBase implements
 	Mapper<IntWritable, ArrayListWritable<AnchorText>, IntWritable, Text> {
 		
-		static Text valueOutput = new Text();
-		static StringBuilder buffer = new StringBuilder();
+		private static final Text valueOutput = new Text();
+		private static final StringBuilder buffer = new StringBuilder();
 		
 		public void map(IntWritable key, ArrayListWritable<AnchorText> anchors,
 				OutputCollector<IntWritable, Text> output, Reporter reporter) throws IOException {			
@@ -78,9 +78,9 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
 				if(!p.isExternalOutLink() && !p.isInternalOutLink())
 					continue;
 				
-				for(int doc : p)
+				for(int doc : p) {
 					buffer.append(doc + "\t");
-				
+				}
 			}
 			
 			valueOutput.set(buffer.toString());
@@ -100,15 +100,14 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
 			printUsage();
 			return -1;
 		}
-			
 		
 		JobConf conf = new JobConf(getConf(), GenerateTabDelimitedWebGraph.class);
 		FileSystem fs = FileSystem.get(conf);
 
-		String inputBasePath = args[0].endsWith("/") ? args[0] : args[0] + "/";;
+		String inPath = args[0];
 		String outPath = args[1];
 
-		Path inputPath = new Path(inputBasePath + ClueWebDriver.outputWebGraph);
+		Path inputPath = new Path(inPath);
 		Path outputPath = new Path(outPath);
 
 		if (fs.exists(outputPath))

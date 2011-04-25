@@ -14,25 +14,37 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.anchor;
+package edu.umd.cloud9.webgraph;
 
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Partitioner;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.anchor.data.AnchorText;
-import edu.umd.cloud9.anchor.data.AnchorTextConstants;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfIntString;
 import edu.umd.cloud9.util.PowerTool;
+import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
 /**
  * 
@@ -56,7 +68,7 @@ public class CollectHostnames extends PowerTool {
 		public void map(IntWritable key, ArrayListWritable<AnchorText> anchors,
 				OutputCollector<PairOfIntString, IntWritable> output, Reporter reporter) throws IOException {
 						
-			for(AnchorText data : anchors)
+			for(AnchorText data : anchors) {
 				if(data.isURL()) 
 					try {
 						//extract the hostname for a given URL
@@ -64,6 +76,7 @@ public class CollectHostnames extends PowerTool {
 					}catch(Exception e) {
 						throw new RuntimeException(e);
 					}
+			}
 			
 			for(AnchorText data : anchors) {
 				
@@ -101,7 +114,6 @@ public class CollectHostnames extends PowerTool {
 		private static boolean firstTime = true;
 		private static int currentDocument, packet;
 		
-		
 		public void reduce(PairOfIntString key, Iterator<IntWritable> values,
 				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
 			
@@ -111,7 +123,6 @@ public class CollectHostnames extends PowerTool {
 				arrayList.clear();
 				currentDocument = key.getLeftElement();
 			} else if(currentDocument != key.getLeftElement()) {
-				
 				Collections.sort(arrayList);
 				keyWord.set(currentDocument);
 				output.collect(keyWord, arrayList);
@@ -120,22 +131,20 @@ public class CollectHostnames extends PowerTool {
 				arrayList.clear();
 			}
 			
-			arrayList.add(new AnchorText(AnchorTextConstants.OTHER_TYPES, key.getRightElement()));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.OTHER_TYPES.val, key.getRightElement()));
 			int currentIndex = arrayList.size() - 1;
 			
 			while(values.hasNext()) {
 				packet = values.next().get();
 				
 				//break larger chunks of data to smaller packets - reduces the underlying HashMap costs
-				if(arrayList.get(currentIndex).getSize() < AnchorTextConstants.MAXIMUM_SOURCES_PER_PACKET)
+				if(arrayList.get(currentIndex).getSize() < AnchorTextConstants.MAXIMUM_SOURCES_PER_PACKET) {
 					arrayList.get(currentIndex).addSource(packet);
-				else {
-					arrayList.add(new AnchorText(AnchorTextConstants.OTHER_TYPES, key.getRightElement(), packet));
+				} else {
+					arrayList.add(new AnchorText(AnchorTextConstants.Type.OTHER_TYPES.val, key.getRightElement(), packet));
 					currentIndex = arrayList.size() - 1;
 				}
-				
 			}
-			
 		}
 		
 		public void close() throws IOException {
@@ -143,7 +152,6 @@ public class CollectHostnames extends PowerTool {
 			keyWord.set(currentDocument);
 			outputCollector.collect(keyWord, arrayList);
 		}
-		
 	}
 	
 	public static final String[] RequiredParameters = {
@@ -160,7 +168,6 @@ public class CollectHostnames extends PowerTool {
 	public CollectHostnames(Configuration conf) {
 		super(conf);
 	}
-
 
 	public int runTool() throws Exception {
 
@@ -203,13 +210,12 @@ public class CollectHostnames extends PowerTool {
 		sLogger.info(" - input path: " + inputPath);
 		sLogger.info(" - output path: " + outputPath);		
 
-		if(!fs.exists(new Path(outputPath)))
+		if(!fs.exists(new Path(outputPath))) {
 			JobClient.runJob(conf);
-		else
+		} else {
 			sLogger.info(outputPath + " already exists! Skipping this step...");
-
+		}
 
 		return 0;
 	}
-
 }
