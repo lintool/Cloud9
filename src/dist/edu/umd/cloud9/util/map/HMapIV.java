@@ -233,22 +233,22 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 	}
 
 	// doc copied from interface
-	public void put(int key, V value) {
+	public V put(int key, V value) {
 		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 		for (Entry<V> e = table[i]; e != null; e = e.next) {
 			int k;
 			if (e.hash == hash && ((k = e.key) == key || key == k)) {
-				// int oldValue = e.value;
+				V oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return; // oldValue;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-		// return null;
+		return null;
 	}
 
 	/**

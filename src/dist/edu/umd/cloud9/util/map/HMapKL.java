@@ -211,7 +211,7 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
 	/**
@@ -226,7 +226,7 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
 	// doc copied from interface
@@ -281,40 +281,43 @@ public class HMapKL<K> implements MapKL<K>, Cloneable, Serializable {
   }
 
 	// doc copied from interface
-	public void put(K key, long value) {
+	public long put(K key, long value) {
 		if (key == null) {
-			putForNullKey(value);
-			return;
+			return putForNullKey(value);
 		}
 		int hash = hash(key.hashCode());
 		int i = indexFor(hash, table.length);
 		for (Entry<K> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+			  long oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return; // oldValue;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
 	 * Offloaded version of put for null keys
 	 */
-	private void putForNullKey(long value) {
+	private long putForNullKey(long value) {
 		for (Entry<K> e = table[0]; e != null; e = e.next) {
 			if (e.key == null) {
+			  long oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
+				return oldValue;
 			}
 		}
+		
 		modCount++;
 		addEntry(0, null, value, 0);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
