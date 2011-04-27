@@ -31,7 +31,7 @@ public class BenchmarkRandomWalk2HMapKI {
 		duration = System.currentTimeMillis() - startTime;
 
 		System.out.println("removals: " + removals);
-		System.out.println("Time taken: " + duration + "ms");
+		System.out.println("Time taken: " + duration + " ms");
 	}
 
 	private static void increment(MapKI<String> map, String key) {
