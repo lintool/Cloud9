@@ -22,7 +22,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.webgraph.BuildInverseWebGraph;
+import edu.umd.cloud9.webgraph.BuildReverseWebGraph;
 import edu.umd.cloud9.webgraph.BuildWebGraph;
 import edu.umd.cloud9.webgraph.CollectHostnames;
 import edu.umd.cloud9.webgraph.ComputeWeight;
@@ -30,7 +30,7 @@ import edu.umd.cloud9.webgraph.ExtractLinks;
 
 /**
  * <p>
- * Main driver program for extracting the ClueWeb09 web graph, inverted web graph,
+ * Main driver program for extracting the ClueWeb09 web graph, reverse web graph,
  * and lines of anchor text. Command-line arguments are as follows:
  * </p>
  * 
@@ -68,8 +68,8 @@ public class ClueWebDriver extends Configured implements Tool {
 		//raw link information is stored at /base/path/extracted.links
 		public static final String outputExtractLinks = "extracted.links";
 		
-		//inverted web graph w/ lines of anchor text is stored at /base/path/inverseWebGraph
-		public static final String outputInverseWebGraph = "inverseWebGraph";
+		//reverse web graph w/ lines of anchor text is stored at /base/path/reverseWebGraph
+		public static final String outputReverseWebGraph = "reverseWebGraph";
 		
 		//web graph is stored at /base/path/webGraph
 		public static final String outputWebGraph = "webGraph";
@@ -77,8 +77,8 @@ public class ClueWebDriver extends Configured implements Tool {
 		//hostname information (for computing default weights) is stored at /base/path/hostnames
 		public static final String outputHostnames = "hostnames"; 
 		
-		//inverted web graph w/ weighted lines of anchor text is stored at /base/path/weightedInverseWebGraph 
-		public static final String outputWeightedInverseWebGraph = "weightedInverseWebGraph";
+		//reverse web graph w/ weighted lines of anchor text is stored at /base/path/weightedReverseWebGraph 
+		public static final String outputWeightedReverseWebGraph = "weightedReverseWebGraph";
 			
 		private static int printUsage() {
 			System.out.println("usage: [collection-path] [output-base] [docno-mapping] "
@@ -108,19 +108,19 @@ public class ClueWebDriver extends Configured implements Tool {
 			
 			final int defaultReducers = 200;	//number of reducers per segment
 			
-			conf.setInt("Ivory.Mappers", 2000);
-			conf.setInt("Ivory.Reducers", defaultReducers);
-			conf.set("Ivory.DocnoMappingFile", docnoMapping);		
-			conf.setBoolean("Ivory.IncludeInternalLinks", includeInternalLinks);
-			conf.set("Ivory.AnchorTextNormalizer", normalizer);		
+			conf.setInt("Cloud9.Mappers", 2000);
+			conf.setInt("Cloud9.Reducers", defaultReducers);
+			conf.set("Cloud9.DocnoMappingFile", docnoMapping);		
+			conf.setBoolean("Cloud9.IncludeInternalLinks", includeInternalLinks);
+			conf.set("Cloud9.AnchorTextNormalizer", normalizer);		
 						
 			//Extract link information for each segment separately
 			for(int i = fromSegment; i <= toSegment; i++) {
 				String inputPath = inputBase + "en." + (i == 10 ? "10" : ("0" + i));
 				String outputPath = outputBase + outputExtractLinks + "/en." + (i == 10 ? "10" : ("0" + i));
 				
-				conf.set("Ivory.InputPath", inputPath);
-				conf.set("Ivory.OutputPath", outputPath);
+				conf.set("Cloud9.InputPath", inputPath);
+				conf.set("Cloud9.OutputPath", outputPath);
 			
 				int r = new ExtractLinks(conf).run();
 				
@@ -128,7 +128,7 @@ public class ClueWebDriver extends Configured implements Tool {
 					return -1;
 			}
 			
-			//Construct the inverse web graph (i.e., collect incoming link information)
+			//Construct the reverse web graph (i.e., collect incoming link information)
 			String inputPath = "";
 			for (int i = fromSegment; i < toSegment; i++) {
 				inputPath += outputBase + outputExtractLinks + "/en.0" + i + "/,";
@@ -140,26 +140,26 @@ public class ClueWebDriver extends Configured implements Tool {
 				inputPath += outputBase + outputExtractLinks + "/en.0" + toSegment + "/";
 			}
 			
-			String outputPath = outputBase +  outputInverseWebGraph + "/";
+			String outputPath = outputBase +  outputReverseWebGraph + "/";
 			
-			conf.set("Ivory.InputPath", inputPath);
-			conf.set("Ivory.OutputPath", outputPath);
-			conf.setInt("Ivory.Mappers", 1);
-			conf.setInt("Ivory.Reducers", defaultReducers * (toSegment - fromSegment + 1));
+			conf.set("Cloud9.InputPath", inputPath);
+			conf.set("Cloud9.OutputPath", outputPath);
+			conf.setInt("Cloud9.Mappers", 1);
+			conf.setInt("Cloud9.Reducers", defaultReducers * (toSegment - fromSegment + 1));
 	
-			int r = new BuildInverseWebGraph(conf).run();
+			int r = new BuildReverseWebGraph(conf).run();
 			if(r != 0)
 				return -1;
 			
 			
 			//Construct the web graph
-			inputPath = outputBase + outputInverseWebGraph + "/";
+			inputPath = outputBase + outputReverseWebGraph + "/";
 			outputPath = outputBase +  outputWebGraph + "/";
 			
-			conf.set("Ivory.InputPath", inputPath);
-			conf.set("Ivory.OutputPath", outputPath);
-			conf.setInt("Ivory.Mappers", 1);
-			conf.setInt("Ivory.Reducers", defaultReducers * (toSegment - fromSegment + 1));
+			conf.set("Cloud9.InputPath", inputPath);
+			conf.set("Cloud9.OutputPath", outputPath);
+			conf.setInt("Cloud9.Mappers", 1);
+			conf.setInt("Cloud9.Reducers", defaultReducers * (toSegment - fromSegment + 1));
 			r = new BuildWebGraph(conf).run();
 			if(r != 0)
 				return -1;
@@ -169,23 +169,23 @@ public class ClueWebDriver extends Configured implements Tool {
 				inputPath = outputBase + outputWebGraph + "/";
 				outputPath = outputBase +  outputHostnames + "/";
 				
-				conf.set("Ivory.InputPath", inputPath);
-				conf.set("Ivory.OutputPath", outputPath);
-				conf.setInt("Ivory.Mappers", 1);
-				conf.setInt("Ivory.Reducers", defaultReducers * (toSegment - fromSegment + 1));
+				conf.set("Cloud9.InputPath", inputPath);
+				conf.set("Cloud9.OutputPath", outputPath);
+				conf.setInt("Cloud9.Mappers", 1);
+				conf.setInt("Cloud9.Reducers", defaultReducers * (toSegment - fromSegment + 1));
 				
 				r = new CollectHostnames(conf).run();
 				if(r != 0)
 					return -1;
 				
 				//Compute the weights
-				inputPath = outputBase + outputInverseWebGraph + "/," + outputBase + outputHostnames + "/";
-				outputPath = outputBase +  outputWeightedInverseWebGraph + "/";
+				inputPath = outputBase + outputReverseWebGraph + "/," + outputBase + outputHostnames + "/";
+				outputPath = outputBase +  outputWeightedReverseWebGraph + "/";
 				
-				conf.set("Ivory.InputPath", inputPath);
-				conf.set("Ivory.OutputPath", outputPath);
-				conf.setInt("Ivory.Mappers", 1);
-				conf.setInt("Ivory.Reducers", defaultReducers * (toSegment - fromSegment + 1));
+				conf.set("Cloud9.InputPath", inputPath);
+				conf.set("Cloud9.OutputPath", outputPath);
+				conf.setInt("Cloud9.Mappers", 1);
+				conf.setInt("Cloud9.Reducers", defaultReducers * (toSegment - fromSegment + 1));
 				
 				r = new ComputeWeight(conf).run();
 				if(r != 0)
