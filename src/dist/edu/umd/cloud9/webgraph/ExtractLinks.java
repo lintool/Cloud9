@@ -121,11 +121,11 @@ public class ExtractLinks extends PowerTool {
 				throw new RuntimeException("Error initializing DocnoMapping!");
 			}
 
-			includeInternalLinks = job.getBoolean("Ivory.IncludeInternalLinks", false);
+			includeInternalLinks = job.getBoolean("Cloud9.IncludeInternalLinks", false);
 
 			try {
 				normalizer = (AnchorTextNormalizer) Class.forName(
-						job.get("Ivory.AnchorTextNormalizer")).newInstance();
+						job.get("Cloud9.AnchorTextNormalizer")).newInstance();
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error initializing AnchorTextNormalizer");
@@ -308,9 +308,9 @@ public class ExtractLinks extends PowerTool {
 		}
 	}
 
-	public static final String[] RequiredParameters = { "Ivory.InputPath", "Ivory.OutputPath",
-			"Ivory.Mappers", "Ivory.Reducers", "Ivory.DocnoMappingFile", "Ivory.IncludeInternalLinks",
-			"Ivory.AnchorTextNormalizer", };
+	public static final String[] RequiredParameters = { "Cloud9.InputPath", "Cloud9.OutputPath",
+			"Cloud9.Mappers", "Cloud9.Reducers", "Cloud9.DocnoMappingFile", "Cloud9.IncludeInternalLinks",
+			"Cloud9.AnchorTextNormalizer", };
 
 	public String[] getRequiredParameters() {
 		return RequiredParameters;
@@ -325,12 +325,12 @@ public class ExtractLinks extends PowerTool {
 		JobConf conf = new JobConf(getConf(), ExtractLinks.class);
 		FileSystem fs = FileSystem.get(conf);
 
-		int numMappers = conf.getInt("Ivory.Mappers", 1);
-		int numReducers = conf.getInt("Ivory.Reducers", 200);
+		int numMappers = conf.getInt("Cloud9.Mappers", 1);
+		int numReducers = conf.getInt("Cloud9.Reducers", 200);
 
-		String inputPath = conf.get("Ivory.InputPath");
-		String outputPath = conf.get("Ivory.OutputPath");
-		String mappingFile = conf.get("Ivory.DocnoMappingFile");
+		String inputPath = conf.get("Cloud9.InputPath");
+		String outputPath = conf.get("Cloud9.OutputPath");
+		String mappingFile = conf.get("Cloud9.DocnoMappingFile");
 
 		if (!fs.exists(new Path(mappingFile)))
 			throw new RuntimeException("Error: Docno mapping data file " + mappingFile
@@ -366,7 +366,7 @@ public class ExtractLinks extends PowerTool {
 		LOG.info(" - input path: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
 		LOG.info(" - mapping file: " + mappingFile);
-		LOG.info(" - include internal links? " + conf.getBoolean("Ivory.IncludeInternalLinks", false));
+		LOG.info(" - include internal links? " + conf.getBoolean("Cloud9.IncludeInternalLinks", false));
 
 		if (!fs.exists(new Path(outputPath))) {
 			JobClient.runJob(conf);

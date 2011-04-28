@@ -214,10 +214,10 @@ public class ComputeWeight extends PowerTool {
 	}
 	
 	public static final String[] RequiredParameters = {
-		"Ivory.InputPath",
-		"Ivory.OutputPath",
-		"Ivory.Mappers",
-		"Ivory.Reducers"
+		"Cloud9.InputPath",
+		"Cloud9.OutputPath",
+		"Cloud9.Mappers",
+		"Cloud9.Reducers"
 	};
 
 	public String[] getRequiredParameters() {
@@ -234,11 +234,11 @@ public class ComputeWeight extends PowerTool {
 		JobConf conf = new JobConf(getConf(), ComputeWeight.class);
 		FileSystem fs = FileSystem.get(conf);
 		
-		int numMappers = conf.getInt("Ivory.Mappers", 1);
-		int numReducers = conf.getInt("Ivory.Reducers", 200);
+		int numMappers = conf.getInt("Cloud9.Mappers", 1);
+		int numReducers = conf.getInt("Cloud9.Reducers", 200);
 
-		String inputPath = conf.get("Ivory.InputPath");
-		String outputPath = conf.get("Ivory.OutputPath");
+		String inputPath = conf.get("Cloud9.InputPath");
+		String outputPath = conf.get("Cloud9.OutputPath");
 		
 		conf.setJobName("ComputeWeights");
 		conf.set("mapred.child.java.opts", "-Xmx4096m");

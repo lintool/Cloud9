@@ -25,21 +25,23 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
+import edu.umd.cloud9.util.array.ArrayListOfInts;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
@@ -50,67 +52,53 @@ import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
  */
 
 @SuppressWarnings("deprecation")
-public class BuildWebGraph extends PowerTool {
+public class BuildReverseWebGraph extends PowerTool {
 
-	private static final Logger LOG = Logger.getLogger(BuildWebGraph.class);
-	
-	public static class Map extends MapReduceBase implements
-		Mapper<IntWritable, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
-		
-		private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
+	private static final Logger LOG = Logger.getLogger(BuildReverseWebGraph.class);
+
+	public static class Reduce extends MapReduceBase implements
+			Reducer<Text, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
+
 		private static final IntWritable keyWord = new IntWritable();
+		private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
 		
-		private static byte flag;
-		
-		public void map(IntWritable key, ArrayListWritable<AnchorText> anchors,
-				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
-			
-			for(AnchorText data : anchors) {
-				
-				if(data.isURL()) {
-					arrayList.clear();
-					arrayList.add(data.clone());
-					output.collect(key, arrayList);
-				}
-				
-				if(!data.isExternalInLink() && !data.isInternalInLink())
-					continue;
-				
-				//set the flag to "outgoing link"
-				flag = data.isExternalInLink() ? AnchorTextConstants.Type.EXTERNAL_OUT_LINK.val :
-													AnchorTextConstants.Type.INTERNAL_OUT_LINK.val;
-				
-				arrayList.clear();
-				arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, key.get()));
-				for(int source : data) {
-					keyWord.set(source);
-					output.collect(keyWord, arrayList);
-				}
-					
-			}
-			
-		}
-	}
-	
-	public static class Reduce extends MapReduceBase implements 
-	Reducer<IntWritable, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
-	
-		private static final ArrayListWritable<AnchorText> arrayList = 
-			new ArrayListWritable<AnchorText>();
 		private static ArrayListWritable<AnchorText> packet;
 		private static boolean pushed;
 		
-		public void reduce(IntWritable key, Iterator<ArrayListWritable<AnchorText>> values,
+		private int indegree, outdegree;
+		private static final ArrayListOfInts docnos = new ArrayListOfInts();
+		
+		public void reduce(Text key, Iterator<ArrayListWritable<AnchorText>> values,
 				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
 			
+			docnos.clear();
 			arrayList.clear();
+			indegree = 0;
+			outdegree = 0;
 			
 			while(values.hasNext()) {
 				packet = values.next();
 				
 				for(AnchorText data : packet) {
+					//outdegree data
+					if(data.isOutDegree()) {
+						for(int degree: data) {	//in theory, there must be only one "outdegree" packet. Unless there are duplicate pages
+							outdegree = degree;
+						}
+						continue;
+					}
+					
+					//docno field data
+					if(data.isDocnoField()) {
+						for(int docno: data) {	//again, in theory, there must be only one "outdegree" packet. Unless there are duplicate pages.
+							docnos.add(docno);
+						}						
+						continue;
+					}
 					
 					pushed = false;
+					
+					indegree += data.getSize();
 					
 					for(int i = 0; i < arrayList.size(); i++) {
 						if(arrayList.get(i).equalsIgnoreSources(data)) {
@@ -123,10 +111,20 @@ public class BuildWebGraph extends PowerTool {
 					if(!pushed)
 						arrayList.add(data.clone());
 				}
+						
 			}
 			
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.IN_DEGREE.val, AnchorTextConstants.EMPTY_STRING, indegree));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val, AnchorTextConstants.EMPTY_STRING, outdegree));
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.URL_FIELD.val, key.toString()));
+			
 			Collections.sort(arrayList);
-			output.collect(key, arrayList);
+			
+			//if there was no document number detected, this record would not be emitted.  
+			for(int docno : docnos) {
+				keyWord.set(docno);
+				output.collect(keyWord, arrayList);
+			}
 		}
 	}
 	
@@ -141,14 +139,14 @@ public class BuildWebGraph extends PowerTool {
 		return RequiredParameters;
 	}
 
-	public BuildWebGraph(Configuration conf) {
+	public BuildReverseWebGraph(Configuration conf) {
 		super(conf);
 	}
 
 
 	public int runTool() throws Exception {
 
-		JobConf conf = new JobConf(getConf(), BuildWebGraph.class);
+		JobConf conf = new JobConf(getConf(), BuildReverseWebGraph.class);
 		FileSystem fs = FileSystem.get(conf);
 		
 		int numMappers = conf.getInt("Cloud9.Mappers", 1);
@@ -157,21 +155,20 @@ public class BuildWebGraph extends PowerTool {
 		String inputPath = conf.get("Cloud9.InputPath");
 		String outputPath = conf.get("Cloud9.OutputPath");
 		
-		conf.setJobName("ConstructWebGraph");
+		conf.setJobName("ReverseWebGraph");
 		conf.set("mapred.child.java.opts", "-Xmx4096m");
 		conf.setInt("mapred.task.timeout", 60000000);
 
 		conf.setNumMapTasks(numMappers);
 		conf.setNumReduceTasks(numReducers);
 
-		conf.setMapperClass(Map.class);
-		conf.setCombinerClass(Reduce.class);
+		conf.setMapperClass(IdentityMapper.class);
 		conf.setReducerClass(Reduce.class);
 
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(ArrayListWritable.class);
 		
-		conf.setMapOutputKeyClass(IntWritable.class);
+		conf.setMapOutputKeyClass(Text.class);
 		conf.setMapOutputValueClass(ArrayListWritable.class);
 
 		conf.setInputFormat(SequenceFileInputFormat.class);
@@ -183,7 +180,7 @@ public class BuildWebGraph extends PowerTool {
 		SequenceFileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		LOG.info("BuildWebGraph");
+		LOG.info("BuildReverseWebGraph");
 		LOG.info(" - input path: " + inputPath);
 		LOG.info(" - output path: " + outputPath);		
 
@@ -195,4 +192,5 @@ public class BuildWebGraph extends PowerTool {
 
 		return 0;
 	}
+
 }

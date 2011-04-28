@@ -63,7 +63,7 @@ public class SortWebGraph extends Configured implements Tool {
 		int totalDocuments;
 		
 		public void configure(JobConf job) {
-			totalDocuments = job.getInt("Ivory.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS);
+			totalDocuments = job.getInt("Cloud9.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS);
 		}
 
 		public int getPartition(IntWritable key, ArrayListWritable<AnchorText> value, int numReduceTasks) {
@@ -104,7 +104,7 @@ public class SortWebGraph extends Configured implements Tool {
 		if(numberOfDocuments == 0)
 			numberOfDocuments = DEFAULT_NUMBER_OF_DOCUMENTS;
 		
-		conf.setInt("Ivory.NumberOfDocuments", numberOfDocuments);
+		conf.setInt("Cloud9.NumberOfDocuments", numberOfDocuments);
 
 		conf.setNumMapTasks(numMappers);
 		conf.setNumReduceTasks(numReducers);
@@ -131,7 +131,7 @@ public class SortWebGraph extends Configured implements Tool {
 		LOG.info("SortAnchorText");
 		LOG.info(" - input path: " + inputPath);
 		LOG.info(" - output path: " + outputPath);	
-		LOG.info(" - number of documents: " + conf.getInt("Ivory.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS));
+		LOG.info(" - number of documents: " + conf.getInt("Cloud9.NumberOfDocuments", DEFAULT_NUMBER_OF_DOCUMENTS));
 
 		fs.delete(new Path(outputPath));
 		JobClient.runJob(conf);
