@@ -99,22 +99,26 @@ public class BuildWebGraph extends PowerTool {
 			new ArrayListWritable<AnchorText>();
 		private static ArrayListWritable<AnchorText> packet;
 		private static boolean pushed;
+		private static int outdegree;
 		
 		public void reduce(IntWritable key, Iterator<ArrayListWritable<AnchorText>> values,
 				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
 			
 			arrayList.clear();
+			outdegree = 0;
 			
 			while(values.hasNext()) {
 				packet = values.next();
 				
 				for(AnchorText data : packet) {
+				  
+				  outdegree += data.getSize();
 					
 					pushed = false;
 					
 					for(int i = 0; i < arrayList.size(); i++) {
 						if(arrayList.get(i).equalsIgnoreSources(data)) {
-							arrayList.get(i).addSourcesFrom(data);
+							arrayList.get(i).addDocumentsFrom(data);
 							pushed = true;
 							break;
 						}
@@ -124,6 +128,8 @@ public class BuildWebGraph extends PowerTool {
 						arrayList.add(data.clone());
 				}
 			}
+			
+			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val, AnchorTextConstants.EMPTY_STRING, outdegree));
 			
 			Collections.sort(arrayList);
 			output.collect(key, arrayList);

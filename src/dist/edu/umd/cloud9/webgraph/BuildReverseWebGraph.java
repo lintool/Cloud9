@@ -65,7 +65,7 @@ public class BuildReverseWebGraph extends PowerTool {
 		private static ArrayListWritable<AnchorText> packet;
 		private static boolean pushed;
 		
-		private int indegree, outdegree;
+		private int indegree;
 		private static final ArrayListOfInts docnos = new ArrayListOfInts();
 		
 		public void reduce(Text key, Iterator<ArrayListWritable<AnchorText>> values,
@@ -74,23 +74,15 @@ public class BuildReverseWebGraph extends PowerTool {
 			docnos.clear();
 			arrayList.clear();
 			indegree = 0;
-			outdegree = 0;
 			
 			while(values.hasNext()) {
 				packet = values.next();
 				
 				for(AnchorText data : packet) {
-					//outdegree data
-					if(data.isOutDegree()) {
-						for(int degree: data) {	//in theory, there must be only one "outdegree" packet. Unless there are duplicate pages
-							outdegree = degree;
-						}
-						continue;
-					}
 					
 					//docno field data
 					if(data.isDocnoField()) {
-						for(int docno: data) {	//again, in theory, there must be only one "outdegree" packet. Unless there are duplicate pages.
+						for(int docno: data) {	//in theory, there must be only one "docno" packet. Unless there are duplicate pages.
 							docnos.add(docno);
 						}						
 						continue;
@@ -102,7 +94,7 @@ public class BuildReverseWebGraph extends PowerTool {
 					
 					for(int i = 0; i < arrayList.size(); i++) {
 						if(arrayList.get(i).equalsIgnoreSources(data)) {
-							arrayList.get(i).addSourcesFrom(data);
+							arrayList.get(i).addDocumentsFrom(data);
 							pushed = true;
 							break;
 						}
@@ -115,7 +107,6 @@ public class BuildReverseWebGraph extends PowerTool {
 			}
 			
 			arrayList.add(new AnchorText(AnchorTextConstants.Type.IN_DEGREE.val, AnchorTextConstants.EMPTY_STRING, indegree));
-			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val, AnchorTextConstants.EMPTY_STRING, outdegree));
 			arrayList.add(new AnchorText(AnchorTextConstants.Type.URL_FIELD.val, key.toString()));
 			
 			Collections.sort(arrayList);
