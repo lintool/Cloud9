@@ -52,7 +52,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	
 	private String text;	//holds the text for a line of anchor text
 	
-	private IntOpenHashSet sourceList;	//sources (or targets in case the underlying link is an outgoing one)
+	private IntOpenHashSet documentList;	//sources (or targets in case the underlying link is an outgoing one)
 	
 	private float weight;	//weight for a line of anchor text, if defined
 	
@@ -61,7 +61,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * Creates an empty Internal Incoming Link AnchorText object
 	 */
 	public AnchorText() {
-		sourceList = new IntOpenHashSet();
+		documentList = new IntOpenHashSet();
 		resetToType(Type.INTERNAL_IN_LINK.val);
 	}
 	
@@ -96,8 +96,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		resetToType(type);
 		setText(text);
 		
-		if(hasValidSourceList())
-			addSource(docno);
+		if(hasValidDocumentList())
+			addDocument(docno);
 	}
 
 	/**
@@ -113,10 +113,10 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		if(hasValidText())
 			this.text = in.readUTF();
 		
-		if(hasValidSourceList()) {
+		if(hasValidDocumentList()) {
 			int size = in.readInt();
 			for(int i = 0; i < size; i++) {
-				this.sourceList.add(in.readInt());
+				this.documentList.add(in.readInt());
 			}
 		} 
 		
@@ -136,9 +136,9 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		if(hasValidText())
 			out.writeUTF(text);
 		
-		if(hasValidSourceList()) {
-			out.writeInt(sourceList.size());
-			IntIterator iterator = sourceList.iterator();
+		if(hasValidDocumentList()) {
+			out.writeInt(documentList.size());
+			IntIterator iterator = documentList.iterator();
 			while(iterator.hasNext()) {
 				out.writeInt(iterator.next());
 			}
@@ -170,7 +170,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 			this.text = null;
 		
 		weight = 0;
-		sourceList.clear();
+		documentList.clear();
 	}
 	
 	
@@ -217,7 +217,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * @return the cardinality of the set of sources/targets
 	 */
 	public int getSize() {
-		return sourceList.size();
+		return documentList.size();
 	}
 	
 	/**
@@ -226,8 +226,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * @return
 	 * 			An array of ints that contains all the sources/targets of the current object
 	 */
-	public int[] getSources() {
-		return sourceList.toArray();
+	public int[] getDocuments() {
+		return documentList.toArray();
 	}
 	
 	/**
@@ -236,11 +236,11 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * @param docno
 	 * 		The new document id to be added to the source/target list
 	 */
-	public void addSource(int docno) {
-		if(!hasValidSourceList())
+	public void addDocument(int docno) {
+		if(!hasValidDocumentList())
 			return;
 			
-		sourceList.add(docno);
+		documentList.add(docno);
 	}
 	
 	/**
@@ -249,13 +249,13 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * @param other
 	 * 			The other AnchorText object from which the sources/targets are to be copied.
 	 */
-	public void addSourcesFrom(AnchorText other) {
-		if(!hasValidSourceList())
+	public void addDocumentsFrom(AnchorText other) {
+		if(!hasValidDocumentList())
 			return;
 		
-		IntIterator iterator = other.sourceList.iterator();
+		IntIterator iterator = other.documentList.iterator();
 		while(iterator.hasNext()) {
-			addSource(iterator.next());
+			addDocument(iterator.next());
 		}
 	}
 	
@@ -267,11 +267,11 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * @return
 	 * 			True if the document is a source/target of this anchor text
 	 */
-	public boolean containsSource(int docno) {
-		if(!hasValidSourceList())
+	public boolean containsDocument(int docno) {
+		if(!hasValidDocumentList())
 			return false;
 		
-		return sourceList.contains(docno);
+		return documentList.contains(docno);
 	}
 	
 	/**
@@ -285,21 +285,21 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 			with the other line of anchor text.
 	 */
 	public boolean intersects(AnchorText other) {
-		if(!hasValidSourceList() || !other.hasValidSourceList())
+		if(!hasValidDocumentList() || !other.hasValidDocumentList())
 			return false;
 		
 		//For efficiency, iterate through the elements of the smallest set
 		if(getSize() < other.getSize()) {
-			IntIterator iterator = sourceList.iterator();
+			IntIterator iterator = documentList.iterator();
 			while(iterator.hasNext()) {
-				if(other.containsSource(iterator.next()))
+				if(other.containsDocument(iterator.next()))
 					return true;
 			}
 		}
 		else {
-			IntIterator iterator = other.sourceList.iterator();
+			IntIterator iterator = other.documentList.iterator();
 			while(iterator.hasNext()) {
-				if(sourceList.contains(iterator.next()))
+				if(documentList.contains(iterator.next()))
 					return true;
 			}
 		}
@@ -336,13 +336,13 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	public boolean equals(Object obj) {
 		AnchorText other = (AnchorText) obj;
 		
-		if(hasValidSourceList() && other.hasValidSourceList()) {
-			if(sourceList.size() != other.sourceList.size())
+		if(hasValidDocumentList() && other.hasValidDocumentList()) {
+			if(documentList.size() != other.documentList.size())
 				return false;
 			
-			IntIterator iterator = sourceList.iterator();
+			IntIterator iterator = documentList.iterator();
 			while(iterator.hasNext()) {
-				if(!other.containsSource(iterator.next()))
+				if(!other.containsDocument(iterator.next()))
 					return false;
 			}
 		}
@@ -401,8 +401,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		if(hasValidText())
 			builder.append(", " + text);
 		
-		if(hasValidSourceList())
-			builder.append(", " + sourceList.toString());
+		if(hasValidDocumentList())
+			builder.append(", " + documentList.toString());
 		
 		if(hasValidWeight())
 			builder.append(", w:" + weight);
@@ -424,8 +424,8 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 		cloned.resetToType(type);
 		cloned.setText(text);
 
-		if(hasValidSourceList())
-			cloned.addSourcesFrom(this);
+		if(hasValidDocumentList())
+			cloned.addDocumentsFrom(this);
 		
 		if(hasValidWeight())
 			cloned.weight = weight;
@@ -518,7 +518,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	}
 	
 	//checks whether the current object has a valid list of sources/targets.
-	private boolean hasValidSourceList() {
+	private boolean hasValidDocumentList() {
 		return type != Type.URL_FIELD.val;
 	}
 	
@@ -535,7 +535,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 */
 	public Iterator<Integer> iterator() {
 		return new Iterator<Integer>() {
-			IntIterator iterator = sourceList.iterator();
+			IntIterator iterator = documentList.iterator();
 
 			public boolean hasNext() {
 				return iterator.hasNext();

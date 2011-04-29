@@ -63,14 +63,14 @@ public class AnchorTextTest {
 		AnchorText anchor2 = anchor1.clone();
 		anchor2.setText("some text");
 		assertTrue(anchor2.equals(anchor1));
-		anchor2.addSource(2);
+		anchor2.addDocument(2);
 		assertNull(anchor2.getText());
 		assertEquals(anchor2.getSize(), 2);
 		assertTrue(anchor2.equalsIgnoreSources(anchor1));
 		
 		AnchorText anchor3 = new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val, "text");
-		anchor3.addSourcesFrom(anchor2);
-		anchor3.addSource(2);
+		anchor3.addDocumentsFrom(anchor2);
+		anchor3.addDocument(2);
 		assertNull(anchor3.getText());
 		assertEquals(anchor3.getSize(), 2);
 		
@@ -99,7 +99,7 @@ public class AnchorTextTest {
 		assertEquals(anchor3, readAnchor);
 				
 		assertTrue(anchor3.intersects(anchor2));
-		assertTrue(anchor3.containsSource(2));
+		assertTrue(anchor3.containsDocument(2));
 		
 		anchor3.resetToType(AnchorTextConstants.Type.IN_DEGREE.val);
 		assertNull(anchor3.getText());
@@ -109,7 +109,7 @@ public class AnchorTextTest {
 		assertTrue(anchor3.isInternalInLink());
 		assertEquals(anchor3.getSize(), 0);
 		assertEquals(anchor3.getWeight(), 0, 1e-100);
-		assertFalse(anchor3.containsSource(3));
+		assertFalse(anchor3.containsDocument(3));
 		assertFalse(anchor3.intersects(anchor2));
 		
 	}
@@ -117,11 +117,11 @@ public class AnchorTextTest {
 	@Test
 	public void testIterable() {
 		AnchorText anchor = new AnchorText(AnchorTextConstants.Type.EXTERNAL_IN_LINK.val, "text");
-		anchor.addSource(1);
-		anchor.addSource(2);
-		anchor.addSource(3);
+		anchor.addDocument(1);
+		anchor.addDocument(2);
+		anchor.addDocument(3);
 		
-		int[] sources = anchor.getSources();
+		int[] sources = anchor.getDocuments();
 		
 		assertEquals(sources[0], 1);
 		assertEquals(sources[1], 2);

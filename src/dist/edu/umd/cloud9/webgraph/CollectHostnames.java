@@ -139,7 +139,7 @@ public class CollectHostnames extends PowerTool {
 				
 				//break larger chunks of data to smaller packets - reduces the underlying HashMap costs
 				if(arrayList.get(currentIndex).getSize() < AnchorTextConstants.MAXIMUM_SOURCES_PER_PACKET) {
-					arrayList.get(currentIndex).addSource(packet);
+					arrayList.get(currentIndex).addDocument(packet);
 				} else {
 					arrayList.add(new AnchorText(AnchorTextConstants.Type.OTHER_TYPES.val, key.getRightElement(), packet));
 					currentIndex = arrayList.size() - 1;
