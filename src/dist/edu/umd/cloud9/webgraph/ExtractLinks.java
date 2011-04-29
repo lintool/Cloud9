@@ -84,7 +84,6 @@ public class ExtractLinks extends PowerTool {
 		private static String base; // base URL for current document
 		private static String baseHost;
 		private static int docno; // docno of current document
-		private static int outDegree; // number of outgoing links
 
 		private static final Text keyWord = new Text(); // output key for the mappers
 		private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>(); // output
@@ -171,8 +170,6 @@ public class ExtractLinks extends PowerTool {
 				return;
 			}
 
-			outDegree = 0;
-
 			try {
 				parser.setInputHTML(doc.getContent()); // initializing the
 														// parser with new HTML
@@ -218,8 +215,6 @@ public class ExtractLinks extends PowerTool {
 				if (host == null)
 					continue;
 
-				// outDegree++;
-
 				if (anchor == null)
 					anchor = "";
 
@@ -240,8 +235,6 @@ public class ExtractLinks extends PowerTool {
 							docno));
 				}
 
-				outDegree++;
-
 				try {
 					keyWord.set(url);
 					output.collect(keyWord, arrayList);
@@ -258,8 +251,6 @@ public class ExtractLinks extends PowerTool {
 			}
 
 			arrayList.clear();
-			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val,
-					AnchorTextConstants.EMPTY_STRING, outDegree));
 			arrayList.add(new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val,
 					AnchorTextConstants.EMPTY_STRING, docno));
 			keyWord.set(base);
@@ -293,7 +284,7 @@ public class ExtractLinks extends PowerTool {
 
 					for (int i = 0; i < arrayList.size(); i++) {
 						if (arrayList.get(i).equalsIgnoreSources(data)) {
-							arrayList.get(i).addSourcesFrom(data);
+							arrayList.get(i).addDocumentsFrom(data);
 							pushed = true;
 							break;
 						}
