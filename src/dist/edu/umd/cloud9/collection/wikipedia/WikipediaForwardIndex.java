@@ -148,8 +148,9 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
 	@Override
 	public int getLastDocno() {
-		if (mLastDocno != -1)
+		if (mLastDocno != -1) {
 			return mLastDocno;
+		}
 
 		// find the last entry, and then see all the way to the end of the
 		// collection

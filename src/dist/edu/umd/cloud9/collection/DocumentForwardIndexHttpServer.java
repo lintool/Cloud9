@@ -114,8 +114,7 @@ public class DocumentForwardIndexHttpServer {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
 
-			out.println("<html><head><title>Collection Access: "
-					+ sForwardIndex.getCollectionPath() + "</title><head>");
+			out.println("<html><head><title>Collection Access: " + sForwardIndex.getCollectionPath() + "</title><head>");
 			out.println("<body>");
 
 			out.println("<h3>Collection Access: " + sForwardIndex.getCollectionPath() + "</h3>");
@@ -123,6 +122,9 @@ public class DocumentForwardIndexHttpServer {
 			int firstDocno = sForwardIndex.getFirstDocno();
 			int lastDocno = sForwardIndex.getLastDocno();
 			int numDocs = lastDocno - firstDocno;
+
+			sLogger.info("first docno: " + firstDocno);
+      sLogger.info("last docno: " + lastDocno);
 
 			String firstDocid = sForwardIndex.getDocid(firstDocno);
 			String lastDocid = sForwardIndex.getDocid(lastDocno);
