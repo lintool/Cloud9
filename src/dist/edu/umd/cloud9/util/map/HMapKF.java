@@ -213,7 +213,7 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
 	// doc copied from interface
@@ -251,40 +251,43 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 	}
 
 	// doc copied from interface
-	public void put(K key, float value) {
-		if (key == null) {
-			putForNullKey(value);
-			return;
-		}
+	public float put(K key, float value) {
+    if (key == null) {
+      return putForNullKey(value);
+    }
 		int hash = hash(key.hashCode());
 		int i = indexFor(hash, table.length);
 		for (Entry<K> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+			  float oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return; // oldValue;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
 	 * Offloaded version of put for null keys
 	 */
-	private void putForNullKey(float value) {
+	private float putForNullKey(float value) {
 		for (Entry<K> e = table[0]; e != null; e = e.next) {
 			if (e.key == null) {
+			  float oldValue = value;
 				e.value = value;
 				e.recordAccess(this);
+				return oldValue;
 			}
 		}
+		
 		modCount++;
 		addEntry(0, null, value, 0);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**

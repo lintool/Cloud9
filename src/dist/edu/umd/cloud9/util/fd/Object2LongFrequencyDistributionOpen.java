@@ -263,7 +263,7 @@ public class Object2LongFrequencyDistributionOpen<K extends Comparable<K>>
           throw new RuntimeException("Event observed twice!");
         }
 
-        return e1.getLeftElement().compareTo(e1.getLeftElement());
+        return e1.getLeftElement().compareTo(e2.getLeftElement());
       }
     });
 

@@ -102,6 +102,23 @@ public class HMapKSTest {
 
 	}
 
+  @Test
+  public void testIncrement() {
+    HMapKS<String> m = new HMapKS<String>();
+    assertEquals(0, m.get("one"));
+
+    m.increment("one", (short)1);
+    assertEquals(1, m.get("one"));
+
+    m.increment("one", (short)1);
+    m.increment("two", (short)0);
+    m.increment("three", (short)-1);
+    
+    assertEquals(2, m.get("one"));
+    assertEquals(0, m.get("two"));
+    assertEquals(-1, m.get("three"));
+  }
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapKSTest.class);
 	}

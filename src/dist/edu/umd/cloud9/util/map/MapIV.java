@@ -80,7 +80,7 @@ public interface MapIV<V> {
 	 * @param value
 	 *            value to be associated with the specified key
 	 */
-	void put(int key, V value);
+	V put(int key, V value);
 
 	/**
 	 * Removes the mapping for a key from this map if it is present. No action
