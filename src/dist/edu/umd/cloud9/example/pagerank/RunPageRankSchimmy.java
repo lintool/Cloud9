@@ -544,7 +544,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 			reader.close();
 
 			LOG.info(f.getPath() + "\t" + np);
-			sb.append(np + "=" + f.getPath() + "\t");
+			sb.append(np + "=" + f.getPath() + ";");
 		}
 
 		LOG.info(sb.toString().trim());
@@ -633,6 +633,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 		LOG.info(" - output: " + out);
 
 		Job job = new Job(conf, "PageRankSchimmy:iteration" + j + ":Phase2");
+		job.setJarByClass(RunPageRankSchimmy.class);
 		job.setNumReduceTasks(0);
 
 		FileInputFormat.setInputPaths(job, new Path(in));

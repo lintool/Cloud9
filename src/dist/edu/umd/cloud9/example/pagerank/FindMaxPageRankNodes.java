@@ -134,7 +134,7 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 		LOG.info(" - output: " + outputPath);
 		LOG.info(" - n: " + n);
 
-		Configuration conf = new Configuration();
+		Configuration conf = getConf();
     conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
     conf.setInt("n", n);
 
@@ -171,7 +171,7 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new FindMaxPageRankNodes(), args);
+		int res = ToolRunner.run(new FindMaxPageRankNodes(), args);
 		System.exit(res);
 	}
 }

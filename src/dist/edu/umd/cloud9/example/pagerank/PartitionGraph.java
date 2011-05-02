@@ -59,8 +59,7 @@ public class PartitionGraph extends Configured implements Tool {
 		System.exit(res);
 	}
 
-	public PartitionGraph() {
-	}
+	public PartitionGraph() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [numPartitions] [useRange?] [nodeCount]");

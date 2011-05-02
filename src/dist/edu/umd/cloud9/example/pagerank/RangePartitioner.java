@@ -41,10 +41,12 @@ public class RangePartitioner extends Partitioner<IntWritable, Writable> impleme
 		return (int) (((float) key.get() / (float) nodeCnt) * numReduceTasks) % numReduceTasks;
 	}
 
+	@Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     configure();
