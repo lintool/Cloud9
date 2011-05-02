@@ -16,28 +16,20 @@
 
 package edu.umd.cloud9.example.pagerank;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+
+import edu.umd.cloud9.mapreduce.lib.input.NonSplitableSequenceFileInputFormat;
 
 /**
  * <p>
@@ -62,34 +54,12 @@ import org.apache.log4j.Logger;
 public class PartitionGraph extends Configured implements Tool {
 	private static final Logger sLogger = Logger.getLogger(PartitionGraph.class);
 
-	private static class MapClass extends MapReduceBase implements
-			Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-		public void map(IntWritable nid, PageRankNode node,
-				OutputCollector<IntWritable, PageRankNode> output, Reporter reporter)
-				throws IOException {
-			output.collect(nid, node);
-		}
-	}
-
-	private static class ReduceClass extends MapReduceBase implements
-			Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-		public void reduce(IntWritable nid, Iterator<PageRankNode> values,
-				OutputCollector<IntWritable, PageRankNode> output, Reporter reporter)
-				throws IOException {
-			while (values.hasNext()) {
-				PageRankNode node = values.next();
-				output.collect(nid, node);
-			}
-		}
-	}
-
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new PartitionGraph(), args);
+		int res = ToolRunner.run(new PartitionGraph(), args);
 		System.exit(res);
 	}
 
-	public PartitionGraph() {
-	}
+	public PartitionGraph() {}
 
 	private static int printUsage() {
 		System.out.println("usage: [inputDir] [outputDir] [numPartitions] [useRange?] [nodeCount]");
@@ -97,7 +67,7 @@ public class PartitionGraph extends Configured implements Tool {
 		return -1;
 	}
 
-	public int run(String[] args) throws IOException {
+	public int run(String[] args) throws Exception {
 		if (args.length != 5) {
 			printUsage();
 			return -1;
@@ -116,39 +86,33 @@ public class PartitionGraph extends Configured implements Tool {
 		sLogger.info(" - useRange?: " + useRange);
 		sLogger.info(" - nodeCnt: " + nodeCount);
 
-		JobConf conf = new JobConf(PartitionGraph.class);
-
-		conf.setJobName("Partition Graph " + numParts);
-		conf.setNumReduceTasks(numParts);
-
-		conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
-		conf.set("mapred.child.java.opts", "-Xmx2048m");
+		Configuration conf = getConf();
 		conf.setInt("NodeCount", nodeCount);
 
-		FileInputFormat.setInputPaths(conf, new Path(inPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outPath));
+		Job job = new Job(conf, "Partition Graph " + numParts);
+		job.setJarByClass(PartitionGraph.class);
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		job.setNumReduceTasks(numParts);
 
-		conf.setMapOutputKeyClass(IntWritable.class);
-		conf.setMapOutputValueClass(PageRankNode.class);
+		FileInputFormat.setInputPaths(job, new Path(inPath));
+		FileOutputFormat.setOutputPath(job, new Path(outPath));
 
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(PageRankNode.class);
+		job.setInputFormatClass(NonSplitableSequenceFileInputFormat.class);
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		conf.setMapperClass(MapClass.class);
-		conf.setReducerClass(ReduceClass.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(PageRankNode.class);
 
-		conf.setSpeculativeExecution(false);
+		job.setOutputKeyClass(IntWritable.class);
+		job.setOutputValueClass(PageRankNode.class);
 
 		if (useRange) {
-			conf.setPartitionerClass(RangePartitioner.class);
+			job.setPartitionerClass(RangePartitioner.class);
 		}
 
 		FileSystem.get(conf).delete(new Path(outPath), true);
 
-		JobClient.runJob(conf);
+		job.waitForCompletion(true);
 
 		return 0;
 	}

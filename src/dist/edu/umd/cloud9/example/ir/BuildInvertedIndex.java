@@ -47,6 +47,7 @@ import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
 import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
+@SuppressWarnings("deprecation")
 public class BuildInvertedIndex extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(BuildInvertedIndex.class);

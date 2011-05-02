@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,31 +48,31 @@ public class WikipediaPage extends Indexable {
 	 */
 	public static final String XML_END_TAG = "</page>";
 
-	private String mPage;
-	private String mTitle;
+	private String page;
+	private String title;
 	private String mId;
-	private int mTextStart;
-	private int mTextEnd;
-	private boolean mIsRedirect;
-	private boolean mIsDisambig;
-	private boolean mIsStub;
+	private int textStart;
+	private int textEnd;
+	private boolean isRedirect;
+	private boolean isDisambig;
+	private boolean isStub;
 
-	private WikiModel mWikiModel;
-	private PlainTextConverter mTextConverter;
+	private WikiModel wikiModel;
+	private PlainTextConverter textConverter;
 	
 	/**
 	 * Creates an empty <code>WikipediaPage</code> object.
 	 */
-	public WikipediaPage() {
-        mWikiModel = new WikiModel("", "");
-        mTextConverter = new PlainTextConverter();
-	}
+  public WikipediaPage() {
+    wikiModel = new WikiModel("", "");
+    textConverter = new PlainTextConverter();
+  }
 
 	/**
 	 * Deserializes this object.
 	 */
 	public void write(DataOutput out) throws IOException {
-		byte[] bytes = mPage.getBytes();
+		byte[] bytes = page.getBytes();
 		WritableUtils.writeVInt(out, bytes.length);
 		out.write(bytes, 0, bytes.length);
 	}
@@ -118,13 +118,13 @@ public class WikipediaPage extends Indexable {
 		// Bliki doesn't seem to properly handle inter-language links, so remove manually.
 		s = LANG_LINKS.matcher(s).replaceAll(" ");
 
-		mWikiModel.setUp();
-		s = getTitle() + "\n" + mWikiModel.render(mTextConverter, s);
-		mWikiModel.tearDown();
+		wikiModel.setUp();
+		s = getTitle() + "\n" + wikiModel.render(textConverter, s);
+		wikiModel.tearDown();
 
 		// The way the some entities are encoded, we have to unescape twice.
 		s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
-		
+
 		s = REF.matcher(s).replaceAll(" ");
 		s = HTML_COMMENT.matcher(s).replaceAll(" ");
 
@@ -139,9 +139,9 @@ public class WikipediaPage extends Indexable {
 	}
 	
 	public String getDisplayContent() {
-		mWikiModel.setUp();
-		String s = "<h1>" + getTitle() + "</h1>\n" + mWikiModel.render(getWikiMarkup());
-		mWikiModel.tearDown();
+		wikiModel.setUp();
+		String s = "<h1>" + getTitle() + "</h1>\n" + wikiModel.render(getWikiMarkup());
+		wikiModel.tearDown();
 		
 		s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
 
@@ -157,24 +157,24 @@ public class WikipediaPage extends Indexable {
 	 * Returns the raw XML of this page.
 	 */
 	public String getRawXML() {
-		return mPage;
+		return page;
 	}
 
 	/**
 	 * Returns the text of this page.
 	 */
 	public String getWikiMarkup() {
-		if (mTextStart == -1)
+		if (textStart == -1)
 			return null;
 
-		return mPage.substring(mTextStart + 27, mTextEnd);
+		return page.substring(textStart + 27, textEnd);
 	}
 
 	/**
 	 * Returns the title of this page.
 	 */
 	public String getTitle() {
-		return mTitle;
+		return title;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class WikipediaPage extends Indexable {
 	 * @return <code>true</code> if this page is a disambiguation page
 	 */
 	public boolean isDisambiguation() {
-		return mIsDisambig;
+		return isDisambig;
 	}
 
 	/**
@@ -196,7 +196,7 @@ public class WikipediaPage extends Indexable {
 	 * @return <code>true</code> if this page is a redirect page
 	 */
 	public boolean isRedirect() {
-		return mIsRedirect;
+		return isRedirect;
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class WikipediaPage extends Indexable {
 	 * @return <code>true</code> if this page is an empty page
 	 */
 	public boolean isEmpty() {
-		return mTextStart == -1;
+		return textStart == -1;
 	}
 
 	/**
@@ -218,7 +218,7 @@ public class WikipediaPage extends Indexable {
 	 * @return <code>true</code> if this article is a stub
 	 */
 	public boolean isStub() {
-		return mIsStub;
+		return isStub;
 	}
 
 	/**
@@ -244,12 +244,12 @@ public class WikipediaPage extends Indexable {
 	 *         <code>null</code> otherwise
 	 */
 	public String findInterlanguageLink(String lang) {
-		int start = mPage.indexOf("[[" + lang + ":");
+		int start = page.indexOf("[[" + lang + ":");
 
 		if (start < 0)
 			return null;
 
-		int end = mPage.indexOf("]]", start);
+		int end = page.indexOf("]]", start);
 
 		if (end < 0)
 			return null;
@@ -258,7 +258,7 @@ public class WikipediaPage extends Indexable {
 		// in enwiki-20081008-pages-articles.xml.bz2 has only one closing square
 		// bracket. Temporary solution is to ignore malformed links (instead of
 		// trying to hack around them).
-		String link = mPage.substring(start + 3 + lang.length(), end);
+		String link = page.substring(start + 3 + lang.length(), end);
 
 		// If a newline is found, it probably means that the link is malformed
 		// (see above comment). Abort in this case.
@@ -277,17 +277,17 @@ public class WikipediaPage extends Indexable {
 		List<String> links = new ArrayList<String>();
 
 		while (true) {
-			start = mPage.indexOf("[[", start);
+			start = page.indexOf("[[", start);
 
 			if (start < 0)
 				break;
 
-			int end = mPage.indexOf("]]", start);
+			int end = page.indexOf("]]", start);
 
 			if (end < 0)
 				break;
 
-			String text = mPage.substring(start + 2, end);
+			String text = page.substring(start + 2, end);
 
 			// skip empty links
 			if (text.length() == 0) {
@@ -334,24 +334,24 @@ public class WikipediaPage extends Indexable {
 	 *            raw XML string
 	 */
 	public static void readPage(WikipediaPage page, String s) {
-		page.mPage = s;
+		page.page = s;
 
 		// parse out title
 		int start = s.indexOf("<title>");
 		int end = s.indexOf("</title>", start);
-		page.mTitle = StringEscapeUtils.unescapeHtml(s.substring(start + 7, end));
+		page.title = StringEscapeUtils.unescapeHtml(s.substring(start + 7, end));
 
 		start = s.indexOf("<id>");
 		end = s.indexOf("</id>");
 		page.mId = s.substring(start + 4, end);
 
 		// parse out actual text of article
-		page.mTextStart = s.indexOf("<text xml:space=\"preserve\">");
-		page.mTextEnd = s.indexOf("</text>", page.mTextStart);
+		page.textStart = s.indexOf("<text xml:space=\"preserve\">");
+		page.textEnd = s.indexOf("</text>", page.textStart);
 
-		page.mIsDisambig = s.indexOf("{{disambig", page.mTextStart) != -1 || s.indexOf("{{Disambig", page.mTextStart) != -1;
-		page.mIsRedirect = s.substring(page.mTextStart + 27, page.mTextStart + 36).compareTo("#REDIRECT") == 0 ||
-		                   s.substring(page.mTextStart + 27, page.mTextStart + 36).compareTo("#redirect") == 0;
-		page.mIsStub = s.indexOf("stub}}", page.mTextStart) != -1;
+		page.isDisambig = s.indexOf("{{disambig", page.textStart) != -1 || s.indexOf("{{Disambig", page.textStart) != -1;
+		page.isRedirect = s.substring(page.textStart + 27, page.textStart + 36).compareTo("#REDIRECT") == 0 ||
+		                   s.substring(page.textStart + 27, page.textStart + 36).compareTo("#redirect") == 0;
+		page.isStub = s.indexOf("stub}}", page.textStart) != -1;
 	}
 }

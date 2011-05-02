@@ -71,7 +71,7 @@ to HDFS, the first step is to take the plain-text graph structure and
 pack it into the appropriate Hadoop data structures:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+hadoop jar dist/Cloud9-X.Y.Z.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
    docs/exercises/sample-large.txt sample-large-PageRankRecords 1458
 </pre>
 
@@ -80,14 +80,14 @@ hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
 <pre>
 hadoop fs -mkdir sample-large-PageRank
 
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+hadoop jar dist/Cloud9-X.Y.Z.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
    sample-large-PageRankRecords sample-large-PageRank/iter0000 5 0 1458
 </pre>
 
 <p>Now we're ready to run PageRank.  Let's run 10 iterations:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+hadoop jar dist/Cloud9-X.Y.Z.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
    sample-large-PageRank 1458 0 10 1 0 0
 </pre>
 
@@ -95,24 +95,24 @@ hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
 top 10 nodes by PageRank:</p>
 
 <pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+hadoop jar dist/Cloud9-X.Y.Z.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
   sample-large-PageRank/iter0010 sample-large-PageRank-top10 10
 </pre>
 
 <p>The results:</p>
 
 <pre>
-$ hadoop fs -cat sample-large-PageRank-top10/part-00000
-9520006	  -5.0940123
-8069300	  -5.093434
-11775232  -4.9177628
-12787320  -4.8977823
-8614504	  -4.8873854
-10912914  -4.868026
-9265639	  -4.8555655
-12486146  -4.774886
-8669492	  -4.454868
-9369084	  -4.3875346
+$ hadoop fs -cat sample-large-PageRank-top10/part-r-00000
+9369084   -4.3875346
+8669492   -4.4548674
+12486146  -4.7748857
+9265639   -4.855565
+10912914  -4.8680253
+8614504	  -4.8873844
+12787320  -4.897782
+11775232  -4.917762
+8069300   -5.0934334
+9520006   -5.094012
 </pre>
 
 <p>The PageRank values are expressed as log probabilities, and do

@@ -1,6 +1,6 @@
-build/
+/build/
 /dist/
-lib/
+/lib/
 ivy/ivy.jar
 etc/junit.*
 etc/run.*
