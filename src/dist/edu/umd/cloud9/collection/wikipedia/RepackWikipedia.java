@@ -82,6 +82,7 @@ public class RepackWikipedia extends Configured implements Tool {
 			String id = doc.getDocid();
 
 			if (id != null) {
+			  // We're going to discard pages that aren't in the docno mapping.
         int n = docnoMapping.getDocno(id);
         if (n >= 0) {
           docno.set(n);

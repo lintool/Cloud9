@@ -18,6 +18,13 @@ package edu.umd.cloud9.example.bfs;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -52,29 +59,42 @@ public class FindReachableNodes extends Configured implements Tool {
 
 	public FindReachableNodes() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [inputDir] [outputDir]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 2) {
-			printUsage();
-			return -1;
-		}
+  @SuppressWarnings("static-access") @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT_OPTION));
 
-		String inputPath = args[0];
-		String outputPath = args[1];
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		LOG.info("Tool name: FindReachableNodes");
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+
+		LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - inputDir: " + inputPath);
 		LOG.info(" - outputDir: " + outputPath);
 
-		Job job = new Job(getConf(), "FindReachableNodes");
+		Job job = new Job(getConf(), String.format("FindReachableNodes:[%s: %s, %s: %s]",
+				INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath));
 		job.setJarByClass(FindReachableNodes.class);
 
 		job.setNumReduceTasks(0);

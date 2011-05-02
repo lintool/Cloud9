@@ -19,6 +19,13 @@ package edu.umd.cloud9.example.bfs;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -174,31 +181,50 @@ public class IterateBFS extends Configured implements Tool {
 
 	public IterateBFS() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [inputDir] [outputDir] [numPartitions]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
+  private static final String NUM_PARTITIONS_OPTION = "num_partitions";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  @SuppressWarnings("static-access") @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of partitions").create(NUM_PARTITIONS_OPTION));
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int n = Integer.parseInt(args[2]);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		LOG.info("Tool name: IterateBFS");
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(NUM_PARTITIONS_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    int n = Integer.parseInt(cmdline.getOptionValue(NUM_PARTITIONS_OPTION));
+
+    LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - inputDir: " + inputPath);
 		LOG.info(" - outputDir: " + outputPath);
 		LOG.info(" - numPartitions: " + n);
 
-		Job job = new Job(getConf(), "IterateBFS");
+		getConf().set("mapred.child.java.opts", "-Xmx2048m");
+
+		Job job = new Job(getConf(), String.format("IterateBFS[%s: %s, %s: %s, %s: %d]",
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, NUM_PARTITIONS_OPTION, n));
 		job.setJarByClass(EncodeBFSGraph.class);
 
 		job.setNumReduceTasks(n);

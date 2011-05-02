@@ -35,8 +35,8 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
  */
 public class BFSNode implements Writable {
   public static enum Type {
-    Complete((byte) 0),  // PageRank mass and adjacency list.
-    Distance((byte) 1),      // PageRank mass only.
+    Complete((byte) 0),  // Complete structure.
+    Distance((byte) 1),  // Distance only.
     Structure((byte) 2); // Adjacency list only.
 
     public byte val;
@@ -114,8 +114,7 @@ public class BFSNode implements Writable {
 	/**
 	 * Serializes this object.
 	 *
-	 * @param out
-	 *            where to write the raw byte representation
+	 * @param out where to write the raw byte representation
 	 */
 	@Override
 	public void write(DataOutput out) throws IOException {

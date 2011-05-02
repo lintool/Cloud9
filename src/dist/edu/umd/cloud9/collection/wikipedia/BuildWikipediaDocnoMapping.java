@@ -67,10 +67,23 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 		private final static IntWritable keyOut = new IntWritable();
 		private final static IntWritable valOut = new IntWritable(1);
 
+		private boolean keepAll;
+
+    public void configure(JobConf job) {
+      keepAll = job.getBoolean(KEEP_ALL_OPTION, false);
+    }
+
 		public void map(LongWritable key, WikipediaPage p,
 				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
 				throws IOException {
 			reporter.incrCounter(PageTypes.TOTAL, 1);
+
+			// If we're keepinge all pages, don't bother checking.
+			if (keepAll) {
+        keyOut.set(Integer.parseInt(p.getDocid()));
+        output.collect(keyOut, valOut);
+        return;
+			}
 
 			if (p.isRedirect()) {
 				reporter.incrCounter(PageTypes.REDIRECT, 1);
@@ -87,7 +100,6 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 
 				keyOut.set(Integer.parseInt(p.getDocid()));
 				output.collect(keyOut, valOut);
-
 			} else {
 				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
@@ -111,6 +123,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_PATH_OPTION = "output_path";
   private static final String OUTPUT_FILE_OPTION = "output_file";
+  private static final String KEEP_ALL_OPTION = "keep_all";
 
 	@SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
@@ -121,6 +134,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
         .withDescription("tmp output directory").create(OUTPUT_PATH_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("output file").create(OUTPUT_FILE_OPTION));
+    options.addOption(KEEP_ALL_OPTION, false, "keep all pages");
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -142,16 +156,19 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
 		String outputPath = cmdline.getOptionValue(OUTPUT_PATH_OPTION);
 		String outputFile = cmdline.getOptionValue(OUTPUT_FILE_OPTION);
+		boolean keepAll = cmdline.hasOption(KEEP_ALL_OPTION);
 
 		LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - input: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
 		LOG.info(" - output file: " + outputFile);
+		LOG.info(" - keep all pages: " + keepAll);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
     conf.setJobName(String.format("BuildWikipediaDocnoMapping[%s: %s, %s: %s]",
         INPUT_OPTION, inputPath, OUTPUT_FILE_OPTION, outputFile));
 
+    conf.setBoolean(KEEP_ALL_OPTION, keepAll);
 		conf.setNumReduceTasks(1);
 
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
@@ -171,7 +188,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
 
 		RunningJob job = JobClient.runJob(conf);
 		Counters c = job.getCounters();
-		long cnt = c.getCounter(PageTypes.ARTICLE);
+		long cnt = keepAll ? c.getCounter(PageTypes.TOTAL) : c.getCounter(PageTypes.ARTICLE);
 
 		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt, outputFile);
 

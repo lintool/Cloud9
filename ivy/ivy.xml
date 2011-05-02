@@ -10,7 +10,6 @@
     <dependency org="com.google.guava" name="guava" rev="r09" />
     <dependency org="commons-cli" name="commons-cli" rev="1.2" />
     <dependency org="commons-lang" name="commons-lang" rev="2.6" />
-    <dependency org="commons-validator" name="commons-validator" rev="1.3.1" />
     <dependency org="fastutil" name="fastutil" rev="5.1.5" />
     <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.16">
       <exclude org="commons-httpclient" module="commons-httpclient"/>
