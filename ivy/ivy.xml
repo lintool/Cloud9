@@ -25,5 +25,6 @@
     <dependency org="spy" name="spy" rev="2.4" />
     <dependency org="org.htmlparser" name="htmlparser" rev="1.6" />
     <dependency org="pcj" name="pcj" rev="1.2" />
+    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="0.20.2" />
   </dependencies>
 </ivy-module>
