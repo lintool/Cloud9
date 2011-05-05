@@ -45,9 +45,6 @@ public class TTableTest extends TestCase {
       vocabDe_f2e = HadoopAlign.loadVocab(new Path("data/vocab.de-en.de"), conf);
       ttable_de2en = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.de-en"), true);
       ttable_en2de = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.en-de"), true);
-    } catch (FileNotFoundException e) {
-      System.out.println("You may need to unzip data file from");
-        e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
