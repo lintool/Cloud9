@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -29,14 +30,27 @@ public class TTableTest extends TestCase {
 		tt = new TTable_monolithic(e, ef, 4);
 	}
 
-	public void testGet() throws IOException{
+	public void testGet() {
 		Configuration conf = new Configuration();
-		Vocab vocabEn_e2f = HadoopAlign.loadVocab(new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/vocab.en-de.en"), conf);
-		Vocab vocabDe_e2f = HadoopAlign.loadVocab(new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/vocab.en-de.de"), conf);
-		Vocab vocabEn_f2e = HadoopAlign.loadVocab(new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/vocab.de-en.en"), conf);
-		Vocab vocabDe_f2e = HadoopAlign.loadVocab(new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/vocab.de-en.de"), conf);
-		TTable_monolithic_IFAs ttable_de2en = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/ttable.de-en"), true);
-		TTable_monolithic_IFAs ttable_en2de = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("/Users/ferhanture/edu/research_archive/data/de-en/europarl-v6.de-en/berkeleyaligner/ttable.en-de"), true);
+		Vocab vocabEn_e2f = null;
+    Vocab vocabDe_e2f = null;
+    Vocab vocabEn_f2e = null;
+    Vocab vocabDe_f2e = null;
+    TTable_monolithic_IFAs ttable_de2en = null;
+    TTable_monolithic_IFAs ttable_en2de = null;
+    try {
+      vocabEn_e2f = HadoopAlign.loadVocab(new Path("data/vocab.en-de.en"), conf);
+      vocabDe_e2f = HadoopAlign.loadVocab(new Path("data/vocab.en-de.de"), conf);
+      vocabEn_f2e = HadoopAlign.loadVocab(new Path("data/vocab.de-en.en"), conf);
+      vocabDe_f2e = HadoopAlign.loadVocab(new Path("data/vocab.de-en.de"), conf);
+      ttable_de2en = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.de-en"), true);
+      ttable_en2de = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.en-de"), true);
+    } catch (FileNotFoundException e) {
+      System.out.println("You may need to unzip data file from");
+        e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
 		int e1 = vocabEn_e2f.get("book");
 		int f1 = vocabDe_e2f.get("buch");
