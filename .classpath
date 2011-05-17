@@ -67,5 +67,6 @@
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-streaming-0.20.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

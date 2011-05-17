@@ -26,7 +26,7 @@ import org.apache.hadoop.io.WritableComparator;
 import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
- * WritableComparable representing a pair consisting of a String and a float.
+ * WritableComparable representing a pair consisting of a float and a String.
  * The elements in the pair are referred to as the left and right elements. The
  * natural sort order is: first by the left element, and then by
  * the right element.
@@ -34,9 +34,8 @@ import edu.umd.cloud9.io.WritableComparatorUtils;
  * @author Ferhan Ture
  */
 public class PairOfFloatString implements WritableComparable<PairOfFloatString> {
-
+  private float leftElement;
 	private String rightElement;
-	private float leftElement;
 
 	/**
 	 * Creates a pair.
@@ -184,11 +183,11 @@ public class PairOfFloatString implements WritableComparable<PairOfFloatString> 
 		return new PairOfFloatString(this.leftElement, this.rightElement);
 	}
 
-	/** Comparator optimized for <code>PairOfStringFloat</code>. */
+	/** Comparator optimized for <code>PairOfFloatString</code>. */
 	public static class Comparator extends WritableComparator {
 
 		/**
-		 * Creates a new Comparator optimized for <code>PairOfStringFloat</code>.
+		 * Creates a new Comparator optimized for <code>PairOfFloatString</code>.
 		 */
 		public Comparator() {
 			super(PairOfFloatString.class);

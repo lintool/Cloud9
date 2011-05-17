@@ -31,7 +31,6 @@ import org.apache.hadoop.io.WritableComparator;
  * @author Jimmy Lin
  */
 public class PairOfIntFloat implements WritableComparable<PairOfIntFloat> {
-
   private int leftElement;
   private float rightElement;
 

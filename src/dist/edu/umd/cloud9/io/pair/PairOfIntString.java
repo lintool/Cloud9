@@ -34,7 +34,6 @@ import edu.umd.cloud9.io.WritableComparatorUtils;
  * @author Jimmy Lin
  */
 public class PairOfIntString implements WritableComparable<PairOfIntString> {
-
 	private int leftElement;
 	private String rightElement;
 
