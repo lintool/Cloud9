@@ -31,9 +31,11 @@ public class Aquaint2Document extends Indexable {
 
 	private String mRawDoc;
 	private String mDocid;
+	private String mHeadline;
 	private String mText;
 
 	private static Pattern sTags = Pattern.compile("<[^>]+>");
+	private static Pattern sWhitespace = Pattern.compile("\t|\n");
 
 	public Aquaint2Document() {
 	}
@@ -61,6 +63,23 @@ public class Aquaint2Document extends Indexable {
 		return mDocid;
 	}
 
+	public String getHeadline() {
+		if (mHeadline == null) {
+			int start = mRawDoc.indexOf("<HEADLINE>");
+
+			if (start == -1) {
+				mHeadline = "";
+			} else {
+				int end = mRawDoc.indexOf("</HEADLINE>");
+				mHeadline = mRawDoc.substring(start + 10, end).trim();
+
+				mHeadline = sTags.matcher(mHeadline).replaceAll("");
+				mHeadline = sWhitespace.matcher(mHeadline).replaceAll(" ");
+			}
+		}
+		return mHeadline;
+	}
+
 	public String getContent() {
 		if (mText == null) {
 			int start = mRawDoc.indexOf(">");
@@ -85,6 +104,7 @@ public class Aquaint2Document extends Indexable {
 
 		doc.mRawDoc = s;
 		doc.mDocid = null;
+		doc.mHeadline = null;
 		doc.mText = null;
 	}
 

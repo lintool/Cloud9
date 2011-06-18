@@ -94,7 +94,7 @@
     <taskdef uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.lib.path"/>
   </target>
 
-  <target name="resolve" depends="install-ivy" description="--> retreive dependencies with ivy">
+  <target name="resolve" depends="install-ivy" description="--> retreive dependencies with ivy" unless="skip.resolve">
     <ivy:retrieve/>
   </target>
 
