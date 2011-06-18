@@ -85,11 +85,13 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
 	}
 
 	static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
+		sLogger.warn ("p: " + p);
 		FSDataInputStream in = fs.open(p);
 
 		// docnos start at one, so we need an array that's one larger than
 		// number of docs
 		int sz = in.readInt() + 1;
+		sLogger.warn ("creating array of length: " + sz);
 		String[] arr = new String[sz];
 
 		for (int i = 1; i < sz; i++) {
