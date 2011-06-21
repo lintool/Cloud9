@@ -878,6 +878,15 @@ public class HMapIL implements MapIL, Cloneable, Serializable {
 		}
 	}
 	
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
 	public void increment(int key, long value) {
 		if (this.containsKey(key)) {
 			this.put(key, (long) (this.get(key) + value));

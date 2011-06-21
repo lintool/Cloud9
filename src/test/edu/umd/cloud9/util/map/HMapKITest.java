@@ -305,17 +305,22 @@ public class HMapKITest {
 		assertEquals(2, (int) e.getValue());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void testNullKey1() {
-		HMapKI<String> m = new HMapKI<String>();
-		m.put(null, 1);
-	}
+	 @Test
+	  public void testIncrement() {
+	    HMapKI<String> m = new HMapKI<String>();
+	    assertEquals(0, m.get("one"));
 
-	@Test(expected=IllegalArgumentException.class)
-	public void testNullKey2() {
-		HMapKI<String> m = new HMapKI<String>();
-		m.get(null);
-	}
+	    m.increment("one");
+	    assertEquals(1, m.get("one"));
+	    
+	    m.increment("one", 5);
+	    m.increment("two", 0);
+	    m.increment("three", 2);
+
+	    assertEquals(6, m.get("one"));
+	    assertEquals(0, m.get("two"));
+	    assertEquals(2, m.get("three"));
+	  }
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapKITest.class);

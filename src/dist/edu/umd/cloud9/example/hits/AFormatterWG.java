@@ -146,7 +146,7 @@ public class AFormatterWG extends Configured implements Tool {
 						ArrayListOfIntsWritable list = adjLists.get(curr);
 						list.trimToSize();
 						links.trimToSize();
-						list.addAll(links.getArray());
+						list.addUnique(links.getArray());
 						adjLists.put(curr, list);
 					} else {
 						links.trimToSize();
@@ -187,7 +187,7 @@ public class AFormatterWG extends Configured implements Tool {
 				valIn = values.next();
 				ArrayListOfIntsWritable adjListIn = valIn.getInlinks();
 				adjListIn.trimToSize();
-				adjList.addAll(adjListIn.getArray());
+				adjList.addUnique(adjListIn.getArray());
 				// System.out.println(adjList.toString());
 			}
 

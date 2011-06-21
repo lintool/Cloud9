@@ -125,7 +125,7 @@ public class HFormatterWG extends Configured implements Tool {
 				valIn = values.next();
 				ArrayListOfIntsWritable adjListIn = valIn.getOutlinks();
 				adjListIn.trimToSize();
-				adjList.addAll(adjListIn.getArray());
+				adjList.addUnique(adjListIn.getArray());
 				valOut.setNodeId(valIn.getNodeId());
 			}
 			valOut.setOutlinks(adjList);

@@ -17,7 +17,7 @@ public class Benchmark1HMapKI {
 
 		long usedMemory1 = MemoryUsageUtils.getUsedMemory();
 
-		System.out.println("Benchmarking HMapKI<Integer>...");
+		System.out.println("Benchmarking HMapKI<String>...");
 		MapKI<String> map = new HMapKI<String>();
 
 		startTime = System.currentTimeMillis();

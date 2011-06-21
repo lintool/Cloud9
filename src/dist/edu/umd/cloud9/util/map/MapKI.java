@@ -17,7 +17,7 @@ import java.util.Set;
  * @param <K> type of the keys
  */
 public interface MapKI<K> {
-	public static final int DEFAULT_VALUE = 0;
+  public static final int DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**
@@ -80,6 +80,7 @@ public interface MapKI<K> {
 	 *            key with which the specified value is to be associated
 	 * @param value
 	 *            value to be associated with the specified key
+   * @return the previous value of the key (or the default value, if none)
 	 */
 	int put(K key, int value);
 

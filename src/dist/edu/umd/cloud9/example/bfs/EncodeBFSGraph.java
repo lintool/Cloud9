@@ -18,6 +18,13 @@ package edu.umd.cloud9.example.bfs;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -37,16 +44,12 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
- * <p>
  * Tool for taking a plain-text encoding of a directed graph and building
  * corresponding Hadoop structures for running parallel breadth-first search.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class EncodeBFSGraph extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(EncodeBFSGraph.class);
 
 	private static enum Graph {
@@ -54,21 +57,19 @@ public class EncodeBFSGraph extends Configured implements Tool {
 	};
 
 	private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, BFSNode> {
-
 		private static final IntWritable nid = new IntWritable();
 		private static final BFSNode node = new BFSNode();
 		private static int src;
 
 		@Override
 		public void setup(Context context) {
-			src = context.getConfiguration().getInt("src", 0);
-			node.setType(BFSNode.TYPE_COMPLETE);
+			src = context.getConfiguration().getInt(SRC_OPTION, 0);
+			node.setType(BFSNode.Type.Complete);
 		}
 
 		@Override
-		public void map(LongWritable key, Text t, Context context) throws IOException,
-				InterruptedException {
-
+		public void map(LongWritable key, Text t, Context context)
+		    throws IOException,	InterruptedException {
 			String[] arr = t.toString().trim().split("\\s+");
 
 			int cur = Integer.parseInt(arr[0]);
@@ -83,7 +84,6 @@ public class EncodeBFSGraph extends Configured implements Tool {
 				for (int i = 1; i < arr.length; i++) {
 					neighbors[i - 1] = Integer.parseInt(arr[i]);
 				}
-
 				node.setAdjacencyList(new ArrayListOfIntsWritable(neighbors));
 			}
 
@@ -94,39 +94,55 @@ public class EncodeBFSGraph extends Configured implements Tool {
 		}
 	}
 
-	public EncodeBFSGraph() {
-	}
+	public EncodeBFSGraph() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [inputDir] [outputDir] [src]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
+  private static final String SRC_OPTION = "src";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  @SuppressWarnings("static-access") @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("nodeid").hasArg()
+        .withDescription("source node").create(SRC_OPTION));
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int n = Integer.parseInt(args[2]);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		LOG.info("Tool name: EncodeBFSGraph");
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(SRC_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+		String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+		String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+		int src = Integer.parseInt(cmdline.getOptionValue(SRC_OPTION));
+
+		LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - inputDir: " + inputPath);
 		LOG.info(" - outputDir: " + outputPath);
-		LOG.info(" - src: " + n);
+		LOG.info(" - src: " + src);
 
-		Job job = new Job(getConf(), "EncodeBFSGraph");
+		Job job = new Job(getConf(), String.format("EncodeBFSGraph[%s: %s, %s: %s, %s: %d]",
+		    INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, SRC_OPTION, src));
 		job.setJarByClass(EncodeBFSGraph.class);
 
 		job.setNumReduceTasks(0);
 
-		job.getConfiguration().setInt("src", n);
+		job.getConfiguration().setInt(SRC_OPTION, src);
 		job.getConfiguration().setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
 		FileInputFormat.addInputPath(job, new Path(inputPath));

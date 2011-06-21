@@ -16,7 +16,7 @@ import java.util.Set;
  * Map from ints to longs.
  */
 public interface MapIL {
-	public static final int DEFAULT_VALUE = 0;
+	public static final long DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**

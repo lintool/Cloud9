@@ -1,6 +1,6 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -52,10 +52,16 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfFloats(float[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+    // Be defensive and make a copy of the array.
+    array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
 
@@ -91,8 +97,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -108,8 +112,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -153,8 +155,6 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfFloats clone() {
 		return new ArrayListOfFloats(Arrays.copyOf(array, this.size()));
@@ -186,12 +186,11 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
-	public void add(float e) {
+	public ArrayListOfFloats add(float e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -202,7 +201,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, float element) {
+	public ArrayListOfFloats add(int index, float element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -211,6 +210,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -270,25 +270,33 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 * first <i>n</i> elements of this list.
 	 */
 	public String toString(int n) {
-		StringBuilder s = new StringBuilder();
+    StringBuilder s = new StringBuilder();
 
-		s.append("[");
-		int sz = size() > n ? n : size;
+    s.append("[");
+    int sz = size() > n ? n : size;
 
-		for (int i = 0; i < sz; i++) {
-			if (i != 0) {
-				s.append(", ");
-			}
-			s.append(get(i));
-		}
+    for (int i = 0; i < sz; i++) {
+      s.append(get(i));
+      if (i < sz - 1) {
+        s.append(", ");
+      }
+    }
 
-		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+    s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
-		return s.toString();
+    return s.toString();
 	}
 
 	@Override
 	public String toString() {
 		return toString(10);
 	}
+
+  /**
+   * Sorts this list.
+   */
+  public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+  }
 }

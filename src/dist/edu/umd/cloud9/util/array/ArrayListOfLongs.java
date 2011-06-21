@@ -25,7 +25,6 @@ import com.google.common.base.Preconditions;
 /**
  * Object representing a list of longs, backed by an resizable-array.
  */
-
 public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long> {
 	protected transient long[] array;
 	protected int size = 0;
@@ -53,12 +52,33 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 		this(INITIAL_CAPACITY_DEFAULT);
 	}
 
+  /**
+   * Constructs a list from an array. Defensively makes a copy of the array.
+   *
+   * @param a source array
+   */
 	public ArrayListOfLongs(long[] a) {
 		Preconditions.checkNotNull(a);
 
-		array = a;
+    // Be defensive and make a copy of the array.
+    array = Arrays.copyOf(a, a.length);
 		size = array.length;
 	}
+
+  /**
+   * Constructs a list populated with longs in range [first, last).
+   *
+   * @param first the smallest int in the range (inclusive)
+   * @param last  the largest int in the range (exclusive)
+   */
+  public ArrayListOfLongs(int first, int last) {
+    this(last - first);
+
+    int j = 0;
+    for (int i = first; i < last; i++) {
+      this.add(j++, i);
+    }
+  }
 
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
@@ -92,8 +112,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns the number of elements in this list.
-	 *
-	 * @return the number of elements in this list
 	 */
 	public int size() {
 		return size;
@@ -109,8 +127,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns <tt>true</tt> if this list contains no elements.
-	 *
-	 * @return <tt>true</tt> if this list contains no elements
 	 */
 	public boolean isEmpty() {
 		return size == 0;
@@ -154,8 +170,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Returns a clone of this object.
-	 *
-	 * @return a clone of this object
 	 */
 	public ArrayListOfLongs clone() {
 		return new ArrayListOfLongs(Arrays.copyOf(array, this.size()));
@@ -187,12 +201,11 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 
 	/**
 	 * Appends the specified element to the end of this list.
-	 *
-	 * @param e element to be appended to this list
 	 */
-	public void add(long e) {
+	public ArrayListOfLongs add(long e) {
 		ensureCapacity(size + 1); // Increments modCount!!
 		array[size++] = e;
+		return this;
 	}
 
 	/**
@@ -203,7 +216,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @param index index at which the specified element is to be inserted
 	 * @param element element to be inserted
 	 */
-	public void add(int index, long element) {
+	public ArrayListOfLongs add(int index, long element) {
 		if (index > size || index < 0) {
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
 		}
@@ -212,6 +225,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 		System.arraycopy(array, index, array, index + 1, size - index);
 		array[index] = element;
 		size++;
+		return this;
 	}
 
 	/**
@@ -277,13 +291,13 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 		int sz = size() > n ? n : size;
 
 		for (int i = 0; i < sz; i++) {
-			if (i != 0) {
-				s.append(", ");
-			}
-			s.append(get(i));
+      s.append(get(i));
+      if (i < sz - 1) {
+        s.append(", ");
+      }
 		}
 
-		s.append(size() > n ? "... (" + (size() - n) + " more) ]" : "]");
+    s.append(size() > n ? String.format(" ... (%d more) ]", size() - n) : "]");
 
 		return s.toString();
 	}
@@ -292,4 +306,81 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	public String toString() {
 		return toString(10);
 	}
+
+  /**
+   * Sorts this list.
+   */
+  public void sort() {
+    trimToSize();
+    Arrays.sort(getArray());
+  }
+
+
+  /**
+   * Computes the intersection of two sorted lists of unique longs.
+   *
+   * @param other other list to be intersected with this list
+   * @return intersection of the two lists
+   */
+  public ArrayListOfLongs intersection(ArrayListOfLongs other) {
+    ArrayListOfLongs result = new ArrayListOfLongs();
+    int len, curPos = 0;
+    if (size() < other.size()) {
+      len = size();
+      for (int i = 0; i < len; i++) {
+        long elt = this.get(i);
+        while (curPos < other.size() && other.get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= other.size()) {
+          return result;
+        } else if (other.get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    } else {
+      len = other.size();
+      for (int i = 0; i < len; i++) {
+        long elt = other.get(i);
+        while (curPos < size() && get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= size()) {
+          return result;
+        } else if (get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Extracts a sub-list.
+   *
+   * @param start  first index to be included in sub-list
+   * @param end    last index to be included in sub-list
+   * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
+   */
+  public ArrayListOfLongs subList(int start, int end) {
+    ArrayListOfLongs sublst = new ArrayListOfLongs(end - start + 1);
+    for (int i = start; i <= end; i++) {
+      sublst.add(get(i));
+    }
+    return sublst;
+  }
+
+  /**
+   * Add all longs in the specified array into this list, ignoring duplicates.
+   *
+   * @param arr array of longs to add to this object
+   */
+  public void addUnique(long[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+      long elt = arr[i];
+      if (!contains(elt)) {
+        add(elt);
+      }
+    }
+  }
 }

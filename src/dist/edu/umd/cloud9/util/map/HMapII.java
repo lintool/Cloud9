@@ -871,6 +871,15 @@ public class HMapII implements MapII, Cloneable, Serializable {
 		}
 	}
 	
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
 	public void increment(int key, int value) {
 		if (this.containsKey(key)) {
 			this.put(key, this.get(key) + value);
