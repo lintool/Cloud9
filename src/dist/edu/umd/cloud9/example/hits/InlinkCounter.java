@@ -113,9 +113,11 @@ public class InlinkCounter extends Configured implements Tool {
 			for (MapIV.Entry<ArrayListOfIntsWritable> e : adjLists.entrySet()) {
 				keyOut.set(e.getKey());
 				valOut.setNodeId(e.getKey());
-				valOut.setHARank((float) 0.0);
+				valOut.setARank((float) 0.0);
+				valOut.setHRank((float) 0.0);
 				valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-				valOut.setAdjacencyList(e.getValue());
+				//FIXME
+				//valOut.setAdjacencyList(e.getValue());
 				mOutput.collect(keyOut, valOut);
 			}
 		}

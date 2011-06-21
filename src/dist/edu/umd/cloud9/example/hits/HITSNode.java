@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
  * 
@@ -67,7 +67,7 @@ public class HITSNode implements Writable {
 		return mInlinks;
 	}
 
-	public void setInlinkst(ArrayListOfIntsWritable l) {
+	public void setInlinks(ArrayListOfIntsWritable l) {
 		mInlinks = l;
 	}
 	
@@ -123,15 +123,15 @@ public class HITSNode implements Writable {
 
 		if (mType == TYPE_HUB_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
 		{
-			mInlinks = new ArrayListOfIntsWritable();
-			mInlinks.readFields(in);
-		}
-		
-		//is this right -- inlinks go with hub and outlinks go with auth???
-		if (mType == TYPE_AUTH_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
-		{
 			mOutlinks = new ArrayListOfIntsWritable();
 			mOutlinks.readFields(in);
+		}
+		
+		//is this right -- inlinks go with hub and outlinks go with auth??? no -- other way around
+		if (mType == TYPE_AUTH_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
+		{
+			mInlinks = new ArrayListOfIntsWritable();
+			mInlinks.readFields(in);
 		}
 	}
 
@@ -176,30 +176,54 @@ public class HITSNode implements Writable {
 		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS
 				|| mType == TYPE_HUB_STRUCTURE) {
 			s.append("H");
-		} else if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS
+		} 
+		else if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS
 				|| mType == TYPE_AUTH_STRUCTURE) {
 			s.append("A");
+		} else if ( mType == TYPE_NODE_COMPLETE || mType == TYPE_NODE_MASS ||
+				mType == TYPE_NODE_STRUCTURE ){
+			s.append("N");
 		} else {
 			s.append("?");
 		}
+		
 		s.append(" ");
-		s.append(mHARank);
+		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS) {
+			s.append("H:" + mHRank);
+		}
+		if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS) {
+			s.append("A: " + mARank);
+		}
+		
 		s.append(" ");
 
-		if (mAdjacencyList == null) {
-			s.append("{}");
+		if (mOutlinks == null) {
+			s.append("Out: {}");
 		} else {
-			s.append("{");
-			for (int i = 0; i < mAdjacencyList.size(); i++) {
-				s.append(mAdjacencyList.get(i));
-				if (i < mAdjacencyList.size() - 1)
+			s.append("Out: {");
+			for (int i = 0; i < mOutlinks.size(); i++) {
+				s.append(mOutlinks.get(i));
+				if (i < mOutlinks.size() - 1)
 					s.append(", ");
 			}
 			s.append("}");
 		}
+		
+		s.append(" ");
 
-		s.append(" }");
+		if (mInlinks == null) {
+			s.append("In: {}");
+		} else {
+			s.append("In: {");
+			for (int i = 0; i < mInlinks.size(); i++) {
+				s.append(mInlinks.get(i));
+				if (i < mInlinks.size() - 1)
+					s.append(", ");
+			}
+			s.append("} ");
+		}
 
+		s.append("}");
 		return s.toString();
 	}
 

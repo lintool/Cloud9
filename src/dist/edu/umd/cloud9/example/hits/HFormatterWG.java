@@ -32,7 +32,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
  * <p>
@@ -98,8 +98,8 @@ public class HFormatterWG extends Configured implements Tool {
 					links.add(curr);
 				}
 			}
-			dataOut.setAdjacencyList(links);
-			dataOut.setHARank((float) 1.0);
+			dataOut.setOutlinks(links);
+			dataOut.setHRank((float) 1.0);
 			output.collect(keyOut, dataOut);
 			// emit mentioned mentioner -> mentioned (mentioners) in links
 			// emit mentioner mentioned -> mentioner (mentions) outlinks
@@ -123,14 +123,14 @@ public class HFormatterWG extends Configured implements Tool {
 
 			while (values.hasNext()) {
 				valIn = values.next();
-				ArrayListOfIntsWritable adjListIn = valIn.getAdjacencyList();
+				ArrayListOfIntsWritable adjListIn = valIn.getOutlinks();
 				adjListIn.trimToSize();
 				adjList.addAll(adjListIn.getArray());
 				valOut.setNodeId(valIn.getNodeId());
 			}
-			valOut.setAdjacencyList(adjList);
+			valOut.setOutlinks(adjList);
 			valOut.setType(HITSNode.TYPE_HUB_COMPLETE);
-			valOut.setHARank((float) 0.0);
+			valOut.setHRank((float) 0.0);
 
 			output.collect(key, valOut);
 

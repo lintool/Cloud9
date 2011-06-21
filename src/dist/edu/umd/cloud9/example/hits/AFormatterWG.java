@@ -32,9 +32,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.ArrayListOfIntsWritable;
-import edu.umd.cloud9.util.HMapIV;
-import edu.umd.cloud9.util.MapIV;
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import edu.umd.cloud9.util.map.HMapIV;
+import edu.umd.cloud9.util.map.MapIV;
 
 /**
  * <p>
@@ -86,8 +86,8 @@ public class AFormatterWG extends Configured implements Tool {
 				if (stopList.contains(curr)) {
 					return;
 				}
-				valOut.setAdjacencyList(links);
-				valOut.setHARank((float) 1.0);
+				valOut.setInlinks(links);
+				valOut.setARank((float) 1.0);
 				valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
 			}
 			while (itr.hasMoreTokens()) {
@@ -160,9 +160,9 @@ public class AFormatterWG extends Configured implements Tool {
 			for (MapIV.Entry<ArrayListOfIntsWritable> e : adjLists.entrySet()) {
 				keyOut.set(e.getKey());
 				valOut.setNodeId(e.getKey());
-				valOut.setHARank((float) 0.0);
+				valOut.setARank((float) 0.0);
 				valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-				valOut.setAdjacencyList(e.getValue());
+				valOut.setInlinks(e.getValue());
 				mOutput.collect(keyOut, valOut);
 			}
 		}
@@ -185,15 +185,15 @@ public class AFormatterWG extends Configured implements Tool {
 			// System.out.println(adjList.toString());
 			while (values.hasNext()) {
 				valIn = values.next();
-				ArrayListOfIntsWritable adjListIn = valIn.getAdjacencyList();
+				ArrayListOfIntsWritable adjListIn = valIn.getInlinks();
 				adjListIn.trimToSize();
 				adjList.addAll(adjListIn.getArray());
 				// System.out.println(adjList.toString());
 			}
 
 			valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-			valOut.setHARank((float) 0.0);
-			valOut.setAdjacencyList(adjList);
+			valOut.setARank((float) 0.0);
+			valOut.setInlinks(adjList);
 			valOut.setNodeId(key.get());
 
 			output.collect(key, valOut);
@@ -242,7 +242,7 @@ public class AFormatterWG extends Configured implements Tool {
 		// conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(HITSNode.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+		//conf.setOutputFormat(SequenceFileOutputFormat.class);
 		conf.setCompressMapOutput(true);
 		conf.setSpeculativeExecution(false);
 		// InputSampler.Sampler<IntWritable, Text> sampler = new
