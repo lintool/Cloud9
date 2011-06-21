@@ -200,7 +200,7 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 				return e.value;
 		}
 
-		throw new NoSuchElementException();
+		return DEFAULT_VALUE;
 	}
 
 	// doc copied from interface
@@ -223,22 +223,22 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 	}
 
 	// doc copied from interface
-	public void put(int key, float value) {
+	public float put(int key, float value) {
 		int hash = hash(key);
 		int i = indexFor(hash, table.length);
 		for (Entry e = table[i]; e != null; e = e.next) {
 			int k;
 			if (e.hash == hash && ((k = e.key) == key || key == k)) {
-				// int oldValue = e.value;
+				float oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
-				return; // oldValue;
+				return oldValue;
 			}
 		}
 
 		modCount++;
 		addEntry(hash, key, value, i);
-		// return null;
+		return DEFAULT_VALUE;
 	}
 
 	/**
@@ -353,6 +353,23 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 			put(e.getKey(), e.getValue());
 		}
 	}
+
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(int key, float value) {
+    if (this.containsKey(key)) {
+      this.put(key, (float) this.get(key) + value);
+    } else {
+      this.put(key, value);
+    }
+  }
 
 	// doc copied from interface
 	public float remove(int key) {

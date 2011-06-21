@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>Cloud9: A MapReduce Library for Hadoop » Getting started in standalone mode</title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1038.35">
+  <style type="text/css">
+    p.p3 {margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times}
+    p.p4 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Times}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Courier}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px}
+    p.p7 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Courier}
+    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px Monaco; color: #4a23fe; min-height: 15.0px}
+    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times}
+    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px Monaco}
+    p.p11 {margin: 0.0px 0.0px 0.0px 0.0px; font: 11.0px Monaco; min-height: 15.0px}
+    p.p12 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 10.0px Verdana; min-height: 12.0px}
+    p.p13 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 10.0px Verdana}
+    p.p14 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 11.0px 'Helvetica Neue'}
+    p.p16 {margin: 0.0px 0.0px 14.0px 0.0px; font: 14.0px Times}
+    span.s1 {font: 12.0px Courier}
+    span.s2 {text-decoration: underline ; color: #0000ee}
+    span.s3 {color: #901568}
+    span.s4 {color: #4a23fe}
+    span.s5 {color: #8f156f}
+    span.s6 {font: 12.0px Times}
+    span.Apple-tab-span {white-space:pre}
+    table.t1 {border-collapse: collapse}
+    td.td1 {width: 92.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td2 {width: 59.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td3 {width: 78.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td4 {width: 88.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+    td.td5 {width: 152.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #cbcbcb #cbcbcb #cbcbcb #cbcbcb; padding: 0.0px 5.0px 0.0px 5.0px}
+  </style>
+</head>
+<body>
+<h1 style="margin: 0.0px 0.0px 16.0px 0.0px; font: 18.0px Times"><b>Hooka: An EM framework in MapReduce</b></h1>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 12.0px Times">Hooka is a MapReduce-based Expectation Maximization (EM)<span class="Apple-converted-space">  </span>training framework for word alignment. It takes a parallel corpus (each sentence in the corpus is written in two different languages) as input and aligns sentences iteratively using the EM algorithm. Hooka can also be used for managing vocabularies and probability tables. As part of the codebase, there are data structures that allow efficient storage and processing of the output of any word alignment tool.</h2>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Input format</b></h2>
+<p class="p4">Hooka assumes an XML format for input, as shown below:</p>
+<p class="p5">&lt;?xml version="1.0" encoding="UTF8"?&gt;</p>
+<p class="p5">&lt;pdoc name="corpus.en"&gt;</p>
+<p class="p5">&lt;pchunk name="europarl-v6.de-en_1"&gt;</p>
+<p class="p5">&lt;s lang="en"&gt;this person refer to histori clear prove the good that the european union repres for all european .&lt;/s&gt;</p>
+<p class="p5">&lt;s lang="de"&gt;dies person hinweis auf die geschicht belegt ganz klar das gut , das die europa union fur all europa darstellt .&lt;/s&gt;</p>
+<p class="p5">&lt;/pchunk&gt;</p>
+<p class="p5">…</p>
+<p class="p5">&lt;/pdoc&gt;</p>
+<p class="p6"><br></p>
+<p class="p4">where a single <span class="s1">pchunk</span> block contains the same sentence written in both languages, English and German in this case.</p>
+<p class="p4">Typically parallel corpora may not be already in this format, so we also provide a <a href="file:///Users/ferhanture/edu/research_archive/cloud9-github/Cloud9/docs/content/plainbitext2chunk.pl"><span class="s2">simple script</span></a> that converts two text files (each containing one sentence per line in their respective languages) into the above format.<span class="Apple-converted-space"> </span></p>
+<p class="p7">$ perl plain2chunk.pl europarl-v6.de-en.de europarl-v6.de-en.en europarl-v6.de-en de en &gt; europarl-v6.de-en.xml<span class="Apple-converted-space"> </span></p>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Running Hooka</b></h2>
+<p class="p4">The main runner class is <span class="s1">edu.umd.hooka.alignment.HadoopAlign</span>. Here is how to run word alignment on the previously prepared input dataset in proper format:</p>
+<p class="p5">$ bin/hadoop jar cloud9.jar $DATADIR/europarl-v6.de-en.xml $WORKDIR de en 5 5 true</p>
+<p class="p8"><br></p>
+<p class="p4">The first argument is the HDFS path to the input data in XML format, as described above. The second argument is the HDFS path to the working directory, to which data is written. The next two arguments indicate the language code of source and target language. Fifth and sixth arguments show the number of EM iterations using IBM Model1 and HMM, respectively. The last argument indicates whether tokenization should be done.<span class="Apple-converted-space"> </span></p>
+<p class="p5">usage: [input-path] [root-path] [src-lang] [trg-lang] [number-of-model1-iters] [number-of-hmm-iters] (local)</p>
+<p class="p9">(Note: Use last argument only for local runs.)</p>
+<p class="p6"><br></p>
+<p class="p4">The program starts by running a Hadoop job that preprocesses the dataset and performs tokenization/truncation. If the input text is already tokenized/stemmed, then you can opt out of doing it here by setting the last argument to <span class="s1">false</span>. After preprocessing, the program runs the EM iterations, each consisting of a computation step and merging step, in two separate Hadoop jobs. An alignment step completes the execution of each set of iterations.</p>
+<p class="p4">The output of the program consists of two vocabularies (source-side vocabulary vocab.E, target-side vocabulary vocab.F) and a lexical conditional probability table. Each vocabulary is represented by an instance of the Vocab class, as a mapping from tokens in the language to a unique integer identifier. The probability table is represented by an instance of the <span class="s1">TTable</span> class, which contains all possible translations (with respective conditional probabilities) of each token in the target language (i.e., P(f|e) for all e in target vocabulary). In order to generate conditional probabilities in the other direction (i.e., P(e|f)) you should run Hooka with the language arguments swapped:</p>
+<p class="p5">$ bin/hadoop jar cloud9.jar $DATADIR/europarl-v6.de-en.xml $WORKDIR en de 5 5 true</p>
+<p class="p6"><br></p>
+<p class="p4">Once the vocabulary and ttable are written to disk, one can use Hooka to load them into memory and do certain operations. For instance, a <span class="s1">Vocab</span> object can be used to retrieve words as follows:</p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>Vocab engVocab = HadoopAlign.loadVocab(<span class="s3">new</span> Path(vocabHDFSPath), hdfsConf);</p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="s3">int</span> eId = engVocab.get(<span class="s4">"book"</span>);</p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>String eString = engVocab.get(eId);<span class="Apple-converted-space"> </span></p>
+<p class="p8"><br></p>
+<p class="p4">A <span class="s1">TTable</span> object can be used to find conditional probabilities as follows:</p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>TTable_monolithic_IFAs ttable_en2de = <span class="s3">new</span> TTable_monolithic_IFAs(FileSystem.get(hdfsConf), <span class="s3">new</span> Path(<span class="s4">ttableHDFSPath</span>), <span class="s3">true</span>);</p>
+<p class="p10"><span class="s4"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span></span><span class="s5">float</span><span class="s4"> </span>prob<span class="s4"> = </span>ttable_en2de.get(eId,fId);</p>
+<p class="p11"><br></p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>// find all German translations of "book"</p>
+<p class="p10"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>int[] fIdArray = ttable_en2de.get(eId).getTranslations(0.1f);<span class="Apple-tab-span">	</span></p>
+<p class="p6"><br></p>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 18.0px Times"><b>Evaluation</b></h2>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 12.0px Times">We evaluated Hooka by comparing it to two popular word alignment tools: GIZA++ and berkeleyAligner. We designed an intrinsic evaluation to test the quality of the conditional probability values output by each system. We experimented with the German and English portions of the Europarl corpus, which contains proceedings from the European Parliament. We constructed artificial documents by concatenating every 10 consecutive sentences into a single document. In this manner, we sampled 505 document pairs that are mutual translations of each other (and therefore semantically similar by construction). This provides ground truth to evaluate the effectiveness of the three systems on the task of pairwise similarity.<span class="Apple-converted-space"> </span></h2>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 12.0px Times">We apply the standard CLIR approach to project document vectors from one language into the other, using the probability values created by either Hooka, GIZA++ or berkeleyAligner. Cosine similarities computed with this approach are compared to same values found by the translation approach: An MT system (in this case, we used Google Translate) is used to translate German documents into English, which are then processed into vector form. Table below compares results from the translation approach and CLIR approach with each alignment system.</h2>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p12"><br></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p13">Average</p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p14">Standard Dev.</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p13">GIZA++</p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p13">0.351</p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p13">0.053</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p13">berkeleyAligner</p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p13">0.397</p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p13">0.072</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p13">Hooka</p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p13">0.302</p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p13">0.055</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td1">
+        <p class="p13">Google translate</p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p13">0.449</p>
+      </td>
+      <td valign="middle" class="td3">
+        <p class="p13">0.114<span class="s6"><span class="Apple-converted-space"> </span></span></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; min-height: 14.0px"><br></h2>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 12.0px Times">We conclude that using probability values from berkeleyAligner yielded the best result, and Hooka was the least accurate of the three. The biggest advantage of Hooka is its ability to parallelize computation; here are total running times for aligning a dataset containing 1079017 sentence pairs (Hooka runs on a cluster with 15 nodes, each with 8 cores; others run on a single core):</h2>
+<table cellspacing="0" cellpadding="0" class="t1">
+  <tbody>
+    <tr>
+      <td valign="middle" class="td4">
+        <p class="p13">GIZA++</p>
+      </td>
+      <td valign="middle" class="td5">
+        <p class="p13">13:04:57</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td4">
+        <p class="p13">berkeleyAligner</p>
+      </td>
+      <td valign="middle" class="td5">
+        <p class="p13">44:41:03</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" class="td4">
+        <p class="p13">Hooka</p>
+      </td>
+      <td valign="middle" class="td5">
+        <p class="p13">0:58:00</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h2 style="margin: 0.0px 0.0px 14.0px 0.0px; font: 12.0px Times; min-height: 14.0px"><br></h2>
+<p class="p3"><b>Support for other word aligner programs</b></p>
+<p class="p4">As part of the Ivory toolkit, we provide methods that can convert the output of berkeleyAligner and GIZA++ into <span class="s1">Vocab</span> and <span class="s1">TTable</span> objects, and write them to disk for future use. This is especially useful when you want to use one of these two popular word alignment tools in the cross-lingual pairwise similarity framework of Ivory.<span class="Apple-converted-space"> </span></p>
+<p class="p6"><br></p>
+<p class="p16"><b>1. GIZA++</b></p>
+<p class="p9">The output of GIZA++ alignment consists of two files: one contains probabilities from source language to target language, and the other vice versa. First, sort the file named lex.0-0.n2f by the second column so it can be converted into Hooka data structures:</p>
+<p class="p6"><br></p>
+<p class="p5">$ sort -k2 $GIZAWorkDir/lex.0-0.n2f -o $GIZAWorkDir/lex.0-0.n2f</p>
+<p class="p6"><br></p>
+<p class="p9">Next, use Hooka to convert each file into a <span class="s1">TTable</span> object and a pair of <span class="s1">Vocab</span> objects:</p>
+<p class="p11"><br></p>
+<p class="p10">CLIRUtils.createTTableFromGIZA(GIZAWorkDir+<span class="s4">"/lex.0-0.n2f"</span>, e2f_eVocabFile, e2f_fVocabFile, e2f_ttableFile, FileSystem.get(hdfsConf));</p>
+<p class="p10">CLIRUtils.createTTableFromGIZA(GIZAWorkDir+<span class="s4">"/lex.0-0.f2n"</span>, f2e_fVocabFile, f2e_eVocabFile, f2e_ttableFile, FileSystem.get(hdfsConf));</p>
+<p class="p6"><br></p>
+<p class="p9">The first argument in the above line points to one of the output files of GIZA++. The next three arguments indicate the file path where the three objects should be written.</p>
+<p class="p11"><br></p>
+<p class="p16"><b>2. berkeleyAligner</b></p>
+<p class="p9">The output of berkeleyAligner is similar to GIZA++, but you don't need to do any preprocessing before converting with Hooka. Here is an example command line:</p>
+<p class="p6"><br></p>
+<p class="p10">CLIRUtils.createTTableFromBerkeleyAligner(berkeleyWorkDir+<span class="s4">"/stage2.1.params.txt"</span>, e2f_eVocabFile, e2f_fVocabFile, e2f_ttableFile, FileSystem.get(hdfsConf));</p>
+<p class="p10">CLIRUtils.createTTableFromBerkeleyAligner(berkeleyWorkDir+<span class="s4">"/stage2.2.params.txt"</span>, f2e_fVocabFile, f2e_eVocabFile, f2e_ttableFile, FileSystem.get(hdfsConf));</p>
+</body>
+</html>

@@ -19,6 +19,13 @@ package edu.umd.cloud9.example.bfs;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,15 +47,11 @@ import edu.umd.cloud9.util.map.HMapII;
 import edu.umd.cloud9.util.map.MapII;
 
 /**
- * <p>
  * Tool for running one iteration of parallel breadth-first search.
- * </p>
  *
  * @author Jimmy Lin
- *
  */
 public class IterateBFS extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(IterateBFS.class);
 
 	private static enum ReachableNodes {
@@ -56,9 +59,7 @@ public class IterateBFS extends Configured implements Tool {
 	};
 
 	// Mapper with in-mapper combiner optimization.
-	private static class MapClass extends
-			Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
-
+	private static class MapClass extends	Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
 		// For buffering distances keyed by destination node.
 		private static final HMapII map = new HMapII();
 
@@ -66,12 +67,11 @@ public class IterateBFS extends Configured implements Tool {
 		private static final BFSNode intermediateStructure = new BFSNode();
 
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context) throws IOException,
-				InterruptedException {
-
+		public void map(IntWritable nid, BFSNode node, Context context)
+		    throws IOException, InterruptedException {
 			// Pass along node structure.
 			intermediateStructure.setNodeId(node.getNodeId());
-			intermediateStructure.setType(BFSNode.TYPE_STRUCTURE);
+			intermediateStructure.setType(BFSNode.Type.Structure);
 			intermediateStructure.setAdjacencyList(node.getAdjacenyList());
 
 			context.write(nid, intermediateStructure);
@@ -110,7 +110,7 @@ public class IterateBFS extends Configured implements Tool {
 				k.set(e.getKey());
 
 				dist.setNodeId(e.getKey());
-				dist.setType(BFSNode.TYPE_DISTANCE);
+				dist.setType(BFSNode.Type.Distance);
 				dist.setDistance(e.getValue());
 
 				context.write(k, dist);
@@ -120,7 +120,6 @@ public class IterateBFS extends Configured implements Tool {
 
 	// Reduce: sums incoming PageRank contributions, rewrite graph structure.
 	private static class ReduceClass extends Reducer<IntWritable, BFSNode, IntWritable, BFSNode> {
-
 		private static final BFSNode node = new BFSNode();
 
 		@Override
@@ -134,7 +133,7 @@ public class IterateBFS extends Configured implements Tool {
 			while (values.hasNext()) {
 				BFSNode n = values.next();
 
-				if (n.getType() == BFSNode.TYPE_STRUCTURE) {
+				if (n.getType() == BFSNode.Type.Structure) {
 					// This is the structure; update accordingly.
 					ArrayListOfIntsWritable list = n.getAdjacenyList();
 					structureReceived++;
@@ -153,7 +152,7 @@ public class IterateBFS extends Configured implements Tool {
 				}
 			}
 
-			node.setType(BFSNode.TYPE_COMPLETE);
+			node.setType(BFSNode.Type.Complete);
 			node.setNodeId(nid.get());
 			node.setDistance(dist); // Update the final distance.
 
@@ -180,34 +179,52 @@ public class IterateBFS extends Configured implements Tool {
 		}
 	}
 
-	public IterateBFS() {
-	}
+	public IterateBFS() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [inputDir] [outputDir] [numPartitions]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
+  private static final String NUM_PARTITIONS_OPTION = "num_partitions";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  @SuppressWarnings("static-access") @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of partitions").create(NUM_PARTITIONS_OPTION));
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int n = Integer.parseInt(args[2]);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		LOG.info("Tool name: IterateBFS");
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(NUM_PARTITIONS_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    int n = Integer.parseInt(cmdline.getOptionValue(NUM_PARTITIONS_OPTION));
+
+    LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - inputDir: " + inputPath);
 		LOG.info(" - outputDir: " + outputPath);
 		LOG.info(" - numPartitions: " + n);
 
-		Job job = new Job(getConf(), "IterateBFS");
+		getConf().set("mapred.child.java.opts", "-Xmx2048m");
+
+		Job job = new Job(getConf(), String.format("IterateBFS[%s: %s, %s: %s, %s: %d]",
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, NUM_PARTITIONS_OPTION, n));
 		job.setJarByClass(EncodeBFSGraph.class);
 
 		job.setNumReduceTasks(n);

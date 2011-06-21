@@ -10,6 +10,7 @@ import java.util.Set;
  * @param <K> type of the keys
  */
 public interface MapKS<K> {
+  public static final short DEFAULT_VALUE = 0;
 	// Query Operations
 
 	/**
@@ -72,8 +73,9 @@ public interface MapKS<K> {
 	 *            key with which the specified value is to be associated
 	 * @param value
 	 *            value to be associated with the specified key
+   * @return the previous value of the key (or the default value, if none)
 	 */
-	void put(K key, short value);
+	short put(K key, short value);
 
 	/**
 	 * Removes the mapping for a key from this map if it is present. No action

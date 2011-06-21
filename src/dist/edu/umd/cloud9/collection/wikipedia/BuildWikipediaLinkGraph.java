@@ -21,6 +21,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -45,19 +52,9 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.pair.PairOfStringInt;
 
 /**
- * <p>
  * Tool for extracting the link graph out of Wikipedia. Sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
- *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
- *   /user/jimmy/Wikipedia/compressed.block/en-20101011 \
- *   /user/jimmy/Wikipedia/edges /user/jimmy/Wikipedia/adjacency 10
- * </pre></blockquote>
  *
  * @author Jimmy Lin
- *
  */
 @SuppressWarnings("deprecation")
 public class BuildWikipediaLinkGraph extends Configured implements Tool {
@@ -207,17 +204,44 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		}
 	}
 
+  private static final String INPUT_OPTION = "input";
+  private static final String EDGES_OUTPUT_OPTION = "edges_output";
+  private static final String ADJ_OUTPUT_OPTION = "adjacency_list_output";
+  private static final String NUM_PARTITIONS_OPTION = "num_partitions";
+
+  @SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
-			System.out.println("usage: [input] [edges-output] [adjacency-list-output] [num-partitions]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output for edges").create(EDGES_OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output for adjacency list").create(ADJ_OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of partitions").create(NUM_PARTITIONS_OPTION));
 
-		int numPartitions = Integer.parseInt(args[3]);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		task1(args[0], args[1], numPartitions);
-		task2(args[1], args[2], numPartitions);
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(EDGES_OUTPUT_OPTION)
+        || !cmdline.hasOption(ADJ_OUTPUT_OPTION) || !cmdline.hasOption(NUM_PARTITIONS_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+		int numPartitions = Integer.parseInt(cmdline.getOptionValue(NUM_PARTITIONS_OPTION));
+
+		task1(cmdline.getOptionValue(INPUT_OPTION), cmdline.getOptionValue(EDGES_OUTPUT_OPTION), numPartitions);
+		task2(cmdline.getOptionValue(EDGES_OUTPUT_OPTION), cmdline.getOptionValue(ADJ_OUTPUT_OPTION), numPartitions);
 
 		return 0;
 	}
@@ -228,9 +252,9 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		LOG.info(" - output: " + outputPath);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
-		conf.setJobName("BuildWikipediaLinkGraph:Edges");
+		conf.setJobName(String.format("BuildWikipediaLinkGraph:Edges[input: %s, output: %s, num_partitions: %d]",
+		    inputPath, outputPath, partitions));
 
-		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(partitions);
 
 		SequenceFileInputFormat.addInputPath(conf, new Path(inputPath));
@@ -261,9 +285,9 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 		LOG.info(" - output: " + outputPath);
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaLinkGraph.class);
-		conf.setJobName("BuildWikipediaLinkGraph:AdjacencyList");
+		conf.setJobName(String.format("BuildWikipediaLinkGraph:AdjacencyList[input: %s, output: %s, num_partitions: %d]",
+        inputPath, outputPath, partitions));
 
-		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(partitions);
 
 		TextInputFormat.addInputPath(conf, new Path(inputPath));

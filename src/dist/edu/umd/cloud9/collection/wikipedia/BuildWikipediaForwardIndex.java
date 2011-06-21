@@ -18,6 +18,13 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -43,19 +50,9 @@ import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 
 /**
- * <p>
- * Tool for building a document forward index for Wikipedia. Sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
- *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
- *   /user/jimmy/Wikipedia/compressed.block/en-20101011 tmp \
- *   /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat
- * </pre></blockquote>
+ * Tool for building a document forward index for Wikipedia.
  * 
  * @author Jimmy Lin
- * 
  */
 @SuppressWarnings("deprecation")
 public class BuildWikipediaForwardIndex extends Configured implements Tool {
@@ -101,32 +98,61 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		}
 	}
 
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
+  private static final String INDEX_FILE_OPTION = "index_file";
+
+  @SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			System.out.println("usage: [collection-path] [output-path] [index-file]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("tmp output directory").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("index file").create(INDEX_FILE_OPTION));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
+
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(INDEX_FILE_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    Path inputPath = new Path(cmdline.getOptionValue(INPUT_OPTION));
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    String indexFile = cmdline.getOptionValue(INDEX_FILE_OPTION);
+
+    if ( !inputPath.isAbsolute()) {
+      System.err.println("Error: " + INPUT_OPTION + " must be an absolute path!");
+      return -1;
+    }
 
 		JobConf conf = new JobConf(getConf(), BuildWikipediaForwardIndex.class);
 		FileSystem fs = FileSystem.get(conf);
 
-		String collectionPath = args[0];
-		String outputPath = args[1];
-		String indexFile = args[2];
-
-		LOG.info("Tool name: BuildWikipediaForwardIndex");
-		LOG.info(" - collection path: " + collectionPath);
+		LOG.info("Tool name: " + this.getClass().getName());
+		LOG.info(" - input path: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
 		LOG.info(" - index file: " + indexFile);
 		LOG.info("Note: This tool only works on block-compressed SequenceFiles!");
 
-		conf.setJobName("BuildWikipediaForwardIndex:" + collectionPath);
+    conf.setJobName(String.format("BuildWikipediaForwardIndex[%s: %s, %s: %s]",
+        INPUT_OPTION, inputPath, INDEX_FILE_OPTION, indexFile));
 
-		conf.setNumMapTasks(100);
 		conf.setNumReduceTasks(1);
 
-		FileInputFormat.setInputPaths(conf, new Path(collectionPath));
+		FileInputFormat.setInputPaths(conf, inputPath);
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
@@ -152,7 +178,7 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
 		out.writeUTF("edu.umd.cloud9.collection.wikipedia.WikipediaForwardIndex");
-		out.writeUTF(collectionPath);
+		out.writeUTF(inputPath.toString());
 		out.writeInt(blocks);
 
 		int cnt = 0;

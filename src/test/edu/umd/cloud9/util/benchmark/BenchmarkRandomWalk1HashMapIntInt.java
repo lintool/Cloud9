@@ -30,7 +30,7 @@ public class BenchmarkRandomWalk1HashMapIntInt {
 		duration = System.currentTimeMillis() - startTime;
 
 		System.out.println("removals: " + removals);
-		System.out.println("Time taken: " + duration + "ms");
+		System.out.println("Time taken: " + duration + " ms");
 	}
 
 	private static void increment(Map<Integer, Integer> map, int key) {

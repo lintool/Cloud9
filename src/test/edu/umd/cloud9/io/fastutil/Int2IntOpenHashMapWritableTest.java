@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A MapReduce Library for Hadoop
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.io.fastutil;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +52,32 @@ public class Int2IntOpenHashMapWritableTest {
 		value = m.get(1);
 		assertEquals(22, value);
 	}
+
+  @Test
+  public void testIncrement() throws IOException {
+    Int2IntOpenHashMapWritable m = new Int2IntOpenHashMapWritable();
+
+    m.put(2, 7);
+    m.put(1, 29);
+
+    assertEquals(7, m.get(2));
+    assertEquals(29, m.get(1));
+
+    m.increment(2);
+    m.increment(1);
+    m.increment(3);
+
+    assertEquals(8, m.get(2));
+    assertEquals(30, m.get(1));
+    assertEquals(1, m.get(3));
+
+    m.increment(1, 3);
+    m.increment(3, 5);
+
+    assertEquals(8, m.get(2));
+    assertEquals(33, m.get(1));
+    assertEquals(6, m.get(3));
+  }
 
 	@Test
 	public void testSerialize1() throws IOException {

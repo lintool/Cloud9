@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,20 +32,18 @@ import edu.umd.cloud9.io.Tuple;
  * combined with {@link Tuple}, allows the user to define arbitrarily complex
  * data structures.
  * </p>
- * 
+ *
  * @see Tuple
- * @param <E>
- *            type of list element
- * 
+ * @param <E> type of list element
+ *
  * @author Jimmy Lin
  * @author Tamer Elsayed
  */
 
 public class ArrayListWritable<E extends Writable> extends ArrayList<E> implements Writable {
+  private static final long serialVersionUID = 4911321393319821791L;
 
-	private static final long serialVersionUID = 1L;
-
-	/**
+  /**
 	 * Creates an ArrayListWritable object.
 	 */
 	public ArrayListWritable() {
@@ -61,13 +59,11 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 
 	/**
 	 * Deserializes the array.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
-
 		this.clear();
 
 		int numFields = in.readInt();
@@ -90,9 +86,8 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 
 	/**
 	 * Serializes this array.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(this.size());
@@ -113,7 +108,7 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 
 	/**
 	 * Generates human-readable String representation of this ArrayList.
-	 * 
+	 *
 	 * @return human-readable String representation of this ArrayList
 	 */
 	public String toString() {
@@ -128,5 +123,4 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 
 		return sb.toString();
 	}
-
 }

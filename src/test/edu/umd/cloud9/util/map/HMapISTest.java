@@ -218,7 +218,24 @@ public class HMapISTest {
 		Entry[] e = m.getEntriesSortedByValue();
 		assertTrue(e == null);
 	}
-	
+
+  @Test
+  public void testIncrement() {
+    HMapIS m = new HMapIS();
+    assertEquals(0, m.get(1));
+
+    m.increment(1, (short)1);
+    assertEquals(1, m.get(1));
+
+    m.increment(1, (short)1);
+    m.increment(2, (short)0);
+    m.increment(3, (short)-1);
+    
+    assertEquals(2, m.get(1));
+    assertEquals(0, m.get(2));
+    assertEquals(-1, m.get(3));
+  }
+
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(HMapISTest.class);
 	}

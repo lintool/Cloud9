@@ -56,7 +56,6 @@ public class PairOfObjectLong<L extends Comparable<L>> implements Comparable<Pai
 		return "(" + left + ", " + right + ")";
 	}
 
-
 	/**
 	 * Creates a shallow clone of this object; the left element itself is not cloned.
 	 */
