@@ -16,10 +16,10 @@
 
 package edu.umd.cloud9.util.fd;
 
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.longs.LongCollection;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,31 +28,31 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.pair.PairOfInts;
+import edu.umd.cloud9.io.pair.PairOfIntLong;
 
 /**
- * Implementation of {@link Int2IntFrequencyDistribution} based on
- * {@link Int2IntOpenHashMap}.
+ * Implementation of {@link Int2LongFrequencyDistribution} based on
+ * {@link Int2LongOpenHashMap}.
  *
  * @author Jimmy Lin
  *
  */
-public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistribution {
+public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyDistribution {
 
-	private Int2IntOpenHashMap counts = new Int2IntOpenHashMap();
+	private Int2LongOpenHashMap counts = new Int2LongOpenHashMap();
 	private long sumOfCounts = 0;
 
 	@Override
 	public void increment(int key) {
 		if (contains(key)) {
-			set(key, get(key) + 1);
+			set(key, get(key) + 1L);
 		} else {
-			set(key, 1);
+			set(key, 1L);
 		}
 	}
 
 	@Override
-	public void increment(int key, int cnt) {
+	public void increment(int key, long cnt) {
 		if (contains(key)) {
 			set(key, get(key) + cnt);
 		} else {
@@ -63,11 +63,11 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	@Override
 	public void decrement(int key) {
 		if (contains(key)) {
-			int v = get(key);
-			if (v == 1) {
+			long v = get(key);
+			if (v == 1L) {
 				remove(key);
 			} else {
-				set(key, v - 1);
+				set(key, v - 1L);
 			}
 		} else {
 			throw new RuntimeException("Can't decrement non-existent event!");
@@ -75,9 +75,9 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	}
 
 	@Override
-	public void decrement(int key, int cnt) {
+	public void decrement(int key, long cnt) {
 		if (contains(key)) {
-			int v = get(key);
+			long v = get(key);
 			if (v < cnt) {
 				throw new RuntimeException("Can't decrement past zero!");
 			} else if (v == cnt) {
@@ -96,7 +96,7 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	}
 
 	@Override
-	public int get(int key) {
+	public long get(int key) {
 		return counts.get(key);
 	}
 
@@ -111,16 +111,16 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
   }
 
 	@Override
-	public int set(int key, int cnt) {
-		int rv = counts.put(key, cnt);
-		sumOfCounts = sumOfCounts - rv + cnt;
+	public long set(int k, long v) {
+		long rv = counts.put(k, v);
+		sumOfCounts = sumOfCounts - rv + v;
 
 		return rv;
 	}
 
 	@Override
-	public int remove(int key) {
-		int rv = counts.remove(key);
+	public long remove(int k) {
+		long rv = counts.remove(k);
 		sumOfCounts -= rv;
 
 		return rv;
@@ -142,15 +142,15 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	/**
 	 * Exposes efficient method for accessing values in this map.
 	 */
-	public IntCollection values() {
+	public LongCollection values() {
 		return counts.values();
 	}
 
 	/**
 	 * Exposes efficient method for accessing mappings in this map.
 	 */
-	public Int2IntMap.FastEntrySet entrySet() {
-		return counts.int2IntEntrySet();
+	public Int2LongMap.FastEntrySet entrySet() {
+		return counts.int2LongEntrySet();
 	}
 
 	@Override
@@ -166,10 +166,10 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	/**
 	 * Iterator returns the same object every time, just with a different payload.
 	 */
-	public Iterator<PairOfInts> iterator() {
-		return new Iterator<PairOfInts>() {
-			private Iterator<Int2IntMap.Entry> iter = Int2IntFrequencyDistributionOpen.this.counts.int2IntEntrySet().iterator();
-			private final PairOfInts pair = new PairOfInts();
+	public Iterator<PairOfIntLong> iterator() {
+		return new Iterator<PairOfIntLong>() {
+			private Iterator<Int2LongMap.Entry> iter = Int2LongFrequencyDistributionFastutil.this.counts.int2LongEntrySet().iterator();
+			private final PairOfIntLong pair = new PairOfIntLong();
 
 			@Override
 			public boolean hasNext() {
@@ -177,13 +177,13 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 			}
 
 			@Override
-			public PairOfInts next() {
+			public PairOfIntLong next() {
 				if (!hasNext()) {
 					return null;
 				}
 
-				Int2IntMap.Entry entry = iter.next();
-				pair.set(entry.getIntKey(), entry.getIntValue());
+				Int2LongMap.Entry entry = iter.next();
+				pair.set(entry.getIntKey(), entry.getLongValue());
 				return pair;
 			}
 
@@ -195,7 +195,7 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
 	}
 
   @Override
-  public List<PairOfInts> getEntries(Order ordering) {
+  public List<PairOfIntLong> getEntries(Order ordering) {
     if (ordering.equals(Order.ByLeftElementDescending)) {
       return getSortedEvents();
     } else if (ordering.equals(Order.ByRightElementDescending)) {
@@ -207,7 +207,7 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
   }
 
   @Override
-  public List<PairOfInts> getEntries(Order ordering, int n) {
+  public List<PairOfIntLong> getEntries(Order ordering, int n) {
     if (ordering.equals(Order.ByLeftElementDescending)) {
       return getSortedEvents(n);
     } else if (ordering.equals(Order.ByRightElementDescending)) {
@@ -218,15 +218,15 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
     throw new UnsupportedOperationException();
   }
 
-  private List<PairOfInts> getEventsSortedByCount() {
-    List<PairOfInts> list = Lists.newArrayList();
+  private List<PairOfIntLong> getEventsSortedByCount() {
+    List<PairOfIntLong> list = Lists.newArrayList();
 
-    for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
-      list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
+      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
     }
 
-    Collections.sort(list, new Comparator<PairOfInts>() {
-      public int compare(PairOfInts e1, PairOfInts e2) {
+    Collections.sort(list, new Comparator<PairOfIntLong>() {
+      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
         if (e1.getRightElement() > e2.getRightElement()) {
           return -1;
         }
@@ -246,20 +246,20 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
     return list;
   }
 
-  private List<PairOfInts> getEventsSortedByCount(int n) {
-    List<PairOfInts> list = getEventsSortedByCount();
+  private List<PairOfIntLong> getEventsSortedByCount(int n) {
+    List<PairOfIntLong> list = getEventsSortedByCount();
     return list.subList(0, n);
   }
 
-  private List<PairOfInts> getSortedEvents() {
-    List<PairOfInts> list = Lists.newArrayList();
+  private List<PairOfIntLong> getSortedEvents() {
+    List<PairOfIntLong> list = Lists.newArrayList();
 
-    for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
-      list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
+      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
     }
 
-    Collections.sort(list, new Comparator<PairOfInts>() {
-      public int compare(PairOfInts e1, PairOfInts e2) {
+    Collections.sort(list, new Comparator<PairOfIntLong>() {
+      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
         if (e1.getLeftElement() > e2.getLeftElement()) {
           return 1;
         }
@@ -275,8 +275,8 @@ public class Int2IntFrequencyDistributionOpen implements Int2IntFrequencyDistrib
     return list;
   }
 
-  private List<PairOfInts> getSortedEvents(int n) {
-    List<PairOfInts> list = getSortedEvents();
+  private List<PairOfIntLong> getSortedEvents(int n) {
+    List<PairOfIntLong> list = getSortedEvents();
     return list.subList(0, n);
   }
 }

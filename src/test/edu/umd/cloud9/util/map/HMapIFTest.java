@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,7 +80,6 @@ public class HMapIFTest {
       assertEquals(floats[i] + 1.0f, v, 0.0f);
       assertTrue(map.containsKey(i));
     }
-
   }
 
   @Test
@@ -263,7 +262,7 @@ public class HMapIFTest {
     m.increment(1, 1.0f);
     m.increment(2, 0.0f);
     m.increment(3, -0.5f);
-    
+
     assertEquals(1.5f, m.get(1), 10E-6);
     assertEquals(0.0f, m.get(2), 10E-6);
     assertEquals(-0.5f, m.get(3), 10E-6);
@@ -272,5 +271,4 @@ public class HMapIFTest {
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(HMapIFTest.class);
   }
-
 }

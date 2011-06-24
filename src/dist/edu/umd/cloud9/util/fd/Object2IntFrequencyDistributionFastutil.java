@@ -37,7 +37,7 @@ import edu.umd.cloud9.util.pair.PairOfObjectInt;
  * @author Jimmy Lin
  *
  */
-public class Object2IntFrequencyDistributionOpen<K extends Comparable<K>>
+public class Object2IntFrequencyDistributionFastutil<K extends Comparable<K>>
     implements Object2IntFrequencyDistribution<K> {
 
 	private Object2IntOpenHashMap<K> counts = new Object2IntOpenHashMap<K>();
@@ -170,7 +170,7 @@ public class Object2IntFrequencyDistributionOpen<K extends Comparable<K>>
 	public Iterator<PairOfObjectInt<K>> iterator() {
 		return new Iterator<PairOfObjectInt<K>>() {
 			private Iterator<Object2IntMap.Entry<K>> iter =
-			  Object2IntFrequencyDistributionOpen.this.counts.object2IntEntrySet().iterator();
+			  Object2IntFrequencyDistributionFastutil.this.counts.object2IntEntrySet().iterator();
 			private final PairOfObjectInt<K> pair = new PairOfObjectInt<K>();
 
 			@Override
@@ -275,9 +275,9 @@ public class Object2IntFrequencyDistributionOpen<K extends Comparable<K>>
     return list.subList(0, n);
   }
 
-  public static <T extends Comparable<T>> Object2IntFrequencyDistributionOpen<T>
+  public static <T extends Comparable<T>> Object2IntFrequencyDistributionFastutil<T>
       fromObject2IntOpenHashMap(Object2IntOpenHashMap<T> map) {
-    Object2IntFrequencyDistributionOpen<T> fd = new Object2IntFrequencyDistributionOpen<T>();
+    Object2IntFrequencyDistributionFastutil<T> fd = new Object2IntFrequencyDistributionFastutil<T>();
 
     fd.counts = map;
     long cnt = 0;
