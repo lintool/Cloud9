@@ -81,7 +81,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 	 */
 	private static class HAMapper extends MapReduceBase implements
 	Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
-		// private Tuple valIn = MAP_SCHEMA.instantiate();
+		
 		private HITSNode valOut = new HITSNode();
 		private ArrayListOfIntsWritable empty = new ArrayListOfIntsWritable();
 
@@ -120,6 +120,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 	}
 
+	//wrong!! FIXME1
 	// mapper using in-mapper combining
 	private static class HAMapperIMC extends MapReduceBase implements
 			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
@@ -132,9 +133,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 		private static OutputCollector<IntWritable, HITSNode> mOutput;
 
 		private static HITSNode valOut = new HITSNode();
-
-		// private static ArrayListOfIntsWritable empty = new
-		// ArrayListOfIntsWritable();
 
 		public void configure(JobConf job) {
 			rankmapA.clear();
@@ -150,22 +148,12 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			ArrayListOfIntsWritable adjList;
 			output.collect(key, value);
 
-			// check type using new types
-			//emit hvals to outlinks as avals
-
-
-
-			//emit avals to inlinks as hvals
-
-
 			int curr;
 			typeOut = 0;
-			
+			//emit avals to inlinks as hvals
 			adjList = value.getOutlinks();
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
-				// System.out.println("[key: " + key.toString() + "] [curr: " +
-				// curr + "]");
 				if (rankmapA.containsKey(curr)) {
 					rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
 							value.getHRank()));
@@ -173,7 +161,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 					rankmapA.put(curr, value.getHRank());
 				}
 			}
-			
+			//emit hvals to outlinks as avals
 			adjList = value.getInlinks();
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
@@ -194,15 +182,14 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				mass.setType(HITSNode.TYPE_HUB_MASS);
 				mass.setHRank(e.getValue());
 				mass.setNodeId(e.getKey());
-				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
+			mass = new HITSNode();
 			for (MapIF.Entry e : rankmapA.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_AUTH_MASS);
 				mass.setARank(e.getValue());
 				mass.setNodeId(e.getKey());
-				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
 		}
@@ -260,8 +247,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 					System.err.println("Unexpected Node Type: " + type);
 				}
 			}
-			// System.out.println(key.toString() + " " + "H" + " " +
-			// hpayloadOut.toString());
 
 			// if this is the first run, set rank to 0 for nodes with no inlinks
 			// or outlinks
@@ -294,7 +279,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 			int type = value.getType();
 
-			// System.out.println(key.toString() + " " + valOut.toString());
 			if (type == HITSNode.TYPE_NODE_COMPLETE) {
 				rank.set(value.getARank() * 2);
 				output.collect(new Text("A"), rank);
@@ -407,9 +391,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
 				throws IOException {
 
-			// System.out.println("H: " + rootSumH);
-			// System.out.println("A: " + rootSumA);
-
 			float arank = value.getARank();
 			float hrank = value.getHRank();
 
@@ -422,9 +403,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			nodeOut.setHRank(hrank);
 			nodeOut.setInlinks(value.getInlinks());
 			nodeOut.setOutlinks(value.getOutlinks());
-			// System.out.println(tupleOut.toString());
 
-			// System.out.println(key.toString() + " " + valOut.toString());
 			output.collect(key, nodeOut);
 		}
 
@@ -604,7 +583,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			boolean useCombiner, boolean useInmapCombiner, boolean useRange,
 			int mapTasks, int reduceTasks) throws IOException {
 
-		// FIXME
 		String inputPath = path + "/iter" + sFormat.format(jter) + "t";
 		String outputPath = path + "/iter" + sFormat.format(jter);
 		String tempPath = path + "/sqrt";

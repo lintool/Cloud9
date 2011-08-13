@@ -33,8 +33,8 @@ public class HITSNode implements Writable {
 	private int mNodeId;
 	private float mHRank;
 	private float mARank;
-	private ArrayListOfIntsWritable mInlinks;
-	private ArrayListOfIntsWritable mOutlinks;
+	private ArrayListOfIntsWritable mInlinks = new ArrayListOfIntsWritable();
+	private ArrayListOfIntsWritable mOutlinks = new ArrayListOfIntsWritable();
 
 	public HITSNode() {
 	}
@@ -44,7 +44,7 @@ public class HITSNode implements Writable {
 	}
 	
 	public float getARank() {
-		return mHRank;
+		return mARank;
 	}
 
 	public void setHRank(float r) {
@@ -86,7 +86,9 @@ public class HITSNode implements Writable {
 	public void setType(int type) {
 		if (type != TYPE_HUB_COMPLETE && type != TYPE_HUB_MASS
 				&& type != TYPE_HUB_STRUCTURE && type != TYPE_AUTH_COMPLETE
-				&& type != TYPE_AUTH_MASS && type != TYPE_AUTH_STRUCTURE)
+				&& type != TYPE_AUTH_MASS && type != TYPE_AUTH_STRUCTURE
+				&& type != TYPE_NODE_MASS && type != TYPE_NODE_STRUCTURE
+				&& type != TYPE_NODE_COMPLETE)
 			return;
 
 		mType = type;
@@ -103,6 +105,9 @@ public class HITSNode implements Writable {
 
 		mNodeId = in.readInt();
 
+		mInlinks = new ArrayListOfIntsWritable();
+		mOutlinks = new ArrayListOfIntsWritable();
+		
 		if (mType == TYPE_HUB_MASS || mType == TYPE_NODE_MASS) {
 			mHRank = in.readFloat();
 			return;
@@ -121,18 +126,18 @@ public class HITSNode implements Writable {
 			mARank = in.readFloat();
 		}
 
-		if (mType == TYPE_HUB_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
-		{
-			mOutlinks = new ArrayListOfIntsWritable();
-			mOutlinks.readFields(in);
-		}
+		//if (mType == TYPE_HUB_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
+		//{
+			//mOutlinks.readFields(in);
+			mInlinks.readFields(in);
+		//}
 		
 		//is this right -- inlinks go with hub and outlinks go with auth??? no -- other way around
-		if (mType == TYPE_AUTH_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
-		{
-			mInlinks = new ArrayListOfIntsWritable();
-			mInlinks.readFields(in);
-		}
+		//if (mType == TYPE_AUTH_STRUCTURE || mType == TYPE_NODE_STRUCTURE || mType == TYPE_NODE_COMPLETE)
+		//{
+			mOutlinks.readFields(in);
+			//mInlinks.readFields(in);
+		//}
 	}
 
 	/**
@@ -187,12 +192,11 @@ public class HITSNode implements Writable {
 			s.append("?");
 		}
 		
-		s.append(" ");
-		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS) {
-			s.append("H:" + mHRank);
+		if (mType == TYPE_HUB_COMPLETE || mType == TYPE_HUB_MASS || mType == TYPE_NODE_COMPLETE) {
+			s.append(" H: " + mHRank);
 		}
-		if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS) {
-			s.append("A: " + mARank);
+		if (mType == TYPE_AUTH_COMPLETE || mType == TYPE_AUTH_MASS || mType == TYPE_NODE_COMPLETE) {
+			s.append(" A: " + mARank);
 		}
 		
 		s.append(" ");

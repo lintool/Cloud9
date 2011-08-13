@@ -450,11 +450,10 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 
 			int type = value.getType();
 			float arank = value.getARank() * 2;
-			float hrank = value.getARank() * 2;// <===FIXME
+			float hrank = value.getHRank() * 2;// <===FIXME
 
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
+			if (type == HITSNode.TYPE_NODE_COMPLETE) {
 				asum = sumLogProbs(asum, arank);
-			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
 				hsum = sumLogProbs(hsum, hrank);
 			} else {
 				System.err.println("Bad Type: " + type);
@@ -826,7 +825,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 		conf2.setInputFormat(SequenceFileInputFormat.class);
 		conf2.setOutputKeyClass(IntWritable.class);
 		conf2.setOutputValueClass(HITSNode.class);
-		conf2.setOutputFormat(SequenceFileOutputFormat.class);
+		//conf2.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf2.setMapperClass(Norm2Mapper.class);
 		if (useRange == true) {

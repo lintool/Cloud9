@@ -100,7 +100,8 @@ public class InlinkCounter extends Configured implements Tool {
 					ArrayListOfIntsWritable list = adjLists.get(curr);
 					list.trimToSize();
 					links.trimToSize();
-					list.addUnique(links.getArray());
+					//FIXME
+					//list.addAll(links.getArray());
 					adjLists.put(curr, list);
 				} else {
 					links.trimToSize();
