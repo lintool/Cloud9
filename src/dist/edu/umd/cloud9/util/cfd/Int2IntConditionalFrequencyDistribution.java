@@ -34,7 +34,7 @@ public interface Int2IntConditionalFrequencyDistribution {
 	 * Returns the marginal count of <code>k</code>. That is, sum of counts of
 	 * <code>k</code> conditioned on all <code>cond</code>.
 	 */
-	public int getMarginalCount(int k);
+	public long getMarginalCount(int k);
 
 	/**
 	 * Returns the frequency distribution conditioned on <code>cond</code>.
@@ -44,7 +44,7 @@ public interface Int2IntConditionalFrequencyDistribution {
 	/**
 	 * Returns the sum of all counts.
 	 */
-	public long getSumOfAllFrequencies();
+	public long getSumOfAllCounts();
 
 	/**
 	 * Performs an internal consistency check of this data structure. An

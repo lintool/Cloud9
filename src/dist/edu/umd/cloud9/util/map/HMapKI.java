@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import edu.umd.cloud9.util.map.HMapKF.Entry;
-
 /**
  * Hash-based implementation of the <tt>MapKI</tt> interface. {@link MapKI} is
  * a specialized variant the standard Java {@link Map} interface, except that

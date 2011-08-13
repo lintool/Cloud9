@@ -51,7 +51,7 @@ public interface Object2IntConditionalFrequencyDistribution<K extends Comparable
 	 * Returns the marginal count of <code>k</code>. That is, sum of counts of
 	 * <code>k</code> conditioned on all <code>cond</code>.
 	 */
-	public int getMarginalCount(K k);
+	public long getMarginalCount(K k);
 
 	/**
 	 * Returns the frequency distribution conditioned on <code>cond</code>.
