@@ -825,7 +825,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 		conf2.setInputFormat(SequenceFileInputFormat.class);
 		conf2.setOutputKeyClass(IntWritable.class);
 		conf2.setOutputValueClass(HITSNode.class);
-		//conf2.setOutputFormat(SequenceFileOutputFormat.class);
+		conf2.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf2.setMapperClass(Norm2Mapper.class);
 		if (useRange == true) {
