@@ -282,7 +282,7 @@ public class AFormatterWG extends Configured implements Tool {
 	private static HashSet<Integer> readStopList(JobConf jc) {
 		HashSet<Integer> out = new HashSet<Integer>();
 		try {
-			System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
+			//System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
 			//String[] cacheFiles;
 			cacheFiles = jc.getStrings("stoplist");
