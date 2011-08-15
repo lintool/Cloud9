@@ -101,7 +101,7 @@ public class AFormatterWG extends Configured implements Tool {
 					output.collect(keyOut, valOut);
 				}
 			}
-			System.out.println("?? " + valOut.toString());
+			//System.out.println("?? " + valOut.toString());
 			// emit mentioned mentioner -> mentioned (mentioners) in links
 			// emit mentioner mentioned -> mentioner (mentions) outlinks
 			// emit mentioned a
@@ -173,7 +173,7 @@ public class AFormatterWG extends Configured implements Tool {
 				valOut.setInlinks(e.getValue());
 				//System.out.println(">> " + e.getKey() + " [" + e.getValue().toString() + "]");
 				mOutput.collect(keyOut, valOut);
-				System.out.println(valOut.toString());
+				//System.out.println(valOut.toString());
 			}
 		}
 
@@ -191,10 +191,10 @@ public class AFormatterWG extends Configured implements Tool {
 			// ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 			adjList.clear();
 
-			System.out.println(key.toString());
+			//System.out.println(key.toString());
 			while (values.hasNext()) {
 				valIn = values.next();
-				System.out.println(valIn.toString());
+				//System.out.println(valIn.toString());
 				ArrayListOfIntsWritable adjListIn = valIn.getInlinks();
 				adjListIn.trimToSize();
 				adjList.addUnique(adjListIn.getArray());
@@ -258,7 +258,7 @@ public class AFormatterWG extends Configured implements Tool {
 		// InputSampler.RandomSampler<IntWritable, Text>(0.1, 10, 10);
 		// InputSampler.writePartitionFile(conf, sampler);
 		// conf.setPartitionerClass(TotalOrderPartitioner.class);
-		conf.setMapperClass(AFormatMapper.class);
+		conf.setMapperClass(AFormatMapperIMC.class);
 		conf.setCombinerClass(AFormatReducer.class);
 		conf.setReducerClass(AFormatReducer.class);
 
@@ -282,10 +282,10 @@ public class AFormatterWG extends Configured implements Tool {
 	private static HashSet<Integer> readStopList(JobConf jc) {
 		HashSet<Integer> out = new HashSet<Integer>();
 		try {
-			//System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
+			System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
 			//String[] cacheFiles;
-			//cacheFiles = jc.getStrings("stoplist");
+			cacheFiles = jc.getStrings("stoplist");
 			FileReader fr = new FileReader(cacheFiles[0].toString());
 			BufferedReader stopReader = new BufferedReader(fr);
 			String line;
