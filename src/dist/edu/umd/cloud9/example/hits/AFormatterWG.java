@@ -285,7 +285,7 @@ public class AFormatterWG extends Configured implements Tool {
 			//System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
 			//String[] cacheFiles;
-			cacheFiles = jc.getStrings("stoplist");
+			//cacheFiles = jc.getStrings("stoplist");
 			FileReader fr = new FileReader(cacheFiles[0].toString());
 			BufferedReader stopReader = new BufferedReader(fr);
 			String line;
