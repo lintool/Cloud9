@@ -28,6 +28,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -86,8 +87,9 @@ public class AFormatterWG extends Configured implements Tool {
 				if (stopList.contains(curr)) {
 					return;
 				}
-				valOut.setAdjacencyList(links);
-				valOut.setHARank((float) 1.0);
+				links.add(curr);
+				valOut.setInlinks(links);
+				valOut.setARank((float) 0.0);
 				valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
 			}
 			while (itr.hasMoreTokens()) {
@@ -99,6 +101,7 @@ public class AFormatterWG extends Configured implements Tool {
 					output.collect(keyOut, valOut);
 				}
 			}
+			//System.out.println("?? " + valOut.toString());
 			// emit mentioned mentioner -> mentioned (mentioners) in links
 			// emit mentioner mentioned -> mentioner (mentions) outlinks
 			// emit mentioned a
@@ -129,6 +132,7 @@ public class AFormatterWG extends Configured implements Tool {
 
 			ArrayListOfIntsWritable links = new ArrayListOfIntsWritable();
 			String line = ((Text) value).toString();
+			//System.out.println(line);
 			StringTokenizer itr = new StringTokenizer(line);
 			if (itr.hasMoreTokens()) {
 				int curr = Integer.parseInt(itr.nextToken());
@@ -141,12 +145,15 @@ public class AFormatterWG extends Configured implements Tool {
 			}
 			while (itr.hasMoreTokens()) {
 				int curr = Integer.parseInt(itr.nextToken());
+				//System.out.println("-->" + curr + " " + links.toString());
 				if (!(stopList.contains(curr))) {
 					if (adjLists.containsKey(curr)) {
-						ArrayListOfIntsWritable list = adjLists.get(curr);
+						//FIXME?
+						ArrayListOfIntsWritable list = new ArrayListOfIntsWritable(adjLists.get(curr));
 						list.trimToSize();
 						links.trimToSize();
 						list.addUnique(links.getArray());
+						adjLists.remove(curr);
 						adjLists.put(curr, list);
 					} else {
 						links.trimToSize();
@@ -154,16 +161,19 @@ public class AFormatterWG extends Configured implements Tool {
 					}
 				}
 			}
+			//System.out.println(adjLists.toString());
 		}
 
 		public void close() throws IOException {
 			for (MapIV.Entry<ArrayListOfIntsWritable> e : adjLists.entrySet()) {
 				keyOut.set(e.getKey());
 				valOut.setNodeId(e.getKey());
-				valOut.setHARank((float) 0.0);
+				valOut.setARank((float) 0.0);
 				valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-				valOut.setAdjacencyList(e.getValue());
+				valOut.setInlinks(e.getValue());
+				//System.out.println(">> " + e.getKey() + " [" + e.getValue().toString() + "]");
 				mOutput.collect(keyOut, valOut);
+				//System.out.println(valOut.toString());
 			}
 		}
 
@@ -181,19 +191,18 @@ public class AFormatterWG extends Configured implements Tool {
 			// ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 			adjList.clear();
 
-			// System.out.println(key.toString());
-			// System.out.println(adjList.toString());
+			//System.out.println(key.toString());
 			while (values.hasNext()) {
 				valIn = values.next();
-				ArrayListOfIntsWritable adjListIn = valIn.getAdjacencyList();
+				//System.out.println(valIn.toString());
+				ArrayListOfIntsWritable adjListIn = valIn.getInlinks();
 				adjListIn.trimToSize();
 				adjList.addUnique(adjListIn.getArray());
-				// System.out.println(adjList.toString());
 			}
 
 			valOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-			valOut.setHARank((float) 0.0);
-			valOut.setAdjacencyList(adjList);
+			valOut.setARank((float) 0.0);
+			valOut.setInlinks(adjList);
 			valOut.setNodeId(key.get());
 
 			output.collect(key, valOut);
@@ -243,7 +252,7 @@ public class AFormatterWG extends Configured implements Tool {
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(HITSNode.class);
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
-		conf.setCompressMapOutput(true);
+		//conf.setCompressMapOutput(true);
 		conf.setSpeculativeExecution(false);
 		// InputSampler.Sampler<IntWritable, Text> sampler = new
 		// InputSampler.RandomSampler<IntWritable, Text>(0.1, 10, 10);
@@ -261,6 +270,7 @@ public class AFormatterWG extends Configured implements Tool {
 		long startTime = System.currentTimeMillis();
 		sLogger.info("Starting job");
 		DistributedCache.addCacheFile(stopList.toUri(), conf);
+		conf.setStrings("stoplist", stopList.toString());
 		JobClient.runJob(conf);
 		sLogger.info("Job Finished in "
 				+ (System.currentTimeMillis() - startTime) / 1000.0
@@ -272,7 +282,10 @@ public class AFormatterWG extends Configured implements Tool {
 	private static HashSet<Integer> readStopList(JobConf jc) {
 		HashSet<Integer> out = new HashSet<Integer>();
 		try {
+			//System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
+			//String[] cacheFiles;
+			//cacheFiles = jc.getStrings("stoplist");
 			FileReader fr = new FileReader(cacheFiles[0].toString());
 			BufferedReader stopReader = new BufferedReader(fr);
 			String line;
