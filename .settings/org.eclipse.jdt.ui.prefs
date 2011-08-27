@@ -1,5 +1,8 @@
-#Tue Apr 05 11:34:25 EDT 2011
+#Sun Aug 21 11:50:57 EDT 2011
 eclipse.preferences.version=1
 formatter_profile=_Cloud9
 formatter_settings_version=11
-org.eclipse.jdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
+org.eclipse.jdt.ui.exception.name=e
+org.eclipse.jdt.ui.gettersetter.use.is=true
+org.eclipse.jdt.ui.keywordthis=false
+org.eclipse.jdt.ui.overrideannotation=true
