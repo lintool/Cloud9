@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,137 +42,122 @@ import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Program that builds the mapping from TREC docids (String identifiers) to
- * docnos (sequentially-numbered ints). The program takes four command-line
- * arguments:
+ * Program that builds the mapping from TREC docids (String identifiers) to docnos
+ * (sequentially-numbered ints). The program takes four command-line arguments:
  * </p>
- * 
+ *
  * <ul>
  * <li>[input] path to the document collection</li>
  * <li>[output-dir] path to temporary MapReduce output directory</li>
  * <li>[output-file] path to location of mappings file</li>
- * <li>[num-mappers] number of mappers to run</li>
  * </ul>
- * 
+ *
  * <p>
  * Here's a sample invocation:
  * </p>
- * 
- * <blockquote>
- * 
- * <pre>
+ *
+ * <blockquote><pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
- * /umd/collections/trec/trec4-5_noCRFR.xml \
- * /user/jimmylin/trec-docid-tmp \
- * /user/jimmylin/docno.mapping 100
- * </pre>
- * 
- * </blockquote>
- * 
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
+ *   /user/jimmylin/trec-docid-tmp \
+ *   /user/jimmylin/docno.mapping
+ * </pre></blockquote>
+ *
  * @author Jimmy Lin
  */
 public class NumberTrecDocuments extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(NumberTrecDocuments.class);
+  private static enum Count { DOCS };
 
-	private static final Logger sLogger = Logger.getLogger(NumberTrecDocuments.class);
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, TrecDocument, Text, IntWritable> {
+    private static final Text docid = new Text();
+    private static final IntWritable one = new IntWritable(1);
 
-	private static enum Count {
-		DOCS
-	};
+    public void map(LongWritable key, TrecDocument doc, OutputCollector<Text, IntWritable> output,
+        Reporter reporter) throws IOException {
+      reporter.incrCounter(Count.DOCS, 1);
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, TrecDocument, Text, IntWritable> {
+      docid.set(doc.getDocid());
+      output.collect(docid, one);
+    }
+  }
 
-		private final static Text sText = new Text();
-		private final static IntWritable sInt = new IntWritable(1);
+  private static class MyReducer extends MapReduceBase implements
+      Reducer<Text, IntWritable, Text, IntWritable> {
+    private static final IntWritable cnt = new IntWritable(1);
 
-		public void map(LongWritable key, TrecDocument doc,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			reporter.incrCounter(Count.DOCS, 1);
+    public void reduce(Text key, Iterator<IntWritable> values,
+        OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+      output.collect(key, cnt);
+      cnt.set(cnt.get() + 1);
+    }
+  }
 
-			sText.set(doc.getDocid());
-			output.collect(sText, sInt);
-		}
-	}
+  /**
+   * Creates an instance of this tool.
+   */
+  public NumberTrecDocuments() {
+  }
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, IntWritable, Text, IntWritable> {
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [output-file]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-		private final static IntWritable sCnt = new IntWritable(1);
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			output.collect(key, sCnt);
-			sCnt.set(sCnt.get() + 1);
-		}
-	}
+    String inputPath = args[0];
+    String outputPath = args[1];
+    String outputFile = args[2];
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public NumberTrecDocuments() {
-	}
+    LOG.info("Tool: NumberTrecDocuments");
+    LOG.info(" - Input path: " + inputPath);
+    LOG.info(" - Output path: " + outputPath);
+    LOG.info(" - Output file: " + outputFile);
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+    JobConf conf = new JobConf(getConf(), NumberTrecDocuments.class);
+    conf.setJobName("NumberTrecDocuments");
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
-			printUsage();
-			return -1;
-		}
+    conf.setNumMapTasks(100); // Arbitrary number; doesn't matter.
+    conf.setNumReduceTasks(1);
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		String outputFile = args[2];
-		int mapTasks = Integer.parseInt(args[3]);
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(conf, false);
 
-		sLogger.info("Tool: NumberTrecDocuments");
-		sLogger.info(" - Input path: " + inputPath);
-		sLogger.info(" - Output path: " + outputPath);
-		sLogger.info(" - Output file: " + outputFile);
-		sLogger.info("Launching with " + mapTasks + " mappers...");
+    conf.setInputFormat(TrecDocumentInputFormat.class);
+    conf.setOutputKeyClass(Text.class);
+    conf.setOutputValueClass(IntWritable.class);
+    conf.setOutputFormat(TextOutputFormat.class);
 
-		JobConf conf = new JobConf(getConf(), NumberTrecDocuments.class);
-		conf.setJobName("NumberTrecDocuments");
+    conf.setMapperClass(MyMapper.class);
+    conf.setReducerClass(MyReducer.class);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(1);
+    // delete the output directory if it exists already
+    FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+    JobClient.runJob(conf);
 
-		conf.setInputFormat(TrecDocumentInputFormat.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+    String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
+    TrecDocnoMapping.writeDocnoData(input, outputFile, FileSystem.get(getConf()));
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(MyReducer.class);
+    return 0;
+  }
 
-		// delete the output directory if it exists already
-		FileSystem.get(conf).delete(new Path(outputPath), true);
-
-		JobClient.runJob(conf);
-
-		String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
-		TrecDocnoMapping.writeDocnoData(input, outputFile, FileSystem.get(getConf()));
-
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new NumberTrecDocuments(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   */
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(new Configuration(), new NumberTrecDocuments(), args);
+    System.exit(res);
+  }
 }
