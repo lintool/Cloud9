@@ -67,6 +67,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class DemoCountTrecDocuments extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(DemoCountTrecDocuments.class);
   private static enum Count { DOCS };

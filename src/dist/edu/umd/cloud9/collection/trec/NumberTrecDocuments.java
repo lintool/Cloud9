@@ -65,6 +65,7 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class NumberTrecDocuments extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(NumberTrecDocuments.class);
   private static enum Count { DOCS };

@@ -43,56 +43,58 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Tool for counting the number of pages in a particular Wikipedia XML dump
- * file. This program keeps track of total number of pages, redirect pages,
- * disambiguation pages, empty pages, actual articles (including stubs), stubs,
- * and non-articles ("File:", "Category:", "Wikipedia:", etc.). This also
- * provides a skeleton for MapReduce programs to process the collection. Specify
- * input path to the Wikipedia XML dump file with the <code>-input</code> flag.
+ * Tool for counting the number of pages in a particular Wikipedia XML dump file. This program keeps
+ * track of total number of pages, redirect pages, disambiguation pages, empty pages, actual
+ * articles (including stubs), stubs, and non-articles ("File:", "Category:", "Wikipedia:", etc.).
+ * This also provides a skeleton for MapReduce programs to process the collection. Specify input
+ * path to the Wikipedia XML dump file with the {@code -input} flag.
  *
  * @author Jimmy Lin
  */
 @SuppressWarnings("deprecation")
 public class DemoCountWikipediaPages extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
+  private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
 
-	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
+  private static enum PageTypes {
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+  };
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
-		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			reporter.incrCounter(PageTypes.TOTAL, 1);
+    public void map(LongWritable key, WikipediaPage p, OutputCollector<Text, IntWritable> output,
+        Reporter reporter) throws IOException {
+      reporter.incrCounter(PageTypes.TOTAL, 1);
 
-			if (p.isRedirect()) {
-				reporter.incrCounter(PageTypes.REDIRECT, 1);
+      if (p.isRedirect()) {
+        reporter.incrCounter(PageTypes.REDIRECT, 1);
 
-			} else if (p.isDisambiguation()) {
-				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
-			} else if (p.isEmpty()) {
-				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else if (p.isArticle()) {
-				reporter.incrCounter(PageTypes.ARTICLE, 1);
+      } else if (p.isDisambiguation()) {
+        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+      } else if (p.isEmpty()) {
+        reporter.incrCounter(PageTypes.EMPTY, 1);
+      } else if (p.isArticle()) {
+        reporter.incrCounter(PageTypes.ARTICLE, 1);
 
-				if (p.isStub()) {
-					reporter.incrCounter(PageTypes.STUB, 1);
-				}
-			} else {
-				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
-			}
-		}
-	}
+        if (p.isStub()) {
+          reporter.incrCounter(PageTypes.STUB, 1);
+        }
+      } else {
+        reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
+      }
+    }
+  }
 
-	private static final String INPUT_OPTION = "input";
+  private static final String INPUT_OPTION = "input";
 
-	@SuppressWarnings("static-access") @Override
+  @SuppressWarnings("static-access")
+  @Override
   public int run(String[] args) throws Exception {
-	  Options options = new Options();
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("XML dump file").create(INPUT_OPTION));
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
 
-	  CommandLine cmdline;
+    CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
     try {
       cmdline = parser.parse(options, args);
@@ -108,32 +110,33 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
       return -1;
     }
 
-		String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
 
-		LOG.info("Tool name: " + this.getClass().getName());
-		LOG.info(" - XML dump file: " + inputPath);
+    LOG.info("Tool name: " + this.getClass().getName());
+    LOG.info(" - XML dump file: " + inputPath);
 
-		JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
-		conf.setJobName(String.format("DemoCountWikipediaPages[%s: %s]", INPUT_OPTION, inputPath));
+    JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
+    conf.setJobName(String.format("DemoCountWikipediaPages[%s: %s]", INPUT_OPTION, inputPath));
 
-		conf.setNumMapTasks(10);
-		conf.setNumReduceTasks(0);
+    conf.setNumMapTasks(10);
+    conf.setNumReduceTasks(0);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
 
-		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputFormat(NullOutputFormat.class);
+    conf.setInputFormat(WikipediaPageInputFormat.class);
+    conf.setOutputFormat(NullOutputFormat.class);
 
-		conf.setMapperClass(MyMapper.class);
+    conf.setMapperClass(MyMapper.class);
 
-		JobClient.runJob(conf);
+    JobClient.runJob(conf);
 
-		return 0;
-	}
+    return 0;
+  }
 
-	public DemoCountWikipediaPages() {}
+  public DemoCountWikipediaPages() {
+  }
 
-	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new DemoCountWikipediaPages(), args);
-	}
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new DemoCountWikipediaPages(), args);
+  }
 }

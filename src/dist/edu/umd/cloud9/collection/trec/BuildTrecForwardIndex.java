@@ -60,6 +60,7 @@ import edu.umd.cloud9.io.FSLineReader;
  *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class BuildTrecForwardIndex extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildTrecForwardIndex.class);
   private static enum Count { DOCS };

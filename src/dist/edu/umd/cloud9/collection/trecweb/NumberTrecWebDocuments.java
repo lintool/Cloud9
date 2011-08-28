@@ -41,6 +41,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("deprecation")
 public class NumberTrecWebDocuments extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(NumberTrecWebDocuments.class);

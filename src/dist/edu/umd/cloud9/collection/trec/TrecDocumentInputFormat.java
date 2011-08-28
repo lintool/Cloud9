@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
@@ -31,14 +32,15 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop <code>InputFormat</code> for processing the TREC collection.
- * 
+ * Hadoop {@link InputFormat} for processing the TREC collection.
+ *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecDocument> {
 
 	/**
-	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
+	 * Returns a {@code RecordReader} for this {@code InputFormat}.
 	 */
 	public RecordReader<LongWritable, TrecDocument> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
@@ -46,7 +48,7 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 	}
 
 	/**
-	 * Hadoop <code>RecordReader</code> for reading TREC-formatted documents.
+	 * Hadoop {@code RecordReader} for reading TREC-formatted documents.
 	 */
 	public static class TrecDocumentRecordReader implements
 			RecordReader<LongWritable, TrecDocument> {
@@ -56,7 +58,7 @@ public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritab
 		private LongWritable mLong = new LongWritable();
 
 		/**
-		 * Creates a <code>TrecDocumentRecordReader</code>.
+		 * Creates a {@code TrecDocumentRecordReader}.
 		 */
 		public TrecDocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
 			conf.set(XMLInputFormat.START_TAG_KEY, TrecDocument.XML_START_TAG);

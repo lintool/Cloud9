@@ -37,6 +37,7 @@ import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
  * 
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class TrecWebDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecWebDocument> {
 
 	// Don't allow the files to be split!
