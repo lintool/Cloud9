@@ -9,7 +9,7 @@
   <property name="test.dir" location="test" />
   <property name="javadoc.dir" location="docs/api/" />
 
-  <property name="version" value="1.2.3"/>
+  <property name="version" value="1.2.4"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
