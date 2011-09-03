@@ -19,7 +19,10 @@ package edu.umd.cloud9.collection;
 import org.apache.hadoop.mapred.FileInputFormat;
 
 /**
- * Abstract class representing a {@code FileInputFormat} for {@code Indexable} objects.
+ * Abstract class representing a {@link FileInputFormat} for {@link Indexable} objects ({@code
+ * org.apache.hadoop.mapred} API).
  */
+@SuppressWarnings("deprecation")
 public abstract class IndexableFileInputFormat<K, V extends Indexable> extends
-		FileInputFormat<K, V> {}
+    FileInputFormat<K, V> {
+}

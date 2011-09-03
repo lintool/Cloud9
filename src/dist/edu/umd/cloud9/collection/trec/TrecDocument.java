@@ -28,7 +28,7 @@ import edu.umd.cloud9.collection.Indexable;
 
 /**
  * Object representing a TREC document.
- * 
+ *
  * @author Jimmy Lin
  */
 public class TrecDocument extends Indexable {
@@ -43,7 +43,7 @@ public class TrecDocument extends Indexable {
    */
   public static final String XML_END_TAG = "</DOC>";
 
-  private String rawDoc;
+  private String doc;
   private String docid;
 
   /**
@@ -54,8 +54,9 @@ public class TrecDocument extends Indexable {
   /**
    * Deserializes this object.
    */
+  @Override
   public void write(DataOutput out) throws IOException {
-    byte[] bytes = rawDoc.getBytes();
+    byte[] bytes = doc.getBytes();
     WritableUtils.writeVInt(out, bytes.length);
     out.write(bytes, 0, bytes.length);
   }
@@ -63,6 +64,7 @@ public class TrecDocument extends Indexable {
   /**
    * Serializes this object.
    */
+  @Override
   public void readFields(DataInput in) throws IOException {
     int length = WritableUtils.readVInt(in);
     byte[] bytes = new byte[length];
@@ -74,15 +76,16 @@ public class TrecDocument extends Indexable {
    * Returns the globally-unique String identifier of the document within the collection (e.g.,
    * {@code LA123190-0134}).
    */
+  @Override
   public String getDocid() {
     if (docid == null) {
-      int start = rawDoc.indexOf("<DOCNO>");
+      int start = doc.indexOf("<DOCNO>");
 
       if (start == -1) {
         docid = "";
       } else {
-        int end = rawDoc.indexOf("</DOCNO>", start);
-        docid = rawDoc.substring(start + 7, end).trim();
+        int end = doc.indexOf("</DOCNO>", start);
+        docid = doc.substring(start + 7, end).trim();
       }
     }
 
@@ -92,8 +95,9 @@ public class TrecDocument extends Indexable {
   /**
    * Returns the content of the document.
    */
+  @Override
   public String getContent() {
-    return rawDoc;
+    return doc;
   }
 
   /**
@@ -106,7 +110,7 @@ public class TrecDocument extends Indexable {
     Preconditions.checkNotNull(s);
     Preconditions.checkNotNull(doc);
 
-    doc.rawDoc = s;
+    doc.doc = s;
     doc.docid = null;
   }
 }

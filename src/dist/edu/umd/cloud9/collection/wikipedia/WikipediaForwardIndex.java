@@ -12,166 +12,163 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
+
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 
 /**
  * Forward index for Wikipedia collections.
  *
  * @author Jimmy Lin
- *
  */
 public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage> {
+  private static final Logger LOG = Logger.getLogger(WikipediaPage.class);
 
-	private static final Logger sLogger = Logger.getLogger(WikipediaPage.class);
+  private Configuration conf;
+  private FileSystem fs;
 
-	private Configuration mConf;
-	private FileSystem mFS;
+  private int[] docnos;
+  private int[] offsets;
+  private short[] fileno;
+  private String collectionPath;
 
-	private int[] mDocnos;
-	private int[] mOffsets;
-	private short[] mFileno;
-	private String mCollectionPath;
+  private WikipediaDocnoMapping mDocnoMapping = new WikipediaDocnoMapping();
 
-	private WikipediaDocnoMapping mDocnoMapping = new WikipediaDocnoMapping();
+  public WikipediaForwardIndex() {
+    conf = new Configuration();
+  }
 
-	public WikipediaForwardIndex() {
-		mConf = new Configuration();
-	}
+  public WikipediaForwardIndex(Configuration conf) {
+    this.conf = Preconditions.checkNotNull(conf);
+  }
 
-	public WikipediaForwardIndex(Configuration conf) {
-		mConf = conf;
-	}
-	
-	@Override
-	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
-		sLogger.info("Loading forward index: " + indexFile);
+  @Override
+  public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+    LOG.info("Loading forward index: " + index);
+    mDocnoMapping.loadMapping(mapping, fs);
 
-		mFS = FileSystem.get(mConf);
+    FSDataInputStream in = fs.open(index);
 
-		mDocnoMapping.loadMapping(new Path(mappingDataFile), mFS);
+    // Class name; throw away.
+    in.readUTF();
+    collectionPath = in.readUTF();
 
-		FSDataInputStream in = mFS.open(new Path(indexFile));
+    int blocks = in.readInt();
 
-		// class name; throw away
-		in.readUTF();
-		mCollectionPath = in.readUTF();
+    LOG.info(blocks + " blocks expected");
+    docnos = new int[blocks];
+    offsets = new int[blocks];
+    fileno = new short[blocks];
 
-		int blocks = in.readInt();
+    for (int i = 0; i < blocks; i++) {
+      docnos[i] = in.readInt();
+      offsets[i] = in.readInt();
+      fileno[i] = in.readShort();
 
-		sLogger.info(blocks + " blocks expected");
-		mDocnos = new int[blocks];
-		mOffsets = new int[blocks];
-		mFileno = new short[blocks];
+      if (i > 0 && i % 100000 == 0)
+        LOG.info(i + " blocks read");
+    }
 
-		for (int i = 0; i < blocks; i++) {
-			mDocnos[i] = in.readInt();
-			mOffsets[i] = in.readInt();
-			mFileno[i] = in.readShort();
+    in.close();
+  }
 
-			if (i > 0 && i % 100000 == 0)
-				sLogger.info(i + " blocks read");
-		}
+  @Override
+  public String getCollectionPath() {
+    return collectionPath;
+  }
 
-		in.close();
-	}
+  @Override
+  public WikipediaPage getDocument(int docno) {
+    long start = System.currentTimeMillis();
 
-	@Override
-	public String getCollectionPath() {
-		return mCollectionPath;
-	}
+    // trap invalid docnos
+    if (docno < getFirstDocno() || docno > getLastDocno())
+      return null;
 
-	@Override
-	public WikipediaPage getDocument(int docno) {
-		long start = System.currentTimeMillis();
+    int idx = Arrays.binarySearch(docnos, docno);
 
-		// trap invalid docnos
-		if (docno < getFirstDocno() || docno > getLastDocno())
-			return null;
+    if (idx < 0)
+      idx = -idx - 2;
 
-		int idx = Arrays.binarySearch(mDocnos, docno);
+    DecimalFormat df = new DecimalFormat("00000");
+    String file = collectionPath + "/part-" + df.format(fileno[idx]);
 
-		if (idx < 0)
-			idx = -idx - 2;
+    LOG.info("fetching docno " + docno + ": seeking to " + offsets[idx] + " at " + file);
 
-		DecimalFormat df = new DecimalFormat("00000");
-		String file = mCollectionPath + "/part-" + df.format(mFileno[idx]);
+    try {
 
-		sLogger.info("fetching docno " + docno + ": seeking to " + mOffsets[idx] + " at " + file);
+      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
 
-		try {
+      IntWritable key = new IntWritable();
+      WikipediaPage value = new WikipediaPage();
 
-			SequenceFile.Reader reader = new SequenceFile.Reader(mFS, new Path(file), mConf);
+      reader.seek(offsets[idx]);
 
-			IntWritable key = new IntWritable();
-			WikipediaPage value = new WikipediaPage();
+      while (reader.next(key)) {
+        if (key.get() == docno)
+          break;
+      }
+      reader.getCurrentValue(value);
+      reader.close();
+      long duration = System.currentTimeMillis() - start;
 
-			reader.seek(mOffsets[idx]);
+      LOG.info(" docno " + docno + " fetched in " + duration + "ms");
+      return value;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-			while (reader.next(key)) {
-				if (key.get() == docno)
-					break;
-			}
-			reader.getCurrentValue(value);
-			reader.close();
-			long duration = System.currentTimeMillis() - start;
+    return null;
+  }
 
-			sLogger.info(" docno " + docno + " fetched in " + duration + "ms");
-			return value;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+  @Override
+  public WikipediaPage getDocument(String docid) {
+    return getDocument(mDocnoMapping.getDocno(docid));
+  }
 
-		return null;
-	}
+  @Override
+  public int getDocno(String docid) {
+    return mDocnoMapping.getDocno(docid);
+  }
 
-	@Override
-	public WikipediaPage getDocument(String docid) {
-		return getDocument(mDocnoMapping.getDocno(docid));
-	}
+  @Override
+  public String getDocid(int docno) {
+    return mDocnoMapping.getDocid(docno);
+  }
 
-	@Override
-	public int getDocno(String docid) {
-		return mDocnoMapping.getDocno(docid);
-	}
+  @Override
+  public int getFirstDocno() {
+    return docnos[0];
+  }
 
-	@Override
-	public String getDocid(int docno) {
-		return mDocnoMapping.getDocid(docno);
-	}
+  private int mLastDocno = -1;
 
-	@Override
-	public int getFirstDocno() {
-		return mDocnos[0];
-	}
+  @Override
+  public int getLastDocno() {
+    if (mLastDocno != -1) {
+      return mLastDocno;
+    }
 
-	private int mLastDocno = -1;
+    // find the last entry, and then see all the way to the end of the
+    // collection
+    int idx = docnos.length - 1;
 
-	@Override
-	public int getLastDocno() {
-		if (mLastDocno != -1) {
-			return mLastDocno;
-		}
+    DecimalFormat df = new DecimalFormat("00000");
+    String file = collectionPath + "/part-" + df.format(fileno[idx]);
 
-		// find the last entry, and then see all the way to the end of the
-		// collection
-		int idx = mDocnos.length - 1;
+    try {
+      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
+      IntWritable key = new IntWritable();
 
-		DecimalFormat df = new DecimalFormat("00000");
-		String file = mCollectionPath + "/part-" + df.format(mFileno[idx]);
+      reader.seek(offsets[idx]);
 
-		try {
-			SequenceFile.Reader reader = new SequenceFile.Reader(mFS, new Path(file), mConf);
-			IntWritable key = new IntWritable();
+      while (reader.next(key))
+        ;
+      mLastDocno = key.get();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-			reader.seek(mOffsets[idx]);
-
-			while (reader.next(key))
-				;
-			mLastDocno = key.get();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return mLastDocno;
-	}
+    return mLastDocno;
+  }
 }

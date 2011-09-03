@@ -106,7 +106,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 
 			try {
 				sForwardIndex = new IndexableAnchorTextForwardIndex(new ClueWarcDocnoMapping());
-				sForwardIndex.loadIndex(indexFile, mappingFile);
+				sForwardIndex.loadIndex(new Path(indexFile), new Path(mappingFile), FileSystem.get(conf));
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error initializing forward index!");
@@ -124,7 +124,7 @@ public class ClueWebAnchorTextForwardIndexHttpServer {
 				in.close();
 				try {
 					docForwardIndex[i] = (DocumentForwardIndex<Indexable>) Class.forName(indexClueWebClass).newInstance();
-					docForwardIndex[i].loadIndex(clueweb.get(i), mappingFile);
+					docForwardIndex[i].loadIndex(new Path(clueweb.get(i)), new Path(mappingFile), FileSystem.get(conf));
 					lastDocs[i] = docForwardIndex[i].getLastDocno();
 					
 				} catch (Exception e) {

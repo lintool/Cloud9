@@ -17,7 +17,6 @@
 package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,22 +26,18 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.io.FSLineReader;
 
 /**
- * <p>
- * Object that maps between TREC docids (String identifiers) to docnos (sequentially-numbered ints).
- * </p>
- *
- * <p>
- * The <code>main</code> of this class provides a simple program for accessing docno mappings.
+ * Object that maps between TREC docids (String identifiers) to docnos (sequentially-numbered 
+ * ints). The {@code main} of this class provides a simple program for accessing docno mappings.
  * Command-line arguments are as follows:
- * </p>
  *
  * <ul>
  * <li>list, getDocno, getDocid: the command&mdash;list all mappings; get docno from docid; or, get
@@ -78,29 +73,28 @@ public class TrecDocnoMapping implements DocnoMapping {
   public void loadMapping(Path p, FileSystem fs) throws IOException {
     Preconditions.checkNotNull(p);
     Preconditions.checkNotNull(fs);
-    docids = TrecDocnoMapping.readDocnoData(p, fs);
+    docids = TrecDocnoMapping.readMappingData(p, fs);
   }
 
   /**
    * Creates a mappings file from the contents of a flat text file containing docid to docno
    * mappings. This method is used by {@link NumberTrecDocuments} internally.
    *
-   * @param inputFile flat text file containing docid to docno mappings
-   * @param outputFile output mappings file
-   * @param fs FileSystem to write to
+   * @param input flat text file containing docid to docno mappings
+   * @param output output mappings data file
+   * @param fs {@code FileSystem} to write to
    * @throws IOException
    */
-  static public void writeDocnoData(String inputFile, String outputFile, FileSystem fs)
-      throws IOException {
-    Preconditions.checkNotNull(inputFile);
-    Preconditions.checkNotNull(outputFile);
+  static public void writeMappingData(Path input, Path output, FileSystem fs) throws IOException {
+    Preconditions.checkNotNull(input);
+    Preconditions.checkNotNull(output);
     Preconditions.checkNotNull(fs);
 
-    LOG.info("Writing docno data to " + outputFile);
-    FSLineReader reader = new FSLineReader(inputFile, fs);
-    List<String> list = new ArrayList<String>();
+    LOG.info("Writing docno data to " + output);
+    LineReader reader = new LineReader(fs.open(input));
+    List<String> list = Lists.newArrayList();
 
-    LOG.info("Reading " + inputFile);
+    LOG.info("Reading " + input);
     int cnt = 0;
     Text line = new Text();
     while (reader.readLine(line) > 0) {
@@ -115,8 +109,8 @@ public class TrecDocnoMapping implements DocnoMapping {
     LOG.info(cnt + " docs total. Done!");
 
     cnt = 0;
-    LOG.info("Writing " + outputFile);
-    FSDataOutputStream out = fs.create(new Path(outputFile), true);
+    LOG.info("Writing " + output);
+    FSDataOutputStream out = fs.create(output, true);
     out.writeInt(list.size());
     for (int i = 0; i < list.size(); i++) {
       out.writeUTF(list.get(i));
@@ -132,19 +126,18 @@ public class TrecDocnoMapping implements DocnoMapping {
   /**
    * Reads a mappings file into memory.
    *
-   * @param p path to the mappings file
+   * @param p path to the mappings data file
    * @param fs appropriate FileSystem
    * @return an array of docids; the index position of each docid is its docno
    * @throws IOException
    */
-  static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
+  static public String[] readMappingData(Path p, FileSystem fs) throws IOException {
     Preconditions.checkNotNull(p);
     Preconditions.checkNotNull(fs);
 
     FSDataInputStream in = fs.open(p);
 
-    // The docnos start at one, so we need an array that's one larger than
-    // number of docs.
+    // The docnos start at one, so we need an array that's one larger than number of docs.
     int sz = in.readInt() + 1;
     String[] arr = new String[sz];
 
@@ -153,8 +146,8 @@ public class TrecDocnoMapping implements DocnoMapping {
     }
     in.close();
 
-    // We can't leave the zero'th entry null, or else we might get a null
-    // pointer exception during a binary search on the array.
+    // We can't leave the zero'th entry null, or else we might get a null pointer exception during a
+    // binary search on the array.
     arr[0] = "";
 
     return arr;
@@ -162,9 +155,6 @@ public class TrecDocnoMapping implements DocnoMapping {
 
   /**
    * Simple program the provides access to the docno/docid mappings.
-   *
-   * @param args command-line arguments
-   * @throws IOException
    */
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {

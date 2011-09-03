@@ -59,10 +59,13 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * </p>
  *
  * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
- * /umd/collections/trec/trec4-5_noCR.xml \
- * /user/jimmylin/count-tmp \
- * /user/jimmylin/docno.mapping
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
+ *   /user/jimmylin/count-tmp \
+ *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  *
  * @author Jimmy Lin
@@ -129,21 +132,21 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
     String outputPath = args[1];
     String mappingFile = args[2];
 
-    LOG.info("Tool: DemoCountTrecDocuments");
+    LOG.info("Tool: " + DemoCountTrecDocuments.class.getCanonicalName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    JobConf conf = new JobConf(DemoCountTrecDocuments.class);
-    conf.setJobName("DemoCountTrecDocuments");
+    JobConf conf = new JobConf(getConf(), DemoCountTrecDocuments.class);
+    conf.setJobName(DemoCountTrecDocuments.class.getSimpleName());
 
     conf.setNumReduceTasks(0);
 
     // Pass in the class name as a String; this is makes the mapper general in being able to load
     // any collection of Indexable objects that has docid/docno mapping specified by a DocnoMapping
     // object.
-    conf.set("DocnoMappingClass", edu.umd.cloud9.collection.trec.TrecDocnoMapping.class
-        .getCanonicalName());
+    conf.set("DocnoMappingClass",
+        edu.umd.cloud9.collection.trec.TrecDocnoMapping.class.getCanonicalName());
 
     // Put the mapping file in the distributed cache so each map worker will have it.
     DistributedCache.addCacheFile(new URI(mappingFile), conf);

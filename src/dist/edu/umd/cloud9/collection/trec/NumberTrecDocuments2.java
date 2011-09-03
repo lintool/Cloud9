@@ -52,10 +52,13 @@ import org.apache.log4j.Logger;
  * </p>
  *
  * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments2 \
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments2 \
+ *   -libjars=guava-r09.jar \
  *   /shared/collections/trec/trec4-5_noCRFR.xml \
  *   /user/jimmylin/trec-docid-tmp \
- *   /user/jimmylin/docno.mapping
+ *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  * 
  * @author Jimmy Lin
@@ -113,12 +116,12 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     String outputPath = args[1];
     String outputFile = args[2];
 
-    LOG.info("Tool: NumberTrecDocuments2");
+    LOG.info("Tool: " + NumberTrecDocuments2.class.getCanonicalName());
     LOG.info(" - Input path: " + inputPath);
     LOG.info(" - Output path: " + outputPath);
     LOG.info(" - Output file: " + outputFile);
 
-    Job job = new Job(getConf(), "NumberTrecDocuments2");
+    Job job = new Job(getConf(), NumberTrecDocuments2.class.getSimpleName());
     job.setJarByClass(NumberTrecDocuments.class);
 
     job.setNumReduceTasks(1);
@@ -141,7 +144,8 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     job.waitForCompletion(true);
     
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    TrecDocnoMapping.writeDocnoData(input, outputFile, FileSystem.get(getConf()));
+    TrecDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
+        FileSystem.get(getConf()));
 
     return 0;
   }

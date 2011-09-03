@@ -2,73 +2,70 @@ package edu.umd.cloud9.collection.aquaint2;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 
 /**
- * <p>
  * Object representing a document forward index for AQUAINT2 collections.
- * </p>
- * 
+ *
  * @author Jimmy Lin
- * 
  */
 public class Aquaint2ForwardIndex implements DocumentForwardIndex<Aquaint2Document> {
+	private static final Logger LOG = Logger.getLogger(Aquaint2ForwardIndex.class);
 
-	private static final Logger sLogger = Logger.getLogger(Aquaint2ForwardIndex.class);
-	{
-		sLogger.setLevel (Level.WARN);
-	}
+	private long[] offsets;
+	private int[] lengths;
+	private FSDataInputStream input;
+	private Aquaint2DocnoMapping docnoMapping = new Aquaint2DocnoMapping();
+	private String collectionPath;
 
-
-	private long[] mOffsets;
-	private int[] mLengths;
-	private FSDataInputStream mCollectionStream;
-	private Aquaint2DocnoMapping mDocnoMapping = new Aquaint2DocnoMapping();
-	private String mCollectionPath;
-
+	@Override
 	public int getDocno(String docid) {
-		return mDocnoMapping.getDocno(docid);
+		return docnoMapping.getDocno(docid);
 	}
 
+	@Override
 	public String getDocid(int docno) {
-		return mDocnoMapping.getDocid(docno);
+		return docnoMapping.getDocid(docno);
 	}
 
+	@Override
 	public int getLastDocno() {
-		return mOffsets.length-1;
+		return offsets.length-1;
 	}
 
+	@Override
 	public int getFirstDocno() {
 		return 1;
 	}
 
+	@Override
 	public String getCollectionPath() {
-		return mCollectionPath;
+		return collectionPath;
 	}
 
+	@Override
 	public Aquaint2Document getDocument(String docid) {
-		return getDocument(mDocnoMapping.getDocno(docid));
+		return getDocument(docnoMapping.getDocno(docid));
 	}
 
+	@Override
 	public Aquaint2Document getDocument(int docno) {
 		Aquaint2Document doc = new Aquaint2Document();
 
 		try {
-			sLogger.debug("docno " + docno + ": byte offset " + mOffsets[docno] + ", length "
-					+ mLengths[docno]);
+			LOG.debug("docno " + docno + ": byte offset " + offsets[docno] + ", length "
+					+ lengths[docno]);
 
-			mCollectionStream.seek(mOffsets[docno]);
+			input.seek(offsets[docno]);
 
-			byte[] arr = new byte[mLengths[docno]];
+			byte[] arr = new byte[lengths[docno]];
 
-			mCollectionStream.read(arr);
+			input.read(arr);
 
 			Aquaint2Document.readDocument(doc, new String(arr));
 		} catch (IOException e) {
@@ -78,28 +75,26 @@ public class Aquaint2ForwardIndex implements DocumentForwardIndex<Aquaint2Docume
 		return doc;
 	}
 
-	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
-		Path p = new Path(indexFile);
-		FileSystem fs = FileSystem.get(new Configuration());
-		FSDataInputStream in = fs.open(p);
+	@Override
+	public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+		FSDataInputStream in = fs.open(index);
 
-		// read and throw away
+		// Read and throw away.
 		in.readUTF();
-		mCollectionPath = in.readUTF();
+		collectionPath = in.readUTF();
 
-		// docnos start at one, so we need an array that's one larger than
-		// number of docs
+		// Docnos start at one, so we need an array that's one larger than number of docs.
 		int sz = in.readInt() + 1;
-		mOffsets = new long[sz];
-		mLengths = new int[sz];
+		offsets = new long[sz];
+		lengths = new int[sz];
 
 		for (int i = 1; i < sz; i++) {
-			mOffsets[i] = in.readLong();
-			mLengths[i] = in.readInt();
+			offsets[i] = in.readLong();
+			lengths[i] = in.readInt();
 		}
 		in.close();
 
-		mCollectionStream = fs.open(new Path(mCollectionPath));
-		mDocnoMapping.loadMapping(new Path(mappingDataFile), fs);
+		input = fs.open(new Path(collectionPath));
+		docnoMapping.loadMapping(mapping, fs);
 	}
 }

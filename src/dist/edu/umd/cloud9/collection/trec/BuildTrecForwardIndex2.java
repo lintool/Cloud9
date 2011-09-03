@@ -33,24 +33,28 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.io.FSLineReader;
 
 /**
  * <p>
- * Tool for building a document forward index for TREC collections. Sameple Invocation:
+ * Tool for building a document forward index for TREC collections. Sample Invocation:
  * </p>
  *
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex2 \
- *  /umd-lin/shared/collections/trec/trec4-5_noCRFR.xml /tmp/findex/ \
- *  /umd-lin/shared/collections/trec4-5_noCRFR.findex.dat \
- *  /umd-lin/shared/indexes/trec/docno-mapping.dat
- * </pre>
+ * <blockquote><pre>
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex2 \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
+ *   /user/jimmylin/tmp \
+ *   /user/jimmylin/findex.dat \
+ *   /user/jimmylin/docno-mapping.dat
+ * </pre></blockquote>
  *
  * @author Jimmy Lin
  */
@@ -119,8 +123,8 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
       return -1;
     }
 
-    Job job = new Job(getConf(), "BuildTrecForwardIndex2");
-    job.setJarByClass(DemoCountTrecDocuments.class);
+    Job job = new Job(getConf(), BuildTrecForwardIndex2.class.getCanonicalName());
+    job.setJarByClass(BuildTrecForwardIndex2.class);
     FileSystem fs = FileSystem.get(getConf());
 
     String collectionPath = args[0];
@@ -128,7 +132,7 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
     String indexFile = args[2];
     String mappingFile = args[3];
 
-    LOG.info("Tool name: BuildTrecForwardIndex2");
+    LOG.info("Tool name: " + BuildTrecForwardIndex2.class.getSimpleName());
     LOG.info(" - collection path: " + collectionPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - index file: " + indexFile);
@@ -160,10 +164,10 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
     Counters counters = job.getCounters();
     int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
 
-    String inputFile = outputPath + "/" + "part-00000";
+    String inputFile = outputPath + "/" + "part-r-00000";
 
     LOG.info("Writing " + numDocs + " doc offseta to " + indexFile);
-    FSLineReader reader = new FSLineReader(inputFile, fs);
+    LineReader reader = new LineReader(fs.open(new Path(inputFile)));
 
     FSDataOutputStream writer = fs.create(new Path(indexFile), true);
 

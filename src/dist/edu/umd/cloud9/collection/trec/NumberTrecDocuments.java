@@ -57,10 +57,13 @@ import org.apache.log4j.Logger;
  * </p>
  *
  * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments \
+ *   -libjars=guava-r09.jar \
  *   /shared/collections/trec/trec4-5_noCRFR.xml \
  *   /user/jimmylin/trec-docid-tmp \
- *   /user/jimmylin/docno.mapping
+ *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  *
  * @author Jimmy Lin
@@ -120,13 +123,13 @@ public class NumberTrecDocuments extends Configured implements Tool {
     String outputPath = args[1];
     String outputFile = args[2];
 
-    LOG.info("Tool: NumberTrecDocuments");
+    LOG.info("Tool: " + NumberTrecDocuments.class.getCanonicalName());
     LOG.info(" - Input path: " + inputPath);
     LOG.info(" - Output path: " + outputPath);
     LOG.info(" - Output file: " + outputFile);
 
     JobConf conf = new JobConf(getConf(), NumberTrecDocuments.class);
-    conf.setJobName("NumberTrecDocuments");
+    conf.setJobName(NumberTrecDocuments.class.getSimpleName());
 
     conf.setNumMapTasks(100); // Arbitrary number; doesn't matter.
     conf.setNumReduceTasks(1);
@@ -149,13 +152,14 @@ public class NumberTrecDocuments extends Configured implements Tool {
     JobClient.runJob(conf);
 
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
-    TrecDocnoMapping.writeDocnoData(input, outputFile, FileSystem.get(getConf()));
+    TrecDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
+        FileSystem.get(getConf()));
 
     return 0;
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(new Configuration(), new NumberTrecDocuments(), args);
