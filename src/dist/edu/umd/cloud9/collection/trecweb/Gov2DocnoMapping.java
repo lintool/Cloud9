@@ -25,18 +25,14 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
-import org.apache.log4j.Logger;
+
+import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.io.FSLineReader;
 
 public class Gov2DocnoMapping implements DocnoMapping {
-  private static final Logger LOG = Logger.getLogger(Gov2DocnoMapping.class);
-
   private static final NumberFormat FormatW2 = new DecimalFormat("00");
   private static final NumberFormat FormatW3 = new DecimalFormat("000");
   private static final NumberFormat FormatW7 = new DecimalFormat("0000000");
@@ -49,6 +45,8 @@ public class Gov2DocnoMapping implements DocnoMapping {
 
   @Override
   public int getDocno(String docid) {
+    Preconditions.checkNotNull(docid);
+
     int dirNum = Integer.parseInt(docid.substring(2, 5));
     int subdirNum = Integer.parseInt(docid.substring(6, 8));
     int num = Integer.parseInt(docid.substring(9));
@@ -139,46 +137,7 @@ public class Gov2DocnoMapping implements DocnoMapping {
   }
 
   /**
-   * Creates a data file for mapping between docids and docnos.
-   * @param inputFile input file containing docid to docno mappings
-   * @param outputFile output data file
-   * @throws IOException
-   */
-  static public void writeDocidData(String inputFile, String outputFile) throws IOException {
-    LOG.info("Writing docids to " + outputFile);
-    FSLineReader reader = new FSLineReader(inputFile);
-
-    LOG.info("Reading " + inputFile);
-    int cnt = 0;
-    Text line = new Text();
-    while (reader.readLine(line) > 0) {
-      cnt++;
-    }
-    reader.close();
-    LOG.info("Done!");
-
-    LOG.info("Writing " + outputFile);
-    FSDataOutputStream out = FileSystem.get(new Configuration()).create(new Path(outputFile), true);
-    reader = new FSLineReader(inputFile);
-    out.writeInt(cnt);
-    cnt = 0;
-    while (reader.readLine(line) > 0) {
-      String[] arr = line.toString().split("\\t");
-      out.writeUTF(arr[0]);
-      cnt++;
-      if (cnt % 100000 == 0) {
-        LOG.info(cnt + " documents");
-      }
-    }
-    reader.close();
-    out.close();
-    LOG.info("Done! " + cnt + " documents total.");
-  }
-
-  /**
    * Simple program the provides access to the docno/docid mappings.
-   * @param args command-line arguments
-   * @throws IOException
    */
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {

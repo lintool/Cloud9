@@ -50,14 +50,11 @@ public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<Ind
 		this.docnoMapping = docnoMapping; 
 	}
 
-	public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
+	@Override
+	public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+		docnoMapping.loadMapping(mapping, fs);
 
-		conf = new Configuration();
-		fs = FileSystem.get(conf);
-
-		docnoMapping.loadMapping(new Path(mappingDataFile), fs);
-
-		FSDataInputStream in = fs.open(new Path(indexFile));
+		FSDataInputStream in = fs.open(index);
 
 		// class name; throw away
 		in.readUTF();

@@ -19,7 +19,9 @@ package edu.umd.cloud9.collection;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 /**
- * Abstract class representing a {@link FileInputFormat} for {@link Indexable} objects.
+ * Abstract class representing a {@link FileInputFormat} for {@link Indexable} objects ({@code
+ * org.apache.hadoop.mapreduce} API).
  */
 public abstract class IndexableFileInputFormat2<K, V extends Indexable> extends
-    FileInputFormat<K, V> {}
+    FileInputFormat<K, V> {
+}

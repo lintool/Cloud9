@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -37,101 +38,148 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+/**
+ * Numbers documents in TREC web collections that have been repacked into {@code SequenceFile}s.
+ * Sample invocations:
+ *
+ * <blockquote><pre>
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trecweb.NumberTrecWebDocuments \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/wt10g/collection.compressed.block \
+ *   /user/jimmylin/tmp \
+ *   /user/jimmylin/docno-mapping.dat 100
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trecweb.NumberTrecWebDocuments \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/gov2/collection.compressed.block \
+ *   /user/jimmylin/tmp \
+ *   /user/jimmylin/docno-mapping.dat 100
+ * </pre></blockquote>
+ *
+ * @author Jimmy Lin
+ */
 @SuppressWarnings("deprecation")
 public class NumberTrecWebDocuments extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(NumberTrecWebDocuments.class);
+  protected static enum Documents { Total };
 
-	private static final Logger sLogger = Logger.getLogger(NumberTrecWebDocuments.class);
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, TrecWebDocument, Text, IntWritable> {
+    private final static Text text = new Text();
+    private final static IntWritable out = new IntWritable(1);
 
-	protected static enum Documents {
-		Total
-	};
+    public void map(LongWritable key, TrecWebDocument doc,
+        OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+      reporter.incrCounter(Documents.Total, 1);
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, TrecWebDocument, Text, IntWritable> {
+      System.out.println(doc.getDocid());
+      text.set(doc.getDocid());
+      output.collect(text, out);
+    }
+  }
 
-		private final static Text sText = new Text();
-		private final static IntWritable sInt = new IntWritable(1);
+  private static class MyReducer extends MapReduceBase implements
+      Reducer<Text, IntWritable, Text, IntWritable> {
+    private final static IntWritable cnt = new IntWritable(1);
 
-		public void map(LongWritable key, TrecWebDocument doc,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			reporter.incrCounter(Documents.Total, 1);
+    public void reduce(Text key, Iterator<IntWritable> values,
+        OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+      output.collect(key, cnt);
+      cnt.set(cnt.get() + 1);
+    }
+  }
 
-			System.out.println(doc.getDocid());
-			sText.set(doc.getDocid());
-			output.collect(sText, sInt);
-		}
-	}
+  public NumberTrecWebDocuments() {}
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, IntWritable, Text, IntWritable> {
+  public int run(String[] args) throws Exception {
+    if (args.length != 4) {
+      System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
+      System.exit(-1);
+    }
 
-		private final static IntWritable sCnt = new IntWritable(1);
+    String inputPath = args[0];
+    String outputPath = args[1];
+    String outputFile = args[2];
+    int mapTasks = Integer.parseInt(args[3]);
 
-		public void reduce(Text key, Iterator<IntWritable> values,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			output.collect(key, sCnt);
-			sCnt.set(sCnt.get() + 1);
-		}
-	}
+    LOG.info("Tool name: " + NumberTrecWebDocuments.class.getCanonicalName());
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - output file: " + outputFile);
+    LOG.info(" - number of mappers: " + mapTasks);
 
-	public NumberTrecWebDocuments() {
-	}
+    JobConf conf = new JobConf(getConf(), NumberTrecWebDocuments.class);
+    conf.setJobName(NumberTrecWebDocuments.class.getSimpleName());
 
-	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
-			System.out.println("usage: [input] [output-dir] [output-file] [num-mappers]");
-			System.exit(-1);
+    conf.setNumMapTasks(mapTasks);
+    conf.setNumReduceTasks(1);
 
-		}
-		String inputPath = args[0];
-		String outputPath = args[1];
-		String outputFile = args[2];
-		int mapTasks = Integer.parseInt(args[3]);
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(conf, false);
 
-		sLogger.info("Tool name: NumberTrecWebDocuments");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - output file: " + outputFile);
-		sLogger.info(" - number of mappers: " + mapTasks);
+    conf.setInputFormat(SequenceFileInputFormat.class);
+    conf.setOutputKeyClass(Text.class);
+    conf.setOutputValueClass(IntWritable.class);
+    conf.setOutputFormat(TextOutputFormat.class);
 
-		JobConf conf = new JobConf(getConf(), NumberTrecWebDocuments.class);
-		conf.setJobName("NumberTrecWebDocuments");
+    conf.setMapperClass(MyMapper.class);
+    conf.setReducerClass(MyReducer.class);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(1);
+    // Delete the output directory if it exists already.
+    FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+    JobClient.runJob(conf);
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+    writeMappingData(new Path(outputPath + "/part-00000"), new Path(outputFile),
+        FileSystem.get(conf));
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(MyReducer.class);
+    return 0;
+  }
 
-		// delete the output directory if it exists already
-		FileSystem.get(conf).delete(new Path(outputPath), true);
+  private static void writeMappingData(Path input, Path output, FileSystem fs) throws IOException {
+    LOG.info("Writing docids to " + output);
+    LineReader reader = new LineReader(fs.open(input));
 
-		JobClient.runJob(conf);
+    LOG.info("Reading " + input);
+    int cnt = 0;
+    Text line = new Text();
+    while (reader.readLine(line) > 0) {
+      cnt++;
+    }
+    reader.close();
+    LOG.info("Done!");
 
-		Gov2DocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
+    LOG.info("Writing " + output);
+    FSDataOutputStream out = FileSystem.get(new Configuration()).create(output, true);
+    reader = new LineReader(fs.open(input));
+    out.writeInt(cnt);
+    cnt = 0;
+    while (reader.readLine(line) > 0) {
+      String[] arr = line.toString().split("\\t");
+      out.writeUTF(arr[0]);
+      cnt++;
+      if (cnt % 100000 == 0) {
+        LOG.info(cnt + " documents");
+      }
+    }
+    reader.close();
+    out.close();
+    LOG.info("Done! " + cnt + " documents total.");
+  }
 
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new NumberTrecWebDocuments(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(new Configuration(), new NumberTrecWebDocuments(), args);
+    System.exit(res);
+  }
 }

@@ -11,6 +11,7 @@ import org.apache.hadoop.io.Text;
 /**
  * Copied from LineRecordReader.LineReader in Hadoop 0.17.2 release.
  */
+@Deprecated
 public class FSLineReader {
 	private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
 	private int bufferSize = DEFAULT_BUFFER_SIZE;

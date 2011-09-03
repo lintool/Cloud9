@@ -55,10 +55,13 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * </p>
  *
  * <blockquote><pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
- * /umd/collections/trec/trec4-5_noCR.xml \
- * /user/jimmylin/count-tmp \
- * /user/jimmylin/docno.mapping
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments2 \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
+ *   /user/jimmylin/count-tmp \
+ *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  *
  * @author Jimmy Lin
@@ -125,12 +128,12 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
     String outputPath = args[1];
     String mappingFile = args[2];
 
-    LOG.info("Tool: DemoCountTrecDocuments2");
+    LOG.info("Tool: " + DemoCountTrecDocuments2.class.getCanonicalName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    Job job = new Job(getConf(), "DemoCountTrecDocuments2");
+    Job job = new Job(getConf(), DemoCountTrecDocuments2.class.getSimpleName());
     job.setJarByClass(DemoCountTrecDocuments.class);
 
     job.setNumReduceTasks(0);

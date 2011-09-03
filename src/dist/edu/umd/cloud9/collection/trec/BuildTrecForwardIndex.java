@@ -48,15 +48,19 @@ import edu.umd.cloud9.io.FSLineReader;
 
 /**
  * <p>
- * Tool for building a document forward index for TREC collections. Sameple Invocation:
+ * Tool for building a document forward index for TREC collections. Sample Invocation:
  * </p>
  *
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex \
- *  /umd-lin/shared/collections/trec/trec4-5_noCRFR.xml /tmp/findex/ \
- *  /umd-lin/shared/collections/trec4-5_noCRFR.findex.dat \
- *  /umd-lin/shared/indexes/trec/docno-mapping.dat
- * </pre>
+ * <blockquote><pre>
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
+ *   /user/jimmylin/tmp \
+ *   /user/jimmylin/findex.dat \
+ *   /user/jimmylin/docno-mapping.dat
+ * </pre></blockquote>
  *
  * @author Jimmy Lin
  */
@@ -123,7 +127,7 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
       return -1;
     }
 
-    JobConf conf = new JobConf(getConf(), DemoCountTrecDocuments.class);
+    JobConf conf = new JobConf(getConf(), BuildTrecForwardIndex.class);
     FileSystem fs = FileSystem.get(getConf());
 
     String collectionPath = args[0];
@@ -131,13 +135,13 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
     String indexFile = args[2];
     String mappingFile = args[3];
 
-    LOG.info("Tool name: BuildTrecForwardIndex");
+    LOG.info("Tool name: " + BuildTrecForwardIndex.class.getCanonicalName());
     LOG.info(" - collection path: " + collectionPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - index file: " + indexFile);
     LOG.info(" - mapping file: " + mappingFile);
 
-    conf.setJobName("BuildTrecForwardIndex");
+    conf.setJobName(BuildTrecForwardIndex.class.getSimpleName());
 
     conf.set("mapred.child.java.opts", "-Xmx1024m");
     conf.setNumReduceTasks(1);
@@ -205,7 +209,7 @@ public class BuildTrecForwardIndex extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();

@@ -24,6 +24,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
+
 import edu.umd.cloud9.collection.DocumentForwardIndex;
 
 /**
@@ -42,6 +44,7 @@ public class TrecForwardIndex implements DocumentForwardIndex<TrecDocument> {
 
   @Override
   public int getDocno(String docid) {
+    Preconditions.checkNotNull(docid);
     return docnoMapping.getDocno(docid);
   }
 
@@ -75,8 +78,8 @@ public class TrecForwardIndex implements DocumentForwardIndex<TrecDocument> {
     TrecDocument doc = new TrecDocument();
 
     try {
-      LOG.info("docno " + docno + ": byte offset " + offsets[docno] + ", length "
-          + lengths[docno]);
+      LOG.info(String.format("docno %d: byte offset %d, length %d",
+          docno, offsets[docno], lengths[docno]));
 
       input.seek(offsets[docno]);
 
@@ -93,10 +96,8 @@ public class TrecForwardIndex implements DocumentForwardIndex<TrecDocument> {
   }
 
   @Override
-  public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
-    Path p = new Path(indexFile);
-    FileSystem fs = FileSystem.get(new Configuration());
-    FSDataInputStream in = fs.open(p);
+  public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+    FSDataInputStream in = fs.open(index);
 
     // Read and throw away.
     in.readUTF();
@@ -114,6 +115,36 @@ public class TrecForwardIndex implements DocumentForwardIndex<TrecDocument> {
     in.close();
 
     input = fs.open(new Path(path));
-    docnoMapping.loadMapping(new Path(mappingDataFile), fs);
+    docnoMapping.loadMapping(mapping, fs);
+  }
+
+  /**
+   * Simple program the provides access to the document contents.
+   */
+  public static void main(String[] args) throws IOException {
+    if (args.length < 4) {
+      System.out.println("usage: [findex] [mapping-file] [getDocno|getDocid] [docid/docno]");
+      System.exit(-1);
+    }
+
+    Configuration conf = new Configuration();
+    FileSystem fs = FileSystem.get(conf);
+
+    System.out.println("forward index: " + args[0]);
+    System.out.println("mapping file: " + args[1]);
+
+    TrecForwardIndex findex = new TrecForwardIndex();
+    findex.loadIndex(new Path(args[0]), new Path(args[1]), fs);
+
+    if (args[2].equals("getDocno")) {
+      System.out.println("looking up docno " + args[3]);
+      System.out.println(findex.getDocument(Integer.parseInt(args[3])).getDisplayContent());
+    } else if (args[2].equals("getDocid")) {
+      System.out.println("looking up docid " + args[3]);
+      System.out.println(findex.getDocument(args[3]).getDisplayContent());
+    } else {
+      System.out.println("Invalid command!");
+      System.out.println("usage: [findex] [mapping-file] [getDocno|getDocid] [docid/docno]");
+    }
   }
 }

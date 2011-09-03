@@ -31,17 +31,14 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
   public ClueWarcForwardIndex() {}
 
   @Override
-  public void loadIndex(String indexFile, String mappingDataFile) throws IOException {
-    LOG.info("Loading forward index: " + indexFile);
+  public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+    LOG.info("Loading forward index: " + index);
 
-    conf = new Configuration();
-    fs = FileSystem.get(conf);
+    docnoMapping.loadMapping(mapping, fs);
 
-    docnoMapping.loadMapping(new Path(mappingDataFile), fs);
+    FSDataInputStream in = fs.open(index);
 
-    FSDataInputStream in = fs.open(new Path(indexFile));
-
-    // class name; throw away
+    // Class name; throw away.
     in.readUTF();
     collectionPath = in.readUTF();
 

@@ -36,16 +36,42 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.log4j.Logger;
 
+/**
+ * A simple {@link org.apache.hadoop.mapreduce.InputFormat} for XML documents ({@code
+ * org.apache.hadoop.mapreduce} API). The class recognizes begin-of-document and end-of-document
+ * tags only: everything between those delimiting tags is returned in an uninterpreted {@code Text}
+ * object.
+ *
+ * @author Jimmy Lin
+ */
 public class XMLInputFormat2 extends TextInputFormat {
   public static final String START_TAG_KEY = "xmlinput.start";
   public static final String END_TAG_KEY = "xmlinput.end";
 
+  /**
+   * Create a record reader for a given split. The framework will call
+   * {@link RecordReader#initialize(InputSplit, TaskAttemptContext)} before
+   * the split is used.
+   *
+   * @param split the split to be read
+   * @param context the information about the task
+   * @return a new record reader
+   * @throws IOException
+   * @throws InterruptedException
+   */
   @Override
   public RecordReader<LongWritable, Text> createRecordReader(InputSplit split,
       TaskAttemptContext context) {
     return new XMLRecordReader();
   }
 
+  /**
+   * Simple {@link org.apache.hadoop.mapreduce.RecordReader} for XML documents ({@code
+   * org.apache.hadoop.mapreduce} API). Recognizes begin-of-document and end-of-document tags only:
+   * everything between those delimiting tags is returned in a {@link Text} object.
+   *
+   * @author Jimmy Lin
+   */
   public static class XMLRecordReader extends RecordReader<LongWritable, Text> {
     private static final Logger LOG = Logger.getLogger(XMLRecordReader.class);
 
@@ -62,6 +88,14 @@ public class XMLInputFormat2 extends TextInputFormat {
     private final LongWritable key = new LongWritable();
     private final Text value = new Text();
 
+    /**
+     * Called once at initialization.
+     *
+     * @param split the split that defines the range of records to read
+     * @param context the information about the task
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public void initialize(InputSplit input, TaskAttemptContext context)
         throws IOException, InterruptedException {
@@ -98,12 +132,18 @@ public class XMLInputFormat2 extends TextInputFormat {
 
       recordStartPos = start;
 
-      // Because input streams of gzipped files are not seekable
-      // (specifically, do not support getPos), we need to keep
-      // track of bytes consumed ourselves.
+      // Because input streams of gzipped files are not seekable, we need to keep track of bytes
+      // consumed ourselves.
       pos = start;
     }
 
+    /**
+     * Read the next key, value pair.
+     *
+     * @return {@code true} if a key/value pair was read
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
       if (pos < end) {
@@ -118,14 +158,12 @@ public class XMLInputFormat2 extends TextInputFormat {
               return true;
             }
           } finally {
-            // Because input streams of gzipped files are not
-            // seekable (specifically, do not support getPos), we
-            // need to keep track of bytes consumed ourselves.
+            // Because input streams of gzipped files are not seekable, we need to keep track of
+            // bytes consumed ourselves.
 
-            // This is a sanity check to make sure our internal
-            // computation of bytes consumed is accurate. This
-            // should be removed later for efficiency once we
-            // confirm that this code works correctly.
+            // This is a sanity check to make sure our internal computation of bytes consumed is
+            // accurate. This should be removed later for efficiency once we confirm that this code
+            // works correctly.
 
             if (fsin instanceof Seekable) {
               if (pos != ((Seekable) fsin).getPos()) {
@@ -140,21 +178,46 @@ public class XMLInputFormat2 extends TextInputFormat {
       return false;
     }
 
+    /**
+     * Returns the current key.
+     *
+     * @return the current key or {@code null} if there is no current key
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public LongWritable getCurrentKey() throws IOException, InterruptedException {
       return key;
     }
 
+    /**
+     * Returns the current value.
+     *
+     * @return current value
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public Text getCurrentValue() throws IOException, InterruptedException {
       return value;
     }
 
+    /**
+     * Closes the record reader.
+     */
     @Override
     public void close() throws IOException {
       fsin.close();
     }
 
+    /**
+     * The current progress of the record reader through its data.
+     *
+     * @return a number between 0.0 and 1.0 that is the fraction of the data read
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Override
     public float getProgress() throws IOException {
       return ((float) (pos - start)) / ((float) (end - start));
     }
