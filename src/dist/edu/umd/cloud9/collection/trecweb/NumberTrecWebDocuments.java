@@ -158,7 +158,7 @@ public class NumberTrecWebDocuments extends Configured implements Tool {
     LOG.info("Done!");
 
     LOG.info("Writing " + output);
-    FSDataOutputStream out = FileSystem.get(new Configuration()).create(output, true);
+    FSDataOutputStream out = fs.create(output, true);
     reader = new LineReader(fs.open(input));
     out.writeInt(cnt);
     cnt = 0;
