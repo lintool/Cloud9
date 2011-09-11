@@ -97,6 +97,27 @@ public class ArrayListOfIntsWritableTest {
 		assertEquals(3, b.get(1));
 		assertEquals(5, b.get(2));
 	}
+	
+	@Test
+  public void testCompare() {
+    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    a.add(1).add(3).add(5);
+
+    ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
+    b.add(1).add(3).add(5).add(7);
+    assertTrue(b.compareTo(a)>0);
+    b.remove(7);
+    assertTrue(b.compareTo(a)==0);
+    b.remove(5);
+    assertTrue(b.compareTo(a)<0);
+
+    ArrayListOfIntsWritable c = new ArrayListOfIntsWritable();
+    assertTrue(b.compareTo(c)>0);
+    assertTrue(c.compareTo(a)<0);
+    assertTrue(a.compareTo(c)>0);
+    assertTrue(c.compareTo(b)<0);
+  }
+
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsWritableTest.class);

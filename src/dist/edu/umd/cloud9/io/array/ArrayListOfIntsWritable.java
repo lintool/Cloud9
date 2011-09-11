@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import edu.umd.cloud9.util.array.ArrayListOfInts;
 
@@ -31,23 +32,23 @@ import edu.umd.cloud9.util.array.ArrayListOfInts;
  *
  * @author Ferhan Ture
  */
-public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable {
+public class ArrayListOfIntsWritable extends ArrayListOfInts implements WritableComparable {
 
-	/**
-	 * Constructs an ArrayListOfIntsWritable object.
-	 */
-	public ArrayListOfIntsWritable() {
-		super();
-	}
+  /**
+   * Constructs an ArrayListOfIntsWritable object.
+   */
+  public ArrayListOfIntsWritable() {
+    super();
+  }
 
-	/**
-	 * Constructs an empty list with the specified initial capacity.
-	 *
-	 * @param initialCapacity	the initial capacity of the list
-	 */
-	public ArrayListOfIntsWritable(int initialCapacity) {
-		super(initialCapacity);
-	}
+  /**
+   * Constructs an empty list with the specified initial capacity.
+   *
+   * @param initialCapacity	the initial capacity of the list
+   */
+  public ArrayListOfIntsWritable(int initialCapacity) {
+    super(initialCapacity);
+  }
 
   /**
    * Constructs a list populated with shorts in range [first, last).
@@ -59,13 +60,13 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
     super(first, last);
   }
 
-	/**
-	 * Constructs a deep copy of the ArrayListOfIntsWritable object 
-	 * given as parameter.
-	 *
-	 * @param other object to be copied
-	 */
-	public ArrayListOfIntsWritable(ArrayListOfIntsWritable other) {
+  /**
+   * Constructs a deep copy of the ArrayListOfIntsWritable object 
+   * given as parameter.
+   *
+   * @param other object to be copied
+   */
+  public ArrayListOfIntsWritable(ArrayListOfIntsWritable other) {
     super();
     size = other.size();
     array = Arrays.copyOf(other.getArray(), size);
@@ -76,49 +77,78 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
    *
    * @param arr source array
    */
-	public ArrayListOfIntsWritable(int[] arr) {
+  public ArrayListOfIntsWritable(int[] arr) {
     super(arr);
   }
 
-	/**
-	 * Deserializes this object.
-	 *
-	 * @param in source for raw byte representation
-	 */
-	public void readFields(DataInput in) throws IOException {
+  /**
+   * Deserializes this object.
+   *
+   * @param in source for raw byte representation
+   */
+  public void readFields(DataInput in) throws IOException {
     this.clear();
     int size = in.readInt();
     for (int i = 0; i < size; i++) {
       add(i, in.readInt());
     }
-	}
+  }
 
-	/**
-	 * Serializes this object.
-	 *
-	 * @param out	where to write the raw byte representation
-	 */
-	public void write(DataOutput out) throws IOException {
+  /**
+   * Serializes this object.
+   *
+   * @param out	where to write the raw byte representation
+   */
+  public void write(DataOutput out) throws IOException {
     int size = size();
     out.writeInt(size);
     for (int i = 0; i < size; i++) {
       out.writeInt(get(i));
     }
-	}
+  }
 
-	@Override
-	public String toString(){
-	  return toString(size());
-	}
+  @Override
+  public String toString(){
+    return toString(size());
+  }
 
-	/**
-	 * Creates a Writable version of this list.
-	 */
-	public static ArrayListOfIntsWritable fromArrayListOfInts(ArrayListOfInts a) {
-	  ArrayListOfIntsWritable list = new ArrayListOfIntsWritable();
-	  list.array = Arrays.copyOf(a.getArray(), a.size());
-	  list.size = a.size();
+  /**
+   * Creates a Writable version of this list.
+   */
+  public static ArrayListOfIntsWritable fromArrayListOfInts(ArrayListOfInts a) {
+    ArrayListOfIntsWritable list = new ArrayListOfIntsWritable();
+    list.array = Arrays.copyOf(a.getArray(), a.size());
+    list.size = a.size();
 
-	  return list;
-	}
+    return list;
+  }
+
+  @Override
+  public int compareTo(Object obj) {
+    ArrayListOfIntsWritable other = (ArrayListOfIntsWritable) obj;
+    if(isEmpty()){
+      if(other.isEmpty()){
+        return 0;
+      }else{
+        return -1;
+      }
+    }
+
+    for(int i=0;i<size();i++){
+      if(other.size()<=i){
+        return 1;
+      }
+      if(get(i)<other.get(i)){
+        return -1;
+      }else if(get(i)>other.get(i)){
+        return 1;
+      }
+    }
+    if(other.size()>size()){
+      return -1;
+    }else{
+      return 0;
+    }
+
+  }
 }
