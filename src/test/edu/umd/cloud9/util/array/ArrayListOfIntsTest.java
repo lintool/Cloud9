@@ -18,21 +18,9 @@ package edu.umd.cloud9.util.array;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
 import java.util.Random;
-
 import junit.framework.JUnit4TestAdapter;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
-
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
 
 public class ArrayListOfIntsTest {
 
@@ -408,56 +396,4 @@ public class ArrayListOfIntsTest {
 		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
 	}
 	
-	@Test
-	public void testIO(){
-	  ArrayListOfIntsWritable a1 = new ArrayListOfIntsWritable();
-	  ArrayListOfIntsWritable a2 = new ArrayListOfIntsWritable();
-    ArrayListOfIntsWritable a3 = new ArrayListOfIntsWritable();
-    
-	  a1.add(1);
-	  a1.add(2);
-    
-	  a2.add(3);
-	  
-	  FileSystem fs;
-    SequenceFile.Writer w;
-    Configuration conf = new Configuration();
-
-    try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, new Path("test"),
-          ArrayListOfIntsWritable.class, IntWritable.class);  
-      System.out.println(a1.toString());
-      System.out.println(a1.size());
-      System.out.println(a3);
-      System.out.println(a3.size());
-      w.append(a1, new IntWritable(1));
-      w.append(a2, new IntWritable(2));
-      w.append(a3, new IntWritable(3));
-      w.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    
-    try {
-      SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), new Path("test"), conf);
-
-      ArrayListOfIntsWritable key = (ArrayListOfIntsWritable) reader.getKeyClass().newInstance();
-      IntWritable value = (IntWritable) reader.getValueClass().newInstance();
-      while (reader.next(key, value)) {
-        int docno = value.get();
-        System.out.println(docno);
-        System.out.println(key.toString());
-        System.out.println(key.size());
-      }
-      reader.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-      
-	}
 }

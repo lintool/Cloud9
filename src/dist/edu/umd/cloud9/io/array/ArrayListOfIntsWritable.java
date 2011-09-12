@@ -123,6 +123,11 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
     return list;
   }
 
+  /**
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference if both are empty.
+   * 
+   * @param obj other object this is compared against
+   */
   @Override
   public int compareTo(Object obj) {
     ArrayListOfIntsWritable other = (ArrayListOfIntsWritable) obj;
