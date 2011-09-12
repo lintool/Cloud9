@@ -207,7 +207,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	 * 			New weight
 	 */
 	public void setWeight(float weight) {
-		if(this.type == Type.EXTERNAL_IN_LINK.val) {
+	    if(isExternalInLink()) {
 			this.weight = weight;
 			this.type = Type.WEIGHTED_EXTERNAL_IN_LINK.val;
 		}
