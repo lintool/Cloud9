@@ -30,6 +30,7 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
+@SuppressWarnings("deprecation")
 public class Aquaint2DocumentInputFormat extends
     IndexableFileInputFormat<LongWritable, Aquaint2Document> {
 
@@ -42,46 +43,50 @@ public class Aquaint2DocumentInputFormat extends
 
   public static class Aquaint2DocumentRecordReader implements
       RecordReader<LongWritable, Aquaint2Document> {
-
-    private XMLRecordReader mReader;
-    private Text mText = new Text();
-    private LongWritable mLong = new LongWritable();
+    private final XMLRecordReader reader;
+    private final Text text = new Text();
+    private final LongWritable offset = new LongWritable();
 
     public Aquaint2DocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
       conf.set(XMLInputFormat.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
       conf.set(XMLInputFormat.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
 
-      mReader = new XMLRecordReader(split, conf);
+      reader = new XMLRecordReader(split, conf);
     }
 
+    @Override
     public boolean next(LongWritable key, Aquaint2Document value) throws IOException {
-      if (mReader.next(mLong, mText) == false)
+      if (reader.next(offset, text) == false)
         return false;
-      key.set(mLong.get());
-      Aquaint2Document.readDocument(value, mText.toString());
+      key.set(offset.get());
+      Aquaint2Document.readDocument(value, text.toString());
       return true;
     }
 
+    @Override
     public LongWritable createKey() {
       return new LongWritable();
     }
 
+    @Override
     public Aquaint2Document createValue() {
       return new Aquaint2Document();
     }
 
+    @Override
     public long getPos() throws IOException {
-      return mReader.getPos();
+      return reader.getPos();
     }
 
+    @Override
     public void close() throws IOException {
-      mReader.close();
+      reader.close();
     }
 
+    @Override
     public float getProgress() throws IOException {
-      return ((float) (mReader.getPos() - mReader.getStart()))
-          / ((float) (mReader.getEnd() - mReader.getStart()));
+      return ((float) (reader.getPos() - reader.getStart()))
+          / ((float) (reader.getEnd() - reader.getStart()));
     }
-
   }
 }
