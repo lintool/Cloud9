@@ -18,11 +18,8 @@ package edu.umd.cloud9.util.array;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Random;
-
 import junit.framework.JUnit4TestAdapter;
-
 import org.junit.Test;
 
 public class ArrayListOfIntsTest {
@@ -398,4 +395,5 @@ public class ArrayListOfIntsTest {
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
 	}
+	
 }
