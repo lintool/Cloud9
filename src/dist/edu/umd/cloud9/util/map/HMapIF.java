@@ -810,22 +810,31 @@ public class HMapIF implements MapIF, Cloneable, Serializable {
 		return loadFactor;
 	}
 
-	public String toString() {
+	public String toString () {
+		return toString (-1);
+	}
+
+	public String toString (int n) {
 		Iterator<MapIF.Entry> i = entrySet().iterator();
-		if (!i.hasNext())
+		if (!i.hasNext() || n == 0)
 			return "{}";
 
 		StringBuilder sb = new StringBuilder();
 		sb.append('{');
-		for (;;) {
+		for (int m = 2; ; m++) {
 			MapIF.Entry e = i.next();
 			int key = e.getKey();
 			float value = e.getValue();
+			//sb.append("(m: " + m + ", n: " + n + ")");
 			sb.append(key);
 			sb.append('=');
 			sb.append(value);
-			if (!i.hasNext())
+			if (! i.hasNext() || (m > n && n > 0)) {
+				if (i.hasNext()) {
+					sb.append (", ...");
+				}
 				return sb.append('}').toString();
+			}
 			sb.append(", ");
 		}
 	}
