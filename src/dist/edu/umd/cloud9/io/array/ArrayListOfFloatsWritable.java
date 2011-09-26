@@ -20,8 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import edu.umd.cloud9.util.array.ArrayListOfFloats;
 
@@ -31,7 +30,7 @@ import edu.umd.cloud9.util.array.ArrayListOfFloats;
  *
  * @author Jimmy Lin
  */
-public class ArrayListOfFloatsWritable extends ArrayListOfFloats implements Writable {
+public class ArrayListOfFloatsWritable extends ArrayListOfFloats implements WritableComparable {
 
   /**
    * Constructs an ArrayListOfFloatsWritable object.
@@ -110,5 +109,39 @@ public class ArrayListOfFloatsWritable extends ArrayListOfFloats implements Writ
     list.size = a.size();
 
     return list;
+  }
+  
+  /**
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference if both are empty.
+   * 
+   * @param obj other object this is compared against
+   */
+  @Override
+  public int compareTo(Object obj) {
+    ArrayListOfFloatsWritable other = (ArrayListOfFloatsWritable) obj;
+    if(isEmpty()){
+      if(other.isEmpty()){
+        return 0;
+      }else{
+        return -1;
+      }
+    }
+
+    for(int i=0;i<size();i++){
+      if(other.size()<=i){
+        return 1;
+      }
+      if(get(i)<other.get(i)){
+        return -1;
+      }else if(get(i)>other.get(i)){
+        return 1;
+      }
+    }
+    if(other.size()>size()){
+      return -1;
+    }else{
+      return 0;
+    }
+
   }
 }
