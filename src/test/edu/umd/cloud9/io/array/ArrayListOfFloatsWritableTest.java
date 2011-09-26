@@ -35,7 +35,8 @@ import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class ArrayListOfFloatsWritableTest {
-
+  float neg_one=-1, zero=0, one=1, two=2, three=3, four=4, five=5, six=6, seven=7, nine=9;
+  
   @Test
   public void testReadWrite() throws IOException {
     ArrayListOfFloatsWritable arr = new ArrayListOfFloatsWritable();
@@ -85,6 +86,74 @@ public class ArrayListOfFloatsWritableTest {
     assertEquals(1.0f, b.get(0), 10e-6);
     assertEquals(3.0f, b.get(1), 10e-6);
     assertEquals(5.0f, b.get(2), 10e-6);
+  }
+
+  @Test
+  public void testCompare() {
+    ArrayListOfFloatsWritable a = new ArrayListOfFloatsWritable();
+    a.add(one).add(three).add(five);
+
+    ArrayListOfFloatsWritable b = new ArrayListOfFloatsWritable();
+
+    //[1,3,5] < [1,3,5,7]  
+    b.add(one).add(three).add(five).add(seven);
+    assertTrue(b.compareTo(a)>0);
+
+    //[1,3,5] = [1,3,5]
+    b.remove(3);
+    assertTrue(b.compareTo(a)==0);
+
+    //[1,3] < [1,3,5]
+    b.remove(2);
+    assertTrue(b.compareTo(a)<0);
+
+    //[ ] < [1,3] 
+    //[ ] < [1,3,5]
+    ArrayListOfFloatsWritable c = new ArrayListOfFloatsWritable();
+    assertTrue(b.compareTo(c)>0);
+    assertTrue(c.compareTo(a)<0);
+    assertTrue(a.compareTo(c)>0);
+    assertTrue(c.compareTo(b)<0);
+
+
+  }
+
+  @Test
+  public void testCompare2() {
+    // [1, 3, 6]
+    ArrayListOfFloatsWritable a = new ArrayListOfFloatsWritable();
+    a.add(one).add(three).add(six);
+
+    // [1, 3, 4]
+    ArrayListOfFloatsWritable b = new ArrayListOfFloatsWritable();
+    b.add(one).add(three).add(four);
+    assertTrue(a.compareTo(b)>0);
+
+    // [1, 3, 4, 9]
+    ArrayListOfFloatsWritable c = new ArrayListOfFloatsWritable();
+    c.add(one).add(three).add(four).add(nine);
+
+    assertTrue(c.compareTo(a)<0);
+    assertTrue(b.compareTo(c)<0);
+
+    // [2, 4]
+    ArrayListOfFloatsWritable d = new ArrayListOfFloatsWritable();
+    d.add(two).add(four);
+
+    // [0, 2]
+    ArrayListOfFloatsWritable e = new ArrayListOfFloatsWritable();
+    e.add(zero).add(two);
+
+    //[2,4] > all others
+    assertTrue(d.compareTo(a)>0);
+    assertTrue(d.compareTo(b)>0);
+    assertTrue(d.compareTo(c)>0);
+
+    //[0,2] < all others
+    assertTrue(e.compareTo(a)<0);
+    assertTrue(e.compareTo(b)<0);
+    assertTrue(e.compareTo(c)<0);
+    assertTrue(e.compareTo(d)<0);
   }
 
   public static junit.framework.Test suite() {
