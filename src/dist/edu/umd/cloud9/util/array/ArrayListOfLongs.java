@@ -236,7 +236,10 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
 	 * @return the element that was removed from the list
 	 */
 	public long remove(int index) {
-		long oldValue = array[index];
+	  if(index >= size){
+      throw new ArrayIndexOutOfBoundsException();
+    }
+	  long oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {
