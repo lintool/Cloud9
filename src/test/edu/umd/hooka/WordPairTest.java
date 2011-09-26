@@ -7,7 +7,9 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-public class WordPairTest {
+import junit.framework.TestCase;
+
+public class WordPairTest extends TestCase {
 
 	@Test
 	public void testCompareTo() {
