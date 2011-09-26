@@ -221,7 +221,10 @@ public class ArrayListOfDoubles implements RandomAccess, Cloneable, Iterable<Dou
 	 * @return the element that was removed from the list
 	 */
 	public double remove(int index) {
-		double oldValue = array[index];
+	  if(index >= size){
+      throw new ArrayIndexOutOfBoundsException();
+    }
+	  double oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {

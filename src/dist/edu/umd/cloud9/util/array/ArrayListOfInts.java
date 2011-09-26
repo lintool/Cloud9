@@ -236,6 +236,9 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 	 * @return the element that was removed from the list
 	 */
 	public int remove(int index) {
+	  if(index >= size){
+	    throw new ArrayIndexOutOfBoundsException();
+	  }
 		int oldValue = array[index];
 
 		int numMoved = size - index - 1;
