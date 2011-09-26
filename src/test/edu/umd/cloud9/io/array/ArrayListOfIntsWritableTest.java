@@ -31,7 +31,8 @@ import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class ArrayListOfIntsWritableTest {
-
+  int neg_one=-1, zero=0, one=1, two=2, three=3, four=4, five=5, six=6, seven=7, nine=9;
+  
   @Test
   public void testToString() {
     assertEquals("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", new ArrayListOfIntsWritable(1, 11).toString());
@@ -97,20 +98,20 @@ public class ArrayListOfIntsWritableTest {
   @Test
   public void testCompare() {
     ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-    a.add(1).add(3).add(5);
+    a.add(one).add(three).add(five);
 
     ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
 
     //[1,3,5] < [1,3,5,7]  
-    b.add(1).add(3).add(5).add(7);
+    b.add(one).add(three).add(five).add(seven);
     assertTrue(b.compareTo(a)>0);
 
     //[1,3,5] = [1,3,5]
-    b.remove(7);
+    b.remove(3);
     assertTrue(b.compareTo(a)==0);
 
     //[1,3] < [1,3,5]
-    b.remove(5);
+    b.remove(2);
     assertTrue(b.compareTo(a)<0);
 
     //[ ] < [1,3] 
@@ -128,27 +129,27 @@ public class ArrayListOfIntsWritableTest {
   public void testCompare2() {
     // [1, 3, 6]
     ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
-    a.add(1).add(3).add(6);
+    a.add(one).add(three).add(six);
 
     // [1, 3, 4]
     ArrayListOfIntsWritable b = new ArrayListOfIntsWritable();
-    b.add(1).add(3).add(4);
+    b.add(one).add(three).add(four);
     assertTrue(a.compareTo(b)>0);
 
     // [1, 3, 4, 9]
     ArrayListOfIntsWritable c = new ArrayListOfIntsWritable();
-    c.add(1).add(3).add(4).add(9);
+    c.add(one).add(three).add(four).add(nine);
 
     assertTrue(c.compareTo(a)<0);
     assertTrue(b.compareTo(c)<0);
 
     // [2, 4]
     ArrayListOfIntsWritable d = new ArrayListOfIntsWritable();
-    d.add(2).add(4);
+    d.add(two).add(four);
 
     // [0, 2]
     ArrayListOfIntsWritable e = new ArrayListOfIntsWritable();
-    e.add(0).add(2);
+    e.add(zero).add(two);
 
     //[2,4] > all others
     assertTrue(d.compareTo(a)>0);
@@ -160,7 +161,6 @@ public class ArrayListOfIntsWritableTest {
     assertTrue(e.compareTo(b)<0);
     assertTrue(e.compareTo(c)<0);
     assertTrue(e.compareTo(d)<0);
-
   }
 
   @Test

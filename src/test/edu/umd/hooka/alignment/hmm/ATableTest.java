@@ -1,9 +1,11 @@
 package edu.umd.hooka.alignment.hmm;
 
+import java.io.*;
 import org.junit.Test;
+import junit.framework.TestCase;
 
-public class ATableTest {
-/*
+public class ATableTest extends TestCase {
+
 	@Test
 	public void testNormalize() {
 		ATable at = new ATable(true, 1, 10);
@@ -52,7 +54,7 @@ public class ATableTest {
 		at.normalize();
 		System.out.println(at);
 	}
-	*/
+
 	@Test
 	public void testNonHomogeneous() {
 		ATable at = new ATable(false, 10, 10);
