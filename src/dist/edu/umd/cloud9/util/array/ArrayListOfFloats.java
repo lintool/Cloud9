@@ -221,7 +221,10 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 	 * @return the element that was removed from the list
 	 */
 	public float remove(int index) {
-		float oldValue = array[index];
+	  if(index >= size){
+      throw new ArrayIndexOutOfBoundsException();
+    }
+	  float oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {

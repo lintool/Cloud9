@@ -237,7 +237,10 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
 	 * @return the element that was removed from the list
 	 */
 	public short remove(int index) {
-		short oldValue = array[index];
+	  if(index >= size){
+      throw new ArrayIndexOutOfBoundsException();
+    }
+	  short oldValue = array[index];
 
 		int numMoved = size - index - 1;
 		if (numMoved > 0) {

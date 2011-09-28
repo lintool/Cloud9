@@ -79,7 +79,6 @@ public class NumberTrecWebDocuments extends Configured implements Tool {
         OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
       reporter.incrCounter(Documents.Total, 1);
 
-      System.out.println(doc.getDocid());
       text.set(doc.getDocid());
       output.collect(text, out);
     }

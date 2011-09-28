@@ -18,15 +18,43 @@ package edu.umd.cloud9.util.array;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Random;
-
 import junit.framework.JUnit4TestAdapter;
-
 import org.junit.Test;
 
-public class ArrayListOfLongsTest {
 
+public class ArrayListOfLongsTest {
+  long neg_one=-1, zero=0, one=1, two=2, three=3, four=4, five=5, six=6, seven=7, nine=9;
+
+  @Test
+  public void testRemoveWithinBounds(){
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(one).add(three).add(five).add(seven);
+    
+    assertTrue(one == a.remove(0));
+
+    assertTrue(three == a.get(0));
+    assertTrue(five == a.get(1));
+    
+    assertTrue(five == a.remove(1));
+    assertTrue(seven == a.get(2)); 
+  }
+  
+  @Test (expected=ArrayIndexOutOfBoundsException.class)
+  public void testRemoveOutOfBounds(){
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(one).add(three).add(five).add(seven);
+
+    a.remove(4);
+  }
+
+  @Test (expected=ArrayIndexOutOfBoundsException.class)
+  public void testRemoveOutOfBounds2(){
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(neg_one);
+    a.remove(-1);
+  }
+  
   @Test
   public void testBasic1() {
     int size = 100000;

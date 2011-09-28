@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class Phrase2CountMapTest {
+import junit.framework.TestCase;
+
+public class Phrase2CountMapTest extends TestCase {
 
 	@Test
 	public void testPlusEquals() {
