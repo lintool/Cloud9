@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.LineReader;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
@@ -36,24 +37,128 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 public class Aquaint2DocnoMapping implements DocnoMapping {
   private static final Logger LOG = Logger.getLogger(Aquaint2DocnoMapping.class);
+    //    { LOG.setLevel (Level.TRACE); }
 
-  private String[] docids;
+  private String[] docidEntries;
 
   @Override
   public int getDocno(String docid) {
+    LOG.trace("getDocno(docid: " + docid + ")");
     Preconditions.checkNotNull(docid);
-    return Arrays.binarySearch(docids, docid);
+    String source = docid.substring(0, 7);
+    int year = Integer.parseInt(docid.substring (8, 12));
+    int month = Integer.parseInt(docid.substring (12, 14));
+    int day = Integer.parseInt(docid.substring (14, 16));
+    int articleNo = Integer.parseInt(docid.substring (17, 21));
+
+    // first traverse the entries to find the month entry and get its days
+    int entryId = findEntryId(source, year, month);
+    LOG.debug("entryId: " + entryId);
+
+    String entryElt = docidEntries[entryId].split("\t")[day];
+    LOG.debug("entryElt: " + entryElt);
+
+    // then traverse the days to find the day and skip over missing articles to get the article number
+    String[] entryEltParts = entryElt.split(" ");
+    int result = articleNo + Integer.parseInt(entryEltParts[0]);
+    String[] entryDayParts = entryEltParts[1].split(",");
+    for (int i = 1; i < entryDayParts.length; i++) {
+      int missingNo = Integer.parseInt(entryDayParts[i]);
+      if (articleNo < missingNo) break;
+      LOG.debug("skipping missingNo: " + missingNo);
+      result--;
+    }
+
+    LOG.trace("getDocno returning: " + result);
+    return result;
   }
+
+  private int findEntryId(String source, int year, int month) {
+    for (int i = 0; i < docidEntries.length; i++) {
+      LOG.debug("docidEntries [" + i + "]: " + docidEntries[i]);
+      String[] entryElts = docidEntries[i].split("\t");
+      String[] entryMetaInfo = entryElts[0].split(" ");
+      String entrySource = entryMetaInfo[1];
+      if (entrySource.equals (source)) {
+        int entryYear = Integer.parseInt(entryMetaInfo[2]);
+        if (entryYear == year) {
+          int entryMonth = Integer.parseInt(entryMetaInfo[3]);
+          if (entryMonth == month) {
+            return i;
+          }
+        }
+      }
+    }
+    return -1;
+  }
+
 
   @Override
   public String getDocid(int docno) {
     Preconditions.checkArgument(docno > 0);
-    return docids[docno];
+    LOG.trace("getDocid(docno: " + docno + ")");
+
+    // first traverse the entries to find the month entry and get its source, year, month
+    int entryId = findEntryId(docno);
+    LOG.debug("entryId: " + entryId);
+    String[] entryElts = docidEntries[entryId].split("\t");
+    String[] entryMetaInfo = entryElts[0].split(" ");
+    String source = entryMetaInfo[1];
+    int year = Integer.parseInt(entryMetaInfo[2]);
+    int month = Integer.parseInt(entryMetaInfo[3]);
+    LOG.debug("looking at: " + String.format("%s_%04d%02d__.____", source, year, month));
+
+    // then traverse the days to find the day and skip over missing articles to get the article number
+    String[] entryEltParts = findEntryEltParts (docno, entryElts);
+    int offset = Integer.parseInt(entryEltParts[0]);
+    String[] entryDayParts = entryEltParts[1].split(",");
+    int day = Integer.parseInt(entryDayParts[0]);
+    LOG.debug("found day: " + day + ", looking at: " + String.format("%s_%04d%02d%02d.____", source, year, month, day));
+    int articleNo = docno - offset;
+    for (int i = 1; i < entryDayParts.length; i++) {
+      int missingNo = Integer.parseInt(entryDayParts[i]);
+      if (articleNo < missingNo) break;
+      LOG.debug("skipping missingNo: " + missingNo);
+      articleNo++;
+    }
+    LOG.debug("found articleNo: " + articleNo + ", looking at: " + String.format("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo));
+    return String.format ("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo);
   }
+
+
+  private int findEntryId(int docno) {
+    for (int i = 0; i < docidEntries.length; i++) {
+      LOG.debug("docidEntries [" + i + "]: " + docidEntries[i]);
+      int entryOffset = Integer.parseInt(docidEntries[i].split(" ") [0]);
+      if (entryOffset >= docno) {
+        return i - 1;
+      }
+    }
+    return docidEntries.length - 1;
+  }
+
+
+  private String[] findEntryEltParts(int docno, String[] entryElts) {
+    String[] thisEltParts = new String[0];
+    int prevOffset = -1;
+    String[] prevEltParts = new String[0];
+
+    for (int i = 1; i < entryElts.length; i++) {
+      thisEltParts = entryElts[i].split(" ");
+      int thisOffset = Integer.parseInt(thisEltParts[0]);
+      if (thisOffset >= docno) {
+        return prevEltParts;
+      }
+      prevOffset = thisOffset;
+      prevEltParts = thisEltParts;
+    }
+    return thisEltParts;
+  }
+
 
   @Override
   public void loadMapping(Path p, FileSystem fs) throws IOException {
-    docids = Aquaint2DocnoMapping.readDocnoData(p, fs);
+    docidEntries = Aquaint2DocnoMapping.readDocnoData(p, fs);
   }
 
   static public void writeDocnoData(Path input, Path output, FileSystem fs) throws IOException {
@@ -64,14 +169,59 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     LOG.info("Reading " + input);
     int cnt = 0;
     Text line = new Text();
+
+    String prevSource = null;
+    int prevYear = -1;
+    int prevMonth = -1;
+    int prevDay = -1;
+    int prevArticleNo = -1;
+    StringBuilder currentEntry = null;
+
     while (reader.readLine(line) > 0) {
-      String[] arr = line.toString().split("\\t");
-      list.add(arr[0]);
+      String docid = line.toString();
+
+      String source = docid.substring(0, 7);
+      int year = Integer.parseInt(docid.substring (8, 12));
+      int month = Integer.parseInt(docid.substring (12, 14));
+      int day = Integer.parseInt(docid.substring (14, 16));
+      int articleNo = Integer.parseInt(docid.substring (17, 21));
+      LOG.debug("prevSource: " + prevSource + ", prevYear: " + prevYear + ", prevMonth: " + prevMonth + ", prevDay: " + prevDay + ", prevArticleNo: " + prevArticleNo);
+      LOG.debug("source: " + source + ", year: " + year + ", month: " + month + ", day: " + day + ", articleNo: " + articleNo);
+
+      if (! source.equals(prevSource) ||
+        year != prevYear ||
+        month != prevMonth) {
+        LOG.debug("currentEntry: " + currentEntry);
+        if (currentEntry != null) list.add(currentEntry.toString());
+        currentEntry = new StringBuilder(cnt + " " + source + " " + year + " " + month);
+        prevDay = 0;
+        prevArticleNo = 0;
+      }
+      if (day != prevDay) {
+        for (int i = prevDay + 1; i <= day; i++) {
+          currentEntry.append("\t" + cnt + " " + i);
+        }
+        prevArticleNo = 0;
+      }
+      if (articleNo != prevArticleNo + 1) {
+        // we have missing article numbers - gather them
+        for (int i = prevArticleNo + 1; i < articleNo; i++) {
+          currentEntry.append("," + i);
+        }
+      }
+      prevSource = source;
+      prevYear = year;
+      prevMonth = month;
+      prevDay = day;
+      prevArticleNo = articleNo;
+    
       cnt++;
       if (cnt % 100000 == 0) {
         LOG.info(cnt + " docs");
       }
     }
+    list.add(currentEntry.toString());
+    list.add("" + cnt);
     reader.close();
     LOG.info(cnt + " docs total. Done!");
 
@@ -83,30 +233,26 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       out.writeUTF(list.get(i));
       cnt++;
       if (cnt % 100000 == 0) {
-        LOG.info(cnt + " docs");
+        LOG.info(cnt + " months of docs");
       }
     }
     out.close();
-    LOG.info(cnt + " docs total. Done!");
+    LOG.info(cnt + " months of docs total. Done!");
   }
 
   static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
-    LOG.warn("p: " + p);
+    LOG.trace("readDocnoData (p: " + p + ", fs)");
     FSDataInputStream in = fs.open(p);
 
-    // Docnos start at one, so we need an array that's one larger than number of docs.
-    int sz = in.readInt() + 1;
-    LOG.warn("creating array of length: " + sz);
+    int sz = in.readInt();
+    LOG.debug("creating a month array of length: " + sz);
     String[] arr = new String[sz];
 
-    for (int i = 1; i < sz; i++) {
+    for (int i = 0; i < sz; i++) {
       arr[i] = in.readUTF();
+      LOG.debug("arr[" + i + "]: " + arr[i]);
     }
     in.close();
-
-    // Can't leave the zero'th entry null, or else we might get a null pointer exception during a
-    // binary search on the array.
-    arr[0] = "";
 
     return arr;
   }
@@ -125,8 +271,8 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     mapping.loadMapping(new Path(args[1]), fs);
 
     if (args[0].equals("list")) {
-      for (int i = 1; i < mapping.docids.length; i++) {
-        System.out.println(i + "\t" + mapping.docids[i]);
+      for (int i = 1; i < mapping.docidEntries.length; i++) {
+        System.out.println(i + "\t" + mapping.docidEntries[i]);
       }
     } else if (args[0].equals("getDocno")) {
       System.out.println("looking up docno for \"" + args[2] + "\"");
