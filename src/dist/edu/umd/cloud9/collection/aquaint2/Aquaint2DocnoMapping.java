@@ -37,7 +37,8 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 public class Aquaint2DocnoMapping implements DocnoMapping {
   private static final Logger LOG = Logger.getLogger(Aquaint2DocnoMapping.class);
-    //    { LOG.setLevel (Level.TRACE); }
+  // { LOG.setLevel (Level.TRACE); }
+  { LOG.setLevel (Level.INFO); }
 
   private String[] docidEntries;
 
@@ -176,6 +177,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     int prevDay = -1;
     int prevArticleNo = -1;
     StringBuilder currentEntry = null;
+    int numEntries = 0;
 
     while (reader.readLine(line) > 0) {
       String docid = line.toString();
@@ -189,10 +191,14 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       LOG.debug("source: " + source + ", year: " + year + ", month: " + month + ", day: " + day + ", articleNo: " + articleNo);
 
       if (! source.equals(prevSource) ||
-        year != prevYear ||
-        month != prevMonth) {
+           year != prevYear ||
+           month != prevMonth) {
         LOG.debug("currentEntry: " + currentEntry);
-        if (currentEntry != null) list.add(currentEntry.toString());
+        if (currentEntry != null) {
+          list.add(currentEntry.toString());
+          list.add("<eol>");
+          numEntries++;
+        }
         currentEntry = new StringBuilder(cnt + " " + source + " " + year + " " + month);
         prevDay = 0;
         prevArticleNo = 0;
@@ -202,6 +208,10 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
           currentEntry.append("\t" + cnt + " " + i);
         }
         prevArticleNo = 0;
+        // writeUTF can't write a string longer than 64k, so we output a chunk at a time
+        // here then concatenate strings between <eol>s
+        list.add(currentEntry.toString());
+        currentEntry = new StringBuilder ();
       }
       if (articleNo != prevArticleNo + 1) {
         // we have missing article numbers - gather them
@@ -214,30 +224,32 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       prevMonth = month;
       prevDay = day;
       prevArticleNo = articleNo;
-    
+
       cnt++;
       if (cnt % 100000 == 0) {
         LOG.info(cnt + " docs");
       }
     }
     list.add(currentEntry.toString());
+    list.add("<eof>");
+    numEntries++;
     list.add("" + cnt);
     reader.close();
     LOG.info(cnt + " docs total. Done!");
 
-    cnt = 0;
     LOG.info("Writing " + output);
     FSDataOutputStream out = fs.create(output, true);
-    out.writeInt(list.size());
+    out.writeInt(numEntries);
+    numEntries = 0;
     for (int i = 0; i < list.size(); i++) {
       out.writeUTF(list.get(i));
-      cnt++;
-      if (cnt % 100000 == 0) {
-        LOG.info(cnt + " months of docs");
+      numEntries++;
+      if (numEntries % 10000 == 0) {
+        LOG.info(numEntries + " months of docs");
       }
     }
     out.close();
-    LOG.info(cnt + " months of docs total. Done!");
+    LOG.info(numEntries + " months of docs total. Done!");
   }
 
   static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
@@ -247,9 +259,24 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     int sz = in.readInt();
     LOG.debug("creating a month array of length: " + sz);
     String[] arr = new String[sz];
+    String currentEntryPart = in.readUTF();
+    StringBuilder currentEntry = new StringBuilder();
+    int i = 0;
+    while (!currentEntryPart.equals("<eof>")) {
+      LOG.debug("currentEntryPart: " + currentEntryPart);
+      if (currentEntryPart.equals("<eol>")) {
+        arr[i] = currentEntry.toString();
+        LOG.debug("arr[" + i + "]: " + arr[i]);
+        i++;
+        currentEntry = new StringBuilder();
+      } else {
+        currentEntry.append(currentEntryPart);
+      }
+      currentEntryPart = in.readUTF();
+    }
 
-    for (int i = 0; i < sz; i++) {
-      arr[i] = in.readUTF();
+    if (currentEntry.length() > 0){
+      arr[i] = currentEntry.toString();
       LOG.debug("arr[" + i + "]: " + arr[i]);
     }
     in.close();
