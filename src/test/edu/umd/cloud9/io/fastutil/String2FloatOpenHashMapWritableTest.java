@@ -54,43 +54,38 @@ public class String2FloatOpenHashMapWritableTest {
   public void testAccent() throws IOException {
     String2FloatOpenHashMapWritable map1 = new String2FloatOpenHashMapWritable();
 
-    // '\u00E0': à  [LATIN SMALL LETTER A WITH GRAVE]
-    // '\u00E6': æ  [LATIN SMALL LETTER AE]
-    // '\u00E7': ç  [LATIN SMALL LETTER C WITH CEDILLA]
-    // '\u00FC': ü  [LATIN SMALL LETTER U WITH DIAERESIS]
+    // '\u00E0': [LATIN SMALL LETTER A WITH GRAVE]
+    // '\u00E6': [LATIN SMALL LETTER AE]
+    // '\u00E7': [LATIN SMALL LETTER C WITH CEDILLA]
+    // '\u00FC': [LATIN SMALL LETTER U WITH DIAERESIS]
 
-    map1.put("à", 1.0f);
-    map1.put("æ", 2.0f);
-    map1.put("ç", 3.0f);
-    map1.put("ü", 4.0f);
-
-    assertEquals(1.0f, map1.getFloat("à"), 10e-6);
-    assertEquals(2.0f, map1.getFloat("æ"), 10e-6);
-    assertEquals(3.0f, map1.getFloat("ç"), 10e-6);
-    assertEquals(4.0f, map1.getFloat("ü"), 10e-6);
+    map1.put("\u00E0", 1.0f);
+    map1.put("\u00E6", 2.0f);
+    map1.put("\u00E7", 3.0f);
+    map1.put("\u00FC", 4.0f);
 
     assertEquals(1.0f, map1.getFloat("\u00E0"), 10e-6);
     assertEquals(2.0f, map1.getFloat("\u00E6"), 10e-6);
     assertEquals(3.0f, map1.getFloat("\u00E7"), 10e-6);
     assertEquals(4.0f, map1.getFloat("\u00FC"), 10e-6);
 
-    map1.put("à", 10.0f);
-    map1.remove("æ");
-    map1.remove("ç");
-    map1.put("ç", 2.0f);
+    map1.put("\u00E0", 10.0f);
+    map1.remove("\u00E6");
+    map1.remove("\u00E7");
+    map1.put("\u00E7", 2.0f);
 
-    assertEquals(10.0f, map1.getFloat("à"), 10e-6);
-    assertEquals(2.0f, map1.getFloat("ç"), 10e-6);
-    assertEquals(4.0f, map1.getFloat("ü"), 10e-6);
+    assertEquals(10.0f, map1.getFloat("\u00E0"), 10e-6);
+    assertEquals(2.0f, map1.getFloat("\u00E7"), 10e-6);
+    assertEquals(4.0f, map1.getFloat("\u00FC"), 10e-6);
 
     assertEquals(3, map1.size());
 
     // Test serialization
     String2FloatOpenHashMapWritable map2 = String2FloatOpenHashMapWritable.create(map1.serialize());
 
-    assertEquals(10.0f, map2.getFloat("à"), 10e-6);
-    assertEquals(2.0f, map2.getFloat("ç"), 10e-6);
-    assertEquals(4.0f, map2.getFloat("ü"), 10e-6);
+    assertEquals(10.0f, map2.getFloat("\u00E0"), 10e-6);
+    assertEquals(2.0f, map2.getFloat("\u00E7"), 10e-6);
+    assertEquals(4.0f, map2.getFloat("\u00FC"), 10e-6);
   }
 
   @Test

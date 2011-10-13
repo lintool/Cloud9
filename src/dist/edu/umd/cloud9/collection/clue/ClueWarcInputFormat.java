@@ -50,78 +50,84 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
+@SuppressWarnings("deprecation")
 public class ClueWarcInputFormat extends FileInputFormat<LongWritable, ClueWarcRecord> {
 
-	/**
-	 * Don't allow the files to be split!
-	 */
-	@Override
-	protected boolean isSplitable(FileSystem fs, Path filename) {
-		// ensure the input files are not splittable!
-		return false;
-	}
+  /**
+   * Don't allow the files to be split!
+   */
+  @Override
+  protected boolean isSplitable(FileSystem fs, Path filename) {
+    // ensure the input files are not splittable!
+    return false;
+  }
 
-	/**
-	 * Just return the record reader
-	 */
-	public RecordReader<LongWritable, ClueWarcRecord> getRecordReader(InputSplit split,
-			JobConf conf, Reporter reporter) throws IOException {
-		return new ClueWarcRecordReader(conf, (FileSplit) split);
-	}
+  /**
+   * Just return the record reader
+   */
+  public RecordReader<LongWritable, ClueWarcRecord> getRecordReader(InputSplit split, JobConf conf,
+      Reporter reporter) throws IOException {
+    return new ClueWarcRecordReader(conf, (FileSplit) split);
+  }
 
-	public static class ClueWarcRecordReader implements RecordReader<LongWritable, ClueWarcRecord> {
-		private long mRecordCount = 1;
-		private Path mFilePath = null;
-		private DataInputStream mCompressedInput = null;
+  public static class ClueWarcRecordReader implements RecordReader<LongWritable, ClueWarcRecord> {
+    private long recordCount = 1;
+    private Path path = null;
+    private DataInputStream input = null;
 
-		private long totalNumBytesRead = 0;
+    private long totalNumBytesRead = 0;
 
-		public ClueWarcRecordReader(Configuration conf, FileSplit split) throws IOException {
-			FileSystem fs = FileSystem.get(conf);
-			mFilePath = split.getPath();
+    public ClueWarcRecordReader(Configuration conf, FileSplit split) throws IOException {
+      FileSystem fs = FileSystem.get(conf);
+      path = split.getPath();
 
-			CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
-			CompressionCodec compressionCodec = compressionCodecs.getCodec(mFilePath);
-			mCompressedInput = new DataInputStream(compressionCodec.createInputStream(fs
-					.open(mFilePath)));
-		}
+      CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
+      CompressionCodec compressionCodec = compressionCodecs.getCodec(path);
+      input = new DataInputStream(compressionCodec.createInputStream(fs.open(path)));
+    }
 
-		public boolean next(LongWritable key, ClueWarcRecord value) throws IOException {
-			DataInputStream whichStream = mCompressedInput;
+    @Override
+    public boolean next(LongWritable key, ClueWarcRecord value) throws IOException {
+      DataInputStream whichStream = input;
 
-			ClueWarcRecord newRecord = ClueWarcRecord.readNextWarcRecord(whichStream);
-			if (newRecord == null) {
-				return false;
-			}
+      ClueWarcRecord newRecord = ClueWarcRecord.readNextWarcRecord(whichStream);
+      if (newRecord == null) {
+        return false;
+      }
 
-			totalNumBytesRead += (long) newRecord.getTotalRecordLength();
-			newRecord.setWarcFilePath(mFilePath.toString());
+      totalNumBytesRead += (long) newRecord.getTotalRecordLength();
+      newRecord.setWarcFilePath(path.toString());
 
-			value.set(newRecord);
-			key.set(mRecordCount);
+      value.set(newRecord);
+      key.set(recordCount);
 
-			mRecordCount++;
-			return true;
-		}
+      recordCount++;
+      return true;
+    }
 
-		public LongWritable createKey() {
-			return new LongWritable();
-		}
+    @Override
+    public LongWritable createKey() {
+      return new LongWritable();
+    }
 
-		public ClueWarcRecord createValue() {
-			return new ClueWarcRecord();
-		}
+    @Override
+    public ClueWarcRecord createValue() {
+      return new ClueWarcRecord();
+    }
 
-		public long getPos() throws IOException {
-			return totalNumBytesRead;
-		}
+    @Override
+    public long getPos() throws IOException {
+      return totalNumBytesRead;
+    }
 
-		public void close() throws IOException {
-			mCompressedInput.close();
-		}
+    @Override
+    public void close() throws IOException {
+      input.close();
+    }
 
-		public float getProgress() throws IOException {
-			return (float) mRecordCount / 40000f;
-		}
-	}
+    @Override
+    public float getProgress() throws IOException {
+      return (float) recordCount / 40000f;
+    }
+  }
 }

@@ -53,58 +53,48 @@ public class HMapSIWTest {
   public void testAccent() throws IOException {
     HMapSIW map1 = new HMapSIW();
 
-    // '\u00E0': à [LATIN SMALL LETTER A WITH GRAVE]
-    // '\u00E6': æ [LATIN SMALL LETTER AE]
-    // '\u00E7': ç [LATIN SMALL LETTER C WITH CEDILLA]
-    // '\u00FC': ü [LATIN SMALL LETTER U WITH DIAERESIS]
+    // '\u00E0': [LATIN SMALL LETTER A WITH GRAVE]
+    // '\u00E6': [LATIN SMALL LETTER AE]
+    // '\u00E7': [LATIN SMALL LETTER C WITH CEDILLA]
+    // '\u00FC': [LATIN SMALL LETTER U WITH DIAERESIS]
 
-    map1.put("à", 1);
-    map1.put("æ", 2);
-    map1.put("ç", 3);
-    map1.put("ü", 4);
-
-    assertEquals(1, map1.get("à"));
-    assertEquals(2, map1.get("æ"));
-    assertEquals(3, map1.get("ç"));
-    assertEquals(4, map1.get("ü"));
+    map1.put("\u00E0", 1);
+    map1.put("\u00E6", 2);
+    map1.put("\u00E7", 3);
+    map1.put("\u00FC", 4);
 
     assertEquals(1, map1.get("\u00E0"));
     assertEquals(2, map1.get("\u00E6"));
     assertEquals(3, map1.get("\u00E7"));
     assertEquals(4, map1.get("\u00FC"));
 
-    map1.increment("à");
-    map1.increment("æ");
-    map1.increment("ç");
-    map1.increment("ü");
-
-    assertEquals(2, map1.get("à"));
-    assertEquals(3, map1.get("æ"));
-    assertEquals(4, map1.get("ç"));
-    assertEquals(5, map1.get("ü"));
+    map1.increment("\u00E0");
+    map1.increment("\u00E6");
+    map1.increment("\u00E7");
+    map1.increment("\u00FC");
 
     assertEquals(2, map1.get("\u00E0"));
     assertEquals(3, map1.get("\u00E6"));
     assertEquals(4, map1.get("\u00E7"));
     assertEquals(5, map1.get("\u00FC"));
 
-    map1.put("à", 10);
-    map1.remove("æ");
-    map1.remove("ç");
-    map1.put("ç", 2);
-    map1.increment("ü");
+    map1.put("\u00E0", 10);
+    map1.remove("\u00E6");
+    map1.remove("\u00E7");
+    map1.put("\u00E7", 2);
+    map1.increment("\u00FC");
 
-    assertEquals(10, map1.get("à"));
-    assertEquals(2, map1.get("ç"));
-    assertEquals(6, map1.get("ü"));
+    assertEquals(10, map1.get("\u00E0"));
+    assertEquals(2, map1.get("\u00E7"));
+    assertEquals(6, map1.get("\u00FC"));
 
     assertEquals(3, map1.size());
 
     // Test serialization
     HMapSIW map2 = HMapSIW.create(map1.serialize());
-    assertEquals(10, map2.get("à"));
-    assertEquals(2, map2.get("ç"));
-    assertEquals(6, map2.get("ü"));
+    assertEquals(10, map2.get("\u00E0"));
+    assertEquals(2, map2.get("\u00E7"));
+    assertEquals(6, map2.get("\u00FC"));
   }
 
   @Test

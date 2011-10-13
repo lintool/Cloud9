@@ -25,15 +25,14 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfDoubles;
 
 /**
- * Writable extension of the ArrayListOfDoubles class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
+ * {@link Writable} extension of the {@link ArrayListOfDoubles} class.
  *
  * @author Jimmy Lin
  */
 public class ArrayListOfDoublesWritable extends ArrayListOfDoubles implements WritableComparable {
 
   /**
-   * Constructs an ArrayListOfDoublesWritable object.
+   * Constructs an {@code ArrayListOfDoublesWritable} object.
    */
   public ArrayListOfDoublesWritable() {
     super();
@@ -49,8 +48,7 @@ public class ArrayListOfDoublesWritable extends ArrayListOfDoubles implements Wr
   }
 
   /**
-   * Constructs a deep copy of the ArrayListOfDoublesWritable object 
-   * given as parameter.
+   * Constructs a deep copy of the {@code ArrayListOfDoublesWritable} object given as parameter.
    *
    * @param other object to be copied
    */
@@ -101,12 +99,15 @@ public class ArrayListOfDoublesWritable extends ArrayListOfDoubles implements Wr
   }
 
   /**
-   * Creates a Writable version of this list.
+   * Creates an instance of this object from {@code ArrayListOfDoubles}. Note that backing array is
+   * cloned.
+   *
+   * @param arr source {@code ArrayListOfDoubles}
    */
-  public static ArrayListOfDoublesWritable fromArrayListOfDoubles(ArrayListOfDoubles a) {
+  public static ArrayListOfDoublesWritable fromArrayListOfDoubles(ArrayListOfDoubles arr) {
     ArrayListOfDoublesWritable list = new ArrayListOfDoublesWritable();
-    list.array = Arrays.copyOf(a.getArray(), a.size());
-    list.size = a.size();
+    list.array = Arrays.copyOf(arr.getArray(), arr.size());
+    list.size = arr.size();
 
     return list;
   }

@@ -22,157 +22,154 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.DataOutputBuffer;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 import edu.umd.cloud9.collection.Indexable;
 
 public class TrecWebDocument extends Indexable {
 
-	/**
-	 * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.
-	 */
-	public static final String XML_START_TAG = "<DOC>";
+  /**
+   * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.
+   */
+  public static final String XML_START_TAG = "<DOC>";
 
-	/**
-	 * End delimiter of the document, which is &lt;<code>/DOC</code>&gt;.
-	 */
-	public static final String XML_END_TAG = "</DOC>";
+  /**
+   * End delimiter of the document, which is &lt;<code>/DOC</code>&gt;.
+   */
+  public static final String XML_END_TAG = "</DOC>";
 
-	private String mDocid;
-	private String mContent;
+  private String docid;
+  private String content;
 
-	/**
-	 * Creates an empty <code>Doc2Document</code> object.
-	 */
-	public TrecWebDocument() {
-		try {
-			startTag = XML_START_TAG.getBytes("utf-8");
-			endTag = XML_END_TAG.getBytes("utf-8");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+  /**
+   * Creates an empty <code>Doc2Document</code> object.
+   */
+  public TrecWebDocument() {
+    try {
+      startTag = XML_START_TAG.getBytes("utf-8");
+      endTag = XML_END_TAG.getBytes("utf-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	/**
-	 * Deserializes this object.
-	 */
-	public void write(DataOutput out) throws IOException {
-		out.writeUTF(mDocid);
-		byte[] bytes = mContent.getBytes();
-		WritableUtils.writeVInt(out, bytes.length);
-		out.write(bytes, 0, bytes.length);
-	}
+  /**
+   * Deserializes this object.
+   */
+  public void write(DataOutput out) throws IOException {
+    out.writeUTF(docid);
+    byte[] bytes = content.getBytes();
+    WritableUtils.writeVInt(out, bytes.length);
+    out.write(bytes, 0, bytes.length);
+  }
 
-	/**
-	 * Serializes this object.
-	 */
-	public void readFields(DataInput in) throws IOException {
-		mDocid = in.readUTF();
-		int length = WritableUtils.readVInt(in);
-		byte[] bytes = new byte[length];
-		in.readFully(bytes, 0, length);
-		mContent = new String(bytes);
-		// Gov2Document.readDocument(this, new String(bytes));
-	}
+  /**
+   * Serializes this object.
+   */
+  public void readFields(DataInput in) throws IOException {
+    docid = in.readUTF();
+    int length = WritableUtils.readVInt(in);
+    byte[] bytes = new byte[length];
+    in.readFully(bytes, 0, length);
+    content = new String(bytes);
+    // Gov2Document.readDocument(this, new String(bytes));
+  }
 
-	/**
-	 * Returns the docid of this Gov2 document.
-	 */
-	public String getDocid() {
-		return mDocid;
-	}
+  /**
+   * Returns the docid of this Gov2 document.
+   */
+  public String getDocid() {
+    return docid;
+  }
 
-	/**
-	 * Returns the content of this Gov2 document.
-	 */
-	public String getContent() {
-		return mContent;
-	}
+  /**
+   * Returns the content of this Gov2 document.
+   */
+  public String getContent() {
+    return content;
+  }
 
-	/**
-	 * Reads a raw XML string into a <code>TrecWebDocument</code> object.
-	 * 
-	 * @param doc
-	 *            the <code>TrecWebDocument</code> object
-	 * @param s
-	 *            raw XML string
-	 */
-	public static void readDocument(TrecWebDocument doc, String s) {
-		if (s == null) {
-			throw new RuntimeException("Error, can't read null string!");
-		}
+  /**
+   * Reads a raw XML string into a {@code TrecWebDocument} object.
+   *
+   * @param doc the {@code TrecWebDocument} object
+   * @param s raw XML string
+   */
+  public static void readDocument(TrecWebDocument doc, String s) {
+    if (s == null) {
+      throw new RuntimeException("Error, can't read null string!");
+    }
 
-		int start = s.indexOf("<DOCNO>");
+    int start = s.indexOf("<DOCNO>");
 
-		if (start == -1) {
-			throw new RuntimeException("Unable to find DOCNO tag!");
-		} else {
-			int end = s.indexOf("</DOCNO>", start);
+    if (start == -1) {
+      throw new RuntimeException("Unable to find DOCNO tag!");
+    } else {
+      int end = s.indexOf("</DOCNO>", start);
 
-			doc.mDocid = s.substring(start + 7, end);
-		}
+      doc.docid = s.substring(start + 7, end);
+    }
 
-		start = s.indexOf("</DOCHDR>");
+    start = s.indexOf("</DOCHDR>");
 
-		if (start == -1) {
-			throw new RuntimeException("Unable to find DOCHDR tag!");
-		} else {
-			int end = s.length() - 6;
+    if (start == -1) {
+      throw new RuntimeException("Unable to find DOCHDR tag!");
+    } else {
+      int end = s.length() - 6;
 
-			doc.mContent = s.substring(start + 9, end);
-		}
+      doc.content = s.substring(start + 9, end);
+    }
 
-	}
+  }
 
-	private static DataInputStream fsin;
-	private static byte[] startTag;
-	private static byte[] endTag;
-	private static DataOutputBuffer buffer = new DataOutputBuffer();
+  private static DataInputStream fsin;
+  private static byte[] startTag;
+  private static byte[] endTag;
+  private static DataOutputBuffer buffer = new DataOutputBuffer();
 
-	public static boolean readNextTrecWebDocument(TrecWebDocument doc, DataInputStream stream)
-			throws IOException {
-		fsin = stream;
+  public static boolean readNextTrecWebDocument(TrecWebDocument doc, DataInputStream stream)
+      throws IOException {
+    fsin = stream;
 
-		if (readUntilMatch(startTag, false)) {
-			try {
-				buffer.write(startTag);
-				if (readUntilMatch(endTag, true)) {
-					String s = new String(buffer.getData());
+    if (readUntilMatch(startTag, false)) {
+      try {
+        buffer.write(startTag);
+        if (readUntilMatch(endTag, true)) {
+          String s = new String(buffer.getData());
 
-					readDocument(doc, s);
+          readDocument(doc, s);
 
-					return true;
-				}
-			} finally {
-				buffer.reset();
-			}
-		}
+          return true;
+        }
+      } finally {
+        buffer.reset();
+      }
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	private static boolean readUntilMatch(byte[] match, boolean withinBlock) throws IOException {
-		int i = 0;
-		while (true) {
-			int b = fsin.read();
-			// end of file:
-			if (b == -1)
-				return false;
-			// save to buffer:
-			if (withinBlock)
-				buffer.write(b);
+  private static boolean readUntilMatch(byte[] match, boolean withinBlock) throws IOException {
+    int i = 0;
+    while (true) {
+      int b = fsin.read();
+      // end of file:
+      if (b == -1)
+        return false;
+      // save to buffer:
+      if (withinBlock)
+        buffer.write(b);
 
-			// check if we're matching:
-			if (b == match[i]) {
-				i++;
-				if (i >= match.length)
-					return true;
-			} else
-				i = 0;
-			// see if we've passed the stop point:
-			// if (!withinBlock && i == 0 && fsin.getPos() >= end)
-			// return false;
-		}
-	}
+      // check if we're matching:
+      if (b == match[i]) {
+        i++;
+        if (i >= match.length)
+          return true;
+      } else
+        i = 0;
+      // see if we've passed the stop point:
+      // if (!withinBlock && i == 0 && fsin.getPos() >= end)
+      // return false;
+    }
+  }
 }

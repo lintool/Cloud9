@@ -54,58 +54,48 @@ public class String2IntOpenHashMapWritableTest {
   public void testAccent() throws IOException {
     String2IntOpenHashMapWritable map1 = new String2IntOpenHashMapWritable();
 
-    // '\u00E0': à [LATIN SMALL LETTER A WITH GRAVE]
-    // '\u00E6': æ [LATIN SMALL LETTER AE]
-    // '\u00E7': ç [LATIN SMALL LETTER C WITH CEDILLA]
-    // '\u00FC': ü [LATIN SMALL LETTER U WITH DIAERESIS]
+    // '\u00E0': [LATIN SMALL LETTER A WITH GRAVE]
+    // '\u00E6': [LATIN SMALL LETTER AE]
+    // '\u00E7': [LATIN SMALL LETTER C WITH CEDILLA]
+    // '\u00FC': [LATIN SMALL LETTER U WITH DIAERESIS]
 
-    map1.put("à", 1);
-    map1.put("æ", 2);
-    map1.put("ç", 3);
-    map1.put("ü", 4);
-
-    assertEquals(1, map1.getInt("à"));
-    assertEquals(2, map1.getInt("æ"));
-    assertEquals(3, map1.getInt("ç"));
-    assertEquals(4, map1.getInt("ü"));
+    map1.put("\u00E0", 1);
+    map1.put("\u00E6", 2);
+    map1.put("\u00E7", 3);
+    map1.put("\u00FC", 4);
 
     assertEquals(1, map1.getInt("\u00E0"));
     assertEquals(2, map1.getInt("\u00E6"));
     assertEquals(3, map1.getInt("\u00E7"));
     assertEquals(4, map1.getInt("\u00FC"));
 
-    map1.increment("à");
-    map1.increment("æ");
-    map1.increment("ç");
-    map1.increment("ü");
-
-    assertEquals(2, map1.getInt("à"));
-    assertEquals(3, map1.getInt("æ"));
-    assertEquals(4, map1.getInt("ç"));
-    assertEquals(5, map1.getInt("ü"));
+    map1.increment("\u00E0");
+    map1.increment("\u00E6");
+    map1.increment("\u00E7");
+    map1.increment("\u00FC");
 
     assertEquals(2, map1.getInt("\u00E0"));
     assertEquals(3, map1.getInt("\u00E6"));
     assertEquals(4, map1.getInt("\u00E7"));
     assertEquals(5, map1.getInt("\u00FC"));
 
-    map1.put("à", 10);
-    map1.remove("æ");
-    map1.remove("ç");
-    map1.put("ç", 2);
-    map1.increment("ü");
+    map1.put("\u00E0", 10);
+    map1.remove("\u00E6");
+    map1.remove("\u00E7");
+    map1.put("\u00E7", 2);
+    map1.increment("\u00FC");
 
-    assertEquals(10, map1.getInt("à"));
-    assertEquals(2, map1.getInt("ç"));
-    assertEquals(6, map1.getInt("ü"));
+    assertEquals(10, map1.getInt("\u00E0"));
+    assertEquals(2, map1.getInt("\u00E7"));
+    assertEquals(6, map1.getInt("\u00FC"));
 
     assertEquals(3, map1.size());
 
     // Test serialization
     String2IntOpenHashMapWritable map2 = String2IntOpenHashMapWritable.create(map1.serialize());
-    assertEquals(10, map2.getInt("à"));
-    assertEquals(2, map2.getInt("ç"));
-    assertEquals(6, map2.getInt("ü"));
+    assertEquals(10, map2.getInt("\u00E0"));
+    assertEquals(2, map2.getInt("\u00E7"));
+    assertEquals(6, map2.getInt("\u00FC"));
   }
 
   @Test

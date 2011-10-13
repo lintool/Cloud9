@@ -48,7 +48,7 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 public class MergeFormattedRecords extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(AFormatterWG.class);
+	private static final Logger sLogger = Logger.getLogger(MergeFormattedRecords.class);
 
 	private static class MergeReducer extends MapReduceBase implements
 			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
@@ -57,23 +57,30 @@ public class MergeFormattedRecords extends Configured implements Tool {
 				throws IOException {
 			ArrayListOfIntsWritable adjList = new ArrayListOfIntsWritable();
 
-			float hrank = Float.NEGATIVE_INFINITY;
-			float arank = Float.NEGATIVE_INFINITY;
-
-			int valcount = 0;
-
+			//construct new HITSNode
+			HITSNode nodeOut = new HITSNode();
+			
+			nodeOut.setType(HITSNode.TYPE_NODE_COMPLETE);
+			nodeOut.setARank(0);
+			nodeOut.setInlinks(new ArrayListOfIntsWritable());
+			nodeOut.setHRank(0);
+			nodeOut.setOutlinks(new ArrayListOfIntsWritable());
+			nodeOut.setNodeId(key.get());
+			
 			while (values.hasNext()) {
-				valcount++;
-				output.collect(key, values.next());
+				HITSNode nodeIn = values.next();
+				if (nodeIn.getType() == HITSNode.TYPE_HUB_COMPLETE)
+				{
+					nodeOut.setHRank(nodeIn.getHRank());
+					nodeOut.setOutlinks(new ArrayListOfIntsWritable(nodeIn.getOutlinks()));
+				}
+				if (nodeIn.getType() == HITSNode.TYPE_AUTH_COMPLETE)
+				{
+					nodeOut.setARank(nodeIn.getARank());
+					nodeOut.setInlinks(new ArrayListOfIntsWritable(nodeIn.getInlinks()));
+				}
 			}
-			if (valcount < 2) {
-				HITSNode emptyA = new HITSNode();
-				emptyA.setType(HITSNode.TYPE_AUTH_COMPLETE);
-				emptyA.setNodeId(key.get());
-				emptyA.setAdjacencyList(new ArrayListOfIntsWritable());
-				emptyA.setHARank(0);
-				output.collect(key, emptyA);
-			}
+			output.collect(key, nodeOut);
 		}
 	}
 

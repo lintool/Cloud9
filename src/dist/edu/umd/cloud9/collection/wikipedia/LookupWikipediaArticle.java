@@ -19,93 +19,92 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * Tool for providing command-line access to page titles given either a docno or
- * a docid. This does not run as a MapReduce job.
+ * Tool for providing command-line access to page titles given either a docno or a docid. This does
+ * not run as a MapReduce job.
  * <p>
  * Here's a sample invocation:
  * </p>
- * 
- * <blockquote>
- * 
- * <pre>
+ *
+ * <blockquote><pre>
  * hadoop jar cloud9all.jar edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
  *   /user/jimmy/Wikipedia/compressed.block/findex-en-20101011.dat \
  *   /user/jimmy/Wikipedia/docno-en-20101011.dat
- * </pre>
- * 
- * </blockquote>
+ * </pre></blockquote>
  *
  * <p>
- * Note, you'll have to build a jar that contains the contents of
- * bliki-core-3.0.15.jar and commons-lang-2.5.jar, since -libjars won't work for
- * this program (since it's not a MapReduce job).
+ * Note, you'll have to build a jar that contains the contents of bliki-core-3.0.15.jar and
+ * commons-lang-2.5.jar, since -libjars won't work for this program (since it's not a MapReduce
+ * job).
  * </p>
- *
- * @author Jimmy Lin
  * 
+ * @author Jimmy Lin
  */
 public class LookupWikipediaArticle extends Configured implements Tool {
-	public int run(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.out.println("usage: [forward-index-path] [docno-mapping-data-file]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+  public int run(String[] args) throws Exception {
+    if (args.length != 2) {
+      System.out.println("usage: [forward-index-path] [docno-mapping-data-file]");
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-		WikipediaForwardIndex f = new WikipediaForwardIndex(getConf());
-		f.loadIndex(args[0], args[1]);
+    Configuration conf = getConf();
+    WikipediaForwardIndex f = new WikipediaForwardIndex(conf);
+    f.loadIndex(new Path(args[0]), new Path(args[1]), FileSystem.get(conf));
 
-		WikipediaPage page;
+    WikipediaPage page;
 
-		System.out.println(" \"docno [no]\" or \"docid [id]\" to lookup documents");
-		String cmd = null;
-		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("lookup > ");
-		while ((cmd = stdin.readLine()) != null) {
+    System.out.println(" \"docno [no]\" or \"docid [id]\" to lookup documents");
+    String cmd = null;
+    BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+    System.out.print("lookup > ");
+    while ((cmd = stdin.readLine()) != null) {
 
-			String[] tokens = cmd.split("\\s+");
+      String[] tokens = cmd.split("\\s+");
 
-			if (tokens.length != 2) {
-				System.out.println("Error: unrecognized command!");
-				System.out.print("lookup > ");
+      if (tokens.length != 2) {
+        System.out.println("Error: unrecognized command!");
+        System.out.print("lookup > ");
 
-				continue;
-			}
+        continue;
+      }
 
-			if ("docno".equals(tokens[0])) {
-				try {
-					page = f.getDocument(Integer.parseInt(tokens[1]));
-					if (page != null) {
-						System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
-					} else {
-						System.out.println("docno " + tokens[1] + " not found!");
-					}
-				} catch (NumberFormatException e) {
-					System.out.println("Invalid docno " + tokens[1]);
-				}
-			} else if ("docid".equals(tokens[0])) {
-				page = f.getDocument(tokens[1]);
-				if (page != null) {
-					System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
-				} else {
-					System.out.println("docid " + tokens[1] + " not found!");
-				}
-			}
+      if ("docno".equals(tokens[0])) {
+        try {
+          page = f.getDocument(Integer.parseInt(tokens[1]));
+          if (page != null) {
+            System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
+          } else {
+            System.out.println("docno " + tokens[1] + " not found!");
+          }
+        } catch (NumberFormatException e) {
+          System.out.println("Invalid docno " + tokens[1]);
+        }
+      } else if ("docid".equals(tokens[0])) {
+        page = f.getDocument(tokens[1]);
+        if (page != null) {
+          System.out.println("docid " + page.getDocid() + ": " + page.getTitle());
+        } else {
+          System.out.println("docid " + tokens[1] + " not found!");
+        }
+      }
 
-			System.out.print("lookup > ");
-		}
+      System.out.print("lookup > ");
+    }
 
-		return 0;
-	}
+    return 0;
+  }
 
-	private LookupWikipediaArticle() {}
+  private LookupWikipediaArticle() {}
 
-	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new LookupWikipediaArticle(), args);
-	}
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new LookupWikipediaArticle(), args);
+  }
 }
