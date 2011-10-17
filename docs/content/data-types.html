@@ -190,7 +190,7 @@ obj.put("phoneNumbers", phoneNumbers);
 via <a href="../api/edu/umd/cloud9/io/JSONObjectWritable.html"><code>JSONObjectWritable</code></a>,
 which extends <code>JSONObject</code> to provide serialization and
 deserialization capabilities.
-See <a href="../../../umd-hadoop-core/src/edu/umd/cloud9/demo/DemoWordCondProbJSON.java"><code>DemoWordCondProbJSON.java</code></a>
+See <a href="../../src/dist/edu/umd/cloud9/example/simple/DemoWordCountJSON.java"><code>DemoWordCondProbJSON.java</code></a>
 for an example of using JSON objects as keys in Hadoop, for computing
 conditional probabilities.</p>
 
@@ -229,7 +229,7 @@ custom <code>Partitioner</code>.</p>
 <h2><a style="text-decoration:none; color:#555;" id="option3">Option 3: Tuple library in Cloud<sup><small>9</small></sup></a></h2>
 <div class="content">
 
-<p>See <a href="../../../umd-hadoop-core/src/edu/umd/cloud9/demo/DemoWordCondProbTuple.java"><code>DemoWordCountTuple.java</code></a>
+<p>See <a href="../../src/dist/edu/umd/cloud9/example/simple/DemoWordCountTuple1.java"><code>DemoWordCountTuple1.java</code></a>
 for a demo of the Tuple class used as an intermediate key in a
 MapReduce job.</p>
 
@@ -303,7 +303,7 @@ appeared as tokens).  Refer to
 well-commented basic demo that uses this special symbol feature.</p>
 
 <p>Also of interest
-is <a href="../api/edu/umd/cloud9/io/ArrayListWritable.html"><code>ArrayListWritable</code></a>,
+is <code>ArrayListWritable</code>,
 which provides a Hadoop data type for storing a list of
 homogeneous <code>Writable</code> elements.  This class, combined
 with <code>Tuple</code>, allows you to define arbitrarily complex data
@@ -369,7 +369,7 @@ data types:</p>
 
 <ul>
 
-<li><a href="../api/edu/umd/cloud9/io/PairOfInts.html"><code>PairOfInts</code></a></li>
+<li><code>PairOfInts</code></li>
 <li>a Tuple with two fields</li>
 <li>a JSON object with two fields</li>
 

@@ -163,7 +163,7 @@
         <exclude name="**/benchmark/*.java" />
         <exclude name="edu/cmu/**/*.java" />
       </fileset>
-      <link href="http://java.sun.com/javase/6/docs/api/" />
+      <link href="http://download.oracle.com/javase/6/docs/api/" />
       <link href="http://hadoop.apache.org/common/docs/r0.20.1/api/" />
       <link href="http://fastutil.dsi.unimi.it/docs/" />
     </javadoc>
