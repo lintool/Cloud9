@@ -22,10 +22,16 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.WritableUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.Indexable;
 
+
 public class Aquaint2Document extends Indexable {
+  private static final Logger LOG = Logger.getLogger(Aquaint2Document.class);
+  { LOG.setLevel (Level.INFO); }
+
   private static Pattern TAGS_PATTERN = Pattern.compile("<[^>]+>");
   private static Pattern WHITESPACE_PATTERN = Pattern.compile("\t|\n");
 
@@ -73,8 +79,15 @@ public class Aquaint2Document extends Indexable {
         headline = "";
       } else {
         int end = raw.indexOf("</HEADLINE>");
-        headline = raw.substring(start + 10, end).trim();
-
+        try {
+          headline = raw.substring(start + 10, end).trim();
+        } catch (Exception e) {
+          LOG.error("exception: " + e);
+          LOG.error("docid: " + getDocid () + ", start: " + start + ", end: " + end);
+          LOG.error(raw);
+          headline = raw.substring(start + 10).trim();
+          LOG.error("headline should be: " + headline);
+        }
         headline = TAGS_PATTERN.matcher(headline).replaceAll("");
         headline = WHITESPACE_PATTERN.matcher(headline).replaceAll(" ");
       }
