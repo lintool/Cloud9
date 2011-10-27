@@ -100,6 +100,7 @@ public class SequenceFileUtils {
     return list;
   }
 
+
   public static <K extends Writable, V extends Writable> SortedMap<K, V> readFileIntoMap(Path path) {
     FileSystem fs;
     try {
@@ -174,6 +175,43 @@ public class SequenceFileUtils {
 
     return list;
   }
+
+
+  public static <K extends Writable, V extends Writable> SortedMap<K, V> readDirectoryIntoMap(Path path) {
+    FileSystem fs;
+    try {
+      fs = FileSystem.get(new Configuration());
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to access the file system!");
+    }
+
+    return readDirectoryIntoMap(path, fs, Integer.MAX_VALUE);
+  }
+
+  public static <K extends Writable, V extends Writable> SortedMap<K, V> readDirectoryIntoMap(Path path, int max) {
+    FileSystem fs;
+    try {
+      fs = FileSystem.get(new Configuration());
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to access the file system!");
+    }
+
+    return readDirectoryIntoMap(path, fs, max);
+  }
+
+  public static <K extends Writable, V extends Writable> SortedMap<K, V> readDirectoryIntoMap(Path path,     FileSystem fs) {
+    return readDirectoryIntoMap(path, fs, Integer.MAX_VALUE);
+  }
+
+  public static <K extends Writable, V extends Writable> SortedMap<K, V> readDirectoryIntoMap(Path path, FileSystem fs, int max) {
+    SortedMap<K, V> map = new TreeMap<K, V>();
+
+    for ( PairOfWritables<K,V> pair : SequenceFileUtils.<K, V>readDirectory(path, fs, max)) {
+      map.put(pair.getLeftElement(), pair.getRightElement());
+    }
+    return map;
+  }
+
 
   public static <K extends Writable> List<K> readKeys(Path path) {
     FileSystem fs;
