@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.webgraph;
+package edu.umd.cloud9.webgraph.driver.wt10g;
 
 import java.io.IOException;
 import java.io.UTFDataFormatException;
@@ -40,8 +40,8 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
-import edu.umd.cloud9.collection.clue.ClueWarcRecord;
+import edu.umd.cloud9.collection.wt10g.Wt10GDocnoMapping;
+import edu.umd.cloud9.collection.wt10g.Wt10GDocument;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
 import edu.umd.cloud9.webgraph.data.AnchorText;
@@ -63,14 +63,14 @@ import org.htmlparser.util.ParserException;
  */
 
 @SuppressWarnings("deprecation")
-public class ExtractLinks extends PowerTool
+public class Wt10gExtractLinks extends PowerTool
 {
 
-	private static final Logger LOG = Logger.getLogger(ExtractLinks.class);
+	private static final Logger LOG = Logger.getLogger(Wt10gExtractLinks.class);
 
 	public static class Map extends MapReduceBase
 			implements
-			Mapper<IntWritable, ClueWarcRecord, Text, ArrayListWritable<AnchorText>>
+			Mapper<IntWritable, Wt10GDocument, Text, ArrayListWritable<AnchorText>>
 	{
 
 		public static enum LinkCounter
@@ -94,7 +94,7 @@ public class ExtractLinks extends PowerTool
 		private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>(); 
 		//output value for the mappers
 
-		private static final ClueWarcDocnoMapping docnoMapping = new ClueWarcDocnoMapping();
+		private static final Wt10GDocnoMapping docnoMapping = new Wt10GDocnoMapping();
 		//docno mapping file
 
 		private static final Parser parser = new Parser();
@@ -119,15 +119,15 @@ public class ExtractLinks extends PowerTool
 						"Local cache files not read properly.");
 			}
 
-			try
-			{
-				docnoMapping.loadMapping(localFiles[0],
-						FileSystem.getLocal(job));
-			} catch (Exception e)
-			{
-				e.printStackTrace();
-				throw new RuntimeException("Error initializing DocnoMapping!");
-			}
+//			try
+//			{
+//				docnoMapping.loadMapping(localFiles[0],
+//						FileSystem.getLocal(job));
+//			} catch (Exception e)
+//			{
+//				e.printStackTrace();
+//				throw new RuntimeException("Error initializing DocnoMapping!");
+//			}
 
 			includeInternalLinks = job.getBoolean(
 					"Cloud9.IncludeInternalLinks", false);
@@ -144,7 +144,7 @@ public class ExtractLinks extends PowerTool
 			}
 		}
 
-		public void map(IntWritable key, ClueWarcRecord doc,
+		public void map(IntWritable key, Wt10GDocument doc,
 				OutputCollector<Text, ArrayListWritable<AnchorText>> output,
 				Reporter reporter) throws IOException
 		{
@@ -153,8 +153,7 @@ public class ExtractLinks extends PowerTool
 
 			try
 			{
-				docno = docnoMapping.getDocno(doc
-						.getHeaderMetadataItem("WARC-TREC-ID"));
+				docno = docnoMapping.getDocno(doc.getDocid());
 			} catch (NullPointerException e)
 			{
 				// Discard documents with an invalid document number
@@ -164,7 +163,7 @@ public class ExtractLinks extends PowerTool
 
 			try
 			{
-				base = doc.getHeaderMetadataItem("WARC-Target-URI");
+				base = doc.getHeaderMetadataItem("URL");
 			} catch (NullPointerException e)
 			{
 				// Discard documents with which there is no URL associated
@@ -354,7 +353,7 @@ public class ExtractLinks extends PowerTool
 		return RequiredParameters;
 	}
 
-	public ExtractLinks(Configuration conf)
+	public Wt10gExtractLinks(Configuration conf)
 	{
 		super(conf);
 	}
@@ -362,7 +361,7 @@ public class ExtractLinks extends PowerTool
 	public int runTool() throws Exception
 	{
 
-		JobConf conf = new JobConf(getConf(), ExtractLinks.class);
+		JobConf conf = new JobConf(getConf(), Wt10gExtractLinks.class);
 		FileSystem fs = FileSystem.get(conf);
 
 		int numMappers = conf.getInt("Cloud9.Mappers", 1);

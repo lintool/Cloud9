@@ -32,7 +32,7 @@
  * @author mhoy@cs.cmu.edu (Mark J. Hoy)
  */
 
-package edu.umd.cloud9.collection.clue;
+package edu.umd.cloud9.collection.wt10g;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -48,11 +48,11 @@ import java.util.Map.Entry;
 import org.apache.hadoop.io.Writable;
 
 import edu.umd.cloud9.collection.Indexable;
-import edu.umd.cloud9.collection.generic.WebDocument;
 
-public class ClueWarcRecord extends WebDocument {
+public class Wt10GRecord extends Indexable
+{
 
-	public static String WARC_VERSION = "WARC/0.18";
+	public static String DOC_Start_Symbol = "<DOC>";
 	public static String WARC_VERSION_LINE = "WARC/0.18\n";
 	private static String NEWLINE = "\n";
 
@@ -63,6 +63,10 @@ public class ClueWarcRecord extends WebDocument {
 	private static byte MASK_BOTTOM_FIVE_BITS = (byte) (0x3F);
 	private static byte MASK_BOTTOM_FOUR_BITS = (byte) (0x0F);
 
+	/*
+	 * We can use this as an utility.
+	 */
+	
 	/**
 	 * Our read line implementation. We cannot allow buffering here (for gzip
 	 * streams) so, we need to use DataInputStream. Also - we need to account
@@ -73,23 +77,30 @@ public class ClueWarcRecord extends WebDocument {
 	 * @return the read line (or null if eof)
 	 * @throws java.io.IOException
 	 */
-	private static String readLineFromInputStream(DataInputStream in) throws IOException {
+	private static String readLineFromInputStream(DataInputStream in)
+			throws IOException
+	{
 		StringBuilder retString = new StringBuilder();
 
 		boolean keepReading = true;
-		try {
-			do {
+		try
+		{
+			do
+			{
 				char thisChar = 0;
 				byte readByte = in.readByte();
 
 				// check to see if it's a multibyte character
-				if ((readByte & MASK_THREE_BYTE_CHAR) == MASK_THREE_BYTE_CHAR) {
+				if ((readByte & MASK_THREE_BYTE_CHAR) == MASK_THREE_BYTE_CHAR)
+				{
 					// need to read the next 2 bytes
-					if (in.available() < 2) {
+					if (in.available() < 2)
+					{
 						// treat these all as individual characters
 						retString.append((char) readByte);
 						int numAvailable = in.available();
-						for (int i = 0; i < numAvailable; i++) {
+						for (int i = 0; i < numAvailable; i++)
+						{
 							retString.append((char) (in.readByte()));
 						}
 						continue;
@@ -98,7 +109,8 @@ public class ClueWarcRecord extends WebDocument {
 					byte thirdByte = in.readByte();
 					// ensure the topmost bit is set
 					if (((secondByte & MASK_TOPMOST_BIT) != MASK_TOPMOST_BIT)
-							|| ((thirdByte & MASK_TOPMOST_BIT) != MASK_TOPMOST_BIT)) {
+							|| ((thirdByte & MASK_TOPMOST_BIT) != MASK_TOPMOST_BIT))
+					{
 						// treat these as individual characters
 						retString.append((char) readByte);
 						retString.append((char) secondByte);
@@ -109,15 +121,18 @@ public class ClueWarcRecord extends WebDocument {
 							* (secondByte & MASK_BOTTOM_FIVE_BITS) + 4096
 							* (readByte & MASK_BOTTOM_FOUR_BITS);
 					thisChar = (char) finalVal;
-				} else if ((readByte & MASK_TWO_BYTE_CHAR) == MASK_TWO_BYTE_CHAR) {
+				} else if ((readByte & MASK_TWO_BYTE_CHAR) == MASK_TWO_BYTE_CHAR)
+				{
 					// need to read next byte
-					if (in.available() < 1) {
+					if (in.available() < 1)
+					{
 						// treat this as individual characters
 						retString.append((char) readByte);
 						continue;
 					}
 					byte secondByte = in.readByte();
-					if ((secondByte & MASK_TOPMOST_BIT) != MASK_TOPMOST_BIT) {
+					if ((secondByte & MASK_TOPMOST_BIT) != MASK_TOPMOST_BIT)
+					{
 						retString.append((char) readByte);
 						retString.append((char) secondByte);
 						continue;
@@ -125,28 +140,34 @@ public class ClueWarcRecord extends WebDocument {
 					int finalVal = (secondByte & MASK_BOTTOM_FIVE_BITS) + 64
 							* (readByte & MASK_BOTTOM_SIX_BITS);
 					thisChar = (char) finalVal;
-				} else {
+				} else
+				{
 					// interpret it as a single byte
 					thisChar = (char) readByte;
 				}
 
-				if (thisChar == '\n') {
+				if (thisChar == '\n')
+				{
 					keepReading = false;
-				} else {
+				} else
+				{
 					retString.append(thisChar);
 				}
 			} while (keepReading);
-		} catch (EOFException eofEx) {
+		} catch (EOFException eofEx)
+		{
 			return null;
 		}
 
-		if (retString.length() == 0) {
+		if (retString.length() == 0)
+		{
 			return "";
 		}
 
 		return retString.toString();
 	}
 
+	
 	/**
 	 * The actual heavy lifting of reading in the next WARC record
 	 * 
@@ -157,12 +178,15 @@ public class ClueWarcRecord extends WebDocument {
 	 * @return the content byts (w/ the headerBuffer populated)
 	 * @throws java.io.IOException
 	 */
-	private static byte[] readNextRecord(DataInputStream in, StringBuffer headerBuffer)
-			throws IOException {
-		if (in == null) {
+	private static byte[] readNextRecord(DataInputStream in,
+			StringBuffer headerBuffer) throws IOException
+	{
+		if (in == null)
+		{
 			return null;
 		}
-		if (headerBuffer == null) {
+		if (headerBuffer == null)
+		{
 			return null;
 		}
 
@@ -173,15 +197,18 @@ public class ClueWarcRecord extends WebDocument {
 
 		// cannot be using a buffered reader here!!!!
 		// just read the header
-		// first - find our WARC header
-		while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
-			if (line.startsWith(WARC_VERSION)) {
+		// first - find our header
+		while ((!foundMark) && ((line = readLineFromInputStream(in)) != null))
+		{
+			if (line.startsWith(DOC_Start_Symbol))
+			{
 				foundMark = true;
 			}
 		}
 
 		// no WARC mark?
-		if (!foundMark) {
+		if (!foundMark)
+		{
 			return null;
 		}
 
@@ -189,19 +216,29 @@ public class ClueWarcRecord extends WebDocument {
 		// make sure we get the content length here
 		int contentLength = -1;
 		boolean foundContentLength = false;
-		while (!foundContentLength && inHeader && ((line = readLineFromInputStream(in)) != null)) {
-			if ((line.trim().length() == 0) && foundContentLength) {
+		while (!foundContentLength && inHeader
+				&& ((line = readLineFromInputStream(in)) != null))
+		{
+			if ((line.trim().length() == 0) && foundContentLength)
+			{
 				inHeader = false;
-			} else {
+			} else
+			{
 				headerBuffer.append(line);
 				headerBuffer.append(NEWLINE);
 				String[] thisHeaderPieceParts = line.split(":", 2);
-				if (thisHeaderPieceParts.length == 2) {
-					if (thisHeaderPieceParts[0].toLowerCase().startsWith("content-length")) {
+				if (thisHeaderPieceParts.length == 2)
+				{
+					if (thisHeaderPieceParts[0].toLowerCase().startsWith(
+							"content-length"))
+					{
 						foundContentLength = true;
-						try {
-							contentLength = Integer.parseInt(thisHeaderPieceParts[1].trim());
-						} catch (NumberFormatException nfEx) {
+						try
+						{
+							contentLength = Integer
+									.parseInt(thisHeaderPieceParts[1].trim());
+						} catch (NumberFormatException nfEx)
+						{
 							contentLength = -1;
 						}
 					}
@@ -209,7 +246,8 @@ public class ClueWarcRecord extends WebDocument {
 			}
 		}
 
-		if (contentLength < 0) {
+		if (contentLength < 0)
+		{
 			return null;
 		}
 
@@ -217,22 +255,29 @@ public class ClueWarcRecord extends WebDocument {
 		retContent = new byte[contentLength];
 		int totalWant = contentLength;
 		int totalRead = 0;
-		while (totalRead < contentLength) {
-			try {
+		while (totalRead < contentLength)
+		{
+			try
+			{
 				int numRead = in.read(retContent, totalRead, totalWant);
-				if (numRead < 0) {
+				if (numRead < 0)
+				{
 					return null;
-				} else {
+				} else
+				{
 					totalRead += numRead;
 					totalWant = contentLength - totalRead;
 				} // end if (numRead < 0) / else
-			} catch (EOFException eofEx) {
+			} catch (EOFException eofEx)
+			{
 				// resize to what we have
-				if (totalRead > 0) {
+				if (totalRead > 0)
+				{
 					byte[] newReturn = new byte[totalRead];
 					System.arraycopy(retContent, 0, newReturn, 0, totalRead);
 					return newReturn;
-				} else {
+				} else
+				{
 					return null;
 				}
 			} // end try/catch (EOFException)
@@ -249,10 +294,13 @@ public class ClueWarcRecord extends WebDocument {
 	 * @return a WARC record (or null if eof)
 	 * @throws java.io.IOException
 	 */
-	public static ClueWarcRecord readNextWarcRecord(DataInputStream in) throws IOException {
+	public static Wt10GRecord readNextWarcRecord(DataInputStream in)
+			throws IOException
+	{
 		StringBuffer recordHeader = new StringBuffer();
 		byte[] recordContent = readNextRecord(in, recordHeader);
-		if (recordContent == null) {
+		if (recordContent == null)
+		{
 			return null;
 		}
 
@@ -260,10 +308,12 @@ public class ClueWarcRecord extends WebDocument {
 		String thisHeaderString = recordHeader.toString();
 		String[] headerLines = thisHeaderString.split(NEWLINE);
 
-		ClueWarcRecord retRecord = new ClueWarcRecord();
-		for (int i = 0; i < headerLines.length; i++) {
+		Wt10GRecord retRecord = new Wt10GRecord();
+		for (int i = 0; i < headerLines.length; i++)
+		{
 			String[] pieces = headerLines[i].split(":", 2);
-			if (pieces.length != 2) {
+			if (pieces.length != 2)
+			{
 				retRecord.addHeaderMetadata(pieces[0], "");
 				continue;
 			}
@@ -271,15 +321,20 @@ public class ClueWarcRecord extends WebDocument {
 			String thisValue = pieces[1].trim();
 
 			// check for known keys
-			if (thisKey.equals("WARC-Type")) {
+			if (thisKey.equals("WARC-Type"))
+			{
 				retRecord.setWarcRecordType(thisValue);
-			} else if (thisKey.equals("WARC-Date")) {
+			} else if (thisKey.equals("WARC-Date"))
+			{
 				retRecord.setWarcDate(thisValue);
-			} else if (thisKey.equals("WARC-Record-ID")) {
+			} else if (thisKey.equals("WARC-Record-ID"))
+			{
 				retRecord.setWarcUUID(thisValue);
-			} else if (thisKey.equals("Content-Type")) {
+			} else if (thisKey.equals("Content-Type"))
+			{
 				retRecord.setWarcContentType(thisValue);
-			} else {
+			} else
+			{
 				retRecord.addHeaderMetadata(thisKey, thisValue);
 			}
 		}
@@ -293,7 +348,8 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Warc header class
 	 */
-	public class WarcHeader {
+	public class WarcHeader
+	{
 		public String contentType = "";
 		public String UUID = "";
 		public String dateString = "";
@@ -304,7 +360,8 @@ public class ClueWarcRecord extends WebDocument {
 		/**
 		 * Default constructor
 		 */
-		public WarcHeader() {
+		public WarcHeader()
+		{
 		}
 
 		/**
@@ -313,7 +370,8 @@ public class ClueWarcRecord extends WebDocument {
 		 * @param o
 		 *            other WARC header
 		 */
-		public WarcHeader(WarcHeader o) {
+		public WarcHeader(WarcHeader o)
+		{
 			this.contentType = o.contentType;
 			this.UUID = o.UUID;
 			this.dateString = o.dateString;
@@ -329,14 +387,17 @@ public class ClueWarcRecord extends WebDocument {
 		 *            the data output stream
 		 * @throws java.io.IOException
 		 */
-		public void write(DataOutput out) throws IOException {
+		public void write(DataOutput out) throws IOException
+		{
 			out.writeUTF(contentType);
 			out.writeUTF(UUID);
 			out.writeUTF(dateString);
 			out.writeUTF(recordType);
 			out.writeInt(metadata.size());
-			Iterator<Entry<String, String>> metadataIterator = metadata.entrySet().iterator();
-			while (metadataIterator.hasNext()) {
+			Iterator<Entry<String, String>> metadataIterator = metadata
+					.entrySet().iterator();
+			while (metadataIterator.hasNext())
+			{
 				Entry<String, String> thisEntry = metadataIterator.next();
 				out.writeUTF(thisEntry.getKey());
 				out.writeUTF(thisEntry.getValue());
@@ -351,14 +412,16 @@ public class ClueWarcRecord extends WebDocument {
 		 *            the data input stream
 		 * @throws java.io.IOException
 		 */
-		public void readFields(DataInput in) throws IOException {
+		public void readFields(DataInput in) throws IOException
+		{
 			contentType = in.readUTF();
 			UUID = in.readUTF();
 			dateString = in.readUTF();
 			recordType = in.readUTF();
 			metadata.clear();
 			int numMetaItems = in.readInt();
-			for (int i = 0; i < numMetaItems; i++) {
+			for (int i = 0; i < numMetaItems; i++)
+			{
 				String thisKey = in.readUTF();
 				String thisValue = in.readUTF();
 				metadata.put(thisKey, thisValue);
@@ -367,18 +430,21 @@ public class ClueWarcRecord extends WebDocument {
 		}
 
 		@Override
-		public String toString() {
+		public String toString()
+		{
 			StringBuffer retBuffer = new StringBuffer();
 
-			retBuffer.append(WARC_VERSION);
+			retBuffer.append(DOC_Start_Symbol);
 			retBuffer.append(NEWLINE);
 
 			retBuffer.append("WARC-Type: " + recordType + NEWLINE);
 			retBuffer.append("WARC-Date: " + dateString + NEWLINE);
 
 			retBuffer.append("WARC-Record-ID: " + UUID + NEWLINE);
-			Iterator<Entry<String, String>> metadataIterator = metadata.entrySet().iterator();
-			while (metadataIterator.hasNext()) {
+			Iterator<Entry<String, String>> metadataIterator = metadata
+					.entrySet().iterator();
+			while (metadataIterator.hasNext())
+			{
 				Entry<String, String> thisEntry = metadataIterator.next();
 				retBuffer.append(thisEntry.getKey());
 				retBuffer.append(": ");
@@ -400,7 +466,8 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Default Constructor
 	 */
-	public ClueWarcRecord() {
+	public Wt10GRecord()
+	{
 	}
 
 	/**
@@ -408,7 +475,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param o
 	 */
-	public ClueWarcRecord(ClueWarcRecord o) {
+	public Wt10GRecord(Wt10GRecord o)
+	{
 		this.warcHeader = new WarcHeader(o.warcHeader);
 		this.warcContent = o.warcContent;
 	}
@@ -418,7 +486,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @return total record length
 	 */
-	public int getTotalRecordLength() {
+	public int getTotalRecordLength()
+	{
 		int headerLength = warcHeader.toString().length();
 		return (headerLength + warcContent.length);
 	}
@@ -429,7 +498,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * @param o
 	 *            record to copy from
 	 */
-	public void set(ClueWarcRecord o) {
+	public void set(Wt10GRecord o)
+	{
 		this.warcHeader = new WarcHeader(o.warcHeader);
 		this.warcContent = o.warcContent;
 	}
@@ -437,7 +507,8 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Gets the file path from this WARC file (if set)
 	 */
-	public String getWarcFilePath() {
+	public String getWarcFilePath()
+	{
 		return warcFilePath;
 	}
 
@@ -446,7 +517,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param path
 	 */
-	public void setWarcFilePath(String path) {
+	public void setWarcFilePath(String path)
+	{
 		warcFilePath = path;
 	}
 
@@ -455,7 +527,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param recordType
 	 */
-	public void setWarcRecordType(String recordType) {
+	public void setWarcRecordType(String recordType)
+	{
 		warcHeader.recordType = recordType;
 	}
 
@@ -464,7 +537,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param contentType
 	 */
-	public void setWarcContentType(String contentType) {
+	public void setWarcContentType(String contentType)
+	{
 		warcHeader.contentType = contentType;
 	}
 
@@ -473,7 +547,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param dateString
 	 */
-	public void setWarcDate(String dateString) {
+	public void setWarcDate(String dateString)
+	{
 		warcHeader.dateString = dateString;
 	}
 
@@ -482,7 +557,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param UUID
 	 */
-	public void setWarcUUID(String UUID) {
+	public void setWarcUUID(String UUID)
+	{
 		warcHeader.UUID = UUID;
 	}
 
@@ -493,21 +569,27 @@ public class ClueWarcRecord extends WebDocument {
 	 * @param key
 	 * @param value
 	 */
-	public void addHeaderMetadata(String key, String value) {
+	public void addHeaderMetadata(String key, String value)
+	{
 		// don't allow addition of known keys
-		if (key.equals("WARC-Type")) {
+		if (key.equals("WARC-Type"))
+		{
 			return;
 		}
-		if (key.equals("WARC-Date")) {
+		if (key.equals("WARC-Date"))
+		{
 			return;
 		}
-		if (key.equals("WARC-Record-ID")) {
+		if (key.equals("WARC-Record-ID"))
+		{
 			return;
 		}
-		if (key.equals("Content-Type")) {
+		if (key.equals("Content-Type"))
+		{
 			return;
 		}
-		if (key.equals("Content-Length")) {
+		if (key.equals("Content-Length"))
+		{
 			return;
 		}
 
@@ -517,14 +599,16 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Clears all metadata items from a header
 	 */
-	public void clearHeaderMetadata() {
+	public void clearHeaderMetadata()
+	{
 		warcHeader.metadata.clear();
 	}
 
 	/**
 	 * Gets the set of metadata items from the header
 	 */
-	public Set<Entry<String, String>> getHeaderMetadata() {
+	public Set<Entry<String, String>> getHeaderMetadata()
+	{
 		return warcHeader.metadata.entrySet();
 	}
 
@@ -533,7 +617,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param key
 	 */
-	public String getHeaderMetadataItem(String key) {
+	public String getHeaderMetadataItem(String key)
+	{
 		return warcHeader.metadata.get(key);
 	}
 
@@ -542,7 +627,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param content
 	 */
-	public void setContent(byte[] content) {
+	public void setContent(byte[] content)
+	{
 		warcContent = content;
 		warcHeader.contentLength = content.length;
 	}
@@ -552,25 +638,30 @@ public class ClueWarcRecord extends WebDocument {
 	 * 
 	 * @param content
 	 */
-	public void setContent(String content) {
+	public void setContent(String content)
+	{
 		setContent(content.getBytes());
 	}
 
 	/**
 	 * Retrieves the byte content for this record
 	 */
-	public byte[] getByteContent() {
+	public byte[] getByteContent()
+	{
 		return warcContent;
 	}
 
 	/**
 	 * Retrieves the bytes content as a UTF-8 string
 	 */
-	public String getContentUTF8() {
+	public String getContentUTF8()
+	{
 		String retString = null;
-		try {
+		try
+		{
 			retString = new String(warcContent, "UTF-8");
-		} catch (UnsupportedEncodingException ex) {
+		} catch (UnsupportedEncodingException ex)
+		{
 			retString = new String(warcContent);
 		}
 		return retString;
@@ -579,12 +670,14 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Gets the header record type string
 	 */
-	public String getHeaderRecordType() {
+	public String getHeaderRecordType()
+	{
 		return warcHeader.recordType;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuffer retBuffer = new StringBuffer();
 		retBuffer.append(warcHeader.toString());
 		retBuffer.append(NEWLINE);
@@ -595,7 +688,8 @@ public class ClueWarcRecord extends WebDocument {
 	/**
 	 * Gets the WARC header as a string
 	 */
-	public String getHeaderString() {
+	public String getHeaderString()
+	{
 		return warcHeader.toString();
 	}
 
@@ -605,7 +699,8 @@ public class ClueWarcRecord extends WebDocument {
 	 * @param out
 	 * @throws java.io.IOException
 	 */
-	public void write(DataOutput out) throws IOException {
+	public void write(DataOutput out) throws IOException
+	{
 		warcHeader.write(out);
 		out.write(warcContent);
 	}
@@ -616,32 +711,30 @@ public class ClueWarcRecord extends WebDocument {
 	 * @param in
 	 * @throws java.io.IOException
 	 */
-	public void readFields(DataInput in) throws IOException {
+	public void readFields(DataInput in) throws IOException
+	{
 		warcHeader.readFields(in);
 		int contentLengthBytes = warcHeader.contentLength;
 		warcContent = new byte[contentLengthBytes];
 		in.readFully(warcContent);
 	}
 
-	public String getDocid() {
+	public String getDocid()
+	{
 		return getHeaderMetadataItem("WARC-TREC-ID");
 	}
 
-	public String getContent() {
+	public String getContent()
+	{
 		String str = getContentUTF8();
 		int i = str.indexOf("Content-Length:");
 		int j = str.indexOf("\n", i);
-		
-		return str.substring(j+1);
-	}
-	
-	public String getDisplayContentType() {
-		return "text/html";
+
+		return str.substring(j + 1);
 	}
 
-	@Override
-        public String getURL()
-        {
-	    return getHeaderMetadataItem("WARC-Target-URI");
-        }
+	public String getDisplayContentType()
+	{
+		return "text/html";
+	}
 }
