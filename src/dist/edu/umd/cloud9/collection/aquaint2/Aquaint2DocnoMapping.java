@@ -37,8 +37,8 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 public class Aquaint2DocnoMapping implements DocnoMapping {
   private static final Logger LOG = Logger.getLogger(Aquaint2DocnoMapping.class);
-  // { LOG.setLevel (Level.TRACE); }
   { LOG.setLevel (Level.INFO); }
+  //{ LOG.setLevel (Level.TRACE); }
 
   private String[] docidEntries;
 
@@ -123,7 +123,9 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       articleNo++;
     }
     LOG.debug("found articleNo: " + articleNo + ", looking at: " + String.format("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo));
-    return String.format ("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo);
+    String result = String.format ("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo);
+    LOG.trace("getDocid returning: " + result);
+    return result;
   }
 
 

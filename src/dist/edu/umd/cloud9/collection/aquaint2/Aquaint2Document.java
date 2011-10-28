@@ -84,9 +84,9 @@ public class Aquaint2Document extends Indexable {
         } catch (Exception e) {
           LOG.error("exception: " + e);
           LOG.error("docid: " + getDocid () + ", start: " + start + ", end: " + end);
-          LOG.error(raw);
+          LOG.error("raw:\n" + raw);
           headline = raw.substring(start + 10).trim();
-          LOG.error("headline should be: " + headline);
+          LOG.error("updated headline: " + headline);
         }
         headline = TAGS_PATTERN.matcher(headline).replaceAll("");
         headline = WHITESPACE_PATTERN.matcher(headline).replaceAll(" ");
@@ -122,5 +122,6 @@ public class Aquaint2Document extends Indexable {
     doc.docid = null;
     doc.headline = null;
     doc.text = null;
+    LOG.debug("docid: " + doc.getDocid() + " length: " + doc.raw.length());
   }
 }
