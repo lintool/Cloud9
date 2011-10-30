@@ -44,6 +44,8 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
   @Override
   public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
+    this.fs = fs;
+
     LOG.info("Loading forward index: " + index);
     mDocnoMapping.loadMapping(mapping, fs);
 
@@ -155,6 +157,7 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
     DecimalFormat df = new DecimalFormat("00000");
     String file = collectionPath + "/part-" + df.format(fileno[idx]);
+
 
     try {
       SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
