@@ -19,432 +19,392 @@ package edu.umd.cloud9.webgraph.driver.wt10g;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
 import java.net.URI;
-import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
+import org.htmlparser.NodeFilter;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.NodeClassFilter;
+import org.htmlparser.tags.BaseHrefTag;
+import org.htmlparser.tags.LinkTag;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.generic.WebDocument;
 import edu.umd.cloud9.collection.generic.WebDocumentInputFormat;
-import edu.umd.cloud9.collection.wt10g.Wt10GDocnoMapping;
-import edu.umd.cloud9.collection.wt10g.Wt10GDocument;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
 
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.tags.BaseHrefTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
-
 /**
  * 
  * @author Nima Asadi
+ * @author Fangyue Wang
+ * @author metzler
  * 
  */
 
-@SuppressWarnings("deprecation")
-public class GenericExtractLinks extends PowerTool
-{
-    
-    private static final Logger LOG = Logger
-	    .getLogger(GenericExtractLinks.class);
+public class GenericExtractLinks extends PowerTool {
 
-    public static class Map extends MapReduceBase
-	    implements
-	    Mapper<IntWritable, WebDocument, Text, ArrayListWritable<AnchorText>>
-    {
+  private static final Logger LOG = Logger.getLogger(GenericExtractLinks.class);
 
-	public static enum LinkCounter
-	{
-	    INPUT_DOCS, // number of input documents
-	    OUTPUT_DOCS, // number of output documents
-	    INVALID_DOCNO, // number of malformed documents
-	    INVALID_URL, // number of malformed URLs
-	    TEXT_TOO_LONG, // number of lines of anchor text that are abnormally
-		           // long
-	    PARSER_FAILED
-	    // number of times the HTML parser fails
-	};
+  public static class Map extends Mapper<LongWritable, WebDocument, Text, ArrayListWritable<AnchorText>> {
 
-	private static String base; // base URL for current document
-	private static String baseHost;
-	private static int docno; // docno of current document
+    public static enum LinkCounter {
+      INPUT_DOCS, // number of input documents
+      OUTPUT_DOCS, // number of output documents
+      INVALID_DOCNO, // number of malformed documents
+      INVALID_URL, // number of malformed URLs
+      TEXT_TOO_LONG, // number of lines of anchor text that are abnormally
+      // long
+      PARSER_FAILED
+      // number of times the HTML parser fails
+    };
 
-	private static final Text keyWord = new Text(); // output key for the
-	                                                // mappers
-	private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
-	// output value for the mappers
+    private static String base; // base URL for current document
+    private static String baseHost;
+    private static int docno; // docno of current document
 
-	//private static final DocnoMapping docnoMapping = null;
-	// = new Wt10GDocnoMapping();
-	// docno mapping file
+    private static final Text keyWord = new Text(); // output key for the
+    // mappers
+    private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
+    // output value for the mappers
 
-	private static final Parser parser = new Parser();
-	private static final NodeFilter filter = new NodeClassFilter(
-	        LinkTag.class);;
-	private static NodeList list;
+    private static DocnoMapping docnoMapping = null;
 
-	private static boolean includeInternalLinks;
+    private static final Parser parser = new Parser();
+    private static final NodeFilter filter = new NodeClassFilter(LinkTag.class);
+    private static NodeList list;
 
-	private static AnchorTextNormalizer normalizer;
+    private static boolean includeInternalLinks;
 
-	public void configure(JobConf job)
-	{
-	    Path[] localFiles;
-	    try
-	    {
-		localFiles = DistributedCache.getLocalCacheFiles(job);
-	    }
-	    catch (IOException e)
-	    {
-		throw new RuntimeException(
-		        "Local cache files not read properly.");
-	    }
+    private static AnchorTextNormalizer normalizer;
 
-//	     try
-//	     {
-//		 //docnoMapping = configer
-//		 docnoMapping.loadMapping(localFiles[0], FileSystem.getLocal(job));
-//	     } catch (Exception e)
-//	     {
-//	     e.printStackTrace();
-//	     throw new RuntimeException("Error initializing DocnoMapping!");
-//	     }
+    @Override
+    public void setup(Mapper<LongWritable, WebDocument, Text, ArrayListWritable<AnchorText>>.Context context) throws IOException {
+      Configuration conf = context.getConfiguration();
 
-	    includeInternalLinks = job.getBoolean(
-		    "Cloud9.IncludeInternalLinks", false);
+      String docnoMappingClass = conf.get("Cloud9.DocnoMappingClass");
+      try {
+        docnoMapping = (DocnoMapping)Class.forName(docnoMappingClass).newInstance();
+      }
+      catch(Exception e) {
+        throw new RuntimeException("Error initializing DocnoMapping class!");
+      }
+      
+      String docnoMappingFile = conf.get("Cloud9.DocnoMappingFile", null);
+      if(docnoMappingFile != null) {
+        Path docnoMappingPath = null;
+        try {
+          Path[] localFiles = DistributedCache.getLocalCacheFiles(conf);
+          if(localFiles != null) {
+            docnoMappingPath = localFiles[0];
+          }
+          else {
+            docnoMappingPath = new Path(conf.get("Cloud9.DocnoMappingFile"));
+          }
+        }
+        catch (IOException e) {
+          throw new RuntimeException("Unable to find DocnoMappingFile!");
+        }
 
-	    try
-	    {
-		normalizer = (AnchorTextNormalizer) Class.forName(
-		        job.get("Cloud9.AnchorTextNormalizer")).newInstance();
-	    }
-	    catch (Exception e)
-	    {
-		e.printStackTrace();
-		throw new RuntimeException(
-		        "Error initializing AnchorTextNormalizer");
-	    }
-	}
+        try {
+          docnoMapping.loadMapping(docnoMappingPath, FileSystem.getLocal(conf));
+        } catch (Exception e) {
+          e.printStackTrace();
+          throw new RuntimeException("Error initializing DocnoMapping!");
+        }
+      }
 
-	public void map(IntWritable key, WebDocument doc,
-	        OutputCollector<Text, ArrayListWritable<AnchorText>> output,
-	        Reporter reporter) throws IOException
-	{
+      includeInternalLinks = conf.getBoolean("Cloud9.IncludeInternalLinks", false);
 
-	    reporter.incrCounter(LinkCounter.INPUT_DOCS, 1);
-
-//	    try
-//	    {
-//		docno = docnoMapping.getDocno(doc.getDocid());
-//	    }
-//	    catch (NullPointerException e)
-//	    {
-//		// Discard documents with an invalid document number
-//		reporter.incrCounter(LinkCounter.INVALID_DOCNO, 1);
-//		return;
-//	    }
-
-	    try
-	    {
-		base = doc.getURL();
-	    }
-	    catch (NullPointerException e)
-	    {
-		// Discard documents with which there is no URL associated
-		reporter.incrCounter(LinkCounter.INVALID_URL, 1);
-		return;
-	    }
-
-	    if (base == null)
-	    {
-		reporter.incrCounter(LinkCounter.INVALID_URL, 1);
-		return;
-	    }
-
-	    try
-	    {
-		baseHost = new URI(base).getHost();
-	    }
-	    catch (Exception e)
-	    {
-		reporter.incrCounter(LinkCounter.INVALID_URL, 1);
-		return;
-	    }
-
-	    if (baseHost == null)
-	    {
-		reporter.incrCounter(LinkCounter.INVALID_URL, 1);
-		return;
-	    }
-
-	    try
-	    {
-		parser.setInputHTML(doc.getContent()); // initializing the
-		                                       // parser with new HTML
-		                                       // content
-
-		// Setting base URL for the current document
-		NodeList nl = parser.parse(null);
-		BaseHrefTag baseTag = new BaseHrefTag();
-		baseTag.setBaseUrl(base);
-		nl.add(baseTag);
-
-		// re-initializing the parser with the fixed content
-		parser.setInputHTML(nl.toHtml());
-
-		// listing all LinkTag nodes
-		list = parser.extractAllNodesThatMatch(filter);
-	    }
-	    catch (ParserException e)
-	    {
-		reporter.incrCounter(LinkCounter.PARSER_FAILED, 1);
-		return;
-	    }
-	    catch (StackOverflowError e)
-	    {
-		reporter.incrCounter(LinkCounter.PARSER_FAILED, 1);
-		return;
-	    }
-
-	    for (int i = 0; i < list.size(); i++)
-	    {
-		LinkTag link = (LinkTag) list.elementAt(i);
-		String anchor = link.getLinkText();
-		String url = link.extractLink();
-
-		if (url == null)
-		    continue;
-
-		if (url.equals(base)) // discard self links
-		    continue;
-
-		String host = null;
-		try
-		{
-		    host = new URI(url).getHost();
-		}
-		catch (Exception e)
-		{
-		    continue;
-		}
-
-		if (host == null)
-		    continue;
-
-		if (anchor == null)
-		    anchor = "";
-
-		// normalizing the anchor text
-		anchor = normalizer.process(anchor);
-
-		arrayList.clear();
-		if (baseHost.equals(host))
-		{
-
-		    if (!includeInternalLinks)
-			continue;
-
-		    arrayList.add(new AnchorText(
-			    AnchorTextConstants.Type.INTERNAL_IN_LINK.val,
-			    anchor, docno));
-
-		}
-		else
-		{
-		    arrayList.add(new AnchorText(
-			    AnchorTextConstants.Type.EXTERNAL_IN_LINK.val,
-			    anchor, docno));
-		}
-
-		try
-		{
-		    keyWord.set(url);
-		    output.collect(keyWord, arrayList);
-		}
-		catch (UTFDataFormatException e)
-		{
-		    reporter.incrCounter(LinkCounter.TEXT_TOO_LONG, 1);
-
-		    keyWord.set(url);
-		    byte flag = arrayList.get(0).getType();
-		    arrayList.clear();
-		    arrayList.add(new AnchorText(flag,
-			    AnchorTextConstants.EMPTY_STRING, docno));
-		    output.collect(keyWord, arrayList);
-		}
-
-	    }
-
-	    arrayList.clear();
-	    arrayList.add(new AnchorText(
-		    AnchorTextConstants.Type.DOCNO_FIELD.val,
-		    AnchorTextConstants.EMPTY_STRING, docno));
-	    keyWord.set(base);
-	    output.collect(keyWord, arrayList);
-
-	    // keeping track of the number of documents that have actually been
-	    // processed
-	    reporter.incrCounter(LinkCounter.OUTPUT_DOCS, 1);
-	}
+      try {
+        normalizer = (AnchorTextNormalizer) Class.forName(conf.get("Cloud9.AnchorTextNormalizer")).newInstance();
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Error initializing AnchorTextNormalizer");
+      }
     }
 
-    public static class Reduce extends MapReduceBase
-	    implements
-	    Reducer<Text, ArrayListWritable<AnchorText>, Text, ArrayListWritable<AnchorText>>
-    {
+    @Override
+    public void map(LongWritable key, WebDocument doc, Mapper<LongWritable, WebDocument, Text, ArrayListWritable<AnchorText>>.Context context) throws IOException, InterruptedException {
+      context.getCounter(LinkCounter.INPUT_DOCS).increment(1);
 
-	private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
-	private static ArrayListWritable<AnchorText> packet;
-	private static boolean pushed;
+      try
+      {
+        docno = docnoMapping.getDocno(doc.getDocid());
+      }
+      catch (NullPointerException e)
+      {
+        // Discard documents with an invalid document number
+        context.getCounter(LinkCounter.INVALID_DOCNO).increment(1);
+        return;
+      }
 
-	public void reduce(Text key,
-	        Iterator<ArrayListWritable<AnchorText>> values,
-	        OutputCollector<Text, ArrayListWritable<AnchorText>> output,
-	        Reporter reporter) throws IOException
-	{
+      try {
+        base = normalizeURL(doc.getURL());
+      }
+      catch (Exception e) {
+        // Discard documents with which there is no URL associated
+        context.getCounter(LinkCounter.INVALID_URL).increment(1);
+        return;
+      }
 
-	    arrayList.clear();
+      if (base == null) {
+        context.getCounter(LinkCounter.INVALID_URL).increment(1);
+        return;
+      }
 
-	    while (values.hasNext())
-	    {
-		packet = values.next();
+      try {
+        baseHost = new URI(base).getHost();
+      }
+      catch (Exception e) {
+        context.getCounter(LinkCounter.INVALID_URL).increment(1);
+        return;
+      }
 
-		for (AnchorText data : packet)
-		{
+      if (baseHost == null) {
+        context.getCounter(LinkCounter.INVALID_URL).increment(1);
+        return;
+      }
 
-		    pushed = false;
+      try {
+        parser.setInputHTML(doc.getContent()); // initializing the
+        // parser with new HTML
+        // content
 
-		    for (int i = 0; i < arrayList.size(); i++)
-		    {
-			if (arrayList.get(i).equalsIgnoreSources(data))
-			{
-			    arrayList.get(i).addDocumentsFrom(data);
-			    pushed = true;
-			    break;
-			}
-		    }
+        // Setting base URL for the current document
+        NodeList nl = parser.parse(null);
+        BaseHrefTag baseTag = new BaseHrefTag();
+        baseTag.setBaseUrl(base);
+        nl.add(baseTag);
 
-		    if (!pushed)
-			arrayList.add(data.clone());
-		}
-	    }
+        // re-initializing the parser with the fixed content
+        parser.setInputHTML(nl.toHtml());
 
-	    output.collect(key, arrayList);
-	}
+        // listing all LinkTag nodes
+        list = parser.extractAllNodesThatMatch(filter);
+      }
+      catch (ParserException e) {
+        context.getCounter(LinkCounter.PARSER_FAILED).increment(1);
+        return;
+      }
+      catch (StackOverflowError e) {
+        context.getCounter(LinkCounter.PARSER_FAILED).increment(1);
+        return;
+      }
+
+      for (int i = 0; i < list.size(); i++) {
+        LinkTag link = (LinkTag) list.elementAt(i);
+        String anchor = link.getLinkText();
+        String url = normalizeURL(link.extractLink());
+
+        if (url == null) {
+          continue;
+        }
+
+        if (url.equals(base)) { // discard self links
+          continue;
+        }
+
+        String host = null;
+        try {
+          host = new URI(url).getHost();
+        }
+        catch (Exception e) {
+          continue;
+        }
+
+        if (host == null) {
+          continue;
+        }
+
+        if (anchor == null) {
+          anchor = "";
+        }
+
+        // normalizing the anchor text
+        anchor = normalizer.process(anchor);
+
+        arrayList.clear();
+        if (baseHost.equals(host)) {
+
+          if (!includeInternalLinks)
+            continue;
+
+          arrayList.add(new AnchorText(
+              AnchorTextConstants.Type.INTERNAL_IN_LINK.val,
+              anchor, docno));
+
+        }
+        else {
+          arrayList.add(new AnchorText(
+              AnchorTextConstants.Type.EXTERNAL_IN_LINK.val,
+              anchor, docno));
+        }
+
+        try {
+          keyWord.set(url);
+          context.write(keyWord, arrayList);
+        }
+        catch (UTFDataFormatException e) {
+          context.getCounter(LinkCounter.TEXT_TOO_LONG).increment(1);
+
+          keyWord.set(url);
+          byte flag = arrayList.get(0).getType();
+          arrayList.clear();
+          arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, docno));
+          context.write(keyWord, arrayList);
+        }
+
+      }
+
+      arrayList.clear();
+      arrayList.add(new AnchorText(
+          AnchorTextConstants.Type.DOCNO_FIELD.val,
+          AnchorTextConstants.EMPTY_STRING, docno));
+      keyWord.set(base);
+      context.write(keyWord, arrayList);
+
+      // keeping track of the number of documents that have actually been
+      // processed
+      context.getCounter(LinkCounter.OUTPUT_DOCS).increment(1);
     }
 
-    public static final String[] RequiredParameters = { "Cloud9.InputPath",
-	    "Cloud9.OutputPath", "Cloud9.Mappers", "Cloud9.Reducers",
-	    "Cloud9.IncludeInternalLinks",
-	    "Cloud9.AnchorTextNormalizer", };//Modified, removed Clou9.DocnoMappingFile as required input
+    private static String normalizeURL(String url) {
+      try {
+        URI uri = URI.create(url).normalize();
+        return (new URI(uri.getScheme(), uri.getHost(), uri.getPath(), null)).toString();
+      }
+      catch(Exception e) {
+        return null;
+      }
+    }
+  }
 
-    public String[] getRequiredParameters()
-    {
-	return RequiredParameters;
+  public static class Reduce extends Reducer<Text, ArrayListWritable<AnchorText>, Text, ArrayListWritable<AnchorText>> {
+
+    private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
+    private static boolean pushed;
+
+    @Override
+    public void reduce(Text key, Iterable<ArrayListWritable<AnchorText>> values, Reducer<Text, ArrayListWritable<AnchorText>, Text, ArrayListWritable<AnchorText>>.Context context) throws IOException, InterruptedException {
+
+      arrayList.clear();
+
+      for(ArrayListWritable<AnchorText> packet : values) {
+        for (AnchorText data : packet) {
+
+          pushed = false;
+
+          for (int i = 0; i < arrayList.size(); i++) {
+            if (arrayList.get(i).equalsIgnoreSources(data))
+            {
+              arrayList.get(i).addDocumentsFrom(data);
+              pushed = true;
+              break;
+            }
+          }
+
+          if (!pushed)
+            arrayList.add(data.clone());
+        }
+      }
+
+      context.write(key, arrayList);
+    }
+  }
+
+  public static final String[] RequiredParameters = { "Cloud9.InputPath",
+    "Cloud9.OutputPath", "Cloud9.Mappers", "Cloud9.Reducers",
+    "Cloud9.IncludeInternalLinks",
+    "Cloud9.AnchorTextNormalizer",
+    "Cloud9.DocnoMappingClass",
+  "Cloud9.DocnoMappingFile" };//Modified, removed Clou9.DocnoMappingFile as required input
+
+  public String[] getRequiredParameters() {
+    return RequiredParameters;
+  }
+
+  public GenericExtractLinks(Configuration conf) {
+    super(conf);
+  }
+
+  CollectionConfigurationManager configer;
+  public GenericExtractLinks(Configuration conf, CollectionConfigurationManager confer) {
+    super(conf);
+    this.configer = confer;
+  }
+
+  @Override
+  public int runTool() throws Exception {
+
+    Configuration conf = getConf();
+    Job job = new Job(conf);
+
+    int numReducers = conf.getInt("Cloud9.Reducers", 200);
+
+    String inputPath = conf.get("Cloud9.InputPath");
+    String outputPath = conf.get("Cloud9.OutputPath");
+
+    String mappingFile = conf.get("Cloud9.DocnoMappingFile");
+
+    FileSystem fs = FileSystem.get(conf);
+    if (!fs.exists(new Path(mappingFile))) {
+      throw new RuntimeException("Error: Docno mapping data file " + mappingFile + " doesn't exist!");
     }
 
-    public GenericExtractLinks(Configuration conf)
-    {
-	super(conf);
-    }
-    
-    CollectionConfigurationManager configer;
-    public GenericExtractLinks(Configuration conf, CollectionConfigurationManager confer)
-    {
-	super(conf);
-	this.configer = confer;
-    }
+    DistributedCache.addCacheFile(new URI(mappingFile), conf);
 
-    public int runTool() throws Exception
-    {
+    job.setJobName("ExtractLinks");
+    conf.set("mapred.child.java.opts", "-Xmx2048m");
+    conf.setInt("mapred.task.timeout", 60000000);
 
-	JobConf conf = new JobConf(getConf(), GenericExtractLinks.class);
-	FileSystem fs = FileSystem.get(conf);
+    job.setNumReduceTasks(numReducers);
 
-	int numMappers = conf.getInt("Cloud9.Mappers", 1);
-	int numReducers = conf.getInt("Cloud9.Reducers", 200);
+    job.setMapperClass(Map.class);
+    job.setCombinerClass(Reduce.class);
+    job.setReducerClass(Reduce.class);
 
-	String inputPath = conf.get("Cloud9.InputPath");
-	String outputPath = conf.get("Cloud9.OutputPath");
-	
-//	String mappingFile = conf.get("Cloud9.DocnoMappingFile");
-//	if (!fs.exists(new Path(mappingFile)))
-//	    throw new RuntimeException("Error: Docno mapping data file "
-//		    + mappingFile + " doesn't exist!");
-//
-//	DistributedCache.addCacheFile(new URI(mappingFile), conf);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(ArrayListWritable.class);
 
-	conf.setJobName("ExtractLinks");
-	conf.set("mapred.child.java.opts", "-Xmx2048m");
-	conf.setInt("mapred.task.timeout", 60000000);
+    job.setInputFormatClass(WebDocumentInputFormat.class);
+    configer.applyJobConfig(job);
 
-	conf.setNumMapTasks(numMappers);
-	conf.setNumReduceTasks(numReducers);
-	
-	conf.setMapperClass(Map.class);
-	conf.setCombinerClass(Reduce.class);
-	conf.setReducerClass(Reduce.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-	conf.setOutputKeyClass(Text.class);
-	conf.setOutputValueClass(ArrayListWritable.class);
+    SequenceFileOutputFormat.setCompressOutput(job, true);
+    SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
 
-	//Modified by Oceanmaster TODO
-	//conf.setInputFormat(WebDocumentInputFormat.class);
-	configer.applyJobConfig(conf);
-	//Modify end
-	
-	conf.setOutputFormat(SequenceFileOutputFormat.class);
+    FileInputFormat.setInputPaths(job, inputPath);
+    //TODO!! changed it from sequential to FileInputFormat.. dont know whats the difference..
 
-	SequenceFileOutputFormat.setCompressOutput(conf, true);
-	SequenceFileOutputFormat.setOutputCompressionType(conf,
-	        SequenceFile.CompressionType.BLOCK);
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-	FileInputFormat.setInputPaths(conf, inputPath);
-	//TODO!! changed it from sequential to FileInputFormat.. dont know whats the difference..
-	
-	FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    LOG.info("ExtractLinks");
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    //LOG.info(" - mapping file: " + mappingFile);
+    LOG.info(" - include internal links? " + conf.getBoolean("Cloud9.IncludeInternalLinks", false));
 
-	LOG.info("ExtractLinks");
-	LOG.info(" - input path: " + inputPath);
-	LOG.info(" - output path: " + outputPath);
-	//LOG.info(" - mapping file: " + mappingFile);
-	LOG.info(" - include internal links? "
-	        + conf.getBoolean("Cloud9.IncludeInternalLinks", false));
-
-	if (!fs.exists(new Path(outputPath)))
-	{
-	    JobClient.runJob(conf);
-	}
-	else
-	{
-	    LOG.info(outputPath + " already exists! Skipping this step...");
-	}
-
-	return 0;
-    }
+    job.waitForCompletion(true);
+    return 0;
+  }
 }
