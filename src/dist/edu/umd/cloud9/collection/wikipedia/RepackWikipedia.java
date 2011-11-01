@@ -116,7 +116,7 @@ public class RepackWikipedia extends Configured implements Tool {
         .withDescription("mapping file").create(MAPPING_FILE_OPTION));
     options.addOption(OptionBuilder.withArgName("block|record|none").hasArg()
         .withDescription("compression type").create(COMPRESSION_TYPE_OPTION));
-    options.addOption(OptionBuilder.withArgName("wiki_language").hasArg()
+    options.addOption(OptionBuilder.withArgName("en|fr|de|zh").hasArg()
         .withDescription("two-letter language code").create(LANGUAGE_OPTION));
 
     CommandLine cmdline;
@@ -197,7 +197,7 @@ public class RepackWikipedia extends Configured implements Tool {
     }
 
     if(language != null){
-    conf.set("wiki.language", language);
+      conf.set("wiki.language", language);
     }
 
     conf.setInputFormat(WikipediaPageInputFormat.class);
