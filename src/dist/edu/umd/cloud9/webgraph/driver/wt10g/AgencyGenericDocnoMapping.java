@@ -9,26 +9,27 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 public class AgencyGenericDocnoMapping implements DocnoMapping
 {
+	//Abandoned
 
     DocnoMapping agent;
 
-    AgencyGenericDocnoMapping(String input) throws Exception
-    {
-	super();
-
-	CollectionConfigurationManager tmp = new CollectionConfigurationManager();
-	// user specified class
-	if (input.endsWith(".class"))
-	{
-	    tmp.setUserSpecifiedDocnoMapping(input);
-	    agent = tmp.generateDocmapping(null);//TODO we should pass in conf.......
-	}
-	else
-	{
-	    tmp.setConfByCollection(input);
-	    agent = tmp.generateDocmapping(null);
-	}
-    }
+//    AgencyGenericDocnoMapping(String input) throws Exception
+//    {
+//	super();
+//
+//	CollectionConfigurationManager tmp = new CollectionConfigurationManager();
+//	// user specified class
+//	if (input.endsWith(".class"))
+//	{
+//	    tmp.setUserSpecifiedDocnoMappingClass(input);
+//	    agent = tmp.generateDocmapping(null);//TODO we should pass in conf.......
+//	}
+//	else
+//	{
+//	    tmp.setConfByCollection(input);
+//	    agent = tmp.generateDocmapping(null);
+//	}
+//    }
 
     @Override
     public int getDocno(String docid)

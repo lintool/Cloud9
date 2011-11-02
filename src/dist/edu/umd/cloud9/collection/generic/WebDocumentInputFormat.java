@@ -16,7 +16,7 @@ import edu.umd.cloud9.collection.trecweb.TrecWebDocumentInputFormat2;
 public class WebDocumentInputFormat extends FileInputFormat<LongWritable, WebDocument> {
   //if one collection's name contain name of
   // another in beginning, it should appear first.
-  public static final String[] supported = { "clue", "trecweb" };
+  public static final String[] supported = { "clue", "trecweb", "gov2", "wt10g" };
   public InputFormat<LongWritable, WebDocument> fileFormatAgent = null;
 
   public static boolean isSupport(String tgtCollection)
@@ -64,7 +64,7 @@ public class WebDocumentInputFormat extends FileInputFormat<LongWritable, WebDoc
     case 0:
       fileFormatAgent = new ClueWarcInputFormat2();
       break;
-    case 1:
+    case 1: case 2: case 3:
       fileFormatAgent = new TrecWebDocumentInputFormat2();
       break;
     default:
