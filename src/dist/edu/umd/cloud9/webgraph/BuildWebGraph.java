@@ -171,7 +171,6 @@ public class BuildWebGraph extends PowerTool {
 		conf.setNumReduceTasks(numReducers);
 
 		conf.setMapperClass(Map.class);
-		conf.setCombinerClass(Reduce.class);
 		conf.setReducerClass(Reduce.class);
 
 		conf.setOutputKeyClass(IntWritable.class);
