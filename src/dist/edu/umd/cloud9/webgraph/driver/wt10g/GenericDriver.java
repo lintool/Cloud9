@@ -29,6 +29,8 @@ import edu.umd.cloud9.webgraph.CollectHostnames;
 import edu.umd.cloud9.webgraph.ComputeWeight;
 import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
 
+import edu.umd.cloud9.webgraph.driver.wt10g.CollectionConfigurationManager;
+
 /**
  * <p>
  * Main driver program for extracting the web graph, reverse web graph, and
@@ -71,356 +73,399 @@ import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
 
 public class GenericDriver extends Configured implements Tool
 {
-  // raw link information is stored at /base/path/extracted.links
-  public static final String outputExtractLinks = "extracted.links";
+	// raw link information is stored at /base/path/extracted.links
+	public static final String outputExtractLinks = "extracted.links";
 
-  // reverse web graph w/ lines of anchor text is stored at
-  // /base/path/reverseWebGraph
-  public static final String outputReverseWebGraph = "reverseWebGraph";
+	// reverse web graph w/ lines of anchor text is stored at
+	// /base/path/reverseWebGraph
+	public static final String outputReverseWebGraph = "reverseWebGraph";
 
-  // web graph is stored at /base/path/webGraph
-  public static final String outputWebGraph = "webGraph";
+	// web graph is stored at /base/path/webGraph
+	public static final String outputWebGraph = "webGraph";
 
-  // hostname information (for computing default weights) is stored at
-  // /base/path/hostnames
-  public static final String outputHostnames = "hostnames";
+	// hostname information (for computing default weights) is stored at
+	// /base/path/hostnames
+	public static final String outputHostnames = "hostnames";
 
-  // reverse web graph w/ weighted lines of anchor text is stored at
-  // /base/path/weightedReverseWebGraph
-  public static final String outputWeightedReverseWebGraph = "weightedReverseWebGraph";
+	// reverse web graph w/ weighted lines of anchor text is stored at
+	// /base/path/weightedReverseWebGraph
+	public static final String outputWeightedReverseWebGraph = "weightedReverseWebGraph";
 
-  private static int printUsage()
-  {
-    System.out.println("\nusage: collection-path output-base"
-        + "[-cn {clue|trecweb|trec|wt10g|gov2}] "
-        + "[-ci userSpecifiedInputFormatClass] "
-        + "[-cm userSpecifiedDocnoMappingClass] " 
-        + "[-cf userSpecifiedDocnoMappingFile] "
-        + "[-f filter] "
-        + "[-ss splitSize] " + "[-il] " + "[-caw] "
-        + "[-nm normalizerClass] " + "[<key:value> ..]");
+	
 
-    System.out.println("Help:");
+	private String inputBase;
+	private String outputBase;
+	private boolean includeInternalLinks = false;
+	private boolean computeAnchorWeights = false;
+	private String normalizer = "edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer";
 
-    System.out.println("collection-path			input directory");
+	// private ArgumentManager moreArgs = new ArgumentManager();
+	private String filtername = null;
+	// private boolean userAutomaticSupport = true;
+	// private String collection_name;
+	final int defaultReducers = 200; // number of reducers per segment
 
-    System.out.println("output-base			output directory");
+	Configuration conf;
+	CollectionConfigurationManager configer;
 
-    System.out.println("-cn {clue|trecweb|trec|wt10g|gov2}		name the collection name, if it is supported, automatic configuration will be applied");
+	public int run(String[] args) throws Exception
+	{
+		conf = new Configuration();
+		configer = new CollectionConfigurationManager();
 
-    System.out.println("-ci userSpecifiedInputFormatClass		specify the class work as FileInputFormat; Required when -cn is not specified");
+		if (!readInput(args))
+		{
+			printUsage();
+			return -1;
+		}
 
-    System.out.println("-cm userSpecifiedDocnoMappingClass		specify the class work as DocnoMapping; Required when -cn is not specified. It should implement GenericDocnoMapping interface.");
+		configer.applyConfig(conf);
+		
+		conf.setInt("Cloud9.Mappers", 2000);
+		conf.setInt("Cloud9.Reducers", defaultReducers);
+		conf.setBoolean("Cloud9.IncludeInternalLinks", includeInternalLinks);
+		conf.set("Cloud9.AnchorTextNormalizer", normalizer);
 
-    System.out.println("-f <filtername>		specify regex filter to filter files in collection-path");
-    System.out.println("-ss <splitSize>		specify the number of data files processed together as a split.");
-    System.out.println("-il				include internal links, without this option we will not include internal links");
-    System.out.println("-caw				compute default anchor weights, without this option we will not compute default anchor weights");
-    System.out.println("-nm normalizerClass		a normalizer class used to normalize the lines of anchor text, must extend *.anchor.normalize.AnchorTextNormalizer.");
-    System.out.println("<key:value>			Additional key-value pairs that will be stored in configuration.");
-    System.out.println("Note: <key:value> should be used as the argument-passing method for any user specified class");
+		// Job 1:
+		// Extract link information for each segment separately
+		String inputPath = inputBase;
+		String outputPath = outputBase + "/" + outputExtractLinks;
 
-    System.out.println();
+		conf.set("Cloud9.InputPath", inputPath);
+		conf.set("Cloud9.OutputPath", outputPath);
 
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+		int r = new GenericExtractLinks(conf, configer).run();
 
-  private String inputBase;
-  private String outputBase;
-  private boolean includeInternalLinks = false;
-  private boolean computeAnchorWeights = false;
-  private String normalizer = "edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer";
+		if (r != 0)
+		{
+			return -1;
+		}
 
-  // private ArgumentManager moreArgs = new ArgumentManager();
-  private String filtername = null;
-  // private boolean userAutomaticSupport = true;
-  // private String collection_name;
-  final int defaultReducers = 200; // number of reducers per segment
+		// Job 2:
+		// Construct the reverse web graph (i.e., collect incoming link
+		// information)
+		inputPath = outputBase + "/" + outputExtractLinks;
+		outputPath = outputBase + "/" + outputReverseWebGraph + "/";
 
-  Configuration conf;
-  CollectionConfigurationManager configer;
+		conf.set("Cloud9.InputPath", inputPath);
+		conf.set("Cloud9.OutputPath", outputPath);
+		conf.setInt("Cloud9.Reducers", defaultReducers);
 
-  public int run(String[] args) throws Exception
-  {
-    conf = new Configuration();
-    configer = new CollectionConfigurationManager();
+		r = new BuildReverseWebGraph(conf).run();
+		if (r != 0)
+			return -1;
 
-    if (!readInput(args))
-    {
-      printUsage();
-      return -1;
-    }
-        
-    conf.setInt("Cloud9.Mappers", 2000);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
-//    conf.set("Cloud9.DocnoMappingClass", docnoMappingClass);
-//    conf.set("Cloud9.DocnoMappingFile", docnoMappingFile);
-    conf.setBoolean("Cloud9.IncludeInternalLinks", includeInternalLinks);
-    conf.set("Cloud9.AnchorTextNormalizer", normalizer);
+		// Job 3:
+		// Construct the web graph
+		inputPath = outputBase + "/" + outputReverseWebGraph + "/";
+		outputPath = outputBase + "/" + outputWebGraph + "/";
 
-    // Job 1:
-    // Extract link information for each segment separately
-    String inputPath = inputBase;
-    String outputPath = outputBase + "/" + outputExtractLinks;
+		conf.set("Cloud9.InputPath", inputPath);
+		conf.set("Cloud9.OutputPath", outputPath);
+		conf.setInt("Cloud9.Mappers", 1);
+		conf.setInt("Cloud9.Reducers", defaultReducers);
+		r = new BuildWebGraph(conf).run();
+		if (r != 0)
+			return -1;
 
-    conf.set("Cloud9.InputPath", inputPath);
-    conf.set("Cloud9.OutputPath", outputPath);
+		if (computeAnchorWeights)
+		{
+			// Propagating domain names in order to compute anchor weights
+			inputPath = outputBase + "/" + outputWebGraph + "/";
+			outputPath = outputBase + "/" + outputHostnames + "/";
 
-    int r = new GenericExtractLinks(conf, configer).run();
+			conf.set("Cloud9.InputPath", inputPath);
+			conf.set("Cloud9.OutputPath", outputPath);
+			conf.setInt("Cloud9.Mappers", 1);
+			conf.setInt("Cloud9.Reducers", defaultReducers);
 
-    if (r != 0) {
-      return -1;
-    }
+			r = new CollectHostnames(conf).run();
+			if (r != 0)
+				return -1;
 
-    // Job 2:
-    // Construct the reverse web graph (i.e., collect incoming link
-    // information)
-    inputPath = outputBase + "/" + outputExtractLinks;
-    outputPath = outputBase + "/" + outputReverseWebGraph + "/";
+			// Compute the weights
+			inputPath = outputBase + "/" + outputReverseWebGraph + "/,"
+					+ outputBase + outputHostnames + "/";
+			outputPath = outputBase + "/" + outputWeightedReverseWebGraph + "/";
 
-    conf.set("Cloud9.InputPath", inputPath);
-    conf.set("Cloud9.OutputPath", outputPath);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
+			conf.set("Cloud9.InputPath", inputPath);
+			conf.set("Cloud9.OutputPath", outputPath);
+			conf.setInt("Cloud9.Mappers", 1);
+			conf.setInt("Cloud9.Reducers", defaultReducers);
 
-    r = new BuildReverseWebGraph(conf).run();
-    if (r != 0)
-      return -1;
+			r = new ComputeWeight(conf).run();
+			if (r != 0)
+			{
+				return -1;
+			}
+		}
 
-    // Job 3:
-    // Construct the web graph
-    inputPath = outputBase + "/" + outputReverseWebGraph + "/";
-    outputPath = outputBase + "/" + outputWebGraph + "/";
+		return 0;
+	}
 
-    conf.set("Cloud9.InputPath", inputPath);
-    conf.set("Cloud9.OutputPath", outputPath);
-    conf.setInt("Cloud9.Mappers", 1);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
-    r = new BuildWebGraph(conf).run();
-    if (r != 0)
-      return -1;
+	// assumption:
+	// inputBase, outputBase, inputPath are all absolute path.
+	// Abandoned
+	// public String generateOutputPath(String inputPath, String secondPrefix)
+	// {
+	// return inputPath.replaceFirst(inputBase, outputBase + secondPrefix);
+	// }
 
-    if (computeAnchorWeights)
-    {
-      // Propagating domain names in order to compute anchor weights
-      inputPath = outputBase + "/" + outputWebGraph + "/";
-      outputPath = outputBase + "/" + outputHostnames + "/";
+	public static void main(String[] args) throws Exception
+	{
+		int res = ToolRunner
+				.run(new Configuration(), new GenericDriver(), args);
+		System.exit(res);
+	}
 
-      conf.set("Cloud9.InputPath", inputPath);
-      conf.set("Cloud9.OutputPath", outputPath);
-      conf.setInt("Cloud9.Mappers", 1);
-      conf.setInt("Cloud9.Reducers", defaultReducers);
+	private static int printUsage()
+	{
+		System.out.println("\nusage: collection-path output-base"
+				+ "[-cn {clue|trecweb|gov2|wt10g}] "
+				+ "[-ci userSpecifiedInputFormatClass] "
+				+ "[-cm userSpecifiedDocnoMappingClass] "
+				+ "-cf userSpecifiedDocnoMappingFile "
+				// + "[-f filter] "
+				// + "[-ss splitSize] "
+				+ "[-il] " 
+				+ "[-caw] " 
+				+ "[-nm normalizerClass] "
+				+ "[<key:value> ..]");
 
-      r = new CollectHostnames(conf).run();
-      if (r != 0)
-        return -1;
+		System.out.println("Help:");
 
-      // Compute the weights
-      inputPath = outputBase + "/" + outputReverseWebGraph + "/," + outputBase + outputHostnames + "/";
-      outputPath = outputBase + "/" + outputWeightedReverseWebGraph + "/";
+		System.out.println("collection-path\n\tinput directory");
 
-      conf.set("Cloud9.InputPath", inputPath);
-      conf.set("Cloud9.OutputPath", outputPath);
-      conf.setInt("Cloud9.Mappers", 1);
-      conf.setInt("Cloud9.Reducers", defaultReducers);
+		System.out.println("output-base\n\toutput directory");
 
-      r = new ComputeWeight(conf).run();
-      if (r != 0) {
-        return -1;
-      }
-    }
+		System.out
+				.println("-cn {clue|trecweb|gov2|wt10g}\n\tname the collection name, if it is supported, automatic configuration will be applied");
 
-    return 0;
-  }
+		System.out
+				.println("-ci userSpecifiedInputFormatClass\n\tspecify the class work as FileInputFormat; Required when -cn is not specified");
 
-  // assumption:
-  // inputBase, outputBase, inputPath are all absolute path.
-  // Abandoned
-  // public String generateOutputPath(String inputPath, String secondPrefix)
-  // {
-  // return inputPath.replaceFirst(inputBase, outputBase + secondPrefix);
-  // }
+		System.out
+				.println("-cm userSpecifiedDocnoMappingClass\n\tspecify the class work as DocnoMapping; Required when -cn is not specified. It should implement GenericDocnoMapping interface.");
 
-  public static void main(String[] args) throws Exception
-  {
-    int res = ToolRunner
-        .run(new Configuration(), new GenericDriver(), args);
-    System.exit(res);
-  }
+		System.out
+				.println("-cf userSpecifiedDocnoMappingFile\n\tspecify the File work as input to specified DocnoMapping class.");
 
-//  class RegexFilter implements FilenameFilter
-//  {
-//    private Pattern pattern;
-//
-//    public RegexFilter(String regex)
-//    {
-//      pattern = Pattern.compile(regex);
-//    }
-//
-//    public boolean accept(File dir, String name)
-//    {
-//      return pattern.matcher(name).matches();
-//    }
-//  }
+		// System.out.println("-f <filtername>\n\tspecify regex filter to filter files in collection-path");
+		// System.out.println("-ss <splitSize>\n\tspecify the number of data files processed together as a split.");
+		System.out
+				.println("-il\n\tinclude internal links, without this option we will not include internal links");
 
-  private boolean readInput(String[] args)
-  {
-    if (args.length < 4)
-    {
-      System.out.println("More arguments needed.");
-      return false;
-    }
+		System.out
+				.println("-caw\n\tcompute default anchor weights, without this option we will not compute default anchor weights");
 
-    inputBase = new File(args[0]).getAbsolutePath();
-    outputBase = new File(args[1]).getAbsolutePath();
+		System.out
+				.println("-nm normalizerClass\n\ta normalizer class used to normalize the lines of anchor text, must extend *.anchor.normalize.AnchorTextNormalizer.");
 
-    int argc = args.length - 2;
-    while (argc > 0)
-    {
-      String cmd = args[args.length - argc];
+		System.out
+				.println("<key:value>\n\tAdditional key-value pairs that will be stored in configuration.");
 
-      if (cmd.equals("-cn")) {
-        if (argc < 2) {
-          System.out.println("Insufficient arguments, more arguments needed after -cn flag.");
-          return false;
-        }
-        argc--;
-        String collectionName = args[args.length - argc];
-        if (!configer.setConfByCollection(collectionName))
-        {
-          System.out
-          .println("Collection \""
-              + collectionName
-              + "\" not supported, please specify inputformat and docnomapping class, or contact developer.");
-          return false;
-        }
+		System.out
+				.println("Note: <key:value>\n\tshould be used as the argument-passing method for any user specified class");
 
-      }
-      else if (cmd.equals("-ci"))
-      {
-        if (argc < 2)
-        {
-          System.out
-          .println("Insufficient arguments, more arguments needed after -ci flag.");
-          return false;
-        }
-        argc--;
-        String ciName = args[args.length - argc];
-        if (!configer.setUserSpecifiedInputFormat(ciName))
-        {
-          System.out
-          .println("class \""
-              + ciName
-              + "\" doesn't exist or not sub-class of FileInputFormat");
-          return false;
-        }
-      }
-      else if (cmd.equals("-cm"))
-      {
-        if (argc < 2)
-        {
-          System.out.println("Insufficient arguments, more arguments needed after -cm flag.");
-          return false;
-        }
-        argc--;
-        String cmName = args[args.length - argc];
-        conf.set("Cloud9.DocnoMappingClass", cmName);
-      }
-      else if (cmd.equals("-cf"))
-      {
-        if (argc < 2)
-        {
-          System.out.println("Insufficient arguments, more arguments needed after -cm flag.");
-          return false;
-        }
-        argc--;
-        String cfName = args[args.length - argc];
-        conf.set("Cloud9.DocnoMappingFile", cfName);
-      }
-      else if (cmd.equals("-f"))
-      {
-        if (argc < 2)
-        {
-          System.out.println("Insufficient arguments, more arguments needed after -f flag.");
-          return false;
-        }
-        argc--;
-        filtername = args[args.length - argc];
-        if (filtername.startsWith("-"))
-        {
-          System.out.println("Invalid arguments format, a filtername required after -f flag.");
-          return false;
-        }
-      }
-      else if (cmd.equals("-ss"))
-      {
-        if (argc < 2)
-        {
-          System.out.println("Insufficient arguments, more arguments needed after -ss flag.");
-          return false;
-        }
-        argc--;
-        try
-        {
-          //limitSize = Integer.parseInt(args[args.length - argc]);
-        }
-        catch (NumberFormatException e)
-        {
-          System.out.println("Invalid arguments, Integer is expected after -ss flag.");
-          return false;
-        }
-      }
-      else if (cmd.equals("-il"))
-      {
-        includeInternalLinks = true;
-      }
-      else if (cmd.equals("-caw"))
-      {
-        computeAnchorWeights = true;
-      }
-      else if (cmd.equals("-nm"))
-      {
-        if (argc < 2)
-        {
-          System.out
-          .println("Insufficient arguments, more arguments needed after -nm flag.");
-          return false;
-        }
-        argc--;
-        String nm = args[args.length - argc];
-        ;
-        try
-        {
-          if (!AnchorTextNormalizer.class.isAssignableFrom(Class
-              .forName(nm)))
-          {
-            System.out.println("Invalid arguments; Normalizer class must implement AnchorTextNormalizer interface.");
-            return false;
-          }
-        }
-        catch (ClassNotFoundException e)
-        {
-          System.out.println("Invalid arguments; Specified Normalizer class doesn't exist");
-          return false;
-        }
+		System.out.println();
 
-        normalizer = nm;
-      }
-      else if (cmd.startsWith("<") && cmd.endsWith(">")
-          && cmd.contains(":"))
-      {
-        cmd = cmd.substring(1, cmd.length() - 1);
-        int pos = cmd.indexOf(":");
-        conf.set(cmd.substring(0, pos), cmd.substring(pos));
-      }
-      else
-      {
-        System.out.println("Warning: Unresolved argument : " + cmd);
-        // moreArgs.insertArg(cmd);
-      }
-      argc--;
-    }
-    return true;
-  }
+		ToolRunner.printGenericCommandUsage(System.out);
+		return -1;
+	}
+	
+	// class RegexFilter implements FilenameFilter
+	// {
+	// private Pattern pattern;
+	//
+	// public RegexFilter(String regex)
+	// {
+	// pattern = Pattern.compile(regex);
+	// }
+	//
+	// public boolean accept(File dir, String name)
+	// {
+	// return pattern.matcher(name).matches();
+	// }
+	// }
+
+	private boolean readInput(String[] args)
+	{
+		if (args.length < 6)
+		{
+			System.out.println("More arguments needed.");
+			return false;
+		}
+
+		inputBase = new File(args[0]).getAbsolutePath();
+		outputBase = new File(args[1]).getAbsolutePath();
+
+		int argc = args.length - 2;
+		while (argc > 0)
+		{
+			String cmd = args[args.length - argc];
+
+			if (cmd.equals("-cn"))
+			{
+				if (argc < 2)
+				{
+					System.out
+							.println("Insufficient arguments, more arguments needed after -cn flag.");
+					return false;
+				}
+				argc--;
+				String collectionName = args[args.length - argc];
+				if (!configer.setConfByCollection(collectionName))
+				{
+					System.out
+							.println("Collection \""
+									+ collectionName
+									+ "\" not supported, please specify inputformat and docnomapping class, or contact developer.");
+					return false;
+				}
+
+			}
+			else if (cmd.equals("-ci"))
+			{
+				if (argc < 2)
+				{
+					System.out
+							.println("Insufficient arguments, more arguments needed after -ci flag.");
+					return false;
+				}
+				argc--;
+				String ciName = args[args.length - argc];
+				if (!configer.setUserSpecifiedInputFormat(ciName))
+				{
+					System.out
+							.println("class \""
+									+ ciName
+									+ "\" doesn't exist or not sub-class of FileInputFormat");
+					return false;
+				}
+			}
+			else if (cmd.equals("-cm"))
+			{
+				if (argc < 2)
+				{
+					System.out
+							.println("Insufficient arguments, more arguments needed after -cm flag.");
+					return false;
+				}
+				argc--;
+				String cmName = args[args.length - argc];
+				
+				if (!configer.setUserSpecifiedDocnoMappingClass(cmName))
+				{
+					System.out
+							.println("class \""
+									+ cmName
+									+ "\" doesn't exist or not implemented DocnoMappingt");
+					return false;
+				}
+				//conf.set("Cloud9.DocnoMappingClass", cmName);
+			}
+			else if (cmd.equals("-cf"))
+			{
+				if (argc < 2)
+				{
+					System.out
+							.println("Insufficient arguments, more arguments needed after -cm flag.");
+					return false;
+				}
+				argc--;
+				String cfName = args[args.length - argc];
+				conf.set("Cloud9.DocnoMappingFile", cfName);
+			}
+//			else if (cmd.equals("-f"))
+//			{
+//				if (argc < 2)
+//				{
+//					System.out
+//							.println("Insufficient arguments, more arguments needed after -f flag.");
+//					return false;
+//				}
+//				argc--;
+//				filtername = args[args.length - argc];
+//				if (filtername.startsWith("-"))
+//				{
+//					System.out
+//							.println("Invalid arguments format, a filtername required after -f flag.");
+//					return false;
+//				}
+//			}
+//			else if (cmd.equals("-ss"))
+//			{
+//				if (argc < 2)
+//				{
+//					System.out
+//							.println("Insufficient arguments, more arguments needed after -ss flag.");
+//					return false;
+//				}
+//				argc--;
+//				try
+//				{
+//					// limitSize = Integer.parseInt(args[args.length - argc]);
+//				}
+//				catch (NumberFormatException e)
+//				{
+//					System.out
+//							.println("Invalid arguments, Integer is expected after -ss flag.");
+//					return false;
+//				}
+//			}
+			else if (cmd.equals("-il"))
+			{
+				includeInternalLinks = true;
+			}
+			else if (cmd.equals("-caw"))
+			{
+				computeAnchorWeights = true;
+			}
+			else if (cmd.equals("-nm"))
+			{
+				if (argc < 2)
+				{
+					System.out
+							.println("Insufficient arguments, more arguments needed after -nm flag.");
+					return false;
+				}
+				argc--;
+				String nm = args[args.length - argc];
+				;
+				try
+				{
+					if (!AnchorTextNormalizer.class.isAssignableFrom(Class
+							.forName(nm)))
+					{
+						System.out
+								.println("Invalid arguments; Normalizer class must implement AnchorTextNormalizer interface.");
+						return false;
+					}
+				}
+				catch (ClassNotFoundException e)
+				{
+					System.out
+							.println("Invalid arguments; Specified Normalizer class doesn't exist");
+					return false;
+				}
+
+				normalizer = nm;
+			}
+			else if (cmd.startsWith("<") && cmd.endsWith(">")
+					&& cmd.contains(":"))
+			{
+				cmd = cmd.substring(1, cmd.length() - 1);
+				int pos = cmd.indexOf(":");
+				conf.set(cmd.substring(0, pos), cmd.substring(pos));
+			}
+			else
+			{
+				System.out.println("Warning: Unresolved argument : " + cmd);
+				// moreArgs.insertArg(cmd);
+			}
+			argc--;
+		}
+		return true;
+	}
 
 }
