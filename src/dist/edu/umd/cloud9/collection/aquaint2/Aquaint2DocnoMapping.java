@@ -37,8 +37,10 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 public class Aquaint2DocnoMapping implements DocnoMapping {
   private static final Logger LOG = Logger.getLogger(Aquaint2DocnoMapping.class);
-  { LOG.setLevel (Level.INFO); }
-  //{ LOG.setLevel (Level.TRACE); }
+  {
+    LOG.setLevel(Level.INFO);
+    //LOG.setLevel(Level.TRACE);
+  }
 
   private String[] docidEntries;
 
@@ -228,7 +230,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       prevArticleNo = articleNo;
 
       cnt++;
-      if (cnt % 100000 == 0) {
+      if (cnt % (200 * 1000) == 0) {
         LOG.info(cnt + " docs");
       }
     }
@@ -246,7 +248,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     for (int i = 0; i < list.size(); i++) {
       out.writeUTF(list.get(i));
       numEntries++;
-      if (numEntries % 10000 == 0) {
+      if (numEntries % (10 * 1000) == 0) {
         LOG.info(numEntries + " months of docs");
       }
     }
