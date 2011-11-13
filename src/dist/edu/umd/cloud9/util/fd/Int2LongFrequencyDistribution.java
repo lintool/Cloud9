@@ -7,7 +7,6 @@ import edu.umd.cloud9.util.SortableEntries;
  * A frequency distribution where events are ints and counts are longs.
  *
  * @author Jimmy Lin
- *
  */
 public interface Int2LongFrequencyDistribution extends SortableEntries<PairOfIntLong> {
 

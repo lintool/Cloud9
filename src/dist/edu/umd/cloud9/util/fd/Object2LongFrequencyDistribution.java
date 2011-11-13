@@ -7,7 +7,6 @@ import edu.umd.cloud9.util.pair.PairOfObjectLong;
  * A frequency distribution where events are arbitrary objects and counts are ints.
  *
  * @author Jimmy Lin
- *
  */
 public interface Object2LongFrequencyDistribution<K extends Comparable<K>>
     extends SortableEntries<PairOfObjectLong<K>> {

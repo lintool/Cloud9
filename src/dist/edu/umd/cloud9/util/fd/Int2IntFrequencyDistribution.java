@@ -23,7 +23,6 @@ import edu.umd.cloud9.util.SortableEntries;
  * A frequency distribution where events are ints and counts are ints.
  *
  * @author Jimmy Lin
- *
  */
 public interface Int2IntFrequencyDistribution extends SortableEntries<PairOfInts> {
 
