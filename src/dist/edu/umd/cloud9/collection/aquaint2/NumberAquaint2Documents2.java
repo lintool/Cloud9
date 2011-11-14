@@ -35,6 +35,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+
 public class NumberAquaint2Documents2 extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(NumberAquaint2Documents2.class);
   private static enum Count { DOCS };
@@ -83,22 +84,23 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    String outputFile = args[2];
+    Path inputDirPath = new Path(args[0]);
+    String outputDirPathname = args[1];
+    Path outputDirPath = new Path(outputDirPathname);
+    Path outputFilePath = new Path(args[2]);
 
     LOG.info("Tool: " + NumberAquaint2Documents2.class.getCanonicalName());
-    LOG.info(" - Input path: " + inputPath);
-    LOG.info(" - Output path: " + outputPath);
-    LOG.info(" - Output file: " + outputFile);
+    LOG.info(" - Input dir path: " + inputDirPath);
+    LOG.info(" - Output dir path: " + outputDirPath);
+    LOG.info(" - Output file path: " + outputFilePath);
 
     Job job = new Job(getConf(), NumberAquaint2Documents2.class.getSimpleName());
     job.setJarByClass(NumberAquaint2Documents2.class);
 
     job.setNumReduceTasks(1);
 
-    FileInputFormat.setInputPaths(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, inputDirPath);
+    FileOutputFormat.setOutputPath(job, outputDirPath);
     FileOutputFormat.setCompressOutput(job, false);
 
     job.setInputFormatClass(Aquaint2DocumentInputFormat2.class);
@@ -110,13 +112,15 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
+    FileSystem.get(job.getConfiguration()).delete(outputDirPath, true);
 
     job.waitForCompletion(true);
 
-    String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    Aquaint2DocnoMapping.writeDocnoData(new Path(input), new Path(outputFile),
-        FileSystem.get(getConf()));
+    Path inputFilePath = new Path(outputDirPathname
+                                  + (outputDirPathname.endsWith("/") ? "" : "/")
+                                  + "/part-r-00000");
+    Aquaint2DocnoMapping.writeDocnoData(inputFilePath, outputFilePath,
+                                        FileSystem.get(getConf()));
 
     return 0;
   }
