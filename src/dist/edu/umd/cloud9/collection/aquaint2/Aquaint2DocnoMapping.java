@@ -48,11 +48,13 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
   public int getDocno(String docid) {
     LOG.trace("getDocno(docid: " + docid + ")");
     Preconditions.checkNotNull(docid);
-    String source = docid.substring(0, 7);
-    int year = Integer.parseInt(docid.substring (8, 12));
-    int month = Integer.parseInt(docid.substring (12, 14));
-    int day = Integer.parseInt(docid.substring (14, 16));
-    int articleNo = Integer.parseInt(docid.substring (17, 21));
+    int sourceLength = docid.length() - 13;
+    String source = docid.substring(0, sourceLength);
+    int year = Integer.parseInt(docid.substring (sourceLength, sourceLength + 4));
+    int month = Integer.parseInt(docid.substring (sourceLength + 4, sourceLength + 6));
+    int day = Integer.parseInt(docid.substring (sourceLength + 6, sourceLength + 8));
+    int articleNo = Integer.parseInt(docid.substring (sourceLength + 9, sourceLength + 13));
+
 
     // first traverse the entries to find the month entry and get its days
     int entryId = findEntryId(source, year, month);
@@ -109,14 +111,14 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     String source = entryMetaInfo[1];
     int year = Integer.parseInt(entryMetaInfo[2]);
     int month = Integer.parseInt(entryMetaInfo[3]);
-    LOG.debug("looking at: " + String.format("%s_%04d%02d__.____", source, year, month));
+    LOG.debug("looking at: " + String.format("%s%04d%02d__.____", source, year, month));
 
     // then traverse the days to find the day and skip over missing articles to get the article number
     String[] entryEltParts = findEntryEltParts (docno, entryElts);
     int offset = Integer.parseInt(entryEltParts[0]);
     String[] entryDayParts = entryEltParts[1].split(",");
     int day = Integer.parseInt(entryDayParts[0]);
-    LOG.debug("found day: " + day + ", looking at: " + String.format("%s_%04d%02d%02d.____", source, year, month, day));
+    LOG.debug("found day: " + day + ", looking at: " + String.format("%s%04d%02d%02d.____", source, year, month, day));
     int articleNo = docno - offset;
     for (int i = 1; i < entryDayParts.length; i++) {
       int missingNo = Integer.parseInt(entryDayParts[i]);
@@ -124,8 +126,8 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       LOG.debug("skipping missingNo: " + missingNo);
       articleNo++;
     }
-    LOG.debug("found articleNo: " + articleNo + ", looking at: " + String.format("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo));
-    String result = String.format ("%s_%04d%02d%02d.%04d", source, year, month, day, articleNo);
+    LOG.debug("found articleNo: " + articleNo + ", looking at: " + String.format("%s%04d%02d%02d.%04d", source, year, month, day, articleNo));
+    String result = String.format ("%s%04d%02d%02d.%04d", source, year, month, day, articleNo);
     LOG.trace("getDocid returning: " + result);
     return result;
   }
@@ -166,6 +168,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     docidEntries = Aquaint2DocnoMapping.readDocnoData(p, fs);
   }
 
+
   static public void writeDocnoData(Path input, Path output, FileSystem fs) throws IOException {
     LOG.info("Writing docno data to " + output);
     LineReader reader = new LineReader(fs.open(input));
@@ -186,11 +189,12 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     while (reader.readLine(line) > 0) {
       String docid = line.toString();
 
-      String source = docid.substring(0, 7);
-      int year = Integer.parseInt(docid.substring (8, 12));
-      int month = Integer.parseInt(docid.substring (12, 14));
-      int day = Integer.parseInt(docid.substring (14, 16));
-      int articleNo = Integer.parseInt(docid.substring (17, 21));
+      int sourceLength = docid.indexOf("\t") - 13;
+      String source = docid.substring(0, sourceLength);
+      int year = Integer.parseInt(docid.substring (sourceLength, sourceLength + 4));
+      int month = Integer.parseInt(docid.substring (sourceLength + 4, sourceLength + 6));
+      int day = Integer.parseInt(docid.substring (sourceLength + 6, sourceLength + 8));
+      int articleNo = Integer.parseInt(docid.substring (sourceLength + 9, sourceLength + 13));
       LOG.debug("prevSource: " + prevSource + ", prevYear: " + prevYear + ", prevMonth: " + prevMonth + ", prevDay: " + prevDay + ", prevArticleNo: " + prevArticleNo);
       LOG.debug("source: " + source + ", year: " + year + ", month: " + month + ", day: " + day + ", articleNo: " + articleNo);
 
@@ -297,9 +301,10 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     Configuration conf = new Configuration();
     FileSystem fs = FileSystem.get(conf);
 
-    System.out.println("loading mapping file " + args[1]);
+    Path mappingPath = new Path(args[1]);
+    System.out.println("loading mapping file " + mappingPath);
     Aquaint2DocnoMapping mapping = new Aquaint2DocnoMapping();
-    mapping.loadMapping(new Path(args[1]), fs);
+    mapping.loadMapping(mappingPath, fs);
 
     if (args[0].equals("list")) {
       for (int i = 1; i < mapping.docidEntries.length; i++) {

@@ -30,14 +30,18 @@ import edu.umd.cloud9.collection.Indexable;
 
 public class Aquaint2Document extends Indexable {
   private static final Logger LOG = Logger.getLogger(Aquaint2Document.class);
-  { LOG.setLevel (Level.INFO); }
+  {
+    LOG.setLevel(Level.INFO);
+    //LOG.setLevel(Level.TRACE);
+  }
 
   private static Pattern TAGS_PATTERN = Pattern.compile("<[^>]+>");
   private static Pattern WHITESPACE_PATTERN = Pattern.compile("\t|\n");
 
-  public static final String XML_START_TAG = "<DOC ";
+  public static final String XML_START_TAG = "<DOC";
   public static final String XML_END_TAG = "</DOC>";
 
+  private boolean isAquaint2;
   private String raw;
   private String docid;
   private String headline;
@@ -45,12 +49,14 @@ public class Aquaint2Document extends Indexable {
 
   public Aquaint2Document() {}
 
+
   @Override
   public void write(DataOutput out) throws IOException {
     byte[] bytes = raw.getBytes();
     WritableUtils.writeVInt(out, bytes.length);
     out.write(bytes, 0, bytes.length);
   }
+
 
   @Override
   public void readFields(DataInput in) throws IOException {
@@ -60,21 +66,43 @@ public class Aquaint2Document extends Indexable {
     Aquaint2Document.readDocument(this, new String(bytes));
   }
 
+
   @Override
   public String getDocid() {
     if (docid == null) {
-      int start = 9;
-      int end = raw.indexOf("\"", start);
-      docid = raw.substring(start, end).trim();
+      if (isAquaint2) {
+        setAquaint2Docid();
+      } else {
+        setAquaintDocid();
+      }
     }
-
     return docid;
   }
+
+
+  private void setAquaintDocid() {
+    int start = raw.indexOf("<DOCNO>");
+    if (start == -1) {
+      docid = "";
+    } else {
+      int end = raw.indexOf("</DOCNO>");
+      docid = raw.substring(start + 7, end).trim();
+    }
+    LOG.trace("in setAquaintDocid, docid: " + docid);
+  }
+
+
+  private void setAquaint2Docid() {
+    int start = 9;
+    int end = raw.indexOf("\"", start);
+    docid = raw.substring(start, end).trim();
+    LOG.trace("in setAquaint2Docid, docid: " + docid);
+  }
+
 
   public String getHeadline() {
     if (headline == null) {
       int start = raw.indexOf("<HEADLINE>");
-
       if (start == -1) {
         headline = "";
       } else {
@@ -95,6 +123,7 @@ public class Aquaint2Document extends Indexable {
     return headline;
   }
 
+
   @Override
   public String getContent() {
     if (text == null) {
@@ -109,9 +138,9 @@ public class Aquaint2Document extends Indexable {
         text = TAGS_PATTERN.matcher(text).replaceAll("");
       }
     }
-
     return text;
   }
+
 
   public static void readDocument(Aquaint2Document doc, String s) {
     if (s == null) {
@@ -122,6 +151,9 @@ public class Aquaint2Document extends Indexable {
     doc.docid = null;
     doc.headline = null;
     doc.text = null;
+    //doc.isAquaint2 = (doc.raw.indexOf("</DOCNO>\n<DOCTYPE>") == -1);
+    doc.isAquaint2 = (doc.raw.indexOf("<DOCNO>") == -1);
+
     LOG.debug("docid: " + doc.getDocid() + " length: " + doc.raw.length());
   }
 }
