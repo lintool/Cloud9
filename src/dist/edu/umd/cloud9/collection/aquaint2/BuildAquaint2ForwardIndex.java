@@ -164,7 +164,7 @@ public class BuildAquaint2ForwardIndex extends Configured implements Tool {
 
 		String inputFile = outputPath + "/" + "part-00000";
 
-		sLogger.info("Writing " + numDocs + " doc offseta to " + indexFile);
+		sLogger.info("Writing " + numDocs + " doc offsets to " + indexFile);
 		FSLineReader reader = new FSLineReader(inputFile, fs);
 
 		FSDataOutputStream writer = fs.create(new Path(indexFile), true);

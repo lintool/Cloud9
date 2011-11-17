@@ -48,9 +48,6 @@ public class Aquaint2DocumentInputFormat extends
     private final LongWritable offset = new LongWritable();
 
     public Aquaint2DocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
-      conf.set(XMLInputFormat.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
-      conf.set(XMLInputFormat.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
-
       reader = new XMLRecordReader(split, conf);
     }
 

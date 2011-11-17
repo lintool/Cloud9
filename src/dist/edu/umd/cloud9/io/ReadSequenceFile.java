@@ -32,7 +32,7 @@ import org.apache.hadoop.io.Writable;
  * in the of a directory, the value specifies the number of key-value pairs to
  * read <i>per file</i>.
  * </p>
- * 
+ *
  * <pre>
  * args: [path] [max-num-of-records] (local)
  * </pre>
@@ -44,84 +44,86 @@ import org.apache.hadoop.io.Writable;
  */
 public class ReadSequenceFile {
 
-	private ReadSequenceFile() {}
+  private ReadSequenceFile() {}
 
-	public static void main(String[] args) throws IOException {
-		if (args.length < 1) {
-			System.out.println("args: [path] [max-num-of-records-per-file]");
-			System.exit(-1);
-		}
+  public static void main(String[] args) throws IOException {
+    if (args.length < 1) {
+      System.out.println("args: [path] [max-num-of-records-per-file]");
+      System.exit(-1);
+    }
 
-		String f = args[0];
+    String f = args[0];
 
-		int max = Integer.MAX_VALUE;
-		if (args.length >= 2) {
-			max = Integer.parseInt(args[1]);
-		}
+    int max = Integer.MAX_VALUE;
+    if (args.length >= 2) {
+      max = Integer.parseInt(args[1]);
+    }
 
-		boolean useLocal = args.length >= 3 && args[2].equals("local") ? true : false;
+    boolean useLocal = args.length >= 3 && args[2].equals("local") ? true : false;
 
-		if (useLocal) {
-			System.out.println("Reading from local filesystem");
-		}
+    if (useLocal) {
+      System.out.println("Reading from local filesystem");
+    }
 
-		FileSystem fs = useLocal? FileSystem.getLocal(new Configuration()) : FileSystem.get(new Configuration());
-		Path p = new Path(f);
+    FileSystem fs = useLocal? FileSystem.getLocal(new Configuration()) : FileSystem.get(new Configuration());
+    Path p = new Path(f);
 
-		if (fs.getFileStatus(p).isDir()) {
-			readSequenceFilesInDir(p, fs, max);
-		} else {
-			readSequenceFile(p, fs, max);
-		}
-	}
+    if (fs.getFileStatus(p).isDir()) {
+      readSequenceFilesInDir(p, fs, max);
+    } else {
+      readSequenceFile(p, fs, max);
+    }
+  }
 
-	private static int readSequenceFile(Path path, FileSystem fs, int max) throws IOException {
-		SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
+  private static int readSequenceFile(Path path, FileSystem fs, int max) throws IOException {
+    SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
 
-		System.out.println("Reading " + path + "...\n");
-		try {
-			System.out.println("Key type: " + reader.getKeyClass().toString());
-			System.out.println("Value type: " + reader.getValueClass().toString() + "\n");
-		} catch (Exception e) {
-			throw new RuntimeException("Error: loading key/value class");
-		}
+    System.out.println("Reading " + path + "...\n");
+    try {
+      System.out.println("Key type: " + reader.getKeyClass().toString());
+      System.out.println("Value type: " + reader.getValueClass().toString() + "\n");
+    } catch (Exception e) {
+      throw new RuntimeException("Error: loading key/value class");
+    }
 
-		Writable key, value;
-		int n = 0;
-		try {
-			key = (Writable) reader.getKeyClass().newInstance();
-			value = (Writable) reader.getValueClass().newInstance();
+    Writable key, value;
+    int n = 0;
+    try {
+      key = (Writable) reader.getKeyClass().newInstance();
+      value = (Writable) reader.getValueClass().newInstance();
 
-			while (reader.next(key, value)) {
-				System.out.println("Record " + n);
-				System.out.println("Key: " + key + "\nValue: " + value);
-				System.out.println("----------------------------------------");
-				n++;
+      while (reader.next(key, value)) {
+        System.out.println("Record " + n);
+        System.out.println("Key: " + key + "\nValue: " + value);
+        System.out.println("----------------------------------------");
+        n++;
 
-				if (n >= max)
-					break;
-			}
-			reader.close();
-			System.out.println(n + " records read.\n");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        if (n >= max)
+          break;
+      }
+      reader.close();
+      System.out.println(n + " records read.\n");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
-		return n;
-	}
+    return n;
+  }
 
-	private static int readSequenceFilesInDir(Path path, FileSystem fs, int max) {
-		int n = 0;
-		try {
-			FileStatus[] stat = fs.listStatus(path);
-			for (int i = 0; i < stat.length; ++i) {
-				n += readSequenceFile(stat[i].getPath(), fs ,max);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+  private static int readSequenceFilesInDir(Path path, FileSystem fs, int max) {
+    int n = 0;
+    try {
+      FileStatus[] stat = fs.listStatus(path);
+      for (int i = 0; i < stat.length; ++i) {
+        if (stat[i].getLen() > 0) {
+          n += readSequenceFile(stat[i].getPath(), fs ,max);
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-		System.out.println(n + " records read in total.");
-		return n;
-	}
+    System.out.println(n + " records read in total.");
+    return n;
+  }
 }
