@@ -124,7 +124,7 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    fs.delete(new Path(outputDirPath), true);
+    fs.delete(outputDirPath, true);
 
     job.waitForCompletion(true);
 
