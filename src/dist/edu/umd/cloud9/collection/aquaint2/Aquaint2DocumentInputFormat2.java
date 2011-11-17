@@ -28,6 +28,9 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat2;
 import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat2.XMLRecordReader;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public class Aquaint2DocumentInputFormat2 extends
     IndexableFileInputFormat2<LongWritable, Aquaint2Document> {
 
@@ -45,10 +48,6 @@ public class Aquaint2DocumentInputFormat2 extends
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context)
         throws IOException, InterruptedException {
-      Configuration conf = context.getConfiguration();
-      conf.set(XMLInputFormat.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
-      conf.set(XMLInputFormat.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
-
       reader.initialize(split, context);
     }
 

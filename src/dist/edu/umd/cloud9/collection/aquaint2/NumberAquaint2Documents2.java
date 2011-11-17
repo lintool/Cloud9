@@ -33,10 +33,16 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 
 public class NumberAquaint2Documents2 extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(NumberAquaint2Documents2.class);
+  {
+    LOG.setLevel(Level.INFO);
+  }
+
   private static enum Count { DOCS };
 
   private static class MyMapper extends Mapper<LongWritable, Aquaint2Document, Text, IntWritable> {
@@ -49,6 +55,8 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
       context.getCounter(Count.DOCS).increment(1);
       docid.set(doc.getDocid());
       context.write(docid, one);
+      LOG.setLevel(Level.INFO);
+      LOG.trace("map output (" + docid + ", " + one + ")");
     }
   }
 
@@ -60,6 +68,8 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
         throws IOException, InterruptedException {
       context.write(key, cnt);
       cnt.set(cnt.get() + 1);
+      LOG.setLevel(Level.INFO);
+      LOG.trace("reduce output (" + key + ", " + cnt + ")");
     }
   }
 
@@ -92,7 +102,10 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     LOG.info(" - Output path: " + outputPath);
     LOG.info(" - Output file: " + outputFile);
 
-    Job job = new Job(getConf(), NumberAquaint2Documents2.class.getSimpleName());
+    Configuration conf = getConf();
+    FileSystem fs = FileSystem.get(conf);
+
+    Job job = new Job(conf, NumberAquaint2Documents2.class.getSimpleName());
     job.setJarByClass(NumberAquaint2Documents2.class);
 
     job.setNumReduceTasks(1);
@@ -110,7 +123,7 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
+    fs.delete(new Path(outputPath), true);
 
     job.waitForCompletion(true);
 

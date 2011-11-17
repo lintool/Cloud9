@@ -55,27 +55,28 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     int day = Integer.parseInt(docid.substring (sourceLength + 6, sourceLength + 8));
     int articleNo = Integer.parseInt(docid.substring (sourceLength + 9, sourceLength + 13));
 
+    LOG.debug("source: " + source + ", year: " + year + ", month: " + month + ", day: " + day + ", articleNo: " + articleNo);
 
     // first traverse the entries to find the month entry and get its days
     int entryId = findEntryId(source, year, month);
     LOG.debug("entryId: " + entryId);
 
-    String entryElt = docidEntries[entryId].split("\t")[day];
-    LOG.debug("entryElt: " + entryElt);
+      String entryElt = docidEntries[entryId].split("\t")[day];
+      LOG.debug("entryElt: " + entryElt);
 
-    // then traverse the days to find the day and skip over missing articles to get the article number
-    String[] entryEltParts = entryElt.split(" ");
-    int result = articleNo + Integer.parseInt(entryEltParts[0]);
-    String[] entryDayParts = entryEltParts[1].split(",");
-    for (int i = 1; i < entryDayParts.length; i++) {
-      int missingNo = Integer.parseInt(entryDayParts[i]);
-      if (articleNo < missingNo) break;
-      LOG.debug("skipping missingNo: " + missingNo);
-      result--;
-    }
+      // then traverse the days to find the day and skip over missing articles to get the article number
+      String[] entryEltParts = entryElt.split(" ");
+      int result = articleNo + Integer.parseInt(entryEltParts[0]);
+      String[] entryDayParts = entryEltParts[1].split(",");
+      for (int i = 1; i < entryDayParts.length; i++) {
+        int missingNo = Integer.parseInt(entryDayParts[i]);
+        if (articleNo < missingNo) break;
+        LOG.debug("skipping missingNo: " + missingNo);
+        result--;
+      }
 
-    LOG.trace("getDocno returning: " + result);
-    return result;
+      LOG.trace("getDocno returning: " + result);
+      return result;
   }
 
   private int findEntryId(String source, int year, int month) {
@@ -170,6 +171,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
 
 
   static public void writeDocnoData(Path input, Path output, FileSystem fs) throws IOException {
+    //LOG.setLevel(Level.TRACE);
     LOG.info("Writing docno data to " + output);
     LineReader reader = new LineReader(fs.open(input));
     List<String> list = Lists.newArrayList();
@@ -189,6 +191,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     while (reader.readLine(line) > 0) {
       String docid = line.toString();
 
+      LOG.debug("reading line docid: " + docid);
       int sourceLength = docid.indexOf("\t") - 13;
       String source = docid.substring(0, sourceLength);
       int year = Integer.parseInt(docid.substring (sourceLength, sourceLength + 4));
@@ -201,7 +204,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       if (! source.equals(prevSource) ||
            year != prevYear ||
            month != prevMonth) {
-        LOG.debug("currentEntry: " + currentEntry);
+        LOG.debug("diff source, year or month, currentEntry: " + currentEntry);
         if (currentEntry != null) {
           list.add(currentEntry.toString());
           list.add("<eol>");
@@ -210,16 +213,19 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
         currentEntry = new StringBuilder(cnt + " " + source + " " + year + " " + month);
         prevDay = 0;
         prevArticleNo = 0;
+        LOG.debug("diff source, year or month, reset currentEntry: " + currentEntry);
       }
       if (day != prevDay) {
         for (int i = prevDay + 1; i <= day; i++) {
           currentEntry.append("\t" + cnt + " " + i);
         }
+        LOG.debug("diff day, currentEntry: " + currentEntry);
         prevArticleNo = 0;
         // writeUTF can't write a string longer than 64k, so we output a chunk at a time
         // here then concatenate strings between <eol>s
         list.add(currentEntry.toString());
         currentEntry = new StringBuilder ();
+        LOG.debug("diff day, reset currentEntry");
       }
       if (articleNo != prevArticleNo + 1) {
         // we have missing article numbers - gather them
@@ -238,6 +244,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
         LOG.info(cnt + " docs");
       }
     }
+    LOG.debug("adding final currentEntry: " + currentEntry);
     list.add(currentEntry.toString());
     list.add("<eof>");
     numEntries++;
@@ -261,6 +268,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
   }
 
   static public String[] readDocnoData(Path p, FileSystem fs) throws IOException {
+    //LOG.setLevel(Level.TRACE);
     LOG.trace("readDocnoData (p: " + p + ", fs)");
     FSDataInputStream in = fs.open(p);
 
