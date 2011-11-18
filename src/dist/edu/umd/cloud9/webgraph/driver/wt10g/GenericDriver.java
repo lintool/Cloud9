@@ -185,7 +185,7 @@ public class GenericDriver extends Configured implements Tool
 
 			// Compute the weights
 			inputPath = outputBase + "/" + outputReverseWebGraph + "/,"
-					+ outputBase + outputHostnames + "/";
+					+ outputBase + "/" + outputHostnames + "/";
 			outputPath = outputBase + "/" + outputWeightedReverseWebGraph + "/";
 
 			conf.set("Cloud9.InputPath", inputPath);
