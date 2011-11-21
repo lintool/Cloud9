@@ -455,7 +455,7 @@ public class GenericExtractLinks extends PowerTool
 					+ mappingFile + " doesn't exist!");
 		}
 
-		DistributedCache.addCacheFile(new URI(mappingFile), conf);
+		DistributedCache.addCacheFile(new Path(mappingFile).toUri(), job.getConfiguration());
 
 		job.setJobName("ExtractLinks");
 		conf.set("mapred.child.java.opts", "-Xmx2048m");
