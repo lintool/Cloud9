@@ -35,7 +35,6 @@ import edu.umd.cloud9.io.pair.PairOfInts;
  * {@link Int2IntOpenHashMap}.
  *
  * @author Jimmy Lin
- *
  */
 public class Int2IntFrequencyDistributionFastutil implements Int2IntFrequencyDistribution {
 	private Int2IntOpenHashMap counts = new Int2IntOpenHashMap();
@@ -195,87 +194,110 @@ public class Int2IntFrequencyDistributionFastutil implements Int2IntFrequencyDis
 
   @Override
   public List<PairOfInts> getEntries(Order ordering) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents();
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount();
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
-  }
+    // Should never get here.
+    return null;  }
 
   @Override
   public List<PairOfInts> getEntries(Order ordering, int n) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents(n);
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount(n);
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending, n);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending, n);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending, n);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending, n);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
+    // Should never get here.
+    return null;
   }
 
-  private List<PairOfInts> getEventsSortedByCount() {
-    List<PairOfInts> list = Lists.newArrayList();
-
-    for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
-      list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
-    }
-
-    Collections.sort(list, new Comparator<PairOfInts>() {
-      public int compare(PairOfInts e1, PairOfInts e2) {
-        if (e1.getRightElement() > e2.getRightElement()) {
-          return -1;
-        }
-
-        if (e1.getRightElement() < e2.getRightElement()) {
-          return 1;
-        }
-
-        if (e1.getLeftElement() == e2.getLeftElement()) {
-          throw new RuntimeException("Event observed twice!");
-        }
-
-        return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+  private final Comparator<PairOfInts> comparatorRightDescending = new Comparator<PairOfInts>() {
+    public int compare(PairOfInts e1, PairOfInts e2) {
+      if (e1.getRightElement() > e2.getRightElement()) {
+        return -1;
       }
-    });
 
-    return list;
-  }
+      if (e1.getRightElement() < e2.getRightElement()) {
+        return 1;
+      }
 
-  private List<PairOfInts> getEventsSortedByCount(int n) {
-    List<PairOfInts> list = getEventsSortedByCount();
-    return list.subList(0, n);
-  }
-
-  private List<PairOfInts> getSortedEvents() {
-    List<PairOfInts> list = Lists.newArrayList();
-
-    for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
-      list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
-    }
-
-    Collections.sort(list, new Comparator<PairOfInts>() {
-      public int compare(PairOfInts e1, PairOfInts e2) {
-        if (e1.getLeftElement() > e2.getLeftElement()) {
-          return 1;
-        }
-
-        if (e1.getLeftElement() < e2.getLeftElement()) {
-          return -1;
-        }
-
+      if (e1.getLeftElement() == e2.getLeftElement()) {
         throw new RuntimeException("Event observed twice!");
       }
-    });
 
+      return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+    }
+  };
+
+  private final Comparator<PairOfInts> comparatorRightAscending = new Comparator<PairOfInts>() {
+    public int compare(PairOfInts e1, PairOfInts e2) {
+      if (e1.getRightElement() > e2.getRightElement()) {
+        return 1;
+      }
+
+      if (e1.getRightElement() < e2.getRightElement()) {
+        return -1;
+      }
+
+      if (e1.getLeftElement() == e2.getLeftElement()) {
+        throw new RuntimeException("Event observed twice!");
+      }
+
+      return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+    }
+  };
+
+  private final Comparator<PairOfInts> comparatorLeftAscending = new Comparator<PairOfInts>() {
+    public int compare(PairOfInts e1, PairOfInts e2) {
+      if (e1.getLeftElement() > e2.getLeftElement()) {
+        return 1;
+      }
+
+      if (e1.getLeftElement() < e2.getLeftElement()) {
+        return -1;
+      }
+
+      throw new RuntimeException("Event observed twice!");
+    }
+  };
+
+  private final Comparator<PairOfInts> comparatorLeftDescending = new Comparator<PairOfInts>() {
+    public int compare(PairOfInts e1, PairOfInts e2) {
+      if (e1.getLeftElement() > e2.getLeftElement()) {
+        return -1;
+      }
+
+      if (e1.getLeftElement() < e2.getLeftElement()) {
+        return 1;
+      }
+
+      throw new RuntimeException("Event observed twice!");
+    }
+  };
+
+  private List<PairOfInts> getEntriesSorted(Comparator<PairOfInts> comparator) {
+    List<PairOfInts> list = Lists.newArrayList();
+
+    for (Int2IntMap.Entry e : counts.int2IntEntrySet()) {
+      list.add(new PairOfInts(e.getIntKey(), e.getIntValue()));
+    }
+
+    Collections.sort(list, comparator);
     return list;
   }
 
-  private List<PairOfInts> getSortedEvents(int n) {
-    List<PairOfInts> list = getSortedEvents();
+  private List<PairOfInts> getEntriesSorted(Comparator<PairOfInts> comparator, int n) {
+    List<PairOfInts> list = getEntriesSorted(comparator);
     return list.subList(0, n);
   }
 }

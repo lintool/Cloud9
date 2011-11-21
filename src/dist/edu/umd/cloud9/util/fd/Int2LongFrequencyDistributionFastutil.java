@@ -31,14 +31,11 @@ import com.google.common.collect.Lists;
 import edu.umd.cloud9.io.pair.PairOfIntLong;
 
 /**
- * Implementation of {@link Int2LongFrequencyDistribution} based on
- * {@link Int2LongOpenHashMap}.
+ * Implementation of {@link Int2LongFrequencyDistribution} based on {@link Int2LongOpenHashMap}.
  *
  * @author Jimmy Lin
- *
  */
 public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyDistribution {
-
 	private Int2LongOpenHashMap counts = new Int2LongOpenHashMap();
 	private long sumOfCounts = 0;
 
@@ -168,7 +165,8 @@ public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyD
 	 */
 	public Iterator<PairOfIntLong> iterator() {
 		return new Iterator<PairOfIntLong>() {
-			private Iterator<Int2LongMap.Entry> iter = Int2LongFrequencyDistributionFastutil.this.counts.int2LongEntrySet().iterator();
+			private Iterator<Int2LongMap.Entry> iter =
+			  Int2LongFrequencyDistributionFastutil.this.counts.int2LongEntrySet().iterator();
 			private final PairOfIntLong pair = new PairOfIntLong();
 
 			@Override
@@ -196,36 +194,36 @@ public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyD
 
   @Override
   public List<PairOfIntLong> getEntries(Order ordering) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents();
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount();
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
+    // Should never get here.
+    return null;
   }
 
   @Override
   public List<PairOfIntLong> getEntries(Order ordering, int n) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents(n);
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount(n);
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending, n);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending, n);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending, n);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending, n);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
+    // Should never get here.
+    return null;
   }
 
-  private List<PairOfIntLong> getEventsSortedByCount() {
-    List<PairOfIntLong> list = Lists.newArrayList();
-
-    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
-      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
-    }
-
-    Collections.sort(list, new Comparator<PairOfIntLong>() {
+  private final Comparator<PairOfIntLong> comparatorRightDescending =
+    new Comparator<PairOfIntLong>() {
       public int compare(PairOfIntLong e1, PairOfIntLong e2) {
         if (e1.getRightElement() > e2.getRightElement()) {
           return -1;
@@ -239,26 +237,31 @@ public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyD
           throw new RuntimeException("Event observed twice!");
         }
 
+       return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
+      }
+    };
+
+  private final Comparator<PairOfIntLong> comparatorRightAscending =
+    new Comparator<PairOfIntLong>() {
+      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
+        if (e1.getRightElement() > e2.getRightElement()) {
+          return 1;
+        }
+
+        if (e1.getRightElement() < e2.getRightElement()) {
+          return -1;
+        }
+
+        if (e1.getLeftElement() == e2.getLeftElement()) {
+          throw new RuntimeException("Event observed twice!");
+        }
+
         return e1.getLeftElement() < e2.getLeftElement() ? -1 : 1;
       }
-    });
+    };
 
-    return list;
-  }
-
-  private List<PairOfIntLong> getEventsSortedByCount(int n) {
-    List<PairOfIntLong> list = getEventsSortedByCount();
-    return list.subList(0, n);
-  }
-
-  private List<PairOfIntLong> getSortedEvents() {
-    List<PairOfIntLong> list = Lists.newArrayList();
-
-    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
-      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
-    }
-
-    Collections.sort(list, new Comparator<PairOfIntLong>() {
+  private final Comparator<PairOfIntLong> comparatorLeftAscending =
+    new Comparator<PairOfIntLong>() {
       public int compare(PairOfIntLong e1, PairOfIntLong e2) {
         if (e1.getLeftElement() > e2.getLeftElement()) {
           return 1;
@@ -270,13 +273,36 @@ public class Int2LongFrequencyDistributionFastutil implements Int2LongFrequencyD
 
         throw new RuntimeException("Event observed twice!");
       }
-    });
+    };
 
+  private final Comparator<PairOfIntLong> comparatorLeftDescending =
+    new Comparator<PairOfIntLong>() {
+      public int compare(PairOfIntLong e1, PairOfIntLong e2) {
+        if (e1.getLeftElement() > e2.getLeftElement()) {
+          return -1;
+        }
+
+        if (e1.getLeftElement() < e2.getLeftElement()) {
+          return 1;
+        }
+
+        throw new RuntimeException("Event observed twice!");
+      }
+    };
+
+  private List<PairOfIntLong> getEntriesSorted(Comparator<PairOfIntLong> comparator) {
+    List<PairOfIntLong> list = Lists.newArrayList();
+
+    for (Int2LongMap.Entry e : counts.int2LongEntrySet()) {
+      list.add(new PairOfIntLong(e.getIntKey(), e.getLongValue()));
+    }
+
+    Collections.sort(list, comparator);
     return list;
   }
 
-  private List<PairOfIntLong> getSortedEvents(int n) {
-    List<PairOfIntLong> list = getSortedEvents();
+  private List<PairOfIntLong> getEntriesSorted(Comparator<PairOfIntLong> comparator, int n) {
+    List<PairOfIntLong> list = getEntriesSorted(comparator);
     return list.subList(0, n);
   }
 }

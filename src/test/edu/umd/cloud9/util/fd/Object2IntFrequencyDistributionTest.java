@@ -36,13 +36,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test
   public void test1Entry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     test1Common(fd);
   }
 
   @Test
   public void test1Fastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     test1Common(fd);
   }
 
@@ -106,13 +108,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test
   public void test2Entry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     test2Common(fd);
   }
 
   @Test
   public void test2Fastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     test2Common(fd);
   }
 
@@ -174,13 +178,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test
   public void test3Entry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     test3Common(fd);
   }
 
   @Test
   public void test3Fastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     test3Common(fd);
   }
 
@@ -204,13 +210,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test(expected = RuntimeException.class)
   public void testFailedDecrement1Entry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testFailedDecrement1Common(fd);
   }
 
   @Test(expected = RuntimeException.class)
   public void testFailedDecrement1Fastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testFailedDecrement1Common(fd);
   }
 
@@ -233,13 +241,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test(expected = RuntimeException.class)
   public void testFailedDecrement2Entry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testFailedDecrement2Common(fd);
   }
 
   @Test(expected = RuntimeException.class)
   public void testFailedDecrement2Fastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testFailedDecrement2Common(fd);
   }
 
@@ -269,13 +279,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test
   public void testMultiIncrementDecrementEntry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testMultiIncrementDecrementCommon(fd);
   }
 
   @Test
   public void testMultiIncrementDecrementFastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testMultiIncrementDecrementCommon(fd);
   }
 
@@ -304,13 +316,15 @@ public class Object2IntFrequencyDistributionTest {
 
   @Test
   public void testGetFrequencySortedEntry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testGetFrequencySortedCommon(fd);
   }
 
   @Test
   public void testGetFrequencySortedFastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testGetFrequencySortedCommon(fd);
   }
 
@@ -326,8 +340,7 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals(6, fd.getNumberOfEvents());
     assertEquals(20, fd.getSumOfCounts());
 
-    List<PairOfObjectInt<String>> list = fd
-        .getEntries(Order.ByRightElementDescending);
+    List<PairOfObjectInt<String>> list = fd.getEntries(Order.ByRightElementDescending);
 
     assertEquals(6, list.size());
 
@@ -344,6 +357,23 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals("f", list.get(5).getLeftElement());
     assertEquals(1, list.get(5).getRightElement());
 
+    list = fd.getEntries(Order.ByRightElementAscending);
+
+    assertEquals(6, list.size());
+
+    assertEquals("f", list.get(0).getLeftElement());
+    assertEquals(1, list.get(0).getRightElement());
+    assertEquals("d", list.get(1).getLeftElement());
+    assertEquals(2, list.get(1).getRightElement());
+    assertEquals("e", list.get(2).getLeftElement());
+    assertEquals(2, list.get(2).getRightElement());
+    assertEquals("a", list.get(3).getLeftElement());
+    assertEquals(5, list.get(3).getRightElement());
+    assertEquals("b", list.get(4).getLeftElement());
+    assertEquals(5, list.get(4).getRightElement());
+    assertEquals("c", list.get(5).getLeftElement());
+    assertEquals(5, list.get(5).getRightElement());
+
     list = fd.getEntries(Order.ByRightElementDescending, 4);
 
     assertEquals(4, list.size());
@@ -356,17 +386,32 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals(5, list.get(2).getRightElement());
     assertEquals("d", list.get(3).getLeftElement());
     assertEquals(2, list.get(3).getRightElement());
+
+    list = fd.getEntries(Order.ByRightElementAscending, 4);
+
+    assertEquals(4, list.size());
+
+    assertEquals("f", list.get(0).getLeftElement());
+    assertEquals(1, list.get(0).getRightElement());
+    assertEquals("d", list.get(1).getLeftElement());
+    assertEquals(2, list.get(1).getRightElement());
+    assertEquals("e", list.get(2).getLeftElement());
+    assertEquals(2, list.get(2).getRightElement());
+    assertEquals("a", list.get(3).getLeftElement());
+    assertEquals(5, list.get(3).getRightElement());
   }
 
   @Test
   public void testGetSortedEventsEntry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testGetSortedEventsCommon(fd);
   }
 
   @Test
   public void testGetSortedEventsFastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testGetSortedEventsCommon(fd);
   }
 
@@ -382,8 +427,7 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals(6, fd.getNumberOfEvents());
     assertEquals(26, fd.getSumOfCounts());
 
-    List<PairOfObjectInt<String>> list = fd
-        .getEntries(Order.ByLeftElementDescending);
+    List<PairOfObjectInt<String>> list = fd.getEntries(Order.ByLeftElementAscending);
 
     assertEquals(6, list.size());
 
@@ -400,7 +444,24 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals("f", list.get(5).getLeftElement());
     assertEquals(9, list.get(5).getRightElement());
 
-    list = fd.getEntries(Order.ByLeftElementDescending, 4);
+    list = fd.getEntries(Order.ByLeftElementDescending);
+
+    assertEquals(6, list.size());
+
+    assertEquals("f", list.get(0).getLeftElement());
+    assertEquals(9, list.get(0).getRightElement());
+    assertEquals("e", list.get(1).getLeftElement());
+    assertEquals(7, list.get(1).getRightElement());
+    assertEquals("d", list.get(2).getLeftElement());
+    assertEquals(3, list.get(2).getRightElement());
+    assertEquals("c", list.get(3).getLeftElement());
+    assertEquals(2, list.get(3).getRightElement());
+    assertEquals("b", list.get(4).getLeftElement());
+    assertEquals(4, list.get(4).getRightElement());
+    assertEquals("a", list.get(5).getLeftElement());
+    assertEquals(1, list.get(5).getRightElement());
+
+    list = fd.getEntries(Order.ByLeftElementAscending, 4);
 
     assertEquals(4, list.size());
 
@@ -412,17 +473,32 @@ public class Object2IntFrequencyDistributionTest {
     assertEquals(2, list.get(2).getRightElement());
     assertEquals("d", list.get(3).getLeftElement());
     assertEquals(3, list.get(3).getRightElement());
+
+    list = fd.getEntries(Order.ByLeftElementDescending, 4);
+
+    assertEquals(4, list.size());
+
+    assertEquals("f", list.get(0).getLeftElement());
+    assertEquals(9, list.get(0).getRightElement());
+    assertEquals("e", list.get(1).getLeftElement());
+    assertEquals(7, list.get(1).getRightElement());
+    assertEquals("d", list.get(2).getLeftElement());
+    assertEquals(3, list.get(2).getRightElement());
+    assertEquals("c", list.get(3).getLeftElement());
+    assertEquals(2, list.get(3).getRightElement());
   }
 
   @Test
   public void testIterableEntry() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionEntry<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionEntry<String>();
     testIterableCommon(fd);
   }
 
   @Test
   public void testIterableFastutil() {
-    Object2IntFrequencyDistribution<String> fd = new Object2IntFrequencyDistributionFastutil<String>();
+    Object2IntFrequencyDistribution<String> fd =
+      new Object2IntFrequencyDistributionFastutil<String>();
     testIterableCommon(fd);
   }
 
