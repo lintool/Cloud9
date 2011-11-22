@@ -63,7 +63,10 @@ public class Aquaint2Document extends Indexable {
       Text line = new Text();
       reader.readLine(line);
       reader.readLine(line);
-      isAquaint2 = line.toString().endsWith("'a2_newswire_xml.dtd'>");
+      // Aquaint: 'aquaint.dtd'
+      // Aquaint2: 'a2_newswire_xml.dtd'
+      // Gigaword: 'gigaword.dtd'
+      isAquaint2 = ! line.toString().endsWith("'aquaint.dtd'>");
     } catch (IOException e) {
       e.printStackTrace();
     }
