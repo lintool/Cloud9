@@ -99,13 +99,13 @@ public class Int2IntFrequencyDistributionFastutil implements Int2IntFrequencyDis
 	}
 
   @Override
-  public float getFrequency(int k) {
-    return (float) counts.get(k) / getSumOfCounts();
+  public double computeRelativeFrequency(int k) {
+    return (double) counts.get(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(int k) {
-    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  public double computeLogRelativeFrequency(int k) {
+    return Math.log(counts.get(k)) - Math.log(getSumOfCounts());
   }
 
 	@Override

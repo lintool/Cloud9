@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -97,13 +98,13 @@ public class Object2IntFrequencyDistributionEntry<K extends Comparable<K>>
 	}
 
   @Override
-  public float getFrequency(K k) {
-    return (float) counts.get(k) / getSumOfCounts();
+  public double computeRelativeFrequency(K k) {
+    return (double) counts.get(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(K k) {
-    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  public double computeLogRelativeFrequency(K k) {
+    return Math.log(counts.get(k)) - Math.log(getSumOfCounts());
   }
 
 	@Override
@@ -131,12 +132,18 @@ public class Object2IntFrequencyDistributionEntry<K extends Comparable<K>>
 		return sumOfCounts;
 	}
 
+	@Override
+  public Set<K> keySet() {
+	  return counts.keySet();
+	}
+
 	/**
 	 * Iterator returns the same object every time, just with a different payload.
 	 */
 	public Iterator<PairOfObjectInt<K>> iterator() {
 		return new Iterator<PairOfObjectInt<K>>() {
-			private Iterator<MapKI.Entry<K>> iter = Object2IntFrequencyDistributionEntry.this.counts.entrySet().iterator();
+			private Iterator<MapKI.Entry<K>> iter =
+			  Object2IntFrequencyDistributionEntry.this.counts.entrySet().iterator();
 			private final PairOfObjectInt<K> pair = new PairOfObjectInt<K>();
 
 			@Override

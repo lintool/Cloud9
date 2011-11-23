@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -98,13 +99,13 @@ public class Object2LongFrequencyDistributionEntry<K extends Comparable<K>>
   }
 
   @Override
-  public float getFrequency(K k) {
-    return (float) counts.get(k) / getSumOfCounts();
+  public double computeRelativeFrequency(K k) {
+    return (double) counts.get(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(K k) {
-    return (float) (Math.log(counts.get(k)) - Math.log(getSumOfCounts()));
+  public double computeLogRelativeFrequency(K k) {
+    return Math.log(counts.get(k)) - Math.log(getSumOfCounts());
   }
 
   @Override
@@ -137,6 +138,11 @@ public class Object2LongFrequencyDistributionEntry<K extends Comparable<K>>
   @Override
   public long getSumOfCounts() {
     return sumOfCounts;
+  }
+
+  @Override
+  public Set<K> keySet() {
+    return counts.keySet();
   }
 
   /**
