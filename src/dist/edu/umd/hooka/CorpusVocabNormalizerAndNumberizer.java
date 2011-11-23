@@ -203,9 +203,7 @@ public class CorpusVocabNormalizerAndNumberizer {
 		}
 
 	}
-	/**
-	 * @param args
-	 */
+
 	@SuppressWarnings({ "deprecation", "null" })
 	public static void preprocessAndNumberizeFiles(Configuration c,
 			String inputPaths, Path output) throws IOException {

@@ -25,8 +25,8 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfLongs;
 
 /**
- * Writable extension of the ArrayListOfLongs class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
+ * Writable extension of the {@code ArrayListOfLongs} class. This class provides an efficient data
+ * structure to store a list of longs for MapReduce jobs.
  *
  * @author Jimmy Lin
  */

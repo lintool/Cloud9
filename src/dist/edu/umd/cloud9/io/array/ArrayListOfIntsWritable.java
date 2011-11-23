@@ -27,10 +27,10 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfInts;
 
 /**
- * Writable extension of the ArrayListOfInts class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
+ * Writable extension of the {@code ArrayListOfInts} class. This class provides an efficient data
+ * structure to store a list of ints for MapReduce jobs.
  *
- * @author Ferhan Ture
+ * @author Jimmy Lin
  */
 public class ArrayListOfIntsWritable extends ArrayListOfInts implements WritableComparable {
 

@@ -292,7 +292,7 @@ public class PhrasePair implements WritableComparable, Cloneable {
 
 	/**
 	 * Returns the smallest consistent phrase pair that contains [e_start,e_end]
-	 * @note This is not efficient- don't use it where speed counts!
+	 * This is not efficient- don't use it where speed counts!
 	 */
 	public SubPhraseCoordinates getMinimalConsistentSubPhraseCoordsContainingESpan(int e_start, int e_end) {
 		int elen = e.size();

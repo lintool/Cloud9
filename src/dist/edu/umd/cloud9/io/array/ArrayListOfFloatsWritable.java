@@ -25,8 +25,8 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfFloats;
 
 /**
- * Writable extension of the ArrayListOfFloats class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
+ * Writable extension of the {@code ArrayListOfFloats} class. This class provides an efficient data
+ * structure to store a list of floats for MapReduce jobs.
  *
  * @author Jimmy Lin
  */

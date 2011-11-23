@@ -91,7 +91,7 @@ public class XMLInputFormat2 extends TextInputFormat {
     /**
      * Called once at initialization.
      *
-     * @param split the split that defines the range of records to read
+     * @param input the split that defines the range of records to read
      * @param context the information about the task
      * @throws IOException
      * @throws InterruptedException

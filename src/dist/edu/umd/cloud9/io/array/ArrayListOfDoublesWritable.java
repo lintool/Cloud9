@@ -25,7 +25,8 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfDoubles;
 
 /**
- * {@link Writable} extension of the {@link ArrayListOfDoubles} class.
+ * Writable extension of the {@code ArrayListOfDoubles} class. This class provides an efficient data
+ * structure to store a list of doubles for MapReduce jobs.
  *
  * @author Jimmy Lin
  */

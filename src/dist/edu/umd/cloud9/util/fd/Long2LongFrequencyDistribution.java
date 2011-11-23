@@ -27,7 +27,7 @@ import edu.umd.cloud9.util.SortableEntries;
 public interface Long2LongFrequencyDistribution extends SortableEntries<PairOfLongs> {
 
   /**
-   * Increments the count of an event {@count key}.
+   * Increments the count of an event {@code key}.
    */
   public void increment(long key);
 

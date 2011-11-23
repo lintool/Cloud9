@@ -24,9 +24,9 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfShorts;
 
 /**
- * Writable extension of the ArrayListOfShorts class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
- * 
+ * Writable extension of the {@code ArrayListOfShorts} class. This class provides an efficient data
+ * structure to store a list of shorts for MapReduce jobs.
+ *
  * @author Ferhan Ture
  */
 public class ArrayListOfShortsWritable extends ArrayListOfShorts implements WritableComparable {
