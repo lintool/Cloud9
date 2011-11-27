@@ -19,10 +19,7 @@ package edu.umd.cloud9.util.array;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.RandomAccess;
-
 import com.google.common.base.Preconditions;
-
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 /**
  * Object representing a list of ints, backed by an resizable-array.
@@ -364,23 +361,22 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
    * Merges two sorted (ascending order) lists into one sorted union.
    *
    * @param sorted list to be merged into this
-   * 
    * @return merged sorted (ascending order) union of this and sortedLst
    */
   public ArrayListOfInts merge(ArrayListOfInts sortedLst) {
     ArrayListOfInts result = new ArrayListOfInts();
     int indA = 0, indB = 0;
-    while(indA<this.size() || indB<sortedLst.size()){
+    while (indA < this.size() || indB < sortedLst.size()) {
       // if we've iterated to the end, then add from the other
-      if(indA==this.size()){
+      if (indA == this.size()) {
         result.add(sortedLst.get(indB++));      
         continue;
-      }else if(indB==sortedLst.size()){
+      }else if (indB == sortedLst.size()) {
         result.add(this.get(indA++));
         continue;
       }else{
         // append the lesser value
-        if(this.get(indA) < sortedLst.get(indB)){
+        if (this.get(indA) < sortedLst.get(indB)) {
           result.add(this.get(indA++));
         }else{
           result.add(sortedLst.get(indB++));        
@@ -440,22 +436,22 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   @Override
   public boolean equals(Object obj) {
     ArrayListOfInts other = (ArrayListOfInts) obj;
-    if(isEmpty()){
-      if(other.isEmpty()){
+    if (isEmpty()) {
+      if (other.isEmpty()) {
         return true;
       }else{
         return false;
       }
     }
 
-    if(size()!=other.size()){
+    if (size() != other.size()) {
       return false;
     }
     
-    for(int i=0;i<size();i++){
-      if(get(i)<other.get(i)){
+    for (int i=0;i<size();i++) {
+      if (get(i) < other.get(i)) {
         return false;
-      }else if(get(i)>other.get(i)){
+      } else if (get(i) > other.get(i)) {
         return false;
       }
     }

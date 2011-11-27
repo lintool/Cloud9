@@ -22,14 +22,12 @@ import java.util.Random;
 import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
-
 public class ArrayListOfIntsTest {
   int neg_one=-1, zero=0, one=1, two=2, three=3, four=4, five=5, six=6, seven=7, nine=9;
 
   @Test
   public void testRemoveWithinBounds(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(one).add(three).add(five).add(seven);
 
     assertTrue(one == a.remove(0));
@@ -43,7 +41,7 @@ public class ArrayListOfIntsTest {
 
   @Test (expected=ArrayIndexOutOfBoundsException.class)
   public void testRemoveOutOfBounds(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(one).add(three).add(five).add(seven);
 
     a.remove(4);
@@ -51,7 +49,7 @@ public class ArrayListOfIntsTest {
 
   @Test (expected=ArrayIndexOutOfBoundsException.class)
   public void testRemoveOutOfBounds2(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(neg_one);
     a.remove(-1);
   }
