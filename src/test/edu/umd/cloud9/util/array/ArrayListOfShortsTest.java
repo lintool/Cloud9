@@ -393,6 +393,81 @@ public class ArrayListOfShortsTest {
 
     assertEquals(0, c.size());
   }
+  
+  @Test
+  public void testMerge1() {
+    //CASE: interleaved
+
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 3);
+    a.add((short) 7);
+    a.add((short) 10);
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 0);
+    b.add((short) 4);
+    b.add((short) 9);
+
+    ArrayListOfShorts c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertEquals(0, c.get(0));
+    assertEquals(3, c.get(1));
+    assertEquals(4, c.get(2));
+    assertEquals(7, c.get(3));
+    assertEquals(9, c.get(4));
+    assertEquals(10, c.get(5));
+
+    // c should be same as c2
+    ArrayListOfShorts c2 = b.merge(a); 
+    assertEquals(c, c2);
+  }
+
+  @Test
+  public void testMerge2() {
+    //CASE: append
+
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 3);
+    a.add((short) 7);
+    a.add((short) 10);
+
+    ArrayListOfShorts b = new ArrayListOfShorts();
+    b.add((short) 11);
+    b.add((short) 19);
+    b.add((short) 21);
+
+    ArrayListOfShorts c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertEquals(3, c.get(0));
+    assertEquals(7, c.get(1));
+    assertEquals(10, c.get(2));
+    assertEquals(11, c.get(3));
+    assertEquals(19, c.get(4));
+    assertEquals(21, c.get(5));
+
+    ArrayListOfShorts c2 = b.merge(a);
+    assertEquals(c, c2);
+ }
+
+  @Test
+  public void testMerge3() {
+    //CASE: one of the lists are empty
+    
+    ArrayListOfShorts a = new ArrayListOfShorts();
+    a.add((short) 3);
+    a.add((short) 7);
+    a.add((short) 10);
+    
+    ArrayListOfShorts b = new ArrayListOfShorts();
+
+    ArrayListOfShorts c = a.merge(b);
+    assertEquals(c, a);
+    
+    ArrayListOfShorts c2 = b.merge(a);
+    assertEquals(c, c2);   
+  }
 
   @Test
   public void testSubList() {

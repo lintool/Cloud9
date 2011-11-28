@@ -281,6 +281,193 @@ public class ArrayListOfFloatsTest {
 		assertEquals(6, list.size);
 		assertEquals(12.0f, list.get(5), 10e-6);
 	}
+	
+  @Test
+  public void testSort() {
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    assertEquals(0, a.size());
+
+    a.add(5.2f).add(6f).add(5.9f).add(4.1f);
+    assertEquals(4, a.size());
+
+    a.sort();
+    assertEquals(4, a.size());
+
+    assertTrue(Math.abs(a.get(0)-4.1) < 0.0001);
+    assertTrue(Math.abs(a.get(1)-5.2) < 0.0001);
+    assertTrue(Math.abs(a.get(2)-5.9) < 0.0001);
+    assertTrue(Math.abs(a.get(3)-6) < 0.0001);
+  }
+
+  @Test
+  public void testIntersection1() {
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(5).add(3).add(1);
+
+    a.sort();
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfFloats c = a.intersection(b);
+
+    assertTrue(Math.abs(1 - c.get(0)) < 0.0001);
+    assertTrue(Math.abs(3 - c.get(1)) < 0.0001);
+    assertTrue(Math.abs(2 - c.size()) < 0.0001);
+  }
+
+  @Test
+  public void testIntersection2() {
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(5);
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfFloats c = a.intersection(b);
+    assertTrue(c.size() == 0);
+  }
+
+  @Test
+  public void testIntersection3() {
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(3).add(5).add(7).add(8).add(9);
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+    b.add(0).add(1).add(2).add(3);
+
+    ArrayListOfFloats c = a.intersection(b);
+
+    assertTrue(Math.abs(3 - c.get(0)) < 0.0001);
+    assertEquals(1, c.size());
+  }
+
+  @Test
+  public void testMerge1() {
+    //CASE: interleaved
+
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+    b.add(0);
+    b.add(4);
+    b.add(9);
+
+    ArrayListOfFloats c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertTrue(Math.abs(0 - c.get(0)) < 0.0001);
+    assertTrue(Math.abs(3 - c.get(1)) < 0.0001);
+    assertTrue(Math.abs(4 - c.get(2)) < 0.0001);
+    assertTrue(Math.abs(7 - c.get(3)) < 0.0001);
+    assertTrue(Math.abs(9 - c.get(4)) < 0.0001);
+    assertTrue(Math.abs(10 - c.get(5)) < 0.0001);
+
+    // c should be same as c2
+    ArrayListOfFloats c2 = b.merge(a); 
+    assertEquals(c, c2);
+  }
+
+  @Test
+  public void testMerge2() {
+    //CASE: append
+
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+    b.add(11);
+    b.add(19);
+    b.add(21);
+
+    ArrayListOfFloats c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertTrue(Math.abs(3 - c.get(0)) < 0.0001);
+    assertTrue(Math.abs(7 - c.get(1)) < 0.0001);
+    assertTrue(Math.abs(10 - c.get(2)) < 0.0001);
+    assertTrue(Math.abs(11 - c.get(3)) < 0.0001);
+    assertTrue(Math.abs(19 - c.get(4)) < 0.0001);
+    assertTrue(Math.abs(21 - c.get(5)) < 0.0001);
+
+    ArrayListOfFloats c2 = b.merge(a);
+    assertEquals(c, c2);
+ }
+
+  @Test
+  public void testMerge3() {
+    //CASE: one of the lists are empty
+    
+    ArrayListOfFloats a = new ArrayListOfFloats();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfFloats b = new ArrayListOfFloats();
+
+    ArrayListOfFloats c = a.merge(b);
+    assertEquals(c, a);
+    
+    ArrayListOfFloats c2 = b.merge(a);
+    assertEquals(c, c2);   
+  }
+  
+  @Test
+  public void testSubList() {
+    ArrayListOfFloats a = new ArrayListOfFloats(new float[] {1, 2, 3, 4, 5, 6, 7});
+    ArrayListOfFloats c = a.subList(1, 5);
+    assertEquals(5, c.size());
+    assertTrue(Math.abs(2 - c.get(0)) < 0.0001);
+    assertTrue(Math.abs(3 - c.get(1)) < 0.0001);
+    assertTrue(Math.abs(4 - c.get(2)) < 0.0001);
+    assertTrue(Math.abs(5 - c.get(3)) < 0.0001);
+    assertTrue(Math.abs(6 - c.get(4)) < 0.0001);
+    
+    a.clear();
+    // Make sure b is a new object.
+    assertEquals(5, c.size());
+    assertTrue(Math.abs(2 - c.get(0)) < 0.0001);
+    assertTrue(Math.abs(3 - c.get(1)) < 0.0001);
+    assertTrue(Math.abs(4 - c.get(2)) < 0.0001);
+    assertTrue(Math.abs(5 - c.get(3)) < 0.0001);
+    assertTrue(Math.abs(6 - c.get(4)) < 0.0001);   
+  }
+
+  @Test
+  public void testAddUnique() {
+    ArrayListOfFloats a = new ArrayListOfFloats(new float[] {1, 2, 3, 4, 5, 6, 7});
+    a.addUnique(new int[] {8, 0, 2, 5, -1, 11, 9});
+    
+    assertEquals(12, a.size());
+    assertTrue(Math.abs(0 - a.get(8)) < 0.0001);
+    assertTrue(Math.abs(-1 - a.get(9)) < 0.0001);
+    assertTrue(Math.abs(11 - a.get(10)) < 0.0001);
+    assertTrue(Math.abs(9 - a.get(11)) < 0.0001);
+  }
+
+  @Test
+  public void testShift() {
+    int size = 100;
+    int shift = 10;
+
+    ArrayListOfFloats list = new ArrayListOfFloats();
+    for (int i = 0; i < size; i++)
+      list.add(i);
+    list.shiftLastNToTop(shift);
+
+    for (int i = 0; i < list.size(); i++) {
+      assertTrue(Math.abs(size - shift + i - list.get(i)) < 0.001);
+    }
+    list.add(size);
+    assertEquals(shift + 1, list.size());
+    assertTrue(Math.abs(size - list.get(shift)) < 0.001);
+
+  }
 
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListOfFloatsTest.class);

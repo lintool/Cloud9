@@ -376,6 +376,81 @@ public class ArrayListOfLongsTest {
   }
 
   @Test
+  public void testMerge1() {
+    //CASE: interleaved
+
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfLongs b = new ArrayListOfLongs();
+    b.add(0);
+    b.add(4);
+    b.add(9);
+
+    ArrayListOfLongs c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertEquals(0, c.get(0));
+    assertEquals(3, c.get(1));
+    assertEquals(4, c.get(2));
+    assertEquals(7, c.get(3));
+    assertEquals(9, c.get(4));
+    assertEquals(10, c.get(5));
+
+    // c should be same as c2
+    ArrayListOfLongs c2 = b.merge(a); 
+    assertEquals(c, c2);
+  }
+
+  @Test
+  public void testMerge2() {
+    //CASE: append
+
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfLongs b = new ArrayListOfLongs();
+    b.add(11);
+    b.add(19);
+    b.add(21);
+
+    ArrayListOfLongs c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertEquals(3, c.get(0));
+    assertEquals(7, c.get(1));
+    assertEquals(10, c.get(2));
+    assertEquals(11, c.get(3));
+    assertEquals(19, c.get(4));
+    assertEquals(21, c.get(5));
+
+    ArrayListOfLongs c2 = b.merge(a);
+    assertEquals(c, c2);
+ }
+
+  @Test
+  public void testMerge3() {
+    //CASE: one of the lists are empty
+    
+    ArrayListOfLongs a = new ArrayListOfLongs();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfLongs b = new ArrayListOfLongs();
+
+    ArrayListOfLongs c = a.merge(b);
+    assertEquals(c, a);
+    
+    ArrayListOfLongs c2 = b.merge(a);
+    assertEquals(c, c2);   
+  }
+  
+  @Test
   public void testSubList() {
     ArrayListOfLongs a = new ArrayListOfLongs(new long[] { 1, 2, 3, 4, 5, 6, 7 });
     ArrayListOfLongs b = a.subList(1, 5);

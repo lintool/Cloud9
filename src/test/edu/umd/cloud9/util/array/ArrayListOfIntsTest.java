@@ -22,28 +22,26 @@ import java.util.Random;
 import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
-
 public class ArrayListOfIntsTest {
   int neg_one=-1, zero=0, one=1, two=2, three=3, four=4, five=5, six=6, seven=7, nine=9;
 
   @Test
   public void testRemoveWithinBounds(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(one).add(three).add(five).add(seven);
-    
+
     assertTrue(one == a.remove(0));
 
     assertTrue(three == a.get(0));
     assertTrue(five == a.get(1));
-    
+
     assertTrue(five == a.remove(1));
     assertTrue(seven == a.get(2)); 
   }
-  
+
   @Test (expected=ArrayIndexOutOfBoundsException.class)
   public void testRemoveOutOfBounds(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(one).add(three).add(five).add(seven);
 
     a.remove(4);
@@ -51,30 +49,30 @@ public class ArrayListOfIntsTest {
 
   @Test (expected=ArrayIndexOutOfBoundsException.class)
   public void testRemoveOutOfBounds2(){
-    ArrayListOfIntsWritable a = new ArrayListOfIntsWritable();
+    ArrayListOfInts a = new ArrayListOfInts();
     a.add(neg_one);
     a.remove(-1);
   }
-  
-	@Test
-	public void testBasic1() {
-		int size = 100000;
-		Random r = new Random();
-		int[] ints = new int[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
-			list.add(k);
-			ints[i] = k;
-		}
+  @Test
+  public void testBasic1() {
+    int size = 100000;
+    Random r = new Random();
+    int[] ints = new int[size];
 
-		for (int i = 0; i < size; i++) {
-			int v = list.get(i);
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      int k = r.nextInt(size);
+      list.add(k);
+      ints[i] = k;
+    }
 
-			assertEquals(ints[i], v);
-		}
-	}
+    for (int i = 0; i < size; i++) {
+      int v = list.get(i);
+
+      assertEquals(ints[i], v);
+    }
+  }
 
   @Test
   public void testArrayConstructor() {
@@ -92,130 +90,130 @@ public class ArrayListOfIntsTest {
     assertEquals(5, arr[4]);
   }
 
-	@Test
-	public void testRemove() {
-		ArrayListOfInts list = new ArrayListOfInts();
-		for ( int i=0; i<10; i++) {
-			list.add(i);
-		}
+  @Test
+  public void testRemove() {
+    ArrayListOfInts list = new ArrayListOfInts();
+    for ( int i=0; i<10; i++) {
+      list.add(i);
+    }
 
-		list.remove(list.indexOf(5));
-		assertEquals(9, list.size());
-		assertEquals(0, list.get(0));
-		assertEquals(1, list.get(1));
-		assertEquals(2, list.get(2));
-		assertEquals(3, list.get(3));
-		assertEquals(4, list.get(4));
-		assertEquals(6, list.get(5));
-		assertEquals(7, list.get(6));
-		assertEquals(8, list.get(7));
-		assertEquals(9, list.get(8));
+    list.remove(list.indexOf(5));
+    assertEquals(9, list.size());
+    assertEquals(0, list.get(0));
+    assertEquals(1, list.get(1));
+    assertEquals(2, list.get(2));
+    assertEquals(3, list.get(3));
+    assertEquals(4, list.get(4));
+    assertEquals(6, list.get(5));
+    assertEquals(7, list.get(6));
+    assertEquals(8, list.get(7));
+    assertEquals(9, list.get(8));
 
-		list.remove(list.indexOf(9));
-		assertEquals(8, list.size());
-		assertEquals(0, list.get(0));
-		assertEquals(1, list.get(1));
-		assertEquals(2, list.get(2));
-		assertEquals(3, list.get(3));
-		assertEquals(4, list.get(4));
-		assertEquals(6, list.get(5));
-		assertEquals(7, list.get(6));
-		assertEquals(8, list.get(7));
-	}
+    list.remove(list.indexOf(9));
+    assertEquals(8, list.size());
+    assertEquals(0, list.get(0));
+    assertEquals(1, list.get(1));
+    assertEquals(2, list.get(2));
+    assertEquals(3, list.get(3));
+    assertEquals(4, list.get(4));
+    assertEquals(6, list.get(5));
+    assertEquals(7, list.get(6));
+    assertEquals(8, list.get(7));
+  }
 
-	@Test
-	public void testUpdate() {
-		int size = 100000;
-		Random r = new Random();
-		int[] ints = new int[size];
+  @Test
+  public void testUpdate() {
+    int size = 100000;
+    Random r = new Random();
+    int[] ints = new int[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
-			list.add(k);
-			ints[i] = k;
-		}
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      int k = r.nextInt(size);
+      list.add(k);
+      ints[i] = k;
+    }
 
-		assertEquals(size, list.size());
+    assertEquals(size, list.size());
 
-		for (int i = 0; i < size; i++) {
-			list.set(i, ints[i] + 1);
-		}
+    for (int i = 0; i < size; i++) {
+      list.set(i, ints[i] + 1);
+    }
 
-		assertEquals(size, list.size());
+    assertEquals(size, list.size());
 
-		for (int i = 0; i < size; i++) {
-			int v = list.get(i);
+    for (int i = 0; i < size; i++) {
+      int v = list.get(i);
 
-			assertEquals(ints[i] + 1, v);
-		}
+      assertEquals(ints[i] + 1, v);
+    }
 
-	}
+  }
 
-	@Test
-	public void testTrim1() {
-		int size = 89;
-		Random r = new Random();
-		int[] ints = new int[size];
+  @Test
+  public void testTrim1() {
+    int size = 89;
+    Random r = new Random();
+    int[] ints = new int[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
-			list.add(k);
-			ints[i] = k;
-		}
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      int k = r.nextInt(size);
+      list.add(k);
+      ints[i] = k;
+    }
 
-		for (int i = 0; i < size; i++) {
-			int v = list.get(i);
+    for (int i = 0; i < size; i++) {
+      int v = list.get(i);
 
-			assertEquals(ints[i], v);
-		}
+      assertEquals(ints[i], v);
+    }
 
-		int[] rawArray = list.getArray();
-		int lenBefore = rawArray.length;
+    int[] rawArray = list.getArray();
+    int lenBefore = rawArray.length;
 
-		list.trimToSize();
-		int[] rawArrayAfter = list.getArray();
-		int lenAfter = rawArrayAfter.length;
+    list.trimToSize();
+    int[] rawArrayAfter = list.getArray();
+    int lenAfter = rawArrayAfter.length;
 
-		assertEquals(89, lenAfter);
-		assertTrue(lenBefore > lenAfter);
-	}
+    assertEquals(89, lenAfter);
+    assertTrue(lenBefore > lenAfter);
+  }
 
-	@Test
-	public void testClone() {
-		int size = 100000;
-		Random r = new Random();
-		int[] ints = new int[size];
+  @Test
+  public void testClone() {
+    int size = 100000;
+    Random r = new Random();
+    int[] ints = new int[size];
 
-		ArrayListOfInts list1 = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
-			list1.add(k);
-			ints[i] = k;
-		}
+    ArrayListOfInts list1 = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      int k = r.nextInt(size);
+      list1.add(k);
+      ints[i] = k;
+    }
 
-		ArrayListOfInts list2 = list1.clone();
+    ArrayListOfInts list2 = list1.clone();
 
-		assertEquals(size, list1.size());
-		assertEquals(size, list2.size());
+    assertEquals(size, list1.size());
+    assertEquals(size, list2.size());
 
-		for (int i = 0; i < size; i++) {
-			list2.set(i, ints[i] + 1);
-		}
+    for (int i = 0; i < size; i++) {
+      list2.set(i, ints[i] + 1);
+    }
 
-		// values in old list should not have changed
-		assertEquals(size, list1.size());
-		for (int i = 0; i < size; i++) {
-			assertEquals(ints[i], list1.get(i));
-		}
+    // values in old list should not have changed
+    assertEquals(size, list1.size());
+    for (int i = 0; i < size; i++) {
+      assertEquals(ints[i], list1.get(i));
+    }
 
-		// however, values in new list should have changed
-		assertEquals(size, list1.size());
-		for (int i = 0; i < size; i++) {
-			assertEquals(ints[i] + 1, list2.get(i));
-		}
-	}
+    // however, values in new list should have changed
+    assertEquals(size, list1.size());
+    for (int i = 0; i < size; i++) {
+      assertEquals(ints[i] + 1, list2.get(i));
+    }
+  }
 
   @Test
   public void testToString1() {
@@ -228,95 +226,95 @@ public class ArrayListOfIntsTest {
     assertEquals("[]", new ArrayListOfInts().toString());
   }
 
-	@Test
-	public void testToString2() {
-		int size = 10;
-		Random r = new Random();
+  @Test
+  public void testToString2() {
+    int size = 10;
+    Random r = new Random();
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			list.add(r.nextInt(100000));
-		}
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      list.add(r.nextInt(100000));
+    }
 
-		String out = list.toString();
-		for (int i = 0; i < size; i++) {
-			int v = list.get(i);
+    String out = list.toString();
+    for (int i = 0; i < size; i++) {
+      int v = list.get(i);
 
-			// Make sure the first 10 elements are printed out.
-			assertTrue(out.indexOf(new Integer(v).toString()) != -1);
-		}
+      // Make sure the first 10 elements are printed out.
+      assertTrue(out.indexOf(new Integer(v).toString()) != -1);
+    }
 
-		for (int i = 0; i < size; i++) {
-			list.add(r.nextInt(100000));
-		}
+    for (int i = 0; i < size; i++) {
+      list.add(r.nextInt(100000));
+    }
 
-		out = list.toString();
-		for (int i = size; i < size+size; i++) {
-			int v = list.get(i);
+    out = list.toString();
+    for (int i = size; i < size+size; i++) {
+      int v = list.get(i);
 
-			// Make sure these elements are not printed out.
-			assertTrue(out.indexOf(new Integer(v).toString()) == -1);
-		}
+      // Make sure these elements are not printed out.
+      assertTrue(out.indexOf(new Integer(v).toString()) == -1);
+    }
 
-		assertTrue(out.indexOf(size + " more") != -1);
-	}
+    assertTrue(out.indexOf(size + " more") != -1);
+  }
 
-	@Test
-	public void testIterable() {
-		int size = 1000;
-		Random r = new Random();
-		int[] ints = new int[size];
+  @Test
+  public void testIterable() {
+    int size = 1000;
+    Random r = new Random();
+    int[] ints = new int[size];
 
-		ArrayListOfInts list = new ArrayListOfInts();
-		for (int i = 0; i < size; i++) {
-			int k = r.nextInt(size);
-			list.add(k);
-			ints[i] = k;
-		}
+    ArrayListOfInts list = new ArrayListOfInts();
+    for (int i = 0; i < size; i++) {
+      int k = r.nextInt(size);
+      list.add(k);
+      ints[i] = k;
+    }
 
-		int i=0;
-		for ( Integer v : list) {
-			assertEquals(ints[i++], (int) v);
-		}
+    int i=0;
+    for ( Integer v : list) {
+      assertEquals(ints[i++], (int) v);
+    }
 
-	}
+  }
 
-	@Test
-	public void testSetSize() {
-		ArrayListOfInts list = new ArrayListOfInts();
+  @Test
+  public void testSetSize() {
+    ArrayListOfInts list = new ArrayListOfInts();
 
-		list.add(5);
-		assertEquals(1, list.size);
-		assertEquals(5, list.get(0));
+    list.add(5);
+    assertEquals(1, list.size);
+    assertEquals(5, list.get(0));
 
-		list.setSize(5);
-		assertEquals(5, list.size);
-		assertEquals(0, list.get(1));
-		assertEquals(0, list.get(2));
-		assertEquals(0, list.get(3));
-		assertEquals(0, list.get(4));
+    list.setSize(5);
+    assertEquals(5, list.size);
+    assertEquals(0, list.get(1));
+    assertEquals(0, list.get(2));
+    assertEquals(0, list.get(3));
+    assertEquals(0, list.get(4));
 
-		list.add(12);
-		assertEquals(6, list.size);
-		assertEquals(12, list.get(5));
-	}
+    list.add(12);
+    assertEquals(6, list.size);
+    assertEquals(12, list.get(5));
+  }
 
-	@Test
-	public void testSort() {
-	  ArrayListOfInts a = new ArrayListOfInts();
-	  assertEquals(0, a.size());
+  @Test
+  public void testSort() {
+    ArrayListOfInts a = new ArrayListOfInts();
+    assertEquals(0, a.size());
 
-	  a.add(5).add(6).add(1).add(4);
+    a.add(5).add(6).add(1).add(4);
     assertEquals(4, a.size());
 
-	  a.sort();
+    a.sort();
     assertEquals(4, a.size());
 
     assertEquals(1, a.get(0));
     assertEquals(4, a.get(1));
     assertEquals(5, a.get(2));
     assertEquals(6, a.get(3));
-	}
+  }
 
   @Test
   public void testIntersection1() {
@@ -362,18 +360,80 @@ public class ArrayListOfIntsTest {
   }
 
   @Test
-  public void testIntersection4() {
+  public void testMerge1() {
+    //CASE: interleaved
+
     ArrayListOfInts a = new ArrayListOfInts();
     a.add(3);
+    a.add(7);
+    a.add(10);
 
     ArrayListOfInts b = new ArrayListOfInts();
     b.add(0);
+    b.add(4);
+    b.add(9);
 
-    ArrayListOfInts c = a.intersection(b);
+    ArrayListOfInts c = a.merge(b);
 
-    assertEquals(0, c.size());
+    assertEquals(6, c.size());
+    assertEquals(0, c.get(0));
+    assertEquals(3, c.get(1));
+    assertEquals(4, c.get(2));
+    assertEquals(7, c.get(3));
+    assertEquals(9, c.get(4));
+    assertEquals(10, c.get(5));
+
+    // c should be same as c2
+    ArrayListOfInts c2 = b.merge(a); 
+    assertEquals(c, c2);
   }
 
+  @Test
+  public void testMerge2() {
+    //CASE: append
+
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfInts b = new ArrayListOfInts();
+    b.add(11);
+    b.add(19);
+    b.add(21);
+
+    ArrayListOfInts c = a.merge(b);
+
+    assertEquals(6, c.size());
+    assertEquals(3, c.get(0));
+    assertEquals(7, c.get(1));
+    assertEquals(10, c.get(2));
+    assertEquals(11, c.get(3));
+    assertEquals(19, c.get(4));
+    assertEquals(21, c.get(5));
+
+    ArrayListOfInts c2 = b.merge(a);
+    assertEquals(c, c2);
+ }
+
+  @Test
+  public void testMerge3() {
+    //CASE: one of the lists are empty
+    
+    ArrayListOfInts a = new ArrayListOfInts();
+    a.add(3);
+    a.add(7);
+    a.add(10);
+
+    ArrayListOfInts b = new ArrayListOfInts();
+
+    ArrayListOfInts c = a.merge(b);
+    assertEquals(c, a);
+    
+    ArrayListOfInts c2 = b.merge(a);
+    assertEquals(c, c2);   
+  }
+  
   @Test
   public void testSubList() {
     ArrayListOfInts a = new ArrayListOfInts(new int[] {1, 2, 3, 4, 5, 6, 7});
@@ -424,8 +484,8 @@ public class ArrayListOfIntsTest {
     assertEquals(size, list.get(shift));
   }
 
-	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
-	}
-	
+  public static junit.framework.Test suite() {
+    return new JUnit4TestAdapter(ArrayListOfIntsTest.class);
+  }
+
 }
