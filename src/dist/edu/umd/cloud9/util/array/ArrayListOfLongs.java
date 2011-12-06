@@ -68,8 +68,8 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
   /**
    * Constructs a list populated with longs in range [first, last).
    *
-   * @param first the smallest int in the range (inclusive)
-   * @param last  the largest int in the range (exclusive)
+   * @param first the smallest element in the range (inclusive)
+   * @param last  the largest element in the range (exclusive)
    */
   public ArrayListOfLongs(int first, int last) {
     this(last - first);
@@ -318,7 +318,6 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
     Arrays.sort(getArray());
   }
 
-
   /**
    * Computes the intersection of two sorted lists of unique longs.
    *
@@ -359,11 +358,41 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
   }
 
   /**
+   * Merges two sorted (ascending order) lists into one sorted union.
+   *
+   * @param sorted list to be merged into this
+   * @return merged sorted (ascending order) union of this and sortedLst
+   */
+  public ArrayListOfLongs merge(ArrayListOfLongs sortedLst) {
+    ArrayListOfLongs result = new ArrayListOfLongs();
+    int indA = 0, indB = 0;
+    while (indA < this.size() || indB < sortedLst.size()) {
+      // if we've iterated to the end, then add from the other
+      if (indA == this.size()) {
+        result.add(sortedLst.get(indB++));
+        continue;
+      } else if (indB == sortedLst.size()) {
+        result.add(this.get(indA++));
+        continue;
+      } else {
+        // append the lesser value
+        if (this.get(indA) < sortedLst.get(indB)) {
+          result.add(this.get(indA++));
+        } else {
+          result.add(sortedLst.get(indB++));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Extracts a sub-list.
    *
    * @param start  first index to be included in sub-list
    * @param end    last index to be included in sub-list
-   * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
+   * @return a new ArrayListOfLongs from <code>start</code> to <code>end</code>
    */
   public ArrayListOfLongs subList(int start, int end) {
     ArrayListOfLongs sublst = new ArrayListOfLongs(end - start + 1);
@@ -385,5 +414,48 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
         add(elt);
       }
     }
+  }
+  
+  public void shiftLastNToTop(int n) {
+    if (n >= size) {
+      return;
+    }
+    int j = 0;
+    for (int i = size - n; i < size; i++) {
+      array[j] = array[i];
+      j++;
+    }
+    size = n;
+  }
+  
+  /**
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
+   *
+   * @param obj other object this is compared against
+   */
+  @Override
+  public boolean equals(Object obj) {
+    ArrayListOfLongs other = (ArrayListOfLongs) obj;
+    if (isEmpty()) {
+      if (other.isEmpty()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (size() != other.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < size(); i++) {
+      if (get(i) < other.get(i)) {
+        return false;
+      } else if (get(i) > other.get(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -65,6 +65,21 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
 		size = array.length;
 	}
 
+  /**
+   * Constructs a list populated with longs in range [first, last).
+   *
+   * @param first the smallest element in the range (inclusive)
+   * @param last  the largest element in the range (exclusive)
+   */
+  public ArrayListOfFloats(int first, int last) {
+    this(last - first);
+
+    int j = 0;
+    for (int i = first; i < last; i++) {
+      this.add(j++, i);
+    }
+  }
+  
 	/**
 	 * Trims the capacity of this object to be the list's current size. An
 	 * application can use this operation to minimize the memory footprint of
@@ -301,5 +316,147 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
   public void sort() {
     trimToSize();
     Arrays.sort(getArray());
+  }
+
+  /**
+   * Computes the intersection of two sorted lists of unique elements.
+   *
+   * @param other other list to be intersected with this list
+   * @return intersection of the two lists
+   */
+  public ArrayListOfFloats intersection(ArrayListOfFloats other) {
+    ArrayListOfFloats result = new ArrayListOfFloats();
+    int len, curPos = 0;
+    if (size() < other.size()) {
+      len = size();
+      for (int i = 0; i < len; i++) {
+        float elt = this.get(i);
+        while (curPos < other.size() && other.get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= other.size()) {
+          return result;
+        } else if (other.get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    } else {
+      len = other.size();
+      for (int i = 0; i < len; i++) {
+        float elt = other.get(i);
+        while (curPos < size() && get(curPos) < elt) {
+          curPos++;
+        }
+        if (curPos >= size()) {
+          return result;
+        } else if (get(curPos) == elt) {
+          result.add(elt);
+        }
+      }
+    }
+    return result;
+  }
+
+
+  /**
+   * Merges two sorted (ascending order) lists into one sorted union.
+   *
+   * @param sorted list to be merged into this
+   * @return merged sorted (ascending order) union of this and sortedLst
+   */
+  public ArrayListOfFloats merge(ArrayListOfFloats sortedLst) {
+    ArrayListOfFloats result = new ArrayListOfFloats();
+    int indA = 0, indB = 0;
+    while (indA < this.size() || indB < sortedLst.size()) {
+      // if we've iterated to the end, then add from the other
+      if (indA == this.size()) {
+        result.add(sortedLst.get(indB++));
+        continue;
+      } else if (indB == sortedLst.size()) {
+        result.add(this.get(indA++));
+        continue;
+      } else {
+        // append the lesser value
+        if (this.get(indA) < sortedLst.get(indB)) {
+          result.add(this.get(indA++));
+        } else {
+          result.add(sortedLst.get(indB++));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Extracts a sub-list.
+   *
+   * @param start  first index to be included in sub-list
+   * @param end    last index to be included in sub-list
+   * @return a new ArrayListOfFloats from <code>start</code> to <code>end</code>
+   */
+  public ArrayListOfFloats subList(int start, int end) {
+    ArrayListOfFloats sublst = new ArrayListOfFloats(end - start + 1);
+    for (int i = start; i <= end; i++) {
+      sublst.add(get(i));
+    }
+    return sublst;
+  }
+
+  /**
+   * Add all ints in the specified array into this list, ignoring duplicates.
+   *
+   * @param arr array of ints to add to this object
+   */
+  public void addUnique(int[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+      int elt = arr[i];
+      if (!contains(elt)) {
+        add(elt);
+      }
+    }
+  }
+
+  public void shiftLastNToTop(int n) {
+    if (n >= size) {
+      return;
+    }
+    int j = 0;
+    for (int i = size - n; i < size; i++) {
+      array[j] = array[i];
+      j++;
+    }
+    size = n;
+  }
+
+  /**
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
+   *
+   * @param obj other object this is compared against
+   */
+  @Override
+  public boolean equals(Object obj) {
+    ArrayListOfFloats other = (ArrayListOfFloats) obj;
+    if (isEmpty()) {
+      if (other.isEmpty()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (size() != other.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < size(); i++) {
+      if (get(i) < other.get(i)) {
+        return false;
+      } else if (get(i) > other.get(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

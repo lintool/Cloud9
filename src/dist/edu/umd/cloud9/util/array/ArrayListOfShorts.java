@@ -319,7 +319,6 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
     Arrays.sort(getArray());
   }
 
-
   /**
    * Computes the intersection of two sorted lists of unique shorts.
    *
@@ -360,6 +359,36 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
   }
 
   /**
+   * Merges two sorted (ascending order) lists into one sorted union.
+   *
+   * @param sorted list to be merged into this
+   * @return merged sorted (ascending order) union of this and sortedLst
+   */
+  public ArrayListOfShorts merge(ArrayListOfShorts sortedLst) {
+    ArrayListOfShorts result = new ArrayListOfShorts();
+    int indA = 0, indB = 0;
+    while (indA < this.size() || indB < sortedLst.size()) {
+      // if we've iterated to the end, then add from the other
+      if (indA == this.size()) {
+        result.add(sortedLst.get(indB++));
+        continue;
+      } else if (indB == sortedLst.size()) {
+        result.add(this.get(indA++));
+        continue;
+      } else {
+        // append the lesser value
+        if (this.get(indA) < sortedLst.get(indB)) {
+          result.add(this.get(indA++));
+        } else {
+          result.add(sortedLst.get(indB++));
+        }
+      }
+    }
+
+    return result;
+  }
+  
+  /**
    * Extracts a sub-list.
    *
    * @param start  first index to be included in sub-list
@@ -386,5 +415,48 @@ public class ArrayListOfShorts implements RandomAccess, Cloneable, Iterable<Shor
         add(elt);
       }
     }
+  }
+  
+  public void shiftLastNToTop(int n) {
+    if (n >= size) {
+      return;
+    }
+    int j = 0;
+    for (int i = size - n; i < size; i++) {
+      array[j] = array[i];
+      j++;
+    }
+    size = n;
+  }
+
+  /**
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
+   *
+   * @param obj other object this is compared against
+   */
+  @Override
+  public boolean equals(Object obj) {
+    ArrayListOfShorts other = (ArrayListOfShorts) obj;
+    if (isEmpty()) {
+      if (other.isEmpty()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    if (size() != other.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < size(); i++) {
+      if (get(i) < other.get(i)) {
+        return false;
+      } else if (get(i) > other.get(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
