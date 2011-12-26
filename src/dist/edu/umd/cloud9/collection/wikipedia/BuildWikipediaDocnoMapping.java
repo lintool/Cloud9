@@ -155,7 +155,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
     String outputPath = cmdline.getOptionValue(OUTPUT_PATH_OPTION);
     String outputFile = cmdline.getOptionValue(OUTPUT_FILE_OPTION);
-    boolean keepAll = cmdline.hasOption(KEEP_ALL_OPTION);
+    boolean keepAll = Boolean.parseBoolean(cmdline.getOptionValue(KEEP_ALL_OPTION));
 
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - input: " + inputPath);

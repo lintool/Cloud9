@@ -31,16 +31,14 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop <code>InputFormat</code> for processing Wikipedia pages from the XML
- * dumps.
- * 
+ * Hadoop {@code InputFormat} for processing Wikipedia pages from the XML dumps.
+ *
  * @author Jimmy Lin
  */
 @SuppressWarnings("deprecation")
 public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
-
 	/**
-	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
+	 * Returns a {@code RecordReader} for this {@code InputFormat}.
 	 */
 	public RecordReader<LongWritable, WikipediaPage> getRecordReader(InputSplit inputSplit,
 			JobConf conf, Reporter reporter) throws IOException {
@@ -48,8 +46,7 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 	}
 
 	/**
-	 * Hadoop <code>RecordReader</code> for reading Wikipedia pages from the
-	 * XML dumps.
+	 * Hadoop {@code RecordReader} for reading Wikipedia pages from the XML dumps.
 	 */
 	public static class WikipediaPageRecordReader implements RecordReader<LongWritable, WikipediaPage> {
 		private XMLRecordReader reader;
@@ -57,7 +54,7 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWrita
 		private LongWritable offset = new LongWritable();
 
 		/**
-		 * Creates a <code>WikipediaPageRecordReader</code>.
+		 * Creates a {@code WikipediaPageRecordReader}.
 		 */
 		public WikipediaPageRecordReader(FileSplit split, JobConf conf) throws IOException {
 			conf.set(XMLInputFormat.START_TAG_KEY, WikipediaPage.XML_START_TAG);
