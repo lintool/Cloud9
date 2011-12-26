@@ -361,7 +361,7 @@ public class ArrayListOfFloats implements RandomAccess, Cloneable, Iterable<Floa
   /**
    * Merges two sorted (ascending order) lists into one sorted union.
    *
-   * @param sorted list to be merged into this
+   * @param sortedLst list to be merged into this
    * @return merged sorted (ascending order) union of this and sortedLst
    */
   public ArrayListOfFloats merge(ArrayListOfFloats sortedLst) {

@@ -360,7 +360,7 @@ public class ArrayListOfLongs implements RandomAccess, Cloneable, Iterable<Long>
   /**
    * Merges two sorted (ascending order) lists into one sorted union.
    *
-   * @param sorted list to be merged into this
+   * @param sortedLst list to be merged into this
    * @return merged sorted (ascending order) union of this and sortedLst
    */
   public ArrayListOfLongs merge(ArrayListOfLongs sortedLst) {
