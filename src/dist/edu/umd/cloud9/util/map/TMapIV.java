@@ -434,11 +434,6 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
   public V put(int key, V value) {
     Entry<V> t = root;
     if (t == null) {
-      // TBD:
-      // 5045147: (coll) Adding null to an empty TreeSet should
-      // throw NullPointerException
-      //
-      // compare(key, key); // type check
       root = new Entry<V>(key, value, null);
       size = 1;
       modCount++;
@@ -446,7 +441,6 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
     }
     int cmp;
     Entry<V> parent;
-    // split comparator and comparable paths
     do {
       parent = t;
       cmp = compare(key, t.key);
