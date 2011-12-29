@@ -8,7 +8,6 @@
 package edu.umd.cloud9.util.map;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -117,8 +116,7 @@ public interface MapIF {
 
   /**
    * Returns a {@link Set} view of the mappings contained in this map. The set is backed by the map,
-   * so changes to the map are reflected in the set, and vice-versa. See {@link Map#entrySet} for
-   * more details.
+   * so changes to the map are reflected in the set, and vice-versa.
    *
    * @return a set view of the mappings contained in this map
    */
@@ -155,8 +153,7 @@ public interface MapIF {
      * the backing map. The behavior of this call is undefined if the mapping has already been
      * removed from the map (by the iterator's <tt>remove</tt> operation).
      *
-     * @param value
-     *          new value to be stored in this entry
+     * @param value new value to be stored in this entry
      * @return old value corresponding to the entry
      */
     float setValue(float value);
@@ -165,28 +162,15 @@ public interface MapIF {
      * Compares the specified object with this entry for equality. Returns <tt>true</tt> if the
      * given object is also a map entry and the two entries represent the same mapping.
      *
-     * @param o
-     *          object to be compared for equality with this map entry
+     * @param o object to be compared for equality with this map entry
      * @return <tt>true</tt> if the specified object is equal to this map entry
      */
     boolean equals(Object o);
 
     /**
-     * Returns the hash code value for this map entry. The hash code of a map entry <tt>e</tt> is
-     * defined to be:
-     *
-     * <pre>
-     * e.getKey() &circ; e.getValue().hashCode()
-     * </pre>
-     *
-     * This ensures that <tt>e1.equals(e2)</tt> implies that <tt>e1.hashCode()==e2.hashCode()</tt>
-     * for any two Entries <tt>e1</tt> and <tt>e2</tt>, as required by the general contract of
-     * <tt>Object.hashCode</tt>.
+     * Returns the hash code value for this map entry.
      *
      * @return the hash code value for this map entry
-     * @see Object#hashCode()
-     * @see Object#equals(Object)
-     * @see #equals(Object)
      */
     int hashCode();
   }
@@ -200,8 +184,7 @@ public interface MapIF {
    * <tt>m1.entrySet().equals(m2.entrySet())</tt>. This ensures that the <tt>equals</tt> method
    * works properly across different implementations of the <tt>MapIF</tt> interface.
    *
-   * @param o
-   *          object to be compared for equality with this map
+   * @param o object to be compared for equality with this map
    * @return <tt>true</tt> if the specified object is equal to this map
    */
   boolean equals(Object o);
@@ -213,9 +196,6 @@ public interface MapIF {
    * <tt>m1</tt> and <tt>m2</tt>, as required by the general contract of {@link Object#hashCode}.
    *
    * @return the hash code value for this map
-   * @see MapIF.Entry#hashCode()
-   * @see Object#equals(Object)
-   * @see #equals(Object)
    */
   int hashCode();
 }
