@@ -68,7 +68,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
    * Constructs a list populated with ints in range [first, last).
    *
    * @param first the smallest int in the range (inclusive)
-   * @param last  the largest int in the range (exclusive)
+   * @param last the largest int in the range (exclusive)
    */
   public ArrayListOfInts(int first, int last) {
     this(last - first);
@@ -80,9 +80,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Trims the capacity of this object to be the list's current size. An
-   * application can use this operation to minimize the memory footprint of
-   * this object.
+   * Trims the capacity of this object to be the list's current size. An application can use this
+   * operation to minimize the memory footprint of this object.
    */
   public void trimToSize() {
     int oldCapacity = array.length;
@@ -92,9 +91,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Increases the capacity of this object, if necessary, to ensure that it
-   * can hold at least the number of elements specified by the minimum
-   * capacity argument.
+   * Increases the capacity of this object, if necessary, to ensure that it can hold at least the
+   * number of elements specified by the minimum capacity argument.
    *
    * @param minCapacity the desired minimum capacity
    */
@@ -142,8 +140,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Returns the index of the first occurrence of the specified element in
-   * this list, or -1 if this list does not contain the element.
+   * Returns the index of the first occurrence of the specified element in this list, or -1 if this
+   * list does not contain the element.
    */
   public int indexOf(int n) {
     for (int i = 0; i < size; i++) {
@@ -155,8 +153,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Returns the index of the last occurrence of the specified element in this
-   * list, or -1 if this list does not contain the element.
+   * Returns the index of the last occurrence of the specified element in this list, or -1 if this
+   * list does not contain the element.
    */
   public int lastIndexOf(int n) {
     for (int i = size - 1; i >= 0; i--) {
@@ -185,8 +183,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Replaces the element at the specified position in this list with the
-   * specified element.
+   * Replaces the element at the specified position in this list with the specified element.
    *
    * @param index index of the element to replace
    * @param element element to be stored at the specified position
@@ -208,9 +205,9 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Inserts the specified element at the specified position in this list.
-   * Shifts the element currently at that position (if any) and any subsequent
-   * elements to the right (adds one to their indices).
+   * Inserts the specified element at the specified position in this list. Shifts the element
+   * currently at that position (if any) and any subsequent elements to the right (adds one to their
+   * indices).
    *
    * @param index index at which the specified element is to be inserted
    * @param element element to be inserted
@@ -228,14 +225,14 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Removes the element at the specified position in this list. Shifts any
-   * subsequent elements to the left (subtracts one from their indices).
+   * Removes the element at the specified position in this list. Shifts any subsequent elements to
+   * the left (subtracts one from their indices).
    *
    * @param index the index of the element to be removed
    * @return the element that was removed from the list
    */
   public int remove(int index) {
-    if(index >= size){
+    if (index >= size) {
       throw new ArrayIndexOutOfBoundsException();
     }
     int oldValue = array[index];
@@ -250,8 +247,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Removes all of the elements from this list. The list will be empty after
-   * this call returns.
+   * Removes all of the elements from this list. The list will be empty after this call returns.
    */
   public void clear() {
     size = 0;
@@ -259,8 +255,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Returns the array backing this object. Note that this array may be longer
-   * than the number of elements in the list.
+   * Returns the array backing this object. Note that this array may be longer than the number of
+   * elements in the list.
    *
    * @return array backing this object
    */
@@ -269,22 +265,31 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Returns an iterator for this list. Note that this method is included only
-   * for convenience to conform to the <code>Iterable</code> interface; this
-   * method is not efficient because of autoboxing.
+   * Returns an iterator for this list. Note that this method is included only for convenience to
+   * conform to the <code>Iterable</code> interface; this method is not efficient because of
+   * autoboxing.
    */
   public Iterator<Integer> iterator() {
     return new Iterator<Integer>() {
       int cnt = 0;
-      public boolean hasNext() { return cnt < size(); }
-      public void remove() { throw new UnsupportedOperationException(); }
-      public Integer next() { return get(cnt++); }
+
+      public boolean hasNext() {
+        return cnt < size();
+      }
+
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+
+      public Integer next() {
+        return get(cnt++);
+      }
     };
   }
 
   /**
-   * Returns a string representation of the object, explicitly printing out the
-   * first <i>n</i> elements of this list.
+   * Returns a string representation of the object, explicitly printing out the first <i>n</i>
+   * elements of this list.
    */
   public String toString(int n) {
     StringBuilder s = new StringBuilder();
@@ -389,8 +394,8 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   /**
    * Extracts a sub-list.
    *
-   * @param start  first index to be included in sub-list
-   * @param end    last index to be included in sub-list
+   * @param start first index to be included in sub-list
+   * @param end last index to be included in sub-list
    * @return a new ArrayListOfInts from <code>start</code> to <code>end</code>
    */
   public ArrayListOfInts subList(int start, int end) {
