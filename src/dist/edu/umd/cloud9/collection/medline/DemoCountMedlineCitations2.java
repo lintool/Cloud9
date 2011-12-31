@@ -72,7 +72,7 @@ public class DemoCountMedlineCitations2 extends Configured implements Tool {
 
   private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
     private static final Text docid = new Text();
-    private static final IntWritable one = new IntWritable(1);
+    private static final IntWritable val = new IntWritable(1);
     private DocnoMapping docMapping;
 
     @Override
@@ -98,8 +98,12 @@ public class DemoCountMedlineCitations2 extends Configured implements Tool {
         throws IOException, InterruptedException {
       context.getCounter(Count.DOCS).increment(1);
       docid.set(doc.getDocid());
-      one.set(docMapping.getDocno(doc.getDocid()));
-      context.write(docid, one);
+      int docno = docMapping.getDocno(doc.getDocid());
+      if ( docno <= 0) {
+        throw new RuntimeException("Error, unable to find docno for docid " + docid);
+      }
+      val.set(docno);
+      context.write(docid, val);
     }
   }
 

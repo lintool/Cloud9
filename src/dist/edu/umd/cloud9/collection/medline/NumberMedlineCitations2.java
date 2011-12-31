@@ -24,7 +24,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -67,24 +66,26 @@ public class NumberMedlineCitations2 extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(NumberMedlineCitations2.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
-    private static final Text docid = new Text();
+  private static class MyMapper
+      extends Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
+    private static final IntWritable docid = new IntWritable();
     private static final IntWritable one = new IntWritable(1);
 
     @Override
     public void map(LongWritable key, MedlineCitation doc, Context context)
         throws IOException, InterruptedException {
       context.getCounter(Count.DOCS).increment(1);
-      docid.set(doc.getDocid());
+      docid.set(Integer.parseInt(doc.getDocid()));
       context.write(docid, one);
     }
   }
 
-  private static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+  private static class MyReducer
+      extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
     private final static IntWritable cnt = new IntWritable(1);
 
     @Override
-    public void reduce(Text key, Iterable<IntWritable> values, Context context)
+    public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
       context.write(key, cnt);
       cnt.set(cnt.get() + 1);
@@ -94,8 +95,7 @@ public class NumberMedlineCitations2 extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public NumberMedlineCitations2() {
-  }
+  public NumberMedlineCitations2() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [output-file]");
@@ -131,7 +131,7 @@ public class NumberMedlineCitations2 extends Configured implements Tool {
     FileOutputFormat.setCompressOutput(job, false);
 
     job.setInputFormatClass(MedlineCitationInputFormat2.class);
-    job.setOutputKeyClass(Text.class);
+    job.setOutputKeyClass(IntWritable.class);
     job.setOutputValueClass(IntWritable.class);
     job.setOutputFormatClass(TextOutputFormat.class);
 

@@ -104,7 +104,12 @@ public class DemoCountMedlineCitations extends Configured implements Tool {
       reporter.incrCounter(Count.DOCS, 1);
 
       outKey.set(doc.getDocid());
-      outVal.set(docMapping.getDocno(doc.getDocid()));
+      int docno = docMapping.getDocno(doc.getDocid());
+      if ( docno <= 0) {
+        throw new RuntimeException("Error, unable to find docno for docid " + doc.getDocid());
+      }
+
+      outVal.set(docno);
       output.collect(outKey, outVal);
     }
   }
