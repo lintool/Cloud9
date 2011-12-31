@@ -154,7 +154,7 @@ public class NumberMedlineCitations extends Configured implements Tool {
     JobClient.runJob(conf);
 
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
-    MedlineDocnoMapping.writeDocidData(new Path(input), new Path(outputFile),
+    MedlineDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
         FileSystem.get(getConf()));
 
     return 0;

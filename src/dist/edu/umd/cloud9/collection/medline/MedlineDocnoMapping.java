@@ -87,7 +87,7 @@ public class MedlineDocnoMapping implements DocnoMapping {
    * @param fs reference to the file system
    * @throws IOException
    */
-  static public void writeDocidData(Path input, Path output, FileSystem fs)
+  static public void writeMappingData(Path input, Path output, FileSystem fs)
       throws IOException {
     Preconditions.checkNotNull(input);
     Preconditions.checkNotNull(output);

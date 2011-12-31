@@ -172,7 +172,6 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
-    System.exit(res);
+    ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
   }
 }
