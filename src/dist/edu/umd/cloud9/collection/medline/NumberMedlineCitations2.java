@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.trec;
+package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 
@@ -37,8 +37,8 @@ import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Program that builds the mapping from TREC docids (String identifiers) to docnos
- * (sequentially-numbered ints). The program takes four command-line arguments:
+ * Program that builds the mapping from MEDLINE docids (PMIDs) to docnos (sequentially-numbered
+ * ints). The program takes four command-line arguments:
  * </p>
  *
  * <ul>
@@ -54,25 +54,25 @@ import org.apache.log4j.Logger;
  * <blockquote><pre>
  * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
  *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments2 \
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations2 \
  *   -libjars=guava-r09.jar \
- *   /shared/collections/trec/trec4-5_noCRFR.xml \
- *   /user/jimmylin/trec-docid-tmp \
+ *   /shared/collections/medline04 \
+ *   /user/jimmylin/docid-tmp \
  *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  *
  * @author Jimmy Lin
  */
-public class NumberTrecDocuments2 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(NumberTrecDocuments2.class);
+public class NumberMedlineCitations2 extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(NumberMedlineCitations2.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
+  private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
     private static final Text docid = new Text();
     private static final IntWritable one = new IntWritable(1);
 
     @Override
-    public void map(LongWritable key, TrecDocument doc, Context context)
+    public void map(LongWritable key, MedlineCitation doc, Context context)
         throws IOException, InterruptedException {
       context.getCounter(Count.DOCS).increment(1);
       docid.set(doc.getDocid());
@@ -94,7 +94,7 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public NumberTrecDocuments2() {
+  public NumberMedlineCitations2() {
   }
 
   private static int printUsage() {
@@ -116,13 +116,13 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     String outputPath = args[1];
     String outputFile = args[2];
 
-    LOG.info("Tool: " + NumberTrecDocuments2.class.getCanonicalName());
+    LOG.info("Tool: " + NumberMedlineCitations2.class.getCanonicalName());
     LOG.info(" - Input path: " + inputPath);
     LOG.info(" - Output path: " + outputPath);
     LOG.info(" - Output file: " + outputFile);
 
-    Job job = new Job(getConf(), NumberTrecDocuments2.class.getSimpleName());
-    job.setJarByClass(NumberTrecDocuments.class);
+    Job job = new Job(getConf(), NumberMedlineCitations2.class.getSimpleName());
+    job.setJarByClass(NumberMedlineCitations.class);
 
     job.setNumReduceTasks(1);
 
@@ -130,7 +130,7 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
     FileOutputFormat.setCompressOutput(job, false);
 
-    job.setInputFormatClass(TrecDocumentInputFormat2.class);
+    job.setInputFormatClass(MedlineCitationInputFormat2.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     job.setOutputFormatClass(TextOutputFormat.class);
@@ -144,7 +144,7 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     job.waitForCompletion(true);
 
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    TrecDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
+    MedlineDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
         FileSystem.get(getConf()));
 
     return 0;
@@ -154,6 +154,6 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new Configuration(), new NumberTrecDocuments2(), args);
+    ToolRunner.run(new Configuration(), new NumberMedlineCitations2(), args);
   }
 }

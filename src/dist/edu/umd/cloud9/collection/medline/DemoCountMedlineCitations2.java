@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.trec;
+package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,9 +39,9 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
  * <p>
- * Simple demo program that counts all the documents in the TREC collection. This provides a
- * skeleton for MapReduce programs to process the collection. The program takes three command-line
- * arguments:
+ * Simple demo program that counts all the documents in a collection of MEDLINE citations. This
+ * provides a skeleton for MapReduce programs to process the collection. The program takes three
+ * command-line arguments:
  * </p>
  *
  * <ul>
@@ -66,11 +66,11 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  */
-public class DemoCountTrecDocuments2 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(DemoCountTrecDocuments2.class);
+public class DemoCountMedlineCitations2 extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(DemoCountMedlineCitations2.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
+  private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
     private static final Text docid = new Text();
     private static final IntWritable one = new IntWritable(1);
     private DocnoMapping docMapping;
@@ -94,7 +94,7 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
     }
 
     @Override
-    public void map(LongWritable key, TrecDocument doc, Context context)
+    public void map(LongWritable key, MedlineCitation doc, Context context)
         throws IOException, InterruptedException {
       context.getCounter(Count.DOCS).increment(1);
       docid.set(doc.getDocid());
@@ -106,7 +106,7 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public DemoCountTrecDocuments2() {
+  public DemoCountMedlineCitations2() {
   }
 
   private static int printUsage() {
@@ -128,20 +128,20 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
     String outputPath = args[1];
     String mappingFile = args[2];
 
-    LOG.info("Tool: " + DemoCountTrecDocuments2.class.getCanonicalName());
+    LOG.info("Tool: " + DemoCountMedlineCitations2.class.getCanonicalName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    Job job = new Job(getConf(), DemoCountTrecDocuments2.class.getSimpleName());
-    job.setJarByClass(DemoCountTrecDocuments.class);
+    Job job = new Job(getConf(), DemoCountMedlineCitations2.class.getSimpleName());
+    job.setJarByClass(DemoCountMedlineCitations.class);
 
     job.setNumReduceTasks(0);
 
     // Pass in the class name as a String; this is makes the mapper general in being able to load
     // any collection of Indexable objects that has docid/docno mapping specified by a DocnoMapping
     // object.
-    job.getConfiguration().set("DocnoMappingClass", TrecDocnoMapping.class.getCanonicalName());
+    job.getConfiguration().set("DocnoMappingClass", MedlineDocnoMapping.class.getCanonicalName());
 
     // Put the mapping file in the distributed cache so each map worker will have it.
     DistributedCache.addCacheFile(new URI(mappingFile), job.getConfiguration());
@@ -150,7 +150,7 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
     FileOutputFormat.setCompressOutput(job, false);
 
-    job.setInputFormatClass(TrecDocumentInputFormat2.class);
+    job.setInputFormatClass(MedlineCitationInputFormat2.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
@@ -168,6 +168,6 @@ public class DemoCountTrecDocuments2 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new Configuration(), new DemoCountTrecDocuments2(), args);
+    ToolRunner.run(new Configuration(), new DemoCountMedlineCitations2(), args);
   }
 }
