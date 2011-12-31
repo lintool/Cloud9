@@ -25,7 +25,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
@@ -35,155 +34,136 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TextOutputFormat;
-import org.apache.hadoop.mapred.Counters.Counter;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
  * <p>
- * Program that builds the mapping from MEDLINE docids (PMIDs) to docnos
- * (sequentially-numbered ints). The program takes four command-line arguments:
+ * Program that builds the mapping from MEDLINE docids (PMIDs) to docnos (sequentially-numbered
+ * ints). The program takes four command-line arguments:
  * </p>
- * 
+ *
  * <ul>
  * <li>[input] path to the document collection
  * <li>[output-dir] path to temporary MapReduce output directory
  * <li>[output-file] path to location of mappings file
  * <li>[num-mappers] number of mappers to run
  * </ul>
- * 
+ *
  * <p>
  * Here's a sample invocation:
  * </p>
- * 
- * <blockquote>
- * 
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations \
- * /umd/collections/medline04.raw/ \
- * /user/jimmylin/medline-docid-tmp \
- * /user/jimmylin/docno.mapping 100
- * </pre>
- * 
- * </blockquote>
- * 
+ *
+ * <blockquote><pre>
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/medline04 \
+ *   /user/jimmylin/docid-tmp \
+ *   /user/jimmylin/docno-mapping.dat 100
+ * </pre></blockquote>
+ *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class NumberMedlineCitations extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(NumberMedlineCitations.class);
 
-	private static final Logger sLogger = Logger.getLogger(NumberMedlineCitations.class);
+  private static enum Citations { TOTAL };
 
-	private static enum Citations {
-		TOTAL
-	};
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
+    private final static IntWritable ONE = new IntWritable(1);
+    private final IntWritable pmid = new IntWritable();
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
+    public void map(LongWritable key, MedlineCitation citation,
+        OutputCollector<IntWritable, IntWritable> output, Reporter reporter) throws IOException {
 
-		private final static IntWritable ONE = new IntWritable(1);
+      pmid.set(Integer.parseInt(citation.getPmid()));
+      output.collect(pmid, ONE);
+      reporter.incrCounter(Citations.TOTAL, 1);
+    }
+  }
 
-		private final IntWritable sPmid = new IntWritable();
+  private static class MyReducer extends MapReduceBase implements
+      Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+    private final static IntWritable cnt = new IntWritable(1);
 
-		public void map(LongWritable key, MedlineCitation citation,
-				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
-				throws IOException {
+    public void reduce(IntWritable key, Iterator<IntWritable> values,
+        OutputCollector<IntWritable, IntWritable> output, Reporter reporter) throws IOException {
+      output.collect(key, cnt);
+      cnt.set(cnt.get() + 1);
+    }
+  }
 
-			sPmid.set(Integer.parseInt(citation.getPmid()));
-			output.collect(sPmid, ONE);
-			reporter.incrCounter(Citations.TOTAL, 1);
-		}
-	}
+  /**
+   * Creates an instance of this tool.
+   */
+  public NumberMedlineCitations() {}
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-		private final static IntWritable sCnt = new IntWritable(1);
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 4) {
+      printUsage();
+      return -1;
+    }
 
-		public void reduce(IntWritable key, Iterator<IntWritable> values,
-				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
-				throws IOException {
-			output.collect(key, sCnt);
-			sCnt.set(sCnt.get() + 1);
-		}
-	}
+    String inputPath = args[0];
+    String outputPath = args[1];
+    String outputFile = args[2];
+    int mapTasks = Integer.parseInt(args[3]);
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public NumberMedlineCitations() {
-	}
+    LOG.info("Tool name: NumberMedlineCitations");
+    LOG.info(" - Input path: " + inputPath);
+    LOG.info(" - Output path: " + outputPath);
+    LOG.info(" - Output file: " + outputFile);
+    LOG.info("Launching with " + mapTasks + " mappers...");
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
-	
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
-			printUsage();
-			return -1;
-		}
-		
-		String inputPath = args[0];
-		String outputPath = args[1];
-		String outputFile = args[2];
-		int mapTasks = Integer.parseInt(args[3]);
+    JobConf conf = new JobConf(getConf(), NumberMedlineCitations.class);
+    conf.setJobName("NumberMedlineCitations");
 
-		sLogger.info("Tool name: NumberMedlineCitations");
-		sLogger.info(" - Input path: " + inputPath);
-		sLogger.info(" - Output path: " + outputPath);
-		sLogger.info(" - Output file: " + outputFile);
-		sLogger.info("Launching with " + mapTasks + " mappers...");
+    conf.setNumMapTasks(mapTasks);
+    conf.setNumReduceTasks(1);
 
-		JobConf conf = new JobConf(getConf(), NumberMedlineCitations.class);
-		conf.setJobName("NumberMedlineCitations");
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(conf, false);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(1);
+    conf.setInputFormat(MedlineCitationInputFormat.class);
+    conf.setOutputKeyClass(IntWritable.class);
+    conf.setOutputValueClass(IntWritable.class);
+    conf.setOutputFormat(TextOutputFormat.class);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+    conf.setMapperClass(MyMapper.class);
+    conf.setReducerClass(MyReducer.class);
 
-		conf.setInputFormat(MedlineCitationInputFormat.class);
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+    // delete the output directory if it exists already.
+    FileSystem.get(conf).delete(new Path(outputPath), true);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(MyReducer.class);
+    JobClient.runJob(conf);
 
-		// delete the output directory if it exists already
-		FileSystem.get(conf).delete(new Path(outputPath), true);
+    String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-00000";
+    MedlineDocnoMapping.writeDocidData(new Path(input), new Path(outputFile),
+        FileSystem.get(getConf()));
 
-		RunningJob job = JobClient.runJob(conf);
+    return 0;
+  }
 
-		// write out various properties
-		Counters counters = job.getCounters();
-		Counter counter = counters.findCounter(
-				"edu.umd.cloud9.collection.medline.NumberMedlineCitations$Citations", 0, "");
-
-		int numdocs = (int) counter.getCounter();
-		sLogger.info("total number of docs: " + numdocs);
-
-		MedlineDocnoMapping.writeDocidData(outputPath + "/part-00000", outputFile);
-		
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new NumberMedlineCitations(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new Configuration(), new NumberMedlineCitations(), args);
+  }
 }

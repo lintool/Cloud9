@@ -145,8 +145,7 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
     // Pass in the class name as a String; this is makes the mapper general in being able to load
     // any collection of Indexable objects that has docid/docno mapping specified by a DocnoMapping
     // object.
-    conf.set("DocnoMappingClass",
-        edu.umd.cloud9.collection.trec.TrecDocnoMapping.class.getCanonicalName());
+    conf.set("DocnoMappingClass", TrecDocnoMapping.class.getCanonicalName());
 
     // Put the mapping file in the distributed cache so each map worker will have it.
     DistributedCache.addCacheFile(new URI(mappingFile), conf);
@@ -170,7 +169,7 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
