@@ -23,74 +23,73 @@ import edu.umd.cloud9.util.SortableEntries;
  * A frequency distribution where events are longs and counts are longs.
  *
  * @author Jimmy Lin
- *
  */
 public interface Long2LongFrequencyDistribution extends SortableEntries<PairOfLongs> {
 
-	/**
-	 * Increments the count of an event <code>key</code>.
-	 */
-	public void increment(int key);
-
-	/**
-	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
-	 */
-	public void increment(int key, int cnt);
-
-	/**
-	 * Decrements the count of an event <code>key</code>.
-	 */
-	public void decrement(int key);
-
-	/**
-	 * Decrements the count of an event <code>key</code> by <code>cnt</code>.
-	 */
-	public void decrement(int key, int cnt);
-
-	/**
-	 * Returns true if <i>key</i> exists in this object.
-	 */
-	public boolean contains(int key);
-
-	/**
-	 * Returns the count of a particular event <i>key</i>.
-	 */
-	public int get(int key);
+  /**
+   * Increments the count of an event {@code key}.
+   */
+  public void increment(long key);
 
   /**
-   * Returns the frequency of a particular event <i>key</i>.
+   * Increments the count of an event {@code key} by {@code cnt}.
    */
-  public float getFrequency(int key);
+  public void increment(long key, long cnt);
 
   /**
-   * Returns the log frequency of a particular event <i>key</i>.
+   * Decrements the count of an event {@code key}.
    */
-  public float getLogFrequency(int key);
+  public void decrement(long key);
 
-	/**
-	 * Sets the count of a particular event <code>key</code> to <code>cnt</code>.
-	 */
-	public int set(int key, int cnt);
+  /**
+   * Decrements the count of an event {@code key} by {@code cnt}.
+   */
+  public void decrement(long key, long cnt);
 
-	/**
-	 * Removes the count of a particular event <code>key</code>.
-	 */
-	public int remove(int key);
+  /**
+   * Returns {@code true} if {@code key} exists in this object.
+   */
+  public boolean contains(long key);
 
-	/**
-	 * Removes all events.
-	 */
-	public void clear();
+  /**
+   * Returns the count of a particular event {@code key}.
+   */
+  public long get(long key);
 
-	/**
-	 * Returns number of distinct events observed. Note that if an event is
-	 * observed and then its count subsequently removed, the event will not be
-	 * included in this count.
-	 */
-	public int getNumberOfEvents();
+  /**
+   * Computes the relative frequency of a particular event {@code key}.
+   * That is, {@code f(key) / SUM_i f(key_i)}.
+   */
+  public double computeRelativeFrequency(long key);
 
-	/**
-	 * Returns the sum of counts of all observed events.
-	 */
-	public long getSumOfCounts();
+  /**
+   * Computes the log (base e) of the relative frequency of a particular event {@code key}.
+   */
+  public double computeLogRelativeFrequency(long key);
+
+  /**
+   * Sets the count of a particular event {@code key} to {@code cnt}.
+   */
+  public long set(long key, long cnt);
+
+  /**
+   * Removes the count of a particular event {@code key}.
+   */
+  public long remove(long key);
+
+  /**
+   * Removes all events.
+   */
+  public void clear();
+
+  /**
+   * Returns number of distinct events observed. Note that if an event is observed and then its
+   * count subsequently removed, the event will not be included in this count.
+   */
+  public int getNumberOfEvents();
+
+  /**
+   * Returns the sum of counts of all observed events.
+   */
+  public long getSumOfCounts();
 }

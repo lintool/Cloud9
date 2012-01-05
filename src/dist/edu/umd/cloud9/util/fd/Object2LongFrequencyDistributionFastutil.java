@@ -19,12 +19,12 @@ package edu.umd.cloud9.util.fd;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -35,7 +35,6 @@ import edu.umd.cloud9.util.pair.PairOfObjectLong;
  * {@link Object2LongOpenHashMap}.
  *
  * @author Jimmy Lin
- *
  */
 public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
     implements Object2LongFrequencyDistribution<K> {
@@ -102,13 +101,13 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
   }
 
   @Override
-  public float getFrequency(K k) {
-    return (float) counts.getLong(k) / getSumOfCounts();
+  public double computeRelativeFrequency(K k) {
+    return (double) counts.get(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(K k) {
-    return (float) (Math.log(counts.getLong(k)) - Math.log(getSumOfCounts()));
+  public double computeLogRelativeFrequency(K k) {
+    return Math.log(counts.get(k)) - Math.log(getSumOfCounts());
   }
 
   @Override
@@ -131,13 +130,6 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
   public void clear() {
     counts.clear();
     sumOfCounts = 0;
-  }
-
-  /**
-   * Exposes efficient method for accessing keys in this map.
-   */
-  public ObjectSet<K> keySet() {
-    return counts.keySet();
   }
 
   /**
@@ -164,13 +156,18 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
     return sumOfCounts;
   }
 
+  @Override
+  public Set<K> keySet() {
+    return counts.keySet();
+  }
+
   /**
    * Iterator returns the same object every time, just with a different payload.
    */
   public Iterator<PairOfObjectLong<K>> iterator() {
     return new Iterator<PairOfObjectLong<K>>() {
-      private Iterator<Object2LongMap.Entry<K>> iter = Object2LongFrequencyDistributionFastutil.this.counts
-          .object2LongEntrySet().iterator();
+      private Iterator<Object2LongMap.Entry<K>> iter =
+        Object2LongFrequencyDistributionFastutil.this.counts.object2LongEntrySet().iterator();
       private final PairOfObjectLong<K> pair = new PairOfObjectLong<K>();
 
       @Override
@@ -198,36 +195,36 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
 
   @Override
   public List<PairOfObjectLong<K>> getEntries(Order ordering) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents();
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount();
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
+    // Should never get here.
+    return null;
   }
 
   @Override
   public List<PairOfObjectLong<K>> getEntries(Order ordering, int n) {
-    if (ordering.equals(Order.ByLeftElementDescending)) {
-      return getSortedEvents(n);
-    } else if (ordering.equals(Order.ByRightElementDescending)) {
-      return getEventsSortedByCount(n);
+    if (ordering.equals(Order.ByRightElementDescending)) {
+      return getEntriesSorted(comparatorRightDescending, n);
+    } else if (ordering.equals(Order.ByLeftElementAscending)) {
+      return getEntriesSorted(comparatorLeftAscending, n);
+    } else if (ordering.equals(Order.ByRightElementAscending)) {
+      return getEntriesSorted(comparatorRightAscending, n);
+    } else if (ordering.equals(Order.ByLeftElementDescending)) {
+      return getEntriesSorted(comparatorLeftDescending, n);
     }
-
-    // TODO: Implement other sort orders.
-    throw new UnsupportedOperationException();
+    // Should never get here.
+    return null;
   }
 
-  private List<PairOfObjectLong<K>> getEventsSortedByCount() {
-    List<PairOfObjectLong<K>> list = Lists.newArrayList();
-
-    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
-      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
-    }
-
-    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+  private final Comparator<PairOfObjectLong<K>> comparatorRightDescending =
+    new Comparator<PairOfObjectLong<K>>() {
       public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
         if (e1.getRightElement() > e2.getRightElement()) {
           return -1;
@@ -239,25 +236,25 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
 
         return e1.getLeftElement().compareTo(e2.getLeftElement());
       }
-    });
+    };
 
-    return list;
-  }
+  private final Comparator<PairOfObjectLong<K>> comparatorRightAscending =
+    new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
+        if (e1.getRightElement() > e2.getRightElement()) {
+          return 1;
+        }
 
-  private List<PairOfObjectLong<K>> getEventsSortedByCount(int n) {
-    List<PairOfObjectLong<K>> list = getEventsSortedByCount();
-    return list.subList(0, n);
-  }
+        if (e1.getRightElement() < e2.getRightElement()) {
+          return -1;
+        }
 
-  private List<PairOfObjectLong<K>> getSortedEvents() {
-    List<PairOfObjectLong<K>> list = Lists.newArrayList();
+        return e1.getLeftElement().compareTo(e2.getLeftElement());
+      }
+    };
 
-    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
-      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
-    }
-
-    // sort the entries
-    Collections.sort(list, new Comparator<PairOfObjectLong<K>>() {
+  private final Comparator<PairOfObjectLong<K>> comparatorLeftAscending =
+    new Comparator<PairOfObjectLong<K>>() {
       public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
         if (e1.getLeftElement().equals(e2.getLeftElement())) {
           throw new RuntimeException("Event observed twice!");
@@ -265,13 +262,33 @@ public class Object2LongFrequencyDistributionFastutil<K extends Comparable<K>>
 
         return e1.getLeftElement().compareTo(e2.getLeftElement());
       }
-    });
+    };
 
+  private final Comparator<PairOfObjectLong<K>> comparatorLeftDescending =
+    new Comparator<PairOfObjectLong<K>>() {
+      public int compare(PairOfObjectLong<K> e1, PairOfObjectLong<K> e2) {
+        if (e1.getLeftElement().equals(e2.getLeftElement())) {
+          throw new RuntimeException("Event observed twice!");
+        }
+
+        return e2.getLeftElement().compareTo(e1.getLeftElement());
+      }
+    };
+
+  private List<PairOfObjectLong<K>> getEntriesSorted(Comparator<PairOfObjectLong<K>> comparator) {
+    List<PairOfObjectLong<K>> list = Lists.newArrayList();
+
+    for (Object2LongMap.Entry<K> e : counts.object2LongEntrySet()) {
+      list.add(new PairOfObjectLong<K>(e.getKey(), e.getLongValue()));
+    }
+
+    Collections.sort(list, comparator);
     return list;
   }
 
-  private List<PairOfObjectLong<K>> getSortedEvents(int n) {
-    List<PairOfObjectLong<K>> list = getSortedEvents();
+  private List<PairOfObjectLong<K>>
+      getEntriesSorted(Comparator<PairOfObjectLong<K>> comparator, int n) {
+    List<PairOfObjectLong<K>> list = getEntriesSorted(comparator);
     return list.subList(0, n);
   }
 }

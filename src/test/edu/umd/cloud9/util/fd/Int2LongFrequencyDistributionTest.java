@@ -61,13 +61,13 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(3, fd.get(3));
 
-    assertEquals((float) 1 / 6, fd.getFrequency(1), 10e-6);
-    assertEquals((float) 2 / 6, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 3 / 6, fd.getFrequency(3), 10e-6);
+    assertEquals((double) 1 / 6, fd.computeRelativeFrequency(1), 10e-6);
+    assertEquals((double) 2 / 6, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((double) 3 / 6, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 6), fd.getLogFrequency(1), 10e-6);
-    assertEquals(Math.log((float) 2 / 6), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 3 / 6), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((double) 1 / 6), fd.computeLogRelativeFrequency(1), 10e-6);
+    assertEquals(Math.log((double) 2 / 6), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((double) 3 / 6), fd.computeLogRelativeFrequency(3), 10e-6);
 
     fd.decrement(3);
 
@@ -78,13 +78,13 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(2, fd.get(3));
 
-    assertEquals((float) 1 / 5, fd.getFrequency(1), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency(3), 10e-6);
+    assertEquals((double) 1 / 5, fd.computeRelativeFrequency(1), 10e-6);
+    assertEquals((double) 2 / 5, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((double) 2 / 5, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 5), fd.getLogFrequency(1), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((double) 1 / 5), fd.computeLogRelativeFrequency(1), 10e-6);
+    assertEquals(Math.log((double) 2 / 5), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((double) 2 / 5), fd.computeLogRelativeFrequency(3), 10e-6);
 
     fd.decrement(1);
 
@@ -95,11 +95,11 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(2, fd.get(3));
 
-    assertEquals((float) 2 / 4, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 2 / 4, fd.getFrequency(3), 10e-6);
+    assertEquals((double) 2 / 4, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((double) 2 / 4, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((double) 2 / 4), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((double) 2 / 4), fd.computeLogRelativeFrequency(3), 10e-6);
   }
 
   @Test
@@ -310,18 +310,17 @@ public class Int2LongFrequencyDistributionTest {
     testGetFrequencySortedEventsCommon(fd);
   }
 
-  private void testGetFrequencySortedEventsCommon(
-      Int2LongFrequencyDistribution fd) {
-    fd.set(1, 5);
-    fd.set(4, 2);
-    fd.set(2, 5);
-    fd.set(5, 2);
-    fd.set(6, 1);
-    fd.set(3, 5);
+  private void testGetFrequencySortedEventsCommon(Int2LongFrequencyDistribution fd) {
+    fd.set(1, 5L);
+    fd.set(4, 2L);
+    fd.set(2, 5L);
+    fd.set(5, 2L);
+    fd.set(6, 1L);
+    fd.set(3, 5L);
 
     assertEquals(6, fd.getNumberOfEvents());
     assertEquals(20, fd.getSumOfCounts());
-
+    
     List<PairOfIntLong> list = fd.getEntries(Order.ByRightElementDescending);
 
     assertEquals(6, list.size());
@@ -339,6 +338,23 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(6, list.get(5).getLeftElement());
     assertEquals(1, list.get(5).getRightElement());
 
+    list = fd.getEntries(Order.ByRightElementAscending);
+
+    assertEquals(6, list.size());
+
+    assertEquals(6, list.get(0).getLeftElement());
+    assertEquals(1, list.get(0).getRightElement());
+    assertEquals(4, list.get(1).getLeftElement());
+    assertEquals(2, list.get(1).getRightElement());
+    assertEquals(5, list.get(2).getLeftElement());
+    assertEquals(2, list.get(2).getRightElement());
+    assertEquals(1, list.get(3).getLeftElement());
+    assertEquals(5, list.get(3).getRightElement());
+    assertEquals(2, list.get(4).getLeftElement());
+    assertEquals(5, list.get(4).getRightElement());
+    assertEquals(3, list.get(5).getLeftElement());
+    assertEquals(5, list.get(5).getRightElement());
+
     list = fd.getEntries(Order.ByRightElementDescending, 4);
 
     assertEquals(4, list.size());
@@ -351,6 +367,19 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(5, list.get(2).getRightElement());
     assertEquals(4, list.get(3).getLeftElement());
     assertEquals(2, list.get(3).getRightElement());
+
+    list = fd.getEntries(Order.ByRightElementAscending, 4);
+
+    assertEquals(4, list.size());
+
+    assertEquals(6, list.get(0).getLeftElement());
+    assertEquals(1, list.get(0).getRightElement());
+    assertEquals(4, list.get(1).getLeftElement());
+    assertEquals(2, list.get(1).getRightElement());
+    assertEquals(5, list.get(2).getLeftElement());
+    assertEquals(2, list.get(2).getRightElement());
+    assertEquals(1, list.get(3).getLeftElement());
+    assertEquals(5, list.get(3).getRightElement());
   }
 
   @Test
@@ -366,17 +395,17 @@ public class Int2LongFrequencyDistributionTest {
   }
 
   private void testGetSortedEventsCommon(Int2LongFrequencyDistribution fd) {
-    fd.set(1, 1);
-    fd.set(4, 3);
-    fd.set(2, 4);
-    fd.set(5, 7);
-    fd.set(6, 9);
-    fd.set(3, 2);
+    fd.set(1, 1L);
+    fd.set(4, 3L);
+    fd.set(2, 4L);
+    fd.set(5, 7L);
+    fd.set(6, 9L);
+    fd.set(3, 2L);
 
     assertEquals(6, fd.getNumberOfEvents());
     assertEquals(26, fd.getSumOfCounts());
 
-    List<PairOfIntLong> list = fd.getEntries(Order.ByLeftElementDescending);
+    List<PairOfIntLong> list = fd.getEntries(Order.ByLeftElementAscending);
 
     assertEquals(6, list.size());
 
@@ -393,7 +422,24 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(6, list.get(5).getLeftElement());
     assertEquals(9, list.get(5).getRightElement());
 
-    list = fd.getEntries(Order.ByLeftElementDescending, 4);
+    list = fd.getEntries(Order.ByLeftElementDescending);
+
+    assertEquals(6, list.size());
+
+    assertEquals(6, list.get(0).getLeftElement());
+    assertEquals(9, list.get(0).getRightElement());
+    assertEquals(5, list.get(1).getLeftElement());
+    assertEquals(7, list.get(1).getRightElement());
+    assertEquals(4, list.get(2).getLeftElement());
+    assertEquals(3, list.get(2).getRightElement());
+    assertEquals(3, list.get(3).getLeftElement());
+    assertEquals(2, list.get(3).getRightElement());
+    assertEquals(2, list.get(4).getLeftElement());
+    assertEquals(4, list.get(4).getRightElement());
+    assertEquals(1, list.get(5).getLeftElement());
+    assertEquals(1, list.get(5).getRightElement());
+
+    list = fd.getEntries(Order.ByLeftElementAscending, 4);
 
     assertEquals(4, list.size());
 
@@ -405,6 +451,19 @@ public class Int2LongFrequencyDistributionTest {
     assertEquals(2, list.get(2).getRightElement());
     assertEquals(4, list.get(3).getLeftElement());
     assertEquals(3, list.get(3).getRightElement());
+
+    list = fd.getEntries(Order.ByLeftElementDescending, 4);
+
+    assertEquals(4, list.size());
+
+    assertEquals(6, list.get(0).getLeftElement());
+    assertEquals(9, list.get(0).getRightElement());
+    assertEquals(5, list.get(1).getLeftElement());
+    assertEquals(7, list.get(1).getRightElement());
+    assertEquals(4, list.get(2).getLeftElement());
+    assertEquals(3, list.get(2).getRightElement());
+    assertEquals(3, list.get(3).getLeftElement());
+    assertEquals(2, list.get(3).getRightElement());
   }
 
   @Test
@@ -420,12 +479,12 @@ public class Int2LongFrequencyDistributionTest {
   }
 
   private void testIterableCommon(Int2LongFrequencyDistribution fd) {
-    fd.set(1, 1);
-    fd.set(4, 3);
-    fd.set(2, 4);
-    fd.set(5, 7);
-    fd.set(6, 9);
-    fd.set(3, 2);
+    fd.set(1, 1L);
+    fd.set(4, 3L);
+    fd.set(2, 4L);
+    fd.set(5, 7L);
+    fd.set(6, 9L);
+    fd.set(3, 2L);
 
     assertEquals(6, fd.getNumberOfEvents());
     assertEquals(26, fd.getSumOfCounts());

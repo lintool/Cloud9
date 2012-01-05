@@ -16,6 +16,8 @@
 
 package edu.umd.cloud9.util.fd;
 
+import java.util.Set;
+
 import edu.umd.cloud9.util.SortableEntries;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
@@ -23,75 +25,79 @@ import edu.umd.cloud9.util.pair.PairOfObjectInt;
  * A frequency distribution where events are arbitrary objects and counts are ints.
  *
  * @author Jimmy Lin
- *
  */
-public interface Object2IntFrequencyDistribution<K extends Comparable<K>>
-    extends SortableEntries<PairOfObjectInt<K>> {
-
-	/**
-	 * Increments the count of an event <code>key</code>.
-	 */
-	public void increment(K key);
-
-	/**
-	 * Increments the count of an event <code>key</code> by <code>cnt</code>.
-	 */
-	public void increment(K key, int cnt);
-
-	/**
-	 * Decrements the count of an event <code>key</code>.
-	 */
-	public void decrement(K key);
-
-	/**
-	 * Decrements the count of a particular event <code>key</code> by <code>cnt</code>.
-	 */
-	public void decrement(K key, int cnt);
-
-	/**
-	 * Returns true if <i>key</i> exists in this object.
-	 */
-	public boolean contains(K key);
-
-	/**
-	 * Returns the count of a particular event <i>key</i>.
-	 */
-	public int get(K key);
+public interface Object2IntFrequencyDistribution<K extends Comparable<K>> extends
+    SortableEntries<PairOfObjectInt<K>> {
 
   /**
-   * Returns the frequency of a particular event <i>key</i>.
+   * Increments the count of an event {@code key}.
    */
-  public float getFrequency(K key);
+  public void increment(K key);
 
   /**
-   * Returns the log frequency of a particular event <i>key</i>.
+   * Increments the count of an event {@code key} by {@code cnt}.
    */
-  public float getLogFrequency(K key);
+  public void increment(K key, int cnt);
 
-	/**
-	 * Sets the count of a particular event <i>key</i> to <code>cnt</code>.
-	 */
-	public int set(K key, int cnt);
+  /**
+   * Decrements the count of an event {@code key}.
+   */
+  public void decrement(K key);
 
-	/**
-	 * Removes the count of a particular event <code>key</code>.
-	 */
-	public int remove(K k);
+  /**
+   * Decrements the count of a particular event {@code key} by {@code cnt}.
+   */
+  public void decrement(K key, int cnt);
 
-	/**
-	 * Removes all events.
-	 */
-	public void clear();
+  /**
+   * Returns {@code true} if {@code key} exists in this object.
+   */
+  public boolean contains(K key);
 
-	/**
-	 * Returns number of distinct events observed. Note that if an event is
-	 * observed and then its count subsequently removed, the event will not be
-	 * included in this count.
-	 */
-	public int getNumberOfEvents();
+  /**
+   * Returns the count of a particular event {@code key}.
+   */
+  public int get(K key);
 
-	/**
-	 * Returns the sum of counts of all observed events.
-	 */
-	public long getSumOfCounts();
+  /**
+   * Computes the relative frequency of a particular event {@code key}.
+   * That is, {@code f(key) / SUM_i f(key_i)}.
+   */
+  public double computeRelativeFrequency(K key);
+
+  /**
+   * Computes the log (base e) of the relative frequency of a particular event {@code key}.
+   */
+  public double computeLogRelativeFrequency(K key);
+
+  /**
+   * Sets the count of a particular event {@code key} to {@code cnt}.
+   */
+  public int set(K key, int cnt);
+
+  /**
+   * Removes the count of a particular event {@code key}.
+   */
+  public int remove(K k);
+
+  /**
+   * Removes all events.
+   */
+  public void clear();
+
+  /**
+   * Returns number of distinct events observed. Note that if an event is observed and then its
+   * count subsequently removed, the event will not be included in this count.
+   */
+  public int getNumberOfEvents();
+
+  /**
+   * Returns the sum of counts of all observed events. That is, {@code SUM_i f(key_i)}.
+   */
+  public long getSumOfCounts();
+
+  /**
+   * Returns the set of keys.
+   */
+  public Set<K> keySet();
 }

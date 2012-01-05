@@ -154,10 +154,6 @@ public class HMM extends Model1 {
 	}
 
 	/**
-	 * 
-	 * @param pp
-	 * @param acounts
-	 * @param tcounts
 	 * @return negative log probability of sentence
 	 */
 	public final float baumWelch(PhrasePair pp, AlignmentPosteriorGrid pg) {

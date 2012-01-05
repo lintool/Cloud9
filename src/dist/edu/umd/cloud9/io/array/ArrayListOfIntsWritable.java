@@ -21,18 +21,18 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import edu.umd.cloud9.util.array.ArrayListOfInts;
 
 /**
- * Writable extension of the ArrayListOfInts class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
+ * Writable extension of the {@code ArrayListOfInts} class. This class provides an efficient data
+ * structure to store a list of ints for MapReduce jobs.
  *
- * @author Ferhan Ture
+ * @author Jimmy Lin
  */
-public class ArrayListOfIntsWritable extends ArrayListOfInts implements WritableComparable {
+public class ArrayListOfIntsWritable extends ArrayListOfInts
+    implements WritableComparable<ArrayListOfIntsWritable> {
 
   /**
    * Constructs an ArrayListOfIntsWritable object.
@@ -124,36 +124,37 @@ public class ArrayListOfIntsWritable extends ArrayListOfInts implements Writable
   }
 
   /**
-   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference if both are empty.
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
    * 
    * @param obj other object this is compared against
    */
   @Override
-  public int compareTo(Object obj) {
+  public int compareTo(ArrayListOfIntsWritable obj) {
     ArrayListOfIntsWritable other = (ArrayListOfIntsWritable) obj;
-    if(isEmpty()){
-      if(other.isEmpty()){
+    if (isEmpty()) {
+      if (other.isEmpty()) {
         return 0;
-      }else{
+      } else {
         return -1;
       }
     }
 
-    for(int i=0;i<size();i++){
-      if(other.size()<=i){
+    for (int i = 0; i < size(); i++) {
+      if (other.size() <= i) {
         return 1;
       }
-      if(get(i)<other.get(i)){
+      if (get(i) < other.get(i)) {
         return -1;
-      }else if(get(i)>other.get(i)){
+      } else if (get(i) > other.get(i)) {
         return 1;
       }
     }
-    if(other.size()>size()){
+
+    if (other.size() > size()) {
       return -1;
-    }else{
+    } else {
       return 0;
     }
-
   }
 }

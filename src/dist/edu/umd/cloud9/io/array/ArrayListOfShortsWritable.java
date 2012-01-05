@@ -24,12 +24,13 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfShorts;
 
 /**
- * Writable extension of the ArrayListOfShorts class. This class provides an
- * efficient data structure to store a list of ints for MapReduce jobs.
- * 
+ * Writable extension of the {@code ArrayListOfShorts} class. This class provides an efficient data
+ * structure to store a list of shorts for MapReduce jobs.
+ *
  * @author Ferhan Ture
  */
-public class ArrayListOfShortsWritable extends ArrayListOfShorts implements WritableComparable {
+public class ArrayListOfShortsWritable extends ArrayListOfShorts
+    implements WritableComparable<ArrayListOfShortsWritable> {
 
   /**
    * Constructs an ArrayListOfIntsWritable object.
@@ -121,36 +122,37 @@ public class ArrayListOfShortsWritable extends ArrayListOfShorts implements Writ
   }
   
   /**
-   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference if both are empty.
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
    * 
    * @param obj other object this is compared against
    */
   @Override
-  public int compareTo(Object obj) {
+  public int compareTo(ArrayListOfShortsWritable obj) {
     ArrayListOfShortsWritable other = (ArrayListOfShortsWritable) obj;
-    if(isEmpty()){
-      if(other.isEmpty()){
+    if (isEmpty()) {
+      if (other.isEmpty()) {
         return 0;
-      }else{
+      } else {
         return -1;
       }
     }
 
-    for(int i=0;i<size();i++){
-      if(other.size()<=i){
+    for (int i = 0; i < size(); i++) {
+      if (other.size() <= i) {
         return 1;
       }
-      if(get(i)<other.get(i)){
+      if (get(i) < other.get(i)) {
         return -1;
-      }else if(get(i)>other.get(i)){
+      } else if (get(i) > other.get(i)) {
         return 1;
       }
     }
-    if(other.size()>size()){
+
+    if (other.size() > size()) {
       return -1;
-    }else{
+    } else {
       return 0;
     }
-
   }
 }

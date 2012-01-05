@@ -60,7 +60,7 @@ import org.apache.log4j.Logger;
  *   /user/jimmylin/trec-docid-tmp \
  *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
- * 
+ *
  * @author Jimmy Lin
  */
 public class NumberTrecDocuments2 extends Configured implements Tool {
@@ -142,7 +142,7 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
 
     job.waitForCompletion(true);
-    
+
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
     TrecDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
         FileSystem.get(getConf()));

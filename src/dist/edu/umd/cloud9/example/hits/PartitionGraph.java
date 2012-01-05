@@ -48,7 +48,6 @@ import edu.umd.cloud9.example.hits.RangePartitioner;
  * 
  * </ul>
  * 
- * @see edu.umd.cloud9.example.PartitionGraph
  * @author Jimmy Lin
  * @author Mike McGrath
  * 
