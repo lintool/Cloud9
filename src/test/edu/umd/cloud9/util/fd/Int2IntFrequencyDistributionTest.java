@@ -63,13 +63,13 @@ public class Int2IntFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(3, fd.get(3));
 
-    assertEquals((float) 1 / 6, fd.getFrequency(1), 10e-6);
-    assertEquals((float) 2 / 6, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 3 / 6, fd.getFrequency(3), 10e-6);
+    assertEquals((float) 1 / 6, fd.computeRelativeFrequency(1), 10e-6);
+    assertEquals((float) 2 / 6, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((float) 3 / 6, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 6), fd.getLogFrequency(1), 10e-6);
-    assertEquals(Math.log((float) 2 / 6), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 3 / 6), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((float) 1 / 6), fd.computeLogRelativeFrequency(1), 10e-6);
+    assertEquals(Math.log((float) 2 / 6), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((float) 3 / 6), fd.computeLogRelativeFrequency(3), 10e-6);
 
     fd.decrement(3);
 
@@ -80,13 +80,13 @@ public class Int2IntFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(2, fd.get(3));
 
-    assertEquals((float) 1 / 5, fd.getFrequency(1), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency(3), 10e-6);
+    assertEquals((float) 1 / 5, fd.computeRelativeFrequency(1), 10e-6);
+    assertEquals((float) 2 / 5, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((float) 2 / 5, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 5), fd.getLogFrequency(1), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((float) 1 / 5), fd.computeLogRelativeFrequency(1), 10e-6);
+    assertEquals(Math.log((float) 2 / 5), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((float) 2 / 5), fd.computeLogRelativeFrequency(3), 10e-6);
 
     fd.decrement(1);
 
@@ -97,11 +97,11 @@ public class Int2IntFrequencyDistributionTest {
     assertEquals(2, fd.get(2));
     assertEquals(2, fd.get(3));
 
-    assertEquals((float) 2 / 4, fd.getFrequency(2), 10e-6);
-    assertEquals((float) 2 / 4, fd.getFrequency(3), 10e-6);
+    assertEquals((float) 2 / 4, fd.computeRelativeFrequency(2), 10e-6);
+    assertEquals((float) 2 / 4, fd.computeRelativeFrequency(3), 10e-6);
 
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency(2), 10e-6);
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency(3), 10e-6);
+    assertEquals(Math.log((float) 2 / 4), fd.computeLogRelativeFrequency(2), 10e-6);
+    assertEquals(Math.log((float) 2 / 4), fd.computeLogRelativeFrequency(3), 10e-6);
   }
 
   @Test

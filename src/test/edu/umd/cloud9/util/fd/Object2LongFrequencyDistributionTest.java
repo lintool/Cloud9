@@ -17,9 +17,12 @@
 package edu.umd.cloud9.util.fd;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -63,13 +66,13 @@ public class Object2LongFrequencyDistributionTest {
     assertEquals(2, fd.get("b"));
     assertEquals(3, fd.get("c"));
 
-    assertEquals((float) 1 / 6, fd.getFrequency("a"), 10e-6);
-    assertEquals((float) 2 / 6, fd.getFrequency("b"), 10e-6);
-    assertEquals((float) 3 / 6, fd.getFrequency("c"), 10e-6);
+    assertEquals((double) 1 / 6, fd.computeRelativeFrequency("a"), 10e-6);
+    assertEquals((double) 2 / 6, fd.computeRelativeFrequency("b"), 10e-6);
+    assertEquals((double) 3 / 6, fd.computeRelativeFrequency("c"), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 6), fd.getLogFrequency("a"), 10e-6);
-    assertEquals(Math.log((float) 2 / 6), fd.getLogFrequency("b"), 10e-6);
-    assertEquals(Math.log((float) 3 / 6), fd.getLogFrequency("c"), 10e-6);
+    assertEquals(Math.log((double) 1 / 6), fd.computeLogRelativeFrequency("a"), 10e-6);
+    assertEquals(Math.log((double) 2 / 6), fd.computeLogRelativeFrequency("b"), 10e-6);
+    assertEquals(Math.log((double) 3 / 6), fd.computeLogRelativeFrequency("c"), 10e-6);
 
     fd.decrement("c");
 
@@ -80,13 +83,13 @@ public class Object2LongFrequencyDistributionTest {
     assertEquals(2, fd.get("b"));
     assertEquals(2, fd.get("c"));
 
-    assertEquals((float) 1 / 5, fd.getFrequency("a"), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency("b"), 10e-6);
-    assertEquals((float) 2 / 5, fd.getFrequency("c"), 10e-6);
+    assertEquals((double) 1 / 5, fd.computeRelativeFrequency("a"), 10e-6);
+    assertEquals((double) 2 / 5, fd.computeRelativeFrequency("b"), 10e-6);
+    assertEquals((double) 2 / 5, fd.computeRelativeFrequency("c"), 10e-6);
 
-    assertEquals(Math.log((float) 1 / 5), fd.getLogFrequency("a"), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency("b"), 10e-6);
-    assertEquals(Math.log((float) 2 / 5), fd.getLogFrequency("c"), 10e-6);
+    assertEquals(Math.log((double) 1 / 5), fd.computeLogRelativeFrequency("a"), 10e-6);
+    assertEquals(Math.log((double) 2 / 5), fd.computeLogRelativeFrequency("b"), 10e-6);
+    assertEquals(Math.log((double) 2 / 5), fd.computeLogRelativeFrequency("c"), 10e-6);
 
     fd.decrement("a");
 
@@ -97,11 +100,17 @@ public class Object2LongFrequencyDistributionTest {
     assertEquals(2, fd.get("b"));
     assertEquals(2, fd.get("c"));
 
-    assertEquals((float) 2 / 4, fd.getFrequency("b"), 10e-6);
-    assertEquals((float) 2 / 4, fd.getFrequency("c"), 10e-6);
+    assertEquals((double) 2 / 4, fd.computeRelativeFrequency("b"), 10e-6);
+    assertEquals((double) 2 / 4, fd.computeRelativeFrequency("c"), 10e-6);
 
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency("b"), 10e-6);
-    assertEquals(Math.log((float) 2 / 4), fd.getLogFrequency("c"), 10e-6);
+    assertEquals(Math.log((double) 2 / 4), fd.computeLogRelativeFrequency("b"), 10e-6);
+    assertEquals(Math.log((double) 2 / 4), fd.computeLogRelativeFrequency("c"), 10e-6);
+
+    Set<String> set = fd.keySet();
+    assertEquals(2, set.size());
+    assertFalse(set.contains("a"));
+    assertTrue(set.contains("b"));
+    assertTrue(set.contains("c"));
   }
 
   @Test

@@ -60,7 +60,7 @@ public interface DocumentForwardIndex<T extends Indexable> {
   /**
    * Returns the first docno in the collection.
    *
-   * @returns the first docno in the collection
+   * @return the first docno in the collection
    */
   int getFirstDocno();
 

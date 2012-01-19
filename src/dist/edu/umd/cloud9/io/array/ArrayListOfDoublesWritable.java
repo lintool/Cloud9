@@ -25,11 +25,13 @@ import org.apache.hadoop.io.WritableComparable;
 import edu.umd.cloud9.util.array.ArrayListOfDoubles;
 
 /**
- * {@link Writable} extension of the {@link ArrayListOfDoubles} class.
+ * Writable extension of the {@code ArrayListOfDoubles} class. This class provides an efficient data
+ * structure to store a list of doubles for MapReduce jobs.
  *
  * @author Jimmy Lin
  */
-public class ArrayListOfDoublesWritable extends ArrayListOfDoubles implements WritableComparable {
+public class ArrayListOfDoublesWritable extends ArrayListOfDoubles
+    implements WritableComparable<ArrayListOfDoublesWritable> {
 
   /**
    * Constructs an {@code ArrayListOfDoublesWritable} object.
@@ -113,34 +115,36 @@ public class ArrayListOfDoublesWritable extends ArrayListOfDoubles implements Wr
   }
   
   /**
-   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference if both are empty.
-   * 
+   * Elementwise comparison. Shorter always comes before if it is a sublist of longer. No preference
+   * if both are empty.
+   *
    * @param obj other object this is compared against
    */
   @Override
-  public int compareTo(Object obj) {
+  public int compareTo(ArrayListOfDoublesWritable obj) {
     ArrayListOfDoublesWritable other = (ArrayListOfDoublesWritable) obj;
-    if(isEmpty()){
-      if(other.isEmpty()){
+    if (isEmpty()) {
+      if (other.isEmpty()) {
         return 0;
-      }else{
+      } else {
         return -1;
       }
     }
 
-    for(int i=0;i<size();i++){
-      if(other.size()<=i){
+    for (int i = 0; i < size(); i++) {
+      if (other.size() <= i) {
         return 1;
       }
-      if(get(i)<other.get(i)){
+      if (get(i) < other.get(i)) {
         return -1;
-      }else if(get(i)>other.get(i)){
+      } else if (get(i) > other.get(i)) {
         return 1;
       }
     }
-    if(other.size()>size()){
+
+    if (other.size() > size()) {
       return -1;
-    }else{
+    } else {
       return 0;
     }
 

@@ -19,12 +19,12 @@ package edu.umd.cloud9.util.fd;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -93,13 +93,13 @@ public class Object2IntFrequencyDistributionFastutil<K extends Comparable<K>>
 	}
 
   @Override
-  public float getFrequency(K k) {
-    return (float) counts.getInt(k) / getSumOfCounts();
+  public double computeRelativeFrequency(K k) {
+    return (double) counts.getInt(k) / getSumOfCounts();
   }
 
   @Override
-  public float getLogFrequency(K k) {
-    return (float) (Math.log(counts.getInt(k)) - Math.log(getSumOfCounts()));
+  public double computeLogRelativeFrequency(K k) {
+    return Math.log(counts.getInt(k)) - Math.log(getSumOfCounts());
   }
 
 	@Override
@@ -122,13 +122,6 @@ public class Object2IntFrequencyDistributionFastutil<K extends Comparable<K>>
 	public void clear() {
 		counts.clear();
 		sumOfCounts = 0;
-	}
-
-	/**
-	 * Exposes efficient method for accessing keys in this map.
-	 */
-	public ObjectSet<K> keySet() {
-		return counts.keySet();
 	}
 
 	/**
@@ -162,6 +155,11 @@ public class Object2IntFrequencyDistributionFastutil<K extends Comparable<K>>
 	public long getSumOfCounts() {
 		return sumOfCounts;
 	}
+
+  @Override
+  public Set<K> keySet() {
+    return counts.keySet();
+  }
 
 	/**
 	 * Iterator returns the same object every time, just with a different payload.
@@ -296,7 +294,8 @@ public class Object2IntFrequencyDistributionFastutil<K extends Comparable<K>>
 
   public static <T extends Comparable<T>> Object2IntFrequencyDistributionFastutil<T>
       fromObject2IntOpenHashMap(Object2IntOpenHashMap<T> map) {
-    Object2IntFrequencyDistributionFastutil<T> fd = new Object2IntFrequencyDistributionFastutil<T>();
+    Object2IntFrequencyDistributionFastutil<T> fd =
+      new Object2IntFrequencyDistributionFastutil<T>();
 
     fd.counts = map;
     long cnt = 0;

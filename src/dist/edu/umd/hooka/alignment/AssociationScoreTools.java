@@ -8,7 +8,6 @@ public class AssociationScoreTools {
 	 * @param countE
 	 * @param countF
 	 * @param N
-	 * @return
 	 */
 	public static double computeLLR(int countEF, int countE, int countF, int N) {
 		double cEF = countEF;
