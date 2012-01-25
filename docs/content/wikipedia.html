@@ -236,7 +236,7 @@ processing much easier.</p>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
   -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
   -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.block/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type block
+  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type block -wiki_language en
 </pre>
 
 <p>In addition to block-compression, the program <code>RepackWikipedia</code> also
@@ -247,13 +247,13 @@ supports record-level compression as well as no compression:</p>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
   -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
   -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.record/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type record
+  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type record -wiki_language en
 
 # No compression
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
   -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
   -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/uncompressed/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type none
+  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type none -wiki_language en
 </pre>
 
 <p>Here's how they stack up:</p>
