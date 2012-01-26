@@ -35,8 +35,8 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop {@link InputFormat} for processing the MEDLINE citations in XML format.
- * 
+ * Hadoop {@code InputFormat} for processing the MEDLINE citations in XML format (old API).
+ *
  * @author Jimmy Lin
  */
 @SuppressWarnings("deprecation")

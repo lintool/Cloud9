@@ -390,7 +390,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
 
     return result;
   }
-  
+
   /**
    * Merges two sorted (ascending order) lists into one sorted union. Duplicate items are discarded in the merged list.
    *

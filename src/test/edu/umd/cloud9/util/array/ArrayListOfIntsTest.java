@@ -433,11 +433,11 @@ public class ArrayListOfIntsTest {
     ArrayListOfInts c2 = b.merge(a);
     assertEquals(c, c2);   
   }
-  
+
   @Test
   public void testMerge4() {
     //CASE: both lists have the same object
-    
+
     ArrayListOfInts a = new ArrayListOfInts();
     a.add(3);
     a.add(7);
@@ -448,25 +448,25 @@ public class ArrayListOfIntsTest {
     b.add(8);
 
     ArrayListOfInts c = a.merge(b);
-    assertEquals(c.size(), 5);  
-    assertEquals(c.get(0), 3);  
+    assertEquals(c.size(), 5);
+    assertEquals(c.get(0), 3);
     assertEquals(c.get(1), 7);
-    assertEquals(c.get(2), 7);  
-    assertEquals(c.get(3), 8);  
-    assertEquals(c.get(4), 10);  
-    
+    assertEquals(c.get(2), 7);
+    assertEquals(c.get(3), 8);
+    assertEquals(c.get(4), 10);
+
     ArrayListOfInts cNoDups = a.mergeNoDuplicates(b);
-    assertEquals(cNoDups.size(), 4);  
-    assertEquals(cNoDups.get(0), 3);  
+    assertEquals(cNoDups.size(), 4);
+    assertEquals(cNoDups.get(0), 3);
     assertEquals(cNoDups.get(1), 7);
-    assertEquals(cNoDups.get(2), 8);  
-    assertEquals(cNoDups.get(3), 10);  
+    assertEquals(cNoDups.get(2), 8);
+    assertEquals(cNoDups.get(3), 10);
   }
-  
+
   @Test
   public void testMerge5() {
     //CASE: both lists have the same object
-    
+
     ArrayListOfInts a = new ArrayListOfInts();
     a.add(3);
     a.add(7);
@@ -476,15 +476,15 @@ public class ArrayListOfIntsTest {
     b.add(7);
 
     ArrayListOfInts c = a.merge(b);
-    assertEquals(c.size(), 4);  
-    assertEquals(c.get(0), 3);  
+    assertEquals(c.size(), 4);
+    assertEquals(c.get(0), 3);
     assertEquals(c.get(1), 7);
-    assertEquals(c.get(2), 7);  
-    assertEquals(c.get(3), 10);  
+    assertEquals(c.get(2), 7);
+    assertEquals(c.get(3), 10);
 
     ArrayListOfInts cNoDups = a.mergeNoDuplicates(b);
-    assertEquals(cNoDups.size(), 3);  
-    assertEquals(cNoDups.get(0), 3);  
+    assertEquals(cNoDups.size(), 3);
+    assertEquals(cNoDups.get(0), 3);
     assertEquals(cNoDups.get(1), 7);
     assertEquals(cNoDups.get(2), 10);
   }
