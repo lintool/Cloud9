@@ -25,6 +25,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -62,7 +63,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
   
   private static final Logger LOG = Logger.getLogger(ExtractHTMLFieldCollection.class);
 
-  public static class MyMapper extends Mapper<LongWritable, Indexable, LongWritable, TextDocument>
+  public static class MyMapper extends Mapper<IntWritable, Indexable, LongWritable, TextDocument>
   {
 
     // TODO: allow this to support user-defined regular expressions, not just the "heading" one pre-defined here
@@ -89,7 +90,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     private static final StringBuffer strBuf = new StringBuffer();
     
     @Override
-    public void setup(Mapper<LongWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException {
+    public void setup(Mapper<IntWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException {
       Configuration conf = context.getConfiguration();
       tag = conf.get("Cloud9.TargetTag");
 
@@ -101,7 +102,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     }
 
     @Override
-    public void map(LongWritable key, Indexable doc, Mapper<LongWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException, InterruptedException {
+    public void map(IntWritable key, Indexable doc, Mapper<IntWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException, InterruptedException {
       context.getCounter(LinkCounter.INPUT_DOCS).increment(1);
 
       if(doc.getDocid() == null || doc.getContent() == null) {
@@ -119,9 +120,15 @@ public class ExtractHTMLFieldCollection extends PowerTool {
         nl = parser.parse(filter);
       } catch (ParserException e) {
         context.getCounter(LinkCounter.PARSER_FAILED).increment(1);
+        myValue.setDocid(doc.getDocid());
+        myValue.setContent("<DOC>\n<DOCNO>" + doc.getDocid() + "</DOCNO>\n<DOC>");
+        context.write(myKey, myValue);
         return;
       } catch (StackOverflowError e) {
         context.getCounter(LinkCounter.PARSER_FAILED).increment(1);
+        myValue.setDocid(doc.getDocid());
+        myValue.setContent("<DOC>\n<DOCNO>" + doc.getDocid() + "</DOCNO>\n<DOC>");
+        context.write(myKey, myValue);
         return;
       }
       
@@ -170,6 +177,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
 
     job.setJobName("ExtractFieldCollection");
 
+    job.setJarByClass(ExtractHTMLFieldCollection.class);
     job.setMapperClass(MyMapper.class);
     job.setNumReduceTasks(0);
 
