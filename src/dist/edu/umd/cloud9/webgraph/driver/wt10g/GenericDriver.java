@@ -110,7 +110,7 @@ public class GenericDriver extends Configured implements Tool
 
 	public int run(String[] args) throws Exception
 	{
-		conf = new Configuration();
+		conf = getConf();
 		configer = new CollectionConfigurationManager();
 
 		if (!readInput(args))

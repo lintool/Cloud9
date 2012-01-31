@@ -212,6 +212,17 @@ public class GenericExtractLinks extends PowerTool
 				return;
 			}
 
+			arrayList.clear();
+			arrayList.add(new AnchorText(
+					AnchorTextConstants.Type.DOCNO_FIELD.val,
+					AnchorTextConstants.EMPTY_STRING, docno));
+			keyWord.set(base);
+			context.write(keyWord, arrayList);
+
+			// keeping track of the number of documents that have actually been
+			// processed
+			context.getCounter(LinkCounter.OUTPUT_DOCS).increment(1);
+
 			try
 			{
 				baseHost = new URI(base).getHost();
@@ -333,17 +344,6 @@ public class GenericExtractLinks extends PowerTool
 				}
 
 			}
-
-			arrayList.clear();
-			arrayList.add(new AnchorText(
-					AnchorTextConstants.Type.DOCNO_FIELD.val,
-					AnchorTextConstants.EMPTY_STRING, docno));
-			keyWord.set(base);
-			context.write(keyWord, arrayList);
-
-			// keeping track of the number of documents that have actually been
-			// processed
-			context.getCounter(LinkCounter.OUTPUT_DOCS).increment(1);
 		}
 
 		private static String normalizeURL(String url)
@@ -463,6 +463,7 @@ public class GenericExtractLinks extends PowerTool
 
 		job.setNumReduceTasks(numReducers);
 
+		job.setJarByClass(GenericExtractLinks.class);
 		job.setMapperClass(GenericExtractLinks.Map.class);
 		job.setCombinerClass(GenericExtractLinks.Reduce.class);
 		job.setReducerClass(GenericExtractLinks.Reduce.class);

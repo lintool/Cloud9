@@ -178,6 +178,18 @@ public class ExtractLinks extends PowerTool
 				return;
 			}
 
+			arrayList.clear();
+			arrayList.add(new AnchorText(
+					AnchorTextConstants.Type.DOCNO_FIELD.val,
+					AnchorTextConstants.EMPTY_STRING, docno));
+			keyWord.set(base);
+			output.collect(keyWord, arrayList);
+			arrayList.clear();
+
+			// keeping track of the number of documents that have actually been
+			// processed
+			reporter.incrCounter(LinkCounter.OUTPUT_DOCS, 1);
+
 			try
 			{
 				baseHost = new URI(base).getHost();
@@ -285,17 +297,6 @@ public class ExtractLinks extends PowerTool
 				}
 
 			}
-
-			arrayList.clear();
-			arrayList.add(new AnchorText(
-					AnchorTextConstants.Type.DOCNO_FIELD.val,
-					AnchorTextConstants.EMPTY_STRING, docno));
-			keyWord.set(base);
-			output.collect(keyWord, arrayList);
-
-			// keeping track of the number of documents that have actually been
-			// processed
-			reporter.incrCounter(LinkCounter.OUTPUT_DOCS, 1);
 		}
 	}
 

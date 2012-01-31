@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
+import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.IndexableAnchorText;
@@ -66,11 +66,18 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
   public static class MyMapper extends MapReduceBase implements
       Mapper<IntWritable, ArrayListWritable<AnchorText>, IntWritable, IndexableAnchorText> {
     private static final IndexableAnchorText sOutputValue = new IndexableAnchorText();
-    private static final ClueWarcDocnoMapping docnoMapping = new ClueWarcDocnoMapping(); //Should change to a  generic class
+    private static DocnoMapping docnoMapping;
     private static int maxContentLength;
 
     public void configure(JobConf job) {
       maxContentLength = job.getInt("Cloud9.maxContentLength", 0);
+      String docnoMappingClass = job.get("Cloud9.DocnoMappingClass", "edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping");
+      try {
+        docnoMapping = (DocnoMapping) Class.forName(docnoMappingClass).newInstance();
+      } catch(Exception e) {
+        throw new RuntimeException("Class " + docnoMappingClass + " not found!");
+      }
+
       Path[] localFiles;
       try {
         localFiles = DistributedCache.getLocalCacheFiles(job);
@@ -105,7 +112,8 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
   }
 
   private static int printUsage() {
-    System.out.println("usage: [collection-path] [output-path] [docno-mapping]" +
+    System.out.println("usage: [collection-path] [output-path]" +
+                       " [docno-mapping-class] [docno-mapping-file]" +
                        " [num-reducers] [optional: maximum content length]");
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
@@ -115,27 +123,30 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
    * Runs this tool.
    */
   public int run(String[] args) throws Exception {
-    if (args.length < 4) {
+    if (args.length < 5) {
       printUsage();
       return -1;
     }
 
-    JobConf conf = new JobConf(BuildIndexableAnchorCollection.class);
+    JobConf conf = new JobConf(getConf());
     FileSystem fs = FileSystem.get(conf);
 
     String collectionPath = args[0];
     String outputPath = args[1];
-    String docnoMapping = args[2];
-    int numReducers = Integer.parseInt(args[3]);
-    if(args.length == 5) {
-      conf.setInt("Cloud9.maxContentLength", Integer.parseInt(args[4]));
+    String docnoMappingClass = args[2];
+    String docnoMapping = args[3];
+    int numReducers = Integer.parseInt(args[4]);
+    if(args.length == 6) {
+      conf.setInt("Cloud9.maxContentLength", Integer.parseInt(args[5]));
     }
+    conf.set("Cloud9.DocnoMappingClass", docnoMappingClass);
 
     LOG.info("Tool name: BuildAnchorTextForwardIndex");
     LOG.info(" - collection path: " + collectionPath);
     LOG.info(" - output path: " + outputPath);
+    LOG.info(" - docno-mapping class: " + docnoMappingClass);
     LOG.info(" - docno-mapping file: " + docnoMapping);
-    if(args.length == 5) {
+    if(args.length == 6) {
       LOG.info(" - maximum content length: " + conf.getInt("Cloud9.maxContentLength", 0));
     }
     LOG.info("Note: This tool only works on block-compressed SequenceFiles!");

@@ -135,7 +135,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 			return -1;
 		}
 
-		JobConf conf = new JobConf(BuildAnchorTextForwardIndex.class);
+	        JobConf conf = new JobConf(getConf());
 		FileSystem fs = FileSystem.get(conf);
 
 		String collectionPath = args[0];

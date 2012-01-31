@@ -108,7 +108,7 @@ public class ClueWebDriver extends Configured implements Tool
 	    return -1;
 	}
 
-	Configuration conf = new Configuration();
+   	 Configuration conf = getConf();
 
 	final String inputBase = args[0].endsWith("/") ? args[0] : args[0]
 	        + "/";
