@@ -74,7 +74,7 @@ public class CollectHostnames extends PowerTool {
 						//extract the hostname for a given URL
 						host = new URI(data.getText()).getHost();
 					}catch(Exception e) {
-						throw new RuntimeException(e);
+						return;
 					}
 			}
 			

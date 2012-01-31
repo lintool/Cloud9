@@ -149,7 +149,6 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
     if(args.length == 6) {
       LOG.info(" - maximum content length: " + conf.getInt("Cloud9.maxContentLength", 0));
     }
-    LOG.info("Note: This tool only works on block-compressed SequenceFiles!");
 
     conf.set("mapred.child.java.opts", "-Xmx2048m");
     conf.setJobName("BuildIndexableAnchorCollection");
