@@ -97,9 +97,7 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
         sOutputValue.concatenateAnchors(value);
       }
 
-      if(sOutputValue.getContent().length() > 0) {
-        output.collect(key, sOutputValue);
-      }
+      output.collect(key, sOutputValue);
     }
   }
 
