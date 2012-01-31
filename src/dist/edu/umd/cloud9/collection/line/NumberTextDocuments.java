@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -59,12 +59,12 @@ public class NumberTextDocuments extends Configured implements Tool {
 	};
 
 	private static class MyMapper extends MapReduceBase implements
-			Mapper<Writable, TextDocument, Text, IntWritable> {
+			Mapper<LongWritable, TextDocument, Text, IntWritable> {
 
 		private final static Text sText = new Text();
 		private final static IntWritable sInt = new IntWritable(1);
 
-		public void map(Writable key, TextDocument doc,
+		public void map(LongWritable key, TextDocument doc,
 				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 			reporter.incrCounter(Count.DOCS, 1);
 
