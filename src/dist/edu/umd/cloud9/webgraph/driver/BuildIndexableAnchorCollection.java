@@ -107,7 +107,8 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
   }
 
   private static int printUsage() {
-    System.out.println("usage: [collection-path] [output-path] [docno-mapping] [num-reducers] [optional: maximum content length]");
+    System.out.println("usage: [collection-path] [output-path] [docno-mapping]" +
+                       " [num-reducers] [optional: maximum content length]");
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
   }
