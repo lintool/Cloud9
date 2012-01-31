@@ -362,7 +362,7 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
   }
 
   /**
-   * Merges two sorted (ascending order) lists into one sorted union.
+   * Merges two sorted (ascending order) lists into one sorted union. Duplicate items remain in the merged list.
    *
    * @param sortedLst list to be merged into this
    * @return merged sorted (ascending order) union of this and sortedLst
@@ -384,6 +384,48 @@ public class ArrayListOfInts implements RandomAccess, Cloneable, Iterable<Intege
           result.add(this.get(indA++));
         } else {
           result.add(sortedLst.get(indB++));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Merges two sorted (ascending order) lists into one sorted union. Duplicate items are discarded in the merged list.
+   *
+   * @param sortedLst list to be merged into this
+   * @return merged sorted (ascending order) union of this and sortedLst
+   */
+  public ArrayListOfInts mergeNoDuplicates(ArrayListOfInts sortedLst) {
+    ArrayListOfInts result = new ArrayListOfInts();
+    int indA = 0, indB = 0;
+    while (indA < this.size() || indB < sortedLst.size()) {
+      // if we've iterated to the end, then add from the other
+      if (indA == this.size()) {
+        if (!result.contains(sortedLst.get(indB))) {
+          result.add(sortedLst.get(indB));
+        }
+        indB++;
+        continue;
+      } else if (indB == sortedLst.size()) {
+        if (!result.contains(this.get(indA))) {
+          result.add(this.get(indA));
+        }
+        indA++;
+        continue;
+      } else {
+        // append the lesser value
+        if (this.get(indA) < sortedLst.get(indB)) {
+          if (!result.contains(this.get(indA))) {
+            result.add(this.get(indA));
+          }
+          indA++;
+        } else {
+          if (!result.contains(sortedLst.get(indB))) {
+            result.add(sortedLst.get(indB));
+          }
+          indB++;
         }
       }
     }

@@ -259,15 +259,15 @@ public final class IndexedFloatArray implements Writable, Cloneable {
 	
 	public int[] getTranslations(float probThreshold){
 		ArrayListOfInts words = new ArrayListOfInts(); 
-		if(_useBinSearch){
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>probThreshold){
+		if (_useBinSearch) {
+      for (int i=0; i < _data.length; i++) {
+        if (_data[i] > probThreshold) {
 					words.add(_indices[i]);
 				}
 			}
 		}else{
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>probThreshold){
+      for (int i=0; i < _data.length; i++) {
+        if (_data[i] > probThreshold) {
 					words.add(i);
 				}
 			}
@@ -276,17 +276,17 @@ public final class IndexedFloatArray implements Writable, Cloneable {
 		return words.getArray();
 	}
 	
-	public PriorityQueue<PairOfFloatInt> getTranslationsWithProbs(){
+	public PriorityQueue<PairOfFloatInt> getTranslationsWithProbs(float probThreshold){
 		PriorityQueue<PairOfFloatInt> q = new PriorityQueue<PairOfFloatInt>(); 
-		if(_useBinSearch){
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>0.01){
+    if (_useBinSearch) {
+      for (int i=0; i < _data.length; i++) {
+        if (_data[i] > probThreshold) {
 					q.add(new PairOfFloatInt(_data[i],_indices[i]));
 				}
 			}
 		}else{
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>0.01){
+      for (int i=0; i < _data.length; i++) {
+        if (_data[i] > probThreshold) {
 					q.add(new PairOfFloatInt(_data[i],i));
 				}
 			}
@@ -294,17 +294,17 @@ public final class IndexedFloatArray implements Writable, Cloneable {
 		return q;
 	}
 	
-	public List<PairOfFloatInt> getTranslationsWithProbsAsList(){
+	public List<PairOfFloatInt> getTranslationsWithProbsAsList(float probThreshold){
 		List<PairOfFloatInt> l = new ArrayList<PairOfFloatInt>(); 
-		if(_useBinSearch){
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>0.01){
+    if (_useBinSearch) {
+			for(int i=0; i < _data.length; i++){
+				if (_data[i] > probThreshold) {
 					l.add(new PairOfFloatInt(_data[i],_indices[i]));
 				}
 			}
 		}else{
-			for(int i=0;i<_data.length;i++){
-				if(_data[i]>0.01){
+			for (int i=0; i < _data.length; i++) {
+				if (_data[i] > probThreshold) {
 					l.add(new PairOfFloatInt(_data[i],i));
 				}
 			}

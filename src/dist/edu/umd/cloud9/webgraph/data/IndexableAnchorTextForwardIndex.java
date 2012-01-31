@@ -105,7 +105,7 @@ public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<Ind
 			reader.getCurrentValue(value);
 			reader.close();
 			
-			indexableAnchorText.process(value);
+			indexableAnchorText.createHTML(value);
 			return indexableAnchorText;
 		} catch (IOException e) {
 			e.printStackTrace();
