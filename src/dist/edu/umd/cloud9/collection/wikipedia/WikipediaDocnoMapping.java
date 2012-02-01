@@ -83,9 +83,8 @@ public class WikipediaDocnoMapping implements DocnoMapping {
    * @param outputFile output mappings file
    * @throws IOException
    */
-  static public void writeDocnoMappingData(String inputFile, int n, String outputFile)
+  static public void writeDocnoMappingData(FileSystem fs, String inputFile, int n, String outputFile)
       throws IOException {
-    FileSystem fs = FileSystem.get(new Configuration());
     LOG.info("Writing " + n + " docids to " + outputFile);
     LineReader reader = new LineReader(fs.open(new Path(inputFile)));
 
