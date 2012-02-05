@@ -10,11 +10,11 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.collection.IndexableFileInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
+import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
 
-public class PmcArticleInputFormat extends IndexableFileInputFormat<LongWritable, PmcArticle> {
+public class PmcArticleInputFormat extends IndexableFileInputFormatOld<LongWritable, PmcArticle> {
 
 	public void configure(JobConf conf) {
 	}
@@ -31,8 +31,8 @@ public class PmcArticleInputFormat extends IndexableFileInputFormat<LongWritable
 		private LongWritable mLong = new LongWritable();
 
 		public PmcArticleRecordReader(FileSplit split, JobConf conf) throws IOException {
-			conf.set(XMLInputFormat.START_TAG_KEY, PmcArticle.XML_START_TAG);
-			conf.set(XMLInputFormat.END_TAG_KEY, PmcArticle.XML_END_TAG);
+			conf.set(XMLInputFormatOld.START_TAG_KEY, PmcArticle.XML_START_TAG);
+			conf.set(XMLInputFormatOld.END_TAG_KEY, PmcArticle.XML_END_TAG);
 
 			mReader = new XMLRecordReader(split, conf);
 		}

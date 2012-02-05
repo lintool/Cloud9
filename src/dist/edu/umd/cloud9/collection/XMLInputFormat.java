@@ -19,6 +19,7 @@ package edu.umd.cloud9.collection;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -28,49 +29,50 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.log4j.Logger;
 
-// Solution for reading XML files, posted to the Hadoop users mailing list.
-// Re: map/reduce function on xml string - Colin Evans-2 Mar 04, 2008; 02:27pm
-
 /**
- * A simple {@link org.apache.hadoop.mapred.InputFormat} for XML documents ({@code
- * org.apache.hadoop.mapred} API). The class recognizes begin-of-document and end-of-document tags
- * only: everything between those delimiting tags is returned in an uninterpreted {@code Text}
+ * A simple {@link org.apache.hadoop.mapreduce.InputFormat} for XML documents ({@code
+ * org.apache.hadoop.mapreduce} API). The class recognizes begin-of-document and end-of-document
+ * tags only: everything between those delimiting tags is returned in an uninterpreted {@code Text}
  * object.
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class XMLInputFormat extends TextInputFormat {
   public static final String START_TAG_KEY = "xmlinput.start";
   public static final String END_TAG_KEY = "xmlinput.end";
 
+  /**
+   * Create a record reader for a given split. The framework will call
+   * {@link RecordReader#initialize(InputSplit, TaskAttemptContext)} before
+   * the split is used.
+   *
+   * @param split the split to be read
+   * @param context the information about the task
+   * @return a new record reader
+   * @throws IOException
+   * @throws InterruptedException
+   */
   @Override
-  public void configure(JobConf jobConf) {
-    super.configure(jobConf);
-  }
-
-  @Override
-  public RecordReader<LongWritable, Text> getRecordReader(InputSplit inputSplit, JobConf jobConf,
-      Reporter reporter) throws IOException {
-    return new XMLRecordReader((FileSplit) inputSplit, jobConf);
+  public RecordReader<LongWritable, Text> createRecordReader(InputSplit split,
+      TaskAttemptContext context) {
+    return new XMLRecordReader();
   }
 
   /**
-   * Simple {@link RecordReader} for XML documents ({@code org.apache.hadoop.mapred} API).
-   * Recognizes begin-of-document and end-of-document tags only: everything between those delimiting
-   * tags is returned in a {@link Text} object.
+   * Simple {@link org.apache.hadoop.mapreduce.RecordReader} for XML documents ({@code
+   * org.apache.hadoop.mapreduce} API). Recognizes begin-of-document and end-of-document tags only:
+   * everything between those delimiting tags is returned in a {@link Text} object.
    *
    * @author Jimmy Lin
    */
-  public static class XMLRecordReader implements RecordReader<LongWritable, Text> {
+  public static class XMLRecordReader extends RecordReader<LongWritable, Text> {
     private static final Logger LOG = Logger.getLogger(XMLRecordReader.class);
 
     private byte[] startTag;
@@ -83,30 +85,43 @@ public class XMLInputFormat extends TextInputFormat {
 
     private long recordStartPos;
 
-    public XMLRecordReader(FileSplit split, JobConf jobConf) throws IOException {
-      if (jobConf.get(START_TAG_KEY) == null || jobConf.get(END_TAG_KEY) == null)
+    private final LongWritable key = new LongWritable();
+    private final Text value = new Text();
+
+    /**
+     * Called once at initialization.
+     *
+     * @param input the split that defines the range of records to read
+     * @param context the information about the task
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Override
+    public void initialize(InputSplit input, TaskAttemptContext context)
+        throws IOException, InterruptedException {
+      Configuration conf = context.getConfiguration();
+      if (conf.get(START_TAG_KEY) == null || conf.get(END_TAG_KEY) == null)
         throw new RuntimeException("Error! XML start and end tags unspecified!");
 
-      startTag = jobConf.get(START_TAG_KEY).getBytes("utf-8");
-      endTag = jobConf.get(END_TAG_KEY).getBytes("utf-8");
+      startTag = conf.get(START_TAG_KEY).getBytes("utf-8");
+      endTag = conf.get(END_TAG_KEY).getBytes("utf-8");
 
+      FileSplit split = (FileSplit) input;
       start = split.getStart();
       Path file = split.getPath();
 
-      CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(jobConf);
+      CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
       CompressionCodec codec = compressionCodecs.getCodec(file);
 
-      FileSystem fs = file.getFileSystem(jobConf);
+      FileSystem fs = file.getFileSystem(conf);
 
       if (codec != null) {
         LOG.info("Reading compressed file...");
-
         fsin = new DataInputStream(codec.createInputStream(fs.open(file)));
 
         end = Long.MAX_VALUE;
       } else {
         LOG.info("Reading uncompressed file...");
-
         FSDataInputStream fileIn = fs.open(file);
 
         fileIn.seek(start);
@@ -117,13 +132,20 @@ public class XMLInputFormat extends TextInputFormat {
 
       recordStartPos = start;
 
-      // Because input streams of gzipped files are not seekable (specifically, do not support
-      // getPos), we need to keep track of bytes consumed ourselves.
+      // Because input streams of gzipped files are not seekable, we need to keep track of bytes
+      // consumed ourselves.
       pos = start;
     }
 
+    /**
+     * Read the next key, value pair.
+     *
+     * @return {@code true} if a key/value pair was read
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
-    public boolean next(LongWritable key, Text value) throws IOException {
+    public boolean nextKeyValue() throws IOException, InterruptedException {
       if (pos < end) {
         if (readUntilMatch(startTag, false)) {
           recordStartPos = pos - startTag.length;
@@ -136,12 +158,13 @@ public class XMLInputFormat extends TextInputFormat {
               return true;
             }
           } finally {
-            // Because input streams of gzipped files are not seekable (specifically, do not support
-            // getPos), we need to keep track of bytes consumed ourselves.
+            // Because input streams of gzipped files are not seekable, we need to keep track of
+            // bytes consumed ourselves.
 
             // This is a sanity check to make sure our internal computation of bytes consumed is
             // accurate. This should be removed later for efficiency once we confirm that this code
             // works correctly.
+
             if (fsin instanceof Seekable) {
               if (pos != ((Seekable) fsin).getPos()) {
                 throw new RuntimeException("bytes consumed error!");
@@ -155,67 +178,75 @@ public class XMLInputFormat extends TextInputFormat {
       return false;
     }
 
+    /**
+     * Returns the current key.
+     *
+     * @return the current key or {@code null} if there is no current key
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
-    public LongWritable createKey() {
-      return new LongWritable();
+    public LongWritable getCurrentKey() throws IOException, InterruptedException {
+      return key;
     }
 
+    /**
+     * Returns the current value.
+     *
+     * @return current value
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
-    public Text createValue() {
-      return new Text();
+    public Text getCurrentValue() throws IOException, InterruptedException {
+      return value;
     }
 
-    @Override
-    public long getPos() throws IOException {
-      return pos;
-    }
-
+    /**
+     * Closes the record reader.
+     */
     @Override
     public void close() throws IOException {
       fsin.close();
     }
 
+    /**
+     * The current progress of the record reader through its data.
+     *
+     * @return a number between 0.0 and 1.0 that is the fraction of the data read
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public float getProgress() throws IOException {
       return ((float) (pos - start)) / ((float) (end - start));
     }
 
-    public long getStart() {
-      return start;
-    }
-
-    public long getEnd() {
-      return end;
-    }
-
-    private boolean readUntilMatch(byte[] match, boolean withinBlock) throws IOException {
+    private boolean readUntilMatch(byte[] match, boolean withinBlock)
+        throws IOException {
       int i = 0;
       while (true) {
         int b = fsin.read();
-        // Increment position (bytes consumed).
+        // increment position (bytes consumed)
         pos++;
 
-        // End of file:
-        if (b == -1) {
+        // end of file:
+        if (b == -1)
           return false;
-        }
-        // Save to buffer:
-        if (withinBlock) {
+        // save to buffer:
+        if (withinBlock)
           buffer.write(b);
-        }
-        // Check if we're matching:
+
+        // check if we're matching:
         if (b == match[i]) {
           i++;
-          if (i >= match.length) {
+          if (i >= match.length)
             return true;
-          }
-        } else {
+        } else
           i = 0;
-        }
-        // See if we've passed the stop point:
-        if (!withinBlock && i == 0 && pos >= end) {
+        // see if we've passed the stop point:
+        if (!withinBlock && i == 0 && pos >= end)
           return false;
-        }
       }
     }
   }

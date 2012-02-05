@@ -18,8 +18,19 @@ package edu.umd.cloud9.collection;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.util.ToolRunner;
 
 /**
  * <p>
@@ -63,5 +74,67 @@ public interface DocnoMapping {
    * @param fs reference to the {@code FileSystem}
    * @throws IOException
    */
-  public void loadMapping(Path path, FileSystem fs) throws IOException;
+  void loadMapping(Path path, FileSystem fs) throws IOException;
+
+  Builder getBuilder();
+
+  public interface Builder {
+    int build(Path src, Path dest, Configuration conf) throws IOException;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static class DefaultBuilderOptions {
+    public Class<? extends InputFormat> inputFormat;
+    public String collection;
+    public String docnoMapping;
+  }
+
+  @SuppressWarnings( { "static-access", "unchecked" })
+  public static class BuilderUtils {
+    public static final String COLLECTION_OPTION = "collection";
+    public static final String MAPPING_OPTION = "docnoMapping";
+    public static final String FORMAT_OPTION = "inputFormat";
+
+    public static DefaultBuilderOptions parseDefaultOptions(String[] args) {
+      Options options = new Options();
+      options.addOption(OptionBuilder.withArgName("path").hasArg()
+          .withDescription("(required) collection path").create(COLLECTION_OPTION));
+      options.addOption(OptionBuilder.withArgName("path").hasArg()
+          .withDescription("(required) output DocnoMapping path").create(MAPPING_OPTION));
+      options.addOption(OptionBuilder.withArgName("class").hasArg()
+          .withDescription("(optional) fully-qualified Hadoop InputFormat").create(FORMAT_OPTION));
+
+      CommandLine cmdline;
+      CommandLineParser parser = new GnuParser();
+      try {
+        cmdline = parser.parse(options, args);
+      } catch (ParseException exp) {
+        System.err.println("Error parsing command line: " + exp.getMessage());
+        return null;
+      }
+
+      if (!cmdline.hasOption(COLLECTION_OPTION) || !cmdline.hasOption(MAPPING_OPTION)) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(DefaultBuilderOptions.class.getName(), options);
+        ToolRunner.printGenericCommandUsage(System.out);
+        return null;
+      }
+
+      DefaultBuilderOptions parsedOptions = new DefaultBuilderOptions();
+      parsedOptions.inputFormat = SequenceFileInputFormat.class;
+      if (cmdline.hasOption(FORMAT_OPTION)) {
+        try {
+          parsedOptions.inputFormat = (Class<? extends InputFormat>) Class.forName(cmdline
+              .getOptionValue(FORMAT_OPTION));
+        } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      parsedOptions.collection = cmdline.getOptionValue(COLLECTION_OPTION);
+      parsedOptions.docnoMapping = cmdline.getOptionValue(MAPPING_OPTION);
+
+      return parsedOptions;
+    }
+  }
 }

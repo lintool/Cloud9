@@ -24,12 +24,12 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import edu.umd.cloud9.collection.IndexableFileInputFormat2;
-import edu.umd.cloud9.collection.XMLInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat2.XMLRecordReader;
+import edu.umd.cloud9.collection.IndexableFileInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 public class Aquaint2DocumentInputFormat2 extends
-    IndexableFileInputFormat2<LongWritable, Aquaint2Document> {
+    IndexableFileInputFormat<LongWritable, Aquaint2Document> {
 
   @Override
   public RecordReader<LongWritable, Aquaint2Document> createRecordReader(
@@ -46,8 +46,8 @@ public class Aquaint2DocumentInputFormat2 extends
     public void initialize(InputSplit split, TaskAttemptContext context)
         throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
-      conf.set(XMLInputFormat.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
-      conf.set(XMLInputFormat.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
+      conf.set(XMLInputFormatOld.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
+      conf.set(XMLInputFormatOld.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
 
       reader.initialize(split, context);
     }

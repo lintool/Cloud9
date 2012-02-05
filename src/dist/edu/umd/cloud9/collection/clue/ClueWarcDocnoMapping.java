@@ -97,4 +97,9 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 
     reader.close();
   }
+
+  @Override
+  public Builder getBuilder() {
+    throw new UnsupportedOperationException();
+  }
 }

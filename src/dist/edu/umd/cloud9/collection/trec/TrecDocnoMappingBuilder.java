@@ -17,6 +17,8 @@
 package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -34,6 +36,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+
+import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
  * <p>
@@ -63,8 +67,9 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-public class NumberTrecDocuments2 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(NumberTrecDocuments2.class);
+public class TrecDocnoMappingBuilder extends Configured implements Tool, DocnoMapping.Builder {
+  private static final Logger LOG = Logger.getLogger(TrecDocnoMappingBuilder.class);
+  private static final Random random = new Random();
   private static enum Count { DOCS };
 
   private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
@@ -94,43 +99,45 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public NumberTrecDocuments2() {
-  }
+  public TrecDocnoMappingBuilder() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input-path] [output-path] [output-file]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
+  @Override
+  public int build(Path src, Path dest, Configuration conf) throws IOException {
+    super.setConf(conf);
+    return run(new String[] {
+        "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + src.toString(),
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + dest.toString() });
   }
 
   /**
    * Runs this tool.
    */
-  public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+  public int run(String[] args) throws IOException {
+    DocnoMapping.DefaultBuilderOptions options = DocnoMapping.BuilderUtils.parseDefaultOptions(args);
+    if ( options == null) {
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    String outputFile = args[2];
+    // Temp directory.
+    String tmpDir = "tmp-" + TrecDocnoMappingBuilder.class.getSimpleName() +
+        "-" + random.nextInt(10000);
 
-    LOG.info("Tool: " + NumberTrecDocuments2.class.getCanonicalName());
-    LOG.info(" - Input path: " + inputPath);
-    LOG.info(" - Output path: " + outputPath);
-    LOG.info(" - Output file: " + outputFile);
+    LOG.info("Tool name: " + TrecDocnoMappingBuilder.class.getCanonicalName());
+    LOG.info(" - input path: " + options.collection);
+    LOG.info(" - output file: " + options.docnoMapping);
 
-    Job job = new Job(getConf(), NumberTrecDocuments2.class.getSimpleName());
-    job.setJarByClass(NumberTrecDocuments.class);
+    Job job = new Job(getConf(), TrecDocnoMappingBuilder.class.getSimpleName());
+    FileSystem fs = FileSystem.get(job.getConfiguration());
+
+    job.setJarByClass(TrecDocnoMappingBuilder.class);
 
     job.setNumReduceTasks(1);
 
-    FileInputFormat.setInputPaths(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, new Path(options.collection));
+    FileOutputFormat.setOutputPath(job, new Path(tmpDir));
     FileOutputFormat.setCompressOutput(job, false);
 
-    job.setInputFormatClass(TrecDocumentInputFormat2.class);
+    job.setInputFormatClass(TrecDocumentInputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     job.setOutputFormatClass(TextOutputFormat.class);
@@ -139,13 +146,19 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
+    fs.delete(new Path(tmpDir), true);
 
-    job.waitForCompletion(true);
+    try {
+      job.waitForCompletion(true);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
-    String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    TrecDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
+    String input = tmpDir + (tmpDir.endsWith("/") ? "" : "/") + "/part-r-00000";
+    TrecDocnoMapping.writeMappingData(new Path(input), new Path(options.docnoMapping),
         FileSystem.get(getConf()));
+
+    fs.delete(new Path(tmpDir), true);
 
     return 0;
   }
@@ -154,6 +167,8 @@ public class NumberTrecDocuments2 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new Configuration(), new NumberTrecDocuments2(), args);
+    LOG.info("Running " + TrecDocnoMappingBuilder.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(new Configuration(), new TrecDocnoMappingBuilder(), args);
   }
 }

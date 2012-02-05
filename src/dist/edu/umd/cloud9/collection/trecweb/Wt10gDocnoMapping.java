@@ -124,6 +124,11 @@ public class Wt10gDocnoMapping implements DocnoMapping {
     in.close();
   }
 
+  @Override
+  public Builder getBuilder() {
+    return new TrecWebDocnoMappingBuilder();
+  }
+
   /**
    * Simple program the provides access to the docno/docid mappings.
    * @param args command-line arguments

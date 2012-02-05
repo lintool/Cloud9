@@ -26,13 +26,13 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.collection.IndexableFileInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
+import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
 
 @SuppressWarnings("deprecation")
 public class Aquaint2DocumentInputFormat extends
-    IndexableFileInputFormat<LongWritable, Aquaint2Document> {
+    IndexableFileInputFormatOld<LongWritable, Aquaint2Document> {
 
   public void configure(JobConf conf) {}
 
@@ -48,8 +48,8 @@ public class Aquaint2DocumentInputFormat extends
     private final LongWritable offset = new LongWritable();
 
     public Aquaint2DocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
-      conf.set(XMLInputFormat.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
-      conf.set(XMLInputFormat.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
+      conf.set(XMLInputFormatOld.START_TAG_KEY, Aquaint2Document.XML_START_TAG);
+      conf.set(XMLInputFormatOld.END_TAG_KEY, Aquaint2Document.XML_END_TAG);
 
       reader = new XMLRecordReader(split, conf);
     }

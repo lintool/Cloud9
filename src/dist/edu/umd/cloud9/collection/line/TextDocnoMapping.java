@@ -30,7 +30,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.trec.NumberTrecDocuments;
+import edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder;
 import edu.umd.cloud9.io.FSLineReader;
 
 /**
@@ -69,7 +69,7 @@ public class TextDocnoMapping implements DocnoMapping {
 	/**
 	 * Creates a mappings file from the contents of a flat text file containing
 	 * docid to docno mappings. This method is used by
-	 * {@link NumberTrecDocuments} internally.
+	 * {@link TrecDocnoMappingBuilder} internally.
 	 * 
 	 * @param inputFile
 	 *            flat text file containing docid to docno mappings
@@ -143,6 +143,11 @@ public class TextDocnoMapping implements DocnoMapping {
 
 		return arr;
 	}
+
+  @Override
+  public Builder getBuilder() {
+    throw new UnsupportedOperationException();
+  }
 
 	/**
 	 * Simple program the provides access to the docno/docid mappings.

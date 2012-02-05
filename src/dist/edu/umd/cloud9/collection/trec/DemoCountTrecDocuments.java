@@ -18,7 +18,15 @@ package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -27,14 +35,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -61,7 +66,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * <blockquote><pre>
  * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
  *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments \
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments2 \
  *   -libjars=guava-r09.jar \
  *   /shared/collections/trec/trec4-5_noCRFR.xml \
  *   /user/jimmylin/count-tmp \
@@ -70,100 +75,122 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class DemoCountTrecDocuments extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(DemoCountTrecDocuments.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends MapReduceBase implements
-      Mapper<LongWritable, TrecDocument, Text, IntWritable> {
-    private final static Text docid = new Text();
-    private final static IntWritable one = new IntWritable(1);
+  private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
+    private static final Text docid = new Text();
+    private static final IntWritable one = new IntWritable(1);
     private DocnoMapping docMapping;
 
-    public void configure(JobConf job) {
+    @Override
+    public void setup(Context context) {
       try {
-        Path[] localFiles = DistributedCache.getLocalCacheFiles(job);
+        Configuration conf = context.getConfiguration();
+        Path[] localFiles = DistributedCache.getLocalCacheFiles(conf);
 
         // Instead of hard-coding the actual concrete DocnoMapping class, have the name of the
         // class passed in as a property; this makes the mapper more general.
-        docMapping = (DocnoMapping) Class.forName(job.get("DocnoMappingClass")).newInstance();
+        docMapping = (DocnoMapping) Class.forName(conf.get("DocnoMappingClass")).newInstance();
 
         // Simply assume that the mappings file is the only file in the distributed cache.
-        docMapping.loadMapping(localFiles[0], FileSystem.getLocal(job));
+        docMapping.loadMapping(localFiles[0], FileSystem.getLocal(conf));
       } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("Error initializing DocnoMapping!");
       }
     }
 
-    public void map(LongWritable key, TrecDocument doc, OutputCollector<Text, IntWritable> output,
-        Reporter reporter) throws IOException {
-      reporter.incrCounter(Count.DOCS, 1);
-
+    @Override
+    public void map(LongWritable key, TrecDocument doc, Context context)
+        throws IOException, InterruptedException {
+      context.getCounter(Count.DOCS).increment(1);
       docid.set(doc.getDocid());
       one.set(docMapping.getDocno(doc.getDocid()));
-      output.collect(docid, one);
+      context.write(docid, one);
     }
   }
 
   /**
    * Creates an instance of this tool.
    */
-  public DemoCountTrecDocuments() {
-  }
+  public DemoCountTrecDocuments() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input] [output-dir] [mappings-file]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  public static final String COLLECTION_OPTION = "collection";
+  public static final String OUTPUT_OPTION = "output";
+  public static final String MAPPING_OPTION = "docnoMapping";
 
   /**
    * Runs this tool.
    */
+  @SuppressWarnings("static-access")
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) collection path").create(COLLECTION_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) DocnoMapping data").create(MAPPING_OPTION));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    String mappingFile = args[2];
+    if (!cmdline.hasOption(COLLECTION_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(MAPPING_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(COLLECTION_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
 
     LOG.info("Tool: " + DemoCountTrecDocuments.class.getCanonicalName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    JobConf conf = new JobConf(getConf(), DemoCountTrecDocuments.class);
-    conf.setJobName(DemoCountTrecDocuments.class.getSimpleName());
+    Job job = new Job(getConf(), DemoCountTrecDocuments.class.getSimpleName());
+    job.setJarByClass(DemoCountTrecDocuments.class);
 
-    conf.setNumReduceTasks(0);
+    job.setNumReduceTasks(0);
 
     // Pass in the class name as a String; this is makes the mapper general in being able to load
     // any collection of Indexable objects that has docid/docno mapping specified by a DocnoMapping
     // object.
-    conf.set("DocnoMappingClass", TrecDocnoMapping.class.getCanonicalName());
+    job.getConfiguration().set("DocnoMappingClass", TrecDocnoMapping.class.getCanonicalName());
 
     // Put the mapping file in the distributed cache so each map worker will have it.
-    DistributedCache.addCacheFile(new URI(mappingFile), conf);
+    DistributedCache.addCacheFile(new URI(mappingFile), job.getConfiguration());
 
-    FileInputFormat.setInputPaths(conf, new Path(inputPath));
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-    FileOutputFormat.setCompressOutput(conf, false);
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(job, false);
 
-    conf.setInputFormat(TrecDocumentInputFormat.class);
-    conf.setOutputKeyClass(Text.class);
-    conf.setOutputValueClass(IntWritable.class);
+    job.setInputFormatClass(TrecDocumentInputFormat.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
 
-    conf.setMapperClass(MyMapper.class);
+    job.setMapperClass(MyMapper.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(conf).delete(new Path(outputPath), true);
+    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
 
-    JobClient.runJob(conf);
+    job.waitForCompletion(true);
+
+    Counters counters = job.getCounters();
+    int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
+    LOG.info("Read " + numDocs + " docs.");
 
     return 0;
   }
@@ -172,6 +199,8 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
+    LOG.info("Running " + DemoCountTrecDocuments.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
     ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
   }
 }

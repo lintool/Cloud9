@@ -109,6 +109,9 @@
     <javac classpathref="lib.path.id" srcdir="${src.dir}/test" destdir="${build.dir}" optimize="on" debug="on">
       <compilerarg value="-Xlint:unchecked" />
     </javac>
+    <javac classpathref="lib.path.id" srcdir="${src.dir}/integration" destdir="${build.dir}" optimize="on" debug="on">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
     <copy todir="${build.dir}">
       <fileset dir="${src.dir}/test" excludes="**/*.java" />
       <fileset dir="${src.dir}/dist" excludes="**/*.java" />

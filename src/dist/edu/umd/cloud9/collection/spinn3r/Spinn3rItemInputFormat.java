@@ -29,11 +29,11 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.umd.cloud9.collection.IndexableFileInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
+import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
 
-public class Spinn3rItemInputFormat extends IndexableFileInputFormat<LongWritable, Spinn3rItem> {
+public class Spinn3rItemInputFormat extends IndexableFileInputFormatOld<LongWritable, Spinn3rItem> {
 
 	public void configure(JobConf conf) {
 	}
@@ -52,8 +52,8 @@ public class Spinn3rItemInputFormat extends IndexableFileInputFormat<LongWritabl
 		private int mFileOffset;
 
 		public Spinn3rItemRecordReader(FileSplit split, JobConf conf) throws IOException {
-			conf.set(XMLInputFormat.START_TAG_KEY, Spinn3rItem.XML_START_TAG);
-			conf.set(XMLInputFormat.END_TAG_KEY, Spinn3rItem.XML_END_TAG);
+			conf.set(XMLInputFormatOld.START_TAG_KEY, Spinn3rItem.XML_START_TAG);
+			conf.set(XMLInputFormatOld.END_TAG_KEY, Spinn3rItem.XML_END_TAG);
 
 			mReader = new XMLRecordReader(split, conf);
 

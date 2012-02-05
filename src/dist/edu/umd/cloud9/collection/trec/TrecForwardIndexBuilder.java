@@ -18,7 +18,16 @@ package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Random;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -58,8 +67,9 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  */
-public class BuildTrecForwardIndex2 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(BuildTrecForwardIndex2.class);
+public class TrecForwardIndexBuilder extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(TrecForwardIndexBuilder.class);
+  private static final Random random = new Random();
   private static enum Count { DOCS };
 
   private static final String DOCNO_MAPPING_FILE_PROPERTY = "DocnoMappingFile";
@@ -105,40 +115,58 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
     }
   }
 
-  public BuildTrecForwardIndex2() {
-  }
+  public TrecForwardIndexBuilder() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [collection-path] [output-path] [index-file] [docno-mapping-file]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  public static final String COLLECTIION_OPTION = "collection";
+  public static final String INDEX_OPTION = "index";
+  public static final String MAPPING_OPTION = "docnoMapping";
 
   /**
    * Runs this tool.
    */
+  @SuppressWarnings("static-access")
   public int run(String[] args) throws Exception {
-    if (args.length != 4) {
-      printUsage();
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) collection path").create(COLLECTIION_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) output index path").create(INDEX_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) DocnoMapping data").create(MAPPING_OPTION));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    Job job = new Job(getConf(), BuildTrecForwardIndex2.class.getCanonicalName());
-    job.setJarByClass(BuildTrecForwardIndex2.class);
+    if (!cmdline.hasOption(COLLECTIION_OPTION) || !cmdline.hasOption(INDEX_OPTION) ||
+        !cmdline.hasOption(MAPPING_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String collectionPath = cmdline.getOptionValue(COLLECTIION_OPTION);
+    String indexFile = cmdline.getOptionValue(INDEX_OPTION);
+    String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
+    String tmpDir = "tmp-" + TrecForwardIndexBuilder.class.getSimpleName() + "-"
+        + random.nextInt(10000);
+
+    Job job = new Job(getConf(), TrecForwardIndexBuilder.class.getCanonicalName());
+    job.setJarByClass(TrecForwardIndexBuilder.class);
     FileSystem fs = FileSystem.get(getConf());
 
-    String collectionPath = args[0];
-    String outputPath = args[1];
-    String indexFile = args[2];
-    String mappingFile = args[3];
-
-    LOG.info("Tool name: " + BuildTrecForwardIndex2.class.getSimpleName());
+    LOG.info("Tool name: " + TrecForwardIndexBuilder.class.getSimpleName());
     LOG.info(" - collection path: " + collectionPath);
-    LOG.info(" - output path: " + outputPath);
     LOG.info(" - index file: " + indexFile);
-    LOG.info(" - mapping file: " + mappingFile);
+    LOG.info(" - DocnoMapping file: " + mappingFile);
+    LOG.info(" - temp output directory: " + tmpDir);
 
-    job.getConfiguration().set("mapred.child.java.opts", "-Xmx1024m");
     job.setNumReduceTasks(1);
 
     if (job.getConfiguration().get("mapred.job.tracker").equals("local")) {
@@ -148,23 +176,23 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
     }
 
     FileInputFormat.setInputPaths(job, new Path(collectionPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileOutputFormat.setOutputPath(job, new Path(tmpDir));
     FileOutputFormat.setCompressOutput(job, false);
 
-    job.setInputFormatClass(TrecDocumentInputFormat2.class);
+    job.setInputFormatClass(TrecDocumentInputFormat.class);
     job.setOutputKeyClass(IntWritable.class);
     job.setOutputValueClass(Text.class);
 
     job.setMapperClass(MyMapper.class);
 
     // delete the output directory if it exists already
-    FileSystem.get(getConf()).delete(new Path(outputPath), true);
+    FileSystem.get(getConf()).delete(new Path(tmpDir), true);
 
     job.waitForCompletion(true);
     Counters counters = job.getCounters();
     int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
 
-    String inputFile = outputPath + "/" + "part-r-00000";
+    String inputFile = tmpDir + "/" + "part-r-00000";
 
     LOG.info("Writing " + numDocs + " doc offseta to " + indexFile);
     LineReader reader = new LineReader(fs.open(new Path(inputFile)));
@@ -198,6 +226,8 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
       throw new RuntimeException("Unexpected number of documents in building forward index!");
     }
 
+    fs.delete(new Path(tmpDir), true);
+
     return 0;
   }
 
@@ -205,8 +235,8 @@ public class BuildTrecForwardIndex2 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
    */
   public static void main(String[] args) throws Exception {
-    Configuration conf = new Configuration();
-    int res = ToolRunner.run(conf, new BuildTrecForwardIndex2(), args);
-    System.exit(res);
+    LOG.info("Running " + TrecForwardIndexBuilder.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(new Configuration(), new TrecForwardIndexBuilder(), args);
   }
 }
