@@ -7,9 +7,9 @@ import java.text.NumberFormat;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.LineReader;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.util.map.HMapKI;
 import edu.umd.cloud9.util.map.MapKI;
 
@@ -78,7 +78,7 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 
   @Override
   public void loadMapping(Path p, FileSystem fs) throws IOException {
-    FSLineReader reader = new FSLineReader(p, fs);
+    LineReader reader = new LineReader(fs.open(p));
     Text t = new Text();
     int cnt = 0;
     String prevSec = null;

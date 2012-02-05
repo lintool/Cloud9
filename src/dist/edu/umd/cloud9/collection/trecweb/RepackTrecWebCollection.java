@@ -43,21 +43,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
- * Program to uncompress the gov2 collection from the original distribution and
- * repack as <code>SequenceFiles</code>.
- * </p>
- *
- * <p>
- * The program takes three command-line arguments:
- * </p>
- *
- * <ul>
- * <li>[base-path] base path of the ClueWeb09 distribution</li>
- * <li>[output-path] output path</li>
- * <li>(block|record|none) to indicate block-compression, record-compression,
- * or no compression</li>
- * </ul>
+ * Tool to repack TREC web collections (wt10g, gov2) into {@link SequenceFile}s. Run without any
+ * arguments for help. The guava jar must be included using {@code -libjar}.
  *
  * @author Jimmy Lin
  */
@@ -193,7 +180,6 @@ public class RepackTrecWebCollection extends Configured implements Tool {
   public static void main(String[] args) throws Exception {
     LOG.info("Running " + RepackTrecWebCollection.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
-    int res = ToolRunner.run(new Configuration(), new RepackTrecWebCollection(), args);
-    System.exit(res);
+    ToolRunner.run(new Configuration(), new RepackTrecWebCollection(), args);
   }
 }

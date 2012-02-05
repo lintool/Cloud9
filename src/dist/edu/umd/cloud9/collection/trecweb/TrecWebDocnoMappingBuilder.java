@@ -44,24 +44,9 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * Numbers documents in TREC web collections that have been repacked into {@code SequenceFile}s.
- * Sample invocations:
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trecweb.NumberTrecWebDocuments \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/wt10g/collection.compressed.block \
- *   /user/jimmylin/tmp \
- *   /user/jimmylin/docno-mapping.dat 100
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trecweb.NumberTrecWebDocuments \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/gov2/collection.compressed.block \
- *   /user/jimmylin/tmp \
- *   /user/jimmylin/docno-mapping.dat 100
- * </pre></blockquote>
+ * Tool that builds the mapping from docids (String identifiers) to docnos (sequentially-numbered
+ * ints) for TREC web collections (wt10g, gov2). Run without any arguments for help. The guava jar
+ * must be included using {@code -libjar}.
  *
  * @author Jimmy Lin
  */

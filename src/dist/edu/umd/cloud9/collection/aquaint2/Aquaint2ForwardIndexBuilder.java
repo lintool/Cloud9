@@ -23,12 +23,12 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.io.FSLineReader;
 
 /**
  * <p>
@@ -46,9 +46,9 @@ import edu.umd.cloud9.io.FSLineReader;
  * @author Jimmy Lin
  * 
  */
-public class BuildAquaint2ForwardIndex extends Configured implements Tool {
+public class Aquaint2ForwardIndexBuilder extends Configured implements Tool {
 
-	private static final Logger sLogger = Logger.getLogger(BuildAquaint2ForwardIndex.class);
+	private static final Logger sLogger = Logger.getLogger(Aquaint2ForwardIndexBuilder.class);
 
 	private static enum Count {
 		DOCS
@@ -94,7 +94,7 @@ public class BuildAquaint2ForwardIndex extends Configured implements Tool {
 		}
 	}
 
-	public BuildAquaint2ForwardIndex() {
+	public Aquaint2ForwardIndexBuilder() {
 	}
 
 	private static int printUsage() {
@@ -147,7 +147,7 @@ public class BuildAquaint2ForwardIndex extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
-		conf.setInputFormat(Aquaint2DocumentInputFormat.class);
+		conf.setInputFormat(Aquaint2DocumentInputFormatOld.class);
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(Text.class);
 
@@ -165,7 +165,7 @@ public class BuildAquaint2ForwardIndex extends Configured implements Tool {
 		String inputFile = outputPath + "/" + "part-00000";
 
 		sLogger.info("Writing " + numDocs + " doc offseta to " + indexFile);
-		FSLineReader reader = new FSLineReader(inputFile, fs);
+		LineReader reader = new LineReader(fs.open(new Path(inputFile)));
 
 		FSDataOutputStream writer = fs.create(new Path(indexFile), true);
 
@@ -206,7 +206,7 @@ public class BuildAquaint2ForwardIndex extends Configured implements Tool {
 	 */
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		int res = ToolRunner.run(conf, new BuildAquaint2ForwardIndex(), args);
+		int res = ToolRunner.run(conf, new Aquaint2ForwardIndexBuilder(), args);
 		System.exit(res);
 	}
 }

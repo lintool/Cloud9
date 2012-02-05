@@ -40,30 +40,9 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
- * Program that builds the mapping from TREC docids (String identifiers) to docnos
- * (sequentially-numbered ints). The program takes four command-line arguments:
- * </p>
- *
- * <ul>
- * <li>[input] path to the document collection</li>
- * <li>[output-dir] path to temporary MapReduce output directory</li>
- * <li>[output-file] path to location of mappings file</li>
- * </ul>
- *
- * <p>
- * Here's a sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.NumberTrecDocuments2 \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/trec/trec4-5_noCRFR.xml \
- *   /user/jimmylin/trec-docid-tmp \
- *   /user/jimmylin/docno-mapping.dat
- * </pre></blockquote>
+ * Tool that builds the mapping from TREC docids (String identifiers) to docnos
+ * (sequentially-numbered ints). Run without any arguments for help. The guava jar must be included
+ * using {@code -libjar}.
  *
  * @author Jimmy Lin
  */

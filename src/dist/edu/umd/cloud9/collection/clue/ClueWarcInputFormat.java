@@ -50,7 +50,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-@SuppressWarnings("deprecation")
 public class ClueWarcInputFormat extends FileInputFormat<LongWritable, ClueWarcRecord> {
 
   /**

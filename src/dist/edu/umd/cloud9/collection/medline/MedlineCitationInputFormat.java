@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,120 +18,70 @@ package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.JobConfigurable;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
+import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormatOld;
-import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
+import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop {@code InputFormat} for processing the MEDLINE citations in XML format (old API).
+ * Hadoop {@code InputFormat} for processing the MEDLINE citations in XML format (new API).
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class MedlineCitationInputFormat extends
-    IndexableFileInputFormatOld<LongWritable, MedlineCitation> implements JobConfigurable {
-
-  private CompressionCodecFactory compressionCodecs = null;
-
-  /**
-   * Creates a {@code MedlineCitationInputFormat}.
-   */
-  public MedlineCitationInputFormat() {}
+    IndexableFileInputFormat<LongWritable, MedlineCitation> {
 
   @Override
-  public void configure(JobConf conf) {
-    compressionCodecs = new CompressionCodecFactory(conf);
+  public RecordReader<LongWritable, MedlineCitation> createRecordReader(
+      InputSplit split, TaskAttemptContext context) throws IOException,
+      InterruptedException {
+    return new MedlineCitationRecordReader();
   }
 
-  @Override
-  protected boolean isSplitable(FileSystem fs, Path file) {
-    return compressionCodecs.getCodec(file) == null;
-  }
-
-  /**
-   * Returns a {@code RecordReader} for this {@code InputFormat}.
-   */
-  public RecordReader<LongWritable, MedlineCitation> getRecordReader(InputSplit inputSplit,
-      JobConf conf, Reporter reporter) throws IOException {
-    return new MedlineCitationRecordReader((FileSplit) inputSplit, conf);
-  }
-
-  /**
-   * Hadoop {@code RecordReader} for reading MEDLINE citations in XML format.
-   */
-  public static class MedlineCitationRecordReader implements
+  public static class MedlineCitationRecordReader extends
       RecordReader<LongWritable, MedlineCitation> {
-    private XMLRecordReader reader;
-    private Text text = new Text();
-    private LongWritable pos = new LongWritable();
+    private final XMLRecordReader reader = new XMLRecordReader();
+    private final MedlineCitation doc = new MedlineCitation();
 
-    /**
-     * Creates a {@code MedlineCitationRecordReader}.
-     */
-    public MedlineCitationRecordReader(FileSplit split, JobConf conf) throws IOException {
+    @Override
+    public void initialize(InputSplit split, TaskAttemptContext context)
+        throws IOException, InterruptedException {
+      Configuration conf = context.getConfiguration();
       conf.set(XMLInputFormatOld.START_TAG_KEY, MedlineCitation.XML_START_TAG);
       conf.set(XMLInputFormatOld.END_TAG_KEY, MedlineCitation.XML_END_TAG);
 
-      reader = new XMLRecordReader(split, conf);
+      reader.initialize(split, context);
     }
 
-    /**
-     * Reads the next key-value pair.
-     */
-    public boolean next(LongWritable key, MedlineCitation value) throws IOException {
-      if (reader.next(pos, text) == false)
-        return false;
-      key.set(pos.get());
-      MedlineCitation.readCitation(value, text.toString());
-      return true;
+    @Override
+    public LongWritable getCurrentKey() throws IOException, InterruptedException {
+      return reader.getCurrentKey();
     }
 
-    /**
-     * Creates an object for the key.
-     */
-    public LongWritable createKey() {
-      return new LongWritable();
+    @Override
+    public MedlineCitation getCurrentValue() throws IOException, InterruptedException {
+      MedlineCitation.readCitation(doc, reader.getCurrentValue().toString());
+      return doc;
     }
 
-    /**
-     * Creates an object for the value.
-     */
-    public MedlineCitation createValue() {
-      return new MedlineCitation();
+    @Override
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+      return reader.nextKeyValue();
     }
 
-    /**
-     * Returns the current position in the input.
-     */
-    public long getPos() throws IOException {
-      return reader.getPos();
-    }
-
-    /**
-     * Closes this InputSplit.
-     */
+    @Override
     public void close() throws IOException {
       reader.close();
     }
 
-    /**
-     * Returns progress on how much input has been consumed.
-     */
-    public float getProgress() throws IOException {
-      return ((float) (reader.getPos() - reader.getStart()))
-          / ((float) (reader.getEnd() - reader.getStart()));
+    @Override
+    public float getProgress() throws IOException, InterruptedException {
+      return reader.getProgress();
     }
   }
 }

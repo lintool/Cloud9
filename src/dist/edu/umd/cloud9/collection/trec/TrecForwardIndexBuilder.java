@@ -50,20 +50,8 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
- * Tool for building a document forward index for TREC collections. Sample Invocation:
- * </p>
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.BuildTrecForwardIndex2 \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/trec/trec4-5_noCRFR.xml \
- *   /user/jimmylin/tmp \
- *   /user/jimmylin/findex.dat \
- *   /user/jimmylin/docno-mapping.dat
- * </pre></blockquote>
+ * Tool for building a document forward index for TREC collections. Run without any arguments
+ * for help. The guava jar must be included using {@code -libjar} for this tool to run.
  *
  * @author Jimmy Lin
  */
@@ -157,7 +145,7 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
     String tmpDir = "tmp-" + TrecForwardIndexBuilder.class.getSimpleName() + "-"
         + random.nextInt(10000);
 
-    Job job = new Job(getConf(), TrecForwardIndexBuilder.class.getCanonicalName());
+    Job job = new Job(getConf(), TrecForwardIndexBuilder.class.getSimpleName());
     job.setJarByClass(TrecForwardIndexBuilder.class);
     FileSystem fs = FileSystem.get(getConf());
 

@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.umd.cloud9.collection.aquaint2;
+package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 
@@ -24,7 +24,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -35,28 +34,58 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-public class NumberAquaint2Documents2 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(NumberAquaint2Documents2.class);
+/**
+ * <p>
+ * Program that builds the mapping from MEDLINE docids (PMIDs) to docnos (sequentially-numbered
+ * ints). The program takes four command-line arguments:
+ * </p>
+ *
+ * <ul>
+ * <li>[input] path to the document collection</li>
+ * <li>[output-dir] path to temporary MapReduce output directory</li>
+ * <li>[output-file] path to location of mappings file</li>
+ * </ul>
+ *
+ * <p>
+ * Here's a sample invocation:
+ * </p>
+ *
+ * <blockquote><pre>
+ * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
+ *
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations2 \
+ *   -libjars=guava-r09.jar \
+ *   /shared/collections/medline04 \
+ *   /user/jimmylin/docid-tmp \
+ *   /user/jimmylin/docno-mapping.dat
+ * </pre></blockquote>
+ *
+ * @author Jimmy Lin
+ */
+public class MedlineDocnoMappingBuilder extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(MedlineDocnoMappingBuilder.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends Mapper<LongWritable, Aquaint2Document, Text, IntWritable> {
-    private static final Text docid = new Text();
+  private static class MyMapper
+      extends Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
+    private static final IntWritable docid = new IntWritable();
     private static final IntWritable one = new IntWritable(1);
 
     @Override
-    public void map(LongWritable key, Aquaint2Document doc, Context context)
+    public void map(LongWritable key, MedlineCitation doc, Context context)
         throws IOException, InterruptedException {
       context.getCounter(Count.DOCS).increment(1);
-      docid.set(doc.getDocid());
+      docid.set(Integer.parseInt(doc.getDocid()));
       context.write(docid, one);
     }
   }
 
-  private static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+  private static class MyReducer
+      extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
     private final static IntWritable cnt = new IntWritable(1);
 
     @Override
-    public void reduce(Text key, Iterable<IntWritable> values, Context context)
+    public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
       context.write(key, cnt);
       cnt.set(cnt.get() + 1);
@@ -66,7 +95,7 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public NumberAquaint2Documents2() {}
+  public MedlineDocnoMappingBuilder() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [output-file]");
@@ -87,13 +116,13 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     String outputPath = args[1];
     String outputFile = args[2];
 
-    LOG.info("Tool: " + NumberAquaint2Documents2.class.getCanonicalName());
+    LOG.info("Tool: " + MedlineDocnoMappingBuilder.class.getCanonicalName());
     LOG.info(" - Input path: " + inputPath);
     LOG.info(" - Output path: " + outputPath);
     LOG.info(" - Output file: " + outputFile);
 
-    Job job = new Job(getConf(), NumberAquaint2Documents2.class.getSimpleName());
-    job.setJarByClass(NumberAquaint2Documents2.class);
+    Job job = new Job(getConf(), MedlineDocnoMappingBuilder.class.getSimpleName());
+    job.setJarByClass(MedlineDocnoMappingBuilder.class);
 
     job.setNumReduceTasks(1);
 
@@ -101,8 +130,8 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
     FileOutputFormat.setCompressOutput(job, false);
 
-    job.setInputFormatClass(Aquaint2DocumentInputFormat2.class);
-    job.setOutputKeyClass(Text.class);
+    job.setInputFormatClass(MedlineCitationInputFormat.class);
+    job.setOutputKeyClass(IntWritable.class);
     job.setOutputValueClass(IntWritable.class);
     job.setOutputFormatClass(TextOutputFormat.class);
 
@@ -115,7 +144,7 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
     job.waitForCompletion(true);
 
     String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    Aquaint2DocnoMapping.writeDocnoData(new Path(input), new Path(outputFile),
+    MedlineDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
         FileSystem.get(getConf()));
 
     return 0;
@@ -125,6 +154,6 @@ public class NumberAquaint2Documents2 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new Configuration(), new NumberAquaint2Documents2(), args);
+    ToolRunner.run(new Configuration(), new MedlineDocnoMappingBuilder(), args);
   }
 }

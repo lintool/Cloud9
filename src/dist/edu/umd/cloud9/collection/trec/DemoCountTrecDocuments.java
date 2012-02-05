@@ -47,31 +47,8 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
- * Simple demo program that counts all the documents in the TREC collection. This provides a
- * skeleton for MapReduce programs to process the collection. The program takes three command-line
- * arguments:
- * </p>
- *
- * <ul>
- * <li>[input] path to the document collection
- * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the docno mappings file
- * </ul>
- *
- * <p>
- * Here's a sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments2 \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/trec/trec4-5_noCRFR.xml \
- *   /user/jimmylin/count-tmp \
- *   /user/jimmylin/docno-mapping.dat
- * </pre></blockquote>
+ * Simple demo program that counts all the documents in the TREC collection. Run without any
+ * arguments for help. The guava jar must be included using {@code -libjar}.
  *
  * @author Jimmy Lin
  */
