@@ -127,8 +127,6 @@ public class RepackTrecWebCollection extends Configured implements Tool {
       LOG.info(" - block size: " + blocksize);
     }
 
-    job.setNumReduceTasks(100);
-
     Path collectionPath = new Path(collection);
     for (FileStatus status : fs.listStatus(collectionPath)) {
       if ( status.isDir()) {
@@ -139,6 +137,16 @@ public class RepackTrecWebCollection extends Configured implements Tool {
         FileInputFormat.addInputPath(job, status.getPath());
       }
     }
+
+    // Hack to figure out number of reducers.
+    int numReducers = 100;
+    if (collection.toLowerCase().contains("wt10g")) {
+      numReducers = 50;
+    } else if (collection.toLowerCase().contains("gov2")) {
+      numReducers = 200;
+    }
+    LOG.info(" - number of reducers: " + numReducers);
+    job.setNumReduceTasks(numReducers);
 
     FileOutputFormat.setOutputPath(job, new Path(output));
 
