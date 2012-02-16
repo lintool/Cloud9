@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -277,7 +278,7 @@ public final class IndexedFloatArray implements Writable, Cloneable {
 	}
 	
 	public PriorityQueue<PairOfFloatInt> getTranslationsWithProbs(float probThreshold){
-		PriorityQueue<PairOfFloatInt> q = new PriorityQueue<PairOfFloatInt>(); 
+		PriorityQueue<PairOfFloatInt> q = new PriorityQueue<PairOfFloatInt>(_data.length, Collections.reverseOrder()); 
     if (_useBinSearch) {
       for (int i=0; i < _data.length; i++) {
         if (_data[i] > probThreshold) {
