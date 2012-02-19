@@ -28,6 +28,11 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat2;
 import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat2.XMLRecordReader;
 
+/**
+ * Hadoop {@code InputFormat} for processing the MEDLINE citations in XML format (new API).
+ *
+ * @author Jimmy Lin
+ */
 public class MedlineCitationInputFormat2 extends
     IndexableFileInputFormat2<LongWritable, MedlineCitation> {
 
