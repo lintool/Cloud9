@@ -197,7 +197,9 @@ public class GenericExtractLinks extends PowerTool
 
 			try
 			{
-				base = normalizeURL(doc.getURL());
+				String url = doc.getURL().split("\n")[0];
+				LOG.info("URI: " + url);
+				base = normalizeURL(url);
 			}
 			catch (Exception e)
 			{
@@ -350,7 +352,7 @@ public class GenericExtractLinks extends PowerTool
 		{
 			try
 			{
-				URI uri = URI.create(url).normalize(); // first apply built-in normalizer
+				URI uri = new URI(url).normalize(); // first apply built-in normalizer
 				String scheme = uri.getScheme().toLowerCase(); // schemes are not case sensitive
 				String host = uri.getHost().toLowerCase(); // hosts are not case sensitive
 				String path = uri.getPath();
@@ -439,6 +441,8 @@ public class GenericExtractLinks extends PowerTool
 	{
 
 		Configuration conf = getConf();
+		conf.set("mapred.child.java.opts", "-Xmx3072m");
+		conf.setInt("mapred.task.timeout", 60000000);
 		Job job = new Job(conf);
 
 		int numReducers = conf.getInt("Cloud9.Reducers", 200);
@@ -458,9 +462,6 @@ public class GenericExtractLinks extends PowerTool
 		DistributedCache.addCacheFile(new Path(mappingFile).toUri(), job.getConfiguration());
 
 		job.setJobName("ExtractLinks");
-		conf.set("mapred.child.java.opts", "-Xmx2048m");
-		conf.setInt("mapred.task.timeout", 60000000);
-
 		job.setNumReduceTasks(numReducers);
 
 		job.setJarByClass(GenericExtractLinks.class);
