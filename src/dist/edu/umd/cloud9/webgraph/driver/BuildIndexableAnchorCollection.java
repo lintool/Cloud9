@@ -152,6 +152,7 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
 
     conf.set("mapred.child.java.opts", "-Xmx2048m");
     conf.setJobName("BuildIndexableAnchorCollection");
+    conf.setJarByClass(BuildIndexableAnchorCollection.class);
 
     conf.setNumMapTasks(100);
     conf.setNumReduceTasks(numReducers);

@@ -31,6 +31,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -63,7 +64,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
   
   private static final Logger LOG = Logger.getLogger(ExtractHTMLFieldCollection.class);
 
-  public static class MyMapper extends Mapper<IntWritable, Indexable, LongWritable, TextDocument>
+  public static class MyMapper extends Mapper<LongWritable, Indexable, LongWritable, TextDocument>
   {
 
     // TODO: allow this to support user-defined regular expressions, not just the "heading" one pre-defined here
@@ -88,9 +89,9 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     private static final TextDocument myValue = new TextDocument();
 
     private static final StringBuffer strBuf = new StringBuffer();
-    
+
     @Override
-    public void setup(Mapper<IntWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException {
+    public void setup(Mapper<LongWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException {
       Configuration conf = context.getConfiguration();
       tag = conf.get("Cloud9.TargetTag");
 
@@ -102,7 +103,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     }
 
     @Override
-    public void map(IntWritable key, Indexable doc, Mapper<IntWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException, InterruptedException {
+    public void map(LongWritable key, Indexable doc, Mapper<LongWritable, Indexable, LongWritable, TextDocument>.Context context) throws IOException, InterruptedException {
       context.getCounter(LinkCounter.INPUT_DOCS).increment(1);
 
       if(doc.getDocid() == null || doc.getContent() == null) {
@@ -115,7 +116,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
       try {
         // initialize HTML parser
         parser.setInputHTML(doc.getContent());
-        
+
         // parse the document
         nl = parser.parse(filter);
       } catch (ParserException e) {
@@ -131,7 +132,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
         context.write(myKey, myValue);
         return;
       }
-      
+
       strBuf.setLength(0);
       strBuf.append("<DOC>\n<DOCNO>");
       strBuf.append(doc.getDocid());
@@ -179,7 +180,8 @@ public class ExtractHTMLFieldCollection extends PowerTool {
 
     job.setJarByClass(ExtractHTMLFieldCollection.class);
     job.setMapperClass(MyMapper.class);
-    job.setNumReduceTasks(0);
+    job.setReducerClass(Reducer.class);
+    job.setNumReduceTasks(200);
 
     job.setInputFormatClass((Class<? extends InputFormat>) Class.forName(inputFormat));
     recursivelyAddInputPaths(job, inputPath);
@@ -226,20 +228,20 @@ public class ExtractHTMLFieldCollection extends PowerTool {
       }
     }
   }
-  
+
   public static void main(String [] args) throws Exception {
     Configuration conf = new Configuration();
-    
+
     if(args.length != 4) {
       System.err.println("Usage: ExtractFieldCollection [input-path] [input-format] [output-path] [target-tag]");
       System.exit(-1);
     }
-    
+
     conf.set("Cloud9.InputPath", args[0]);
     conf.set("Cloud9.InputFormat", args[1]);
     conf.set("Cloud9.OutputPath", args[2]);
     conf.set("Cloud9.TargetTag", args[3]);
-    
+
     int res = ToolRunner.run(conf, new ExtractHTMLFieldCollection(conf), args);
     System.exit(res);
   }
