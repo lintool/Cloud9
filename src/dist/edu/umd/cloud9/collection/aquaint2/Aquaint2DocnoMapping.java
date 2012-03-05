@@ -45,7 +45,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
   private String[] docidEntries;
 
   @Override
-  public int getDocno(String docid) {
+    public int getDocno(String docid) {
     LOG.trace("getDocno(docid: " + docid + ")");
     Preconditions.checkNotNull(docid);
     int sourceLength = docid.length() - 13;
@@ -61,22 +61,22 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     int entryId = findEntryId(source, year, month);
     LOG.debug("entryId: " + entryId);
 
-      String entryElt = docidEntries[entryId].split("\t")[day];
-      LOG.debug("entryElt: " + entryElt);
+    String entryElt = docidEntries[entryId].split("\t")[day];
+    LOG.debug("entryElt: " + entryElt);
 
-      // then traverse the days to find the day and skip over missing articles to get the article number
-      String[] entryEltParts = entryElt.split(" ");
-      int result = articleNo + Integer.parseInt(entryEltParts[0]);
-      String[] entryDayParts = entryEltParts[1].split(",");
-      for (int i = 1; i < entryDayParts.length; i++) {
-        int missingNo = Integer.parseInt(entryDayParts[i]);
-        if (articleNo < missingNo) break;
-        LOG.debug("skipping missingNo: " + missingNo);
-        result--;
-      }
+    // then traverse the days to find the day and skip over missing articles to get the article number
+    String[] entryEltParts = entryElt.split(" ");
+    int result = articleNo + Integer.parseInt(entryEltParts[0]);
+    String[] entryDayParts = entryEltParts[1].split(",");
+    for (int i = 1; i < entryDayParts.length; i++) {
+      int missingNo = Integer.parseInt(entryDayParts[i]);
+      if (articleNo < missingNo) break;
+      LOG.debug("skipping missingNo: " + missingNo);
+      result--;
+    }
 
-      LOG.trace("getDocno returning: " + result);
-      return result;
+    LOG.trace("getDocno returning: " + result);
+    return result;
   }
 
   private int findEntryId(String source, int year, int month) {
@@ -100,7 +100,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
 
 
   @Override
-  public String getDocid(int docno) {
+    public String getDocid(int docno) {
     Preconditions.checkArgument(docno > 0);
     LOG.trace("getDocid(docno: " + docno + ")");
 
@@ -165,7 +165,7 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
 
 
   @Override
-  public void loadMapping(Path p, FileSystem fs) throws IOException {
+    public void loadMapping(Path p, FileSystem fs) throws IOException {
     docidEntries = Aquaint2DocnoMapping.readDocnoData(p, fs);
   }
 
@@ -202,8 +202,8 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       LOG.debug("source: " + source + ", year: " + year + ", month: " + month + ", day: " + day + ", articleNo: " + articleNo);
 
       if (! source.equals(prevSource) ||
-           year != prevYear ||
-           month != prevMonth) {
+          year != prevYear ||
+          month != prevMonth) {
         LOG.debug("diff source, year or month, currentEntry: " + currentEntry);
         if (currentEntry != null) {
           list.add(currentEntry.toString());
@@ -322,14 +322,15 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
       System.out.println("looking up docno for \"" + args[2] + "\"");
       int idx = mapping.getDocno(args[2]);
       if (idx > 0) {
-        System.out.println(mapping.getDocno(args[2]));
+        System.out.println(idx);
       } else {
         System.err.print("Invalid docid!");
       }
     } else if (args[0].equals("getDocid")) {
+      int docno = Integer.parseInt(args[2]);
       try {
         System.out.println("looking up docid for " + args[2]);
-        System.out.println(mapping.getDocid(Integer.parseInt(args[2])));
+        System.out.println(mapping.getDocid(docno));
       } catch (Exception e) {
         System.err.print("Invalid docno!");
       }
