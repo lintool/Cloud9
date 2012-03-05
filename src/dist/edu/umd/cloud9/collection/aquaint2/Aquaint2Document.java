@@ -116,8 +116,9 @@ public class Aquaint2Document extends Indexable {
         result = raw.substring(start).trim();
         LOG.error("found element text: " + result);
         }
-      result = TAGS_PATTERN.matcher(result).replaceAll("");
+      result = TAGS_PATTERN.matcher(result).replaceAll("\n");
       result = WHITESPACE_PATTERN.matcher(result).replaceAll(" ");
+      //System.out.println(result);
     }
     return result;
   }
@@ -147,7 +148,15 @@ public class Aquaint2Document extends Indexable {
     LOG.trace("setAquaint2Docid()");
     int start = 9;
     int end = raw.indexOf("\"", start);
-    docid = raw.substring(start, end).trim();
+    try {
+      docid = raw.substring(start, end).trim();
+    } catch (Exception e) {
+      LOG.error("exception: " + e);
+      LOG.error("start: " + start + ", end: " + end);
+      LOG.error("raw:\n" + raw);
+      String result = raw.substring(start).trim();
+      LOG.error("found element text: " + result);
+    }
     LOG.trace("in setAquaint2Docid, docid: " + docid);
   }
 
