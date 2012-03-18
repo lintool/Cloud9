@@ -1,7 +1,7 @@
-package edu.umd.cloud9.io.fastuil;
+package edu.umd.cloud9.io.map;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,15 +14,15 @@ import java.util.Set;
 
 import org.apache.hadoop.io.Writable;
 
-public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2FloatOpenHashMap<K>
+public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2IntOpenHashMap<K>
 		implements Writable {
 
-	private static final long serialVersionUID = 902668143762455L;
+	private static final long serialVersionUID = 276091731841463L;
 
 	/**
 	 * Creates a <code>String2IntOpenHashMapWritable</code> object.
 	 */
-	public Object2FloatOpenHashMapWritable() {
+	public Object2IntOpenHashMapWritable() {
 		super();
 	}
 
@@ -49,7 +49,7 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
-				float s = in.readFloat();
+				int s = in.readInt();
 				put(objK, s);
 			}
 
@@ -76,15 +76,15 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 
 		// Write out the class names for keys and values
 		// assuming that data is homogeneous (i.e., all entries have same types)
-		Set<Object2FloatMap.Entry<K>> entries = object2FloatEntrySet();
-		Object2FloatMap.Entry<K> first = entries.iterator().next();
+		Set<Object2IntMap.Entry<K>> entries = object2IntEntrySet();
+		Object2IntMap.Entry<K> first = entries.iterator().next();
 		K objK = first.getKey();
 		out.writeUTF(objK.getClass().getCanonicalName());
 
 		// Then write out each key/value pair
-		for (Object2FloatMap.Entry<K> e : object2FloatEntrySet()) {
+		for (Object2IntMap.Entry<K> e : object2IntEntrySet()) {
 			e.getKey().write(out);
-			out.writeFloat(e.getValue());
+			out.writeInt(e.getValue());
 		}
 	}
 
@@ -112,9 +112,9 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 	 * @return a newly-created <code>OHMapSIW</code> object
 	 * @throws IOException
 	 */
-	public static <K extends Writable> Object2FloatOpenHashMapWritable<K> create(DataInput in)
+	public static <K extends Writable> Object2IntOpenHashMapWritable<K> create(DataInput in)
 			throws IOException {
-		Object2FloatOpenHashMapWritable<K> m = new Object2FloatOpenHashMapWritable<K>();
+		Object2IntOpenHashMapWritable<K> m = new Object2IntOpenHashMapWritable<K>();
 		m.readFields(in);
 
 		return m;
@@ -127,7 +127,7 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 	 *         object
 	 * @throws IOException
 	 */
-	public static <K extends Writable> Object2FloatOpenHashMapWritable<K> create(byte[] bytes)
+	public static <K extends Writable> Object2IntOpenHashMapWritable<K> create(byte[] bytes)
 			throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
@@ -138,8 +138,8 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 	 * @param m
 	 *            the other map
 	 */
-	public void plus(Object2FloatOpenHashMapWritable<K> m) {
-		for (Object2FloatMap.Entry<K> e : m.object2FloatEntrySet()) {
+	public void plus(Object2IntOpenHashMapWritable<K> m) {
+		for (Object2IntMap.Entry<K> e : m.object2IntEntrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
@@ -156,10 +156,10 @@ public class Object2FloatOpenHashMapWritable<K extends Writable> extends Object2
 	 * @param m
 	 *            the other map
 	 */
-	public int dot(Object2FloatOpenHashMapWritable<K> m) {
+	public int dot(Object2IntOpenHashMapWritable<K> m) {
 		int s = 0;
 
-		for (Object2FloatMap.Entry<K> e : m.object2FloatEntrySet()) {
+		for (Object2IntMap.Entry<K> e : m.object2IntEntrySet()) {
 			K key = e.getKey();
 
 			if (this.containsKey(key)) {
