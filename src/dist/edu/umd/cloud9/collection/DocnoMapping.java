@@ -34,8 +34,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 /**
  * <p>
- * Interface for an object that maintains a bidirectional mapping between docids and docnos. A docid
- * is a globally-unique String identifier for a document in the collection. For many types of
+ * Interface for an object that maintains a bidirectional mapping between docids and docnos. A
+ * docid is a globally-unique String identifier for a document in the collection. For many types of
  * information retrieval algorithms, documents in the collection must be sequentially numbered;
  * thus, each document in the collection must be assigned a unique integer identifier, which is its
  * docno. Typically, the docid/docno mappings are stored in a mappings file, which is loaded into
@@ -68,7 +68,7 @@ public interface DocnoMapping {
   String getDocid(int docno);
 
   /**
-   * Loads a mapping file containing the docid/docno mappings.
+   * Loads a mapping file.
    *
    * @param path path to the mappings file
    * @param fs reference to the {@code FileSystem}
@@ -76,8 +76,18 @@ public interface DocnoMapping {
    */
   void loadMapping(Path path, FileSystem fs) throws IOException;
 
+  /**
+   * Returns the builder for this mapping.
+   *
+   * @return builder for this mapping
+   */
   Builder getBuilder();
 
+  /**
+   * Interface for an object that constructs a {@code DocnoMapping}.
+   *
+   * @author Jimmy Lin
+   */
   public interface Builder {
     int build(Path src, Path dest, Configuration conf) throws IOException;
   }
