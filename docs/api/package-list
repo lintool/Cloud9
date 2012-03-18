@@ -28,6 +28,7 @@ edu.umd.cloud9.io.triple
 edu.umd.cloud9.mapred
 edu.umd.cloud9.mapreduce
 edu.umd.cloud9.mapreduce.lib.input
+edu.umd.cloud9.math
 edu.umd.cloud9.util
 edu.umd.cloud9.util.array
 edu.umd.cloud9.util.cfd
