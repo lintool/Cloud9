@@ -146,7 +146,7 @@
         <batchtest todir="${test.dir}">
           <fileset dir="${build.dir}">
             <include name="**/*Test.class" />
-            <exclude name="edu/umd/cloud9/example/translation/*.class" />
+            <exclude name="edu/umd/cloud9/integration/**/*.class" />
           </fileset>
         </batchtest>
     </junit>

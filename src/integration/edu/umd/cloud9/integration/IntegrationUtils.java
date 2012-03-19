@@ -1,4 +1,4 @@
-package edu.umd.cloud9;
+package edu.umd.cloud9.integration;
 
 import static org.junit.Assert.assertTrue;
 

@@ -1,4 +1,4 @@
-package edu.umd.cloud9.collection.trec;
+package edu.umd.cloud9.integration.collection.trec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,8 +16,13 @@ import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.IntegrationUtils;
 import edu.umd.cloud9.collection.DocnoMapping;
+import edu.umd.cloud9.collection.trec.DemoCountTrecDocuments;
+import edu.umd.cloud9.collection.trec.TrecDocnoMapping;
+import edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder;
+import edu.umd.cloud9.collection.trec.TrecForwardIndex;
+import edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder;
+import edu.umd.cloud9.integration.IntegrationUtils;
 
 public class IntegrationTest {
   private static final Random random = new Random();
