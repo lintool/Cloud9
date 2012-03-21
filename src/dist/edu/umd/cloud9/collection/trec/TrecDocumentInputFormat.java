@@ -18,100 +18,65 @@ package edu.umd.cloud9.collection.trec;
 
 import java.io.IOException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import edu.umd.cloud9.collection.IndexableFileInputFormat;
-import edu.umd.cloud9.collection.XMLInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
-/**
- * Hadoop {@link InputFormat} for processing the TREC collection.
- * 
- * @author Jimmy Lin
- */
-@SuppressWarnings("deprecation")
-public class TrecDocumentInputFormat extends IndexableFileInputFormat<LongWritable, TrecDocument> {
+public class TrecDocumentInputFormat extends
+    IndexableFileInputFormat<LongWritable, TrecDocument> {
 
-  /**
-   * Returns a {@code RecordReader} for this {@code InputFormat}.
-   */
-  public RecordReader<LongWritable, TrecDocument> getRecordReader(InputSplit inputSplit,
-      JobConf conf, Reporter reporter) throws IOException {
-    return new TrecDocumentRecordReader((FileSplit) inputSplit, conf);
+  @Override
+  public RecordReader<LongWritable, TrecDocument> createRecordReader(
+      InputSplit split, TaskAttemptContext context) throws IOException,
+      InterruptedException {
+    return new TrecDocumentRecordReader();
   }
 
-  /**
-   * Hadoop {@link RecordReader} for reading TREC-formatted documents.
-   */
-  public static class TrecDocumentRecordReader
-      implements RecordReader<LongWritable, TrecDocument> {
-    private XMLRecordReader reader;
-    private Text text = new Text();
-    private LongWritable pos = new LongWritable();
+  public static class TrecDocumentRecordReader extends
+      RecordReader<LongWritable, TrecDocument> {
+    private final XMLRecordReader reader = new XMLRecordReader();
+    private final TrecDocument doc = new TrecDocument();
 
-    /**
-     * Creates a {@code TrecDocumentRecordReader}.
-     */
-    public TrecDocumentRecordReader(FileSplit split, JobConf conf) throws IOException {
-      conf.set(XMLInputFormat.START_TAG_KEY, TrecDocument.XML_START_TAG);
-      conf.set(XMLInputFormat.END_TAG_KEY, TrecDocument.XML_END_TAG);
+    @Override
+    public void initialize(InputSplit split, TaskAttemptContext context)
+        throws IOException, InterruptedException {
+      Configuration conf = context.getConfiguration();
+      conf.set(XMLInputFormatOld.START_TAG_KEY, TrecDocument.XML_START_TAG);
+      conf.set(XMLInputFormatOld.END_TAG_KEY, TrecDocument.XML_END_TAG);
 
-      reader = new XMLRecordReader(split, conf);
+      reader.initialize(split, context);
     }
 
-    /**
-     * Reads the next key-value pair.
-     */
-    public boolean next(LongWritable key, TrecDocument value) throws IOException {
-      if (reader.next(pos, text) == false) {
-        return false;
-      }
-      key.set(pos.get());
-      TrecDocument.readDocument(value, text.toString());
-      return true;
+    @Override
+    public LongWritable getCurrentKey() throws IOException, InterruptedException {
+      return reader.getCurrentKey();
     }
 
-    /**
-     * Creates an object for the key.
-     */
-    public LongWritable createKey() {
-      return new LongWritable();
+    @Override
+    public TrecDocument getCurrentValue() throws IOException, InterruptedException {
+      TrecDocument.readDocument(doc, reader.getCurrentValue().toString());
+      return doc;
     }
 
-    /**
-     * Creates an object for the value.
-     */
-    public TrecDocument createValue() {
-      return new TrecDocument();
+    @Override
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+      return reader.nextKeyValue();
     }
 
-    /**
-     * Returns the current position in the input.
-     */
-    public long getPos() throws IOException {
-      return reader.getPos();
-    }
-
-    /**
-     * Closes this {@code InputSplit}.
-     */
+    @Override
     public void close() throws IOException {
       reader.close();
     }
 
-    /**
-     * Returns progress on how much input has been consumed.
-     */
-    public float getProgress() throws IOException {
-      return ((float) (reader.getPos() - reader.getStart()))
-          / ((float) (reader.getEnd() - reader.getStart()));
+    @Override
+    public float getProgress() throws IOException, InterruptedException {
+      return reader.getProgress();
     }
   }
 }

@@ -45,8 +45,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.io.Writable;
-
 import edu.umd.cloud9.collection.Indexable;
 
 public class ClueWarcRecord extends Indexable {

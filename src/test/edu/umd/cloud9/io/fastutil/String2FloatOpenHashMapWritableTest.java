@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import edu.umd.cloud9.io.fastuil.String2FloatOpenHashMapWritable;
+import edu.umd.cloud9.io.map.String2FloatOpenHashMapWritable;
 
 public class String2FloatOpenHashMapWritableTest {
 

@@ -90,7 +90,7 @@ public class DemoCountAquaint2Documents extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
-		conf.setInputFormat(Aquaint2DocumentInputFormat.class);
+		conf.setInputFormat(Aquaint2DocumentInputFormatOld.class);
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(IntWritable.class);
 
