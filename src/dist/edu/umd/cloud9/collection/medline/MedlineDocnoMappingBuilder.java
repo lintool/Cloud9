@@ -17,6 +17,7 @@
 package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
+import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -33,6 +34,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+
+import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
  * <p>
@@ -62,12 +65,12 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-public class MedlineDocnoMappingBuilder extends Configured implements Tool {
+public class MedlineDocnoMappingBuilder extends Configured implements Tool, DocnoMapping.Builder {
   private static final Logger LOG = Logger.getLogger(MedlineDocnoMappingBuilder.class);
+  private static final Random random = new Random();
   private static enum Count { DOCS };
 
-  private static class MyMapper
-      extends Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
+  private static class MyMapper extends Mapper<LongWritable, MedlineCitation, IntWritable, IntWritable> {
     private static final IntWritable docid = new IntWritable();
     private static final IntWritable one = new IntWritable(1);
 
@@ -80,8 +83,7 @@ public class MedlineDocnoMappingBuilder extends Configured implements Tool {
     }
   }
 
-  private static class MyReducer
-      extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+  private static class MyReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
     private final static IntWritable cnt = new IntWritable(1);
 
     @Override
@@ -97,37 +99,40 @@ public class MedlineDocnoMappingBuilder extends Configured implements Tool {
    */
   public MedlineDocnoMappingBuilder() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input-path] [output-path] [output-file]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
+  @Override
+  public int build(Path src, Path dest, Configuration conf) throws IOException {
+    super.setConf(conf);
+    return run(new String[] {
+        "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + src.toString(),
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + dest.toString() });
   }
 
   /**
    * Runs this tool.
    */
-  public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+  public int run(String[] args) throws IOException {
+    DocnoMapping.DefaultBuilderOptions options = DocnoMapping.BuilderUtils.parseDefaultOptions(args);
+    if ( options == null) {
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    String outputFile = args[2];
+    // Temp directory.
+    String tmpDir = "tmp-" + MedlineDocnoMappingBuilder.class.getSimpleName() +
+        "-" + random.nextInt(10000);
 
     LOG.info("Tool: " + MedlineDocnoMappingBuilder.class.getCanonicalName());
-    LOG.info(" - Input path: " + inputPath);
-    LOG.info(" - Output path: " + outputPath);
-    LOG.info(" - Output file: " + outputFile);
+    LOG.info(" - input path: " + options.collection);
+    LOG.info(" - output file: " + options.docnoMapping);
 
     Job job = new Job(getConf(), MedlineDocnoMappingBuilder.class.getSimpleName());
+    FileSystem fs = FileSystem.get(job.getConfiguration());
+
     job.setJarByClass(MedlineDocnoMappingBuilder.class);
 
     job.setNumReduceTasks(1);
 
-    FileInputFormat.setInputPaths(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, new Path(options.collection));
+    FileOutputFormat.setOutputPath(job, new Path(tmpDir));
     FileOutputFormat.setCompressOutput(job, false);
 
     job.setInputFormatClass(MedlineCitationInputFormat.class);
@@ -139,13 +144,19 @@ public class MedlineDocnoMappingBuilder extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
+    fs.delete(new Path(tmpDir), true);
 
-    job.waitForCompletion(true);
+    try {
+      job.waitForCompletion(true);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
-    String input = outputPath + (outputPath.endsWith("/") ? "" : "/") + "/part-r-00000";
-    MedlineDocnoMapping.writeMappingData(new Path(input), new Path(outputFile),
+    String input = tmpDir + (tmpDir.endsWith("/") ? "" : "/") + "/part-r-00000";
+    MedlineDocnoMapping.writeMappingData(new Path(input), new Path(options.docnoMapping),
         FileSystem.get(getConf()));
+
+    fs.delete(new Path(tmpDir), true);
 
     return 0;
   }
