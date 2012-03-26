@@ -38,20 +38,18 @@ import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
  * </p>
  *
  * <ul>
- * <li>collection-base-path: the base path to the collection</li>
- * <li>output-base-path: the base path under which the output would be stored</li>
- * <li>[-cn {clue|trecweb|trec|wt10g|gov2}]: the collection used</li>
- * <li>[-ci userSpecifiedInputFormatClass]: use user specified input format
+ * <li>[-input collection_base_path] the base path to the collection</li>
+ * <li>[-output output-base-path]: the base path under which the output would be stored</li>
+ * <li>[-collection {trecweb|trec|wt10g|gov2}]: the collection used</li>
+ * <li>[-inputFormat inputFormatClass]: use user specified input format
  * class</li>
- * <li>[-cm userSpecifiedDocnoMappingClass]: use user specified docno mapping
+ * <li>[-docnoClass userSpecifiedDocnoMappingClass]: use user specified docno mapping
  * class</li>
- * <li>[-f filter]: filter applied to files in collection base path</li>
- * <li>[-ss splitSize]: num of files in each split</li>
  * <li>[-il]: use this for including the internal links (i.e., links within a
- * domain); remove for not</li>
+ * domain) remove for not</li>
  * <li>[-caw]: use this to compute the default weights for lines of external
  * anchor text, remove for not</li>
- * <li>[-nm normalizer] A normalizer class used to normalize the lines of anchor
+ * <li>[-normalizer normalizer] A normalizer class used to normalize the lines of anchor
  * text, must extend *.anchor.normalize.AnchorTextNormalizer.</li>
  * <li>[<key:value> ..]: key-value pairs to put in configuration files. It shall
  * also be used as input method for user specified classes</li>
@@ -71,126 +69,93 @@ import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
  *
  */
 
-public class TrecDriver extends Configured implements Tool
-{
-  // raw link information is stored at /base/path/extracted.links
-  public static final String outputExtractLinks = "extracted.links";
+import edu.umd.cloud9.webgraph.DriverUtil;
 
-  // reverse web graph w/ lines of anchor text is stored at
-  // /base/path/reverseWebGraph
-  public static final String outputReverseWebGraph = "reverseWebGraph";
-
-  // web graph is stored at /base/path/webGraph
-  public static final String outputWebGraph = "webGraph";
-
-  // hostname information (for computing default weights) is stored at
-  // /base/path/hostnames
-  public static final String outputHostnames = "hostnames";
-
-  // reverse web graph w/ weighted lines of anchor text is stored at
-  // /base/path/weightedReverseWebGraph
-  public static final String outputWeightedReverseWebGraph = "weightedReverseWebGraph";
-
+public class TrecDriver extends Configured implements Tool {
   private String inputBase;
   private String outputBase;
   private boolean includeInternalLinks = false;
   private boolean computeAnchorWeights = false;
   private String normalizer = "edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer";
-
   private String filtername = null;
-  final int defaultReducers = 200; // number of reducers per segment
+  private Configuration conf;
+  private CollectionConfigurationManager configer;
 
-  Configuration conf;
-  CollectionConfigurationManager configer;
-
-  public int run(String[] args) throws Exception
-  {
+  public int run(String[] args) throws Exception {
     conf = getConf();
     configer = new CollectionConfigurationManager();
-
-    if (!readInput(args))
-    {
+    if (!readInput(args)) {
       printUsage();
       return -1;
     }
 
     configer.applyConfig(conf);
-
     conf.setInt("Cloud9.Mappers", 2000);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
+    conf.setInt("Cloud9.Reducers", DriverUtil.DEFAULT_REDUCERS);
     conf.setBoolean("Cloud9.IncludeInternalLinks", includeInternalLinks);
     conf.set("Cloud9.AnchorTextNormalizer", normalizer);
 
     // Job 1:
     // Extract link information for each segment separately
     String inputPath = inputBase;
-    String outputPath = outputBase + "/" + outputExtractLinks;
+    String outputPath = outputBase + "/" + DriverUtil.OUTPUT_EXTRACT_LINKS;
 
     conf.set("Cloud9.InputPath", inputPath);
     conf.set("Cloud9.OutputPath", outputPath);
-
     int r = new TrecExtractLinks(conf, configer).run();
-
-    if (r != 0)
-    {
+    if (r != 0) {
       return -1;
     }
 
     // Job 2:
     // Construct the reverse web graph (i.e., collect incoming link
     // information)
-    inputPath = outputBase + "/" + outputExtractLinks;
-    outputPath = outputBase + "/" + outputReverseWebGraph + "/";
-
+    inputPath = outputBase + "/" + DriverUtil.OUTPUT_EXTRACT_LINKS;
+    outputPath = outputBase + "/" + DriverUtil.OUTPUT_REVERSE_WEBGRAPH + "/";
     conf.set("Cloud9.InputPath", inputPath);
     conf.set("Cloud9.OutputPath", outputPath);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
-
+    conf.setInt("Cloud9.Reducers", DriverUtil.DEFAULT_REDUCERS);
     r = new BuildReverseWebGraph(conf).run();
-    if (r != 0)
+    if (r != 0) {
       return -1;
+    }
 
     // Job 3:
     // Construct the web graph
-    inputPath = outputBase + "/" + outputReverseWebGraph + "/";
-    outputPath = outputBase + "/" + outputWebGraph + "/";
-
+    inputPath = outputBase + "/" + DriverUtil.OUTPUT_REVERSE_WEBGRAPH + "/";
+    outputPath = outputBase + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/";
     conf.set("Cloud9.InputPath", inputPath);
     conf.set("Cloud9.OutputPath", outputPath);
     conf.setInt("Cloud9.Mappers", 1);
-    conf.setInt("Cloud9.Reducers", defaultReducers);
+    conf.setInt("Cloud9.Reducers", DriverUtil.DEFAULT_REDUCERS);
     r = new BuildWebGraph(conf).run();
-    if (r != 0)
+    if (r != 0) {
       return -1;
+    }
 
-    if (computeAnchorWeights)
-    {
+    if (computeAnchorWeights) {
       // Propagating domain names in order to compute anchor weights
-      inputPath = outputBase + "/" + outputWebGraph + "/";
-      outputPath = outputBase + "/" + outputHostnames + "/";
-
+      inputPath = outputBase + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/";
+      outputPath = outputBase + "/" + DriverUtil.OUTPUT_HOST_NAMES + "/";
       conf.set("Cloud9.InputPath", inputPath);
       conf.set("Cloud9.OutputPath", outputPath);
       conf.setInt("Cloud9.Mappers", 1);
-      conf.setInt("Cloud9.Reducers", defaultReducers);
-
+      conf.setInt("Cloud9.Reducers", DriverUtil.DEFAULT_REDUCERS);
       r = new CollectHostnames(conf).run();
-      if (r != 0)
+      if (r != 0) {
         return -1;
+      }
 
       // Compute the weights
-      inputPath = outputBase + "/" + outputReverseWebGraph + "/,"
-          + outputBase + "/" + outputHostnames + "/";
-      outputPath = outputBase + "/" + outputWeightedReverseWebGraph + "/";
-
+      inputPath = outputBase + "/" + DriverUtil.OUTPUT_REVERSE_WEBGRAPH + "/," +
+        outputBase + "/" + DriverUtil.OUTPUT_HOST_NAMES + "/";
+      outputPath = outputBase + "/" + DriverUtil.OUTPUT_WEGIHTED_REVERSE_WEBGRAPH + "/";
       conf.set("Cloud9.InputPath", inputPath);
       conf.set("Cloud9.OutputPath", outputPath);
       conf.setInt("Cloud9.Mappers", 1);
-      conf.setInt("Cloud9.Reducers", defaultReducers);
-
+      conf.setInt("Cloud9.Reducers", DriverUtil.DEFAULT_REDUCERS);
       r = new ComputeWeight(conf).run();
-      if (r != 0)
-      {
+      if (r != 0) {
         return -1;
       }
     }
@@ -198,194 +163,102 @@ public class TrecDriver extends Configured implements Tool
     return 0;
   }
 
-  public static void main(String[] args) throws Exception
-  {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner
-        .run(new Configuration(), new TrecDriver(), args);
+      .run(new Configuration(), new TrecDriver(), args);
     System.exit(res);
   }
 
-  private static int printUsage()
-  {
-    System.out.println("\nusage: collection-path output-base"
-        + "[-cn {trecweb|gov2|wt10g}] "
-        + "[-ci userSpecifiedInputFormatClass] "
-        + "[-cm userSpecifiedDocnoMappingClass] "
-        + "-cf userSpecifiedDocnoMappingFile "
-        + "[-il] "
-        + "[-caw] "
-        + "[-nm normalizerClass] "
-        + "[<key:value> ..]");
+  private static int printUsage() {
+    System.out.println("\nusage:" +
+                       "[-input collection-path]" +
+                       "[-output output-base" +
+                       "[-collection {trecweb|gov2|wt10g}] " +
+                       "[-inputFormat userSpecifiedInputFormatClass] " +
+                       "[-docnoClass userSpecifiedDocnoMappingClass] " +
+                       "-docno userSpecifiedDocnoMappingFile " +
+                       "[-il] " +
+                       "[-caw] " +
+                       "[-normalizer normalizerClass] " +
+                       "[<key:value> ..]");
 
     System.out.println("Help:");
-    System.out.println("collection-path\n\tinput directory");
-    System.out.println("output-base\n\toutput directory");
+    System.out.println("[" + DriverUtil.CL_INPUT + " collection-path]\n\tinput directory");
+    System.out.println("[" + DriverUtil.CL_OUTPUT + " output-base]\n\toutput directory");
     System.out
-        .println("-cn {clue|trecweb|gov2|wt10g}\n\tname the collection name, if it is supported, automatic configuration will be applied");
+      .println(DriverUtil.CL_COLLECTION + " {trecweb|gov2|wt10g}\n\tname the collection name, if it is supported, automatic configuration will be applied");
     System.out
-        .println("-ci userSpecifiedInputFormatClass\n\tspecify the class work as FileInputFormat; Required when -cn is not specified");
+      .println(DriverUtil.CL_INPUT_FORMAT + " userSpecifiedInputFormatClass\n\tspecify the class work as FileInputFormat;" +
+               " Required when -collection is not specified");
     System.out
-        .println("-cm userSpecifiedDocnoMappingClass\n\tspecify the class work as DocnoMapping;" +
-                 "Required when -cn is not specified. It should implement GenericDocnoMapping interface.");
+      .println(DriverUtil.CL_DOCNO_MAPPING_CLASS + " userSpecifiedDocnoMappingClass\n\tspecify the class work as DocnoMapping;" +
+               "Required when -collection is not specified. It should implement GenericDocnoMapping interface.");
     System.out
-        .println("-cf userSpecifiedDocnoMappingFile\n\tspecify the File work as input to specified DocnoMapping class.");
+      .println(DriverUtil.CL_DOCNO_MAPPING + " userSpecifiedDocnoMappingFile\n\tspecify the File work as input to specified DocnoMapping class.");
     System.out
-        .println("-il\n\tinclude internal links, without this option we will not include internal links");
+      .println(DriverUtil.CL_INCLUDE_INTERNAL_LINKS + "\n\tinclude internal links, without this option we will not include internal links");
     System.out
-        .println("-caw\n\tcompute default anchor weights, without this option we will not compute default anchor weights");
+      .println(DriverUtil.CL_COMPUTE_WEIGHTS + "\n\tcompute default anchor weights, without this option we will not compute default anchor weights");
     System.out
-        .println("-nm normalizerClass\n\ta normalizer class used to normalize the lines of anchor text," +
-                 " must extend *.anchor.normalize.AnchorTextNormalizer.");
-    System.out
-        .println("<key:value>\n\tAdditional key-value pairs that will be stored in configuration.");
-    System.out
-        .println("Note: <key:value>\n\tshould be used as the argument-passing method for any user specified class");
+      .println(DriverUtil.CL_NORMALIZER + " normalizerClass\n\ta normalizer class used to normalize the lines of anchor text," +
+               " must extend edu.umd.cloud9.webgraph.normalize.AnchorTextNormalizer.");
     System.out.println();
 
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
   }
 
-  private boolean readInput(String[] args)
-  {
-    if (args.length < 6)
-    {
+  private boolean readInput(String[] args) {
+    if (args.length < 6) {
       System.out.println("More arguments needed.");
       return false;
     }
 
-    inputBase = new File(args[0]).getAbsolutePath();
-    outputBase = new File(args[1]).getAbsolutePath();
+    inputBase = new File(DriverUtil.argValue(args, DriverUtil.CL_INPUT)).getAbsolutePath();
+    outputBase = new File(DriverUtil.argValue(args, DriverUtil.CL_OUTPUT)).getAbsolutePath();
 
-    int argc = args.length - 2;
-    while (argc > 0)
-    {
-      String cmd = args[args.length - argc];
+    boolean knownCollection = DriverUtil.argExists(args, DriverUtil.CL_COLLECTION);
 
-      if (cmd.equals("-cn"))
-      {
-        if (argc < 2)
-        {
-          System.out
-              .println("Insufficient arguments, more arguments needed after -cn flag.");
-          return false;
-        }
-        argc--;
-        String collectionName = args[args.length - argc];
-        if (!configer.setConfByCollection(collectionName))
-        {
-          System.out
-              .println("Collection \""
-                  + collectionName
-                  + "\" not supported, please specify inputformat and docnomapping class, or contact developer.");
-          return false;
-        }
-
+    if(knownCollection) {
+      String collectionName = DriverUtil.argValue(args, DriverUtil.CL_COLLECTION);
+      if (!configer.setConfByCollection(collectionName)) {
+        System.out.println("Collection \"" + collectionName +
+                           "\" not supported, please specify inputformat and docnomapping class, or contact developer.");
+        return false;
       }
-      else if (cmd.equals("-ci"))
-      {
-        if (argc < 2)
-        {
-          System.out
-              .println("Insufficient arguments, more arguments needed after -ci flag.");
-          return false;
-        }
-        argc--;
-        String ciName = args[args.length - argc];
-        if (!configer.setUserSpecifiedInputFormat(ciName))
-        {
-          System.out
-              .println("class \""
-                  + ciName
-                  + "\" doesn't exist or not sub-class of FileInputFormat");
-          return false;
-        }
+    } else {
+      String ciName = DriverUtil.argValue(args, DriverUtil.CL_INPUT_FORMAT);
+      if (!configer.setUserSpecifiedInputFormat(ciName)) {
+        System.out.println("class \"" + ciName +
+                           "\" doesn't exist or not sub-class of FileInputFormat");
+        return false;
       }
-      else if (cmd.equals("-cm"))
-      {
-        if (argc < 2)
-        {
-          System.out
-              .println("Insufficient arguments, more arguments needed after -cm flag.");
-          return false;
-        }
-        argc--;
-        String cmName = args[args.length - argc];
-
-        if (!configer.setUserSpecifiedDocnoMappingClass(cmName))
-        {
-          System.out
-              .println("class \""
-                  + cmName
-                  + "\" doesn't exist or not implemented DocnoMappingt");
-          return false;
-        }
-        //conf.set("Cloud9.DocnoMappingClass", cmName);
+      String cmName = DriverUtil.argValue(args, DriverUtil.CL_DOCNO_MAPPING_CLASS);
+      if (!configer.setUserSpecifiedDocnoMappingClass(cmName)) {
+        System.out.println("class \"" + cmName +
+                           "\" doesn't exist or not implemented DocnoMappingt");
+        return false;
       }
-      else if (cmd.equals("-cf"))
-      {
-        if (argc < 2)
-        {
-          System.out
-              .println("Insufficient arguments, more arguments needed after -cm flag.");
-          return false;
-        }
-        argc--;
-        String cfName = args[args.length - argc];
-        conf.set("Cloud9.DocnoMappingFile", cfName);
-      }
-      else if (cmd.equals("-il"))
-      {
-        includeInternalLinks = true;
-      }
-      else if (cmd.equals("-caw"))
-      {
-        computeAnchorWeights = true;
-      }
-      else if (cmd.equals("-nm"))
-      {
-        if (argc < 2)
-        {
-          System.out
-              .println("Insufficient arguments, more arguments needed after -nm flag.");
-          return false;
-        }
-        argc--;
-        String nm = args[args.length - argc];
-        ;
-        try
-        {
-          if (!AnchorTextNormalizer.class.isAssignableFrom(Class
-              .forName(nm)))
-          {
-            System.out
-                .println("Invalid arguments; Normalizer class must implement AnchorTextNormalizer interface.");
-            return false;
-          }
-        }
-        catch (ClassNotFoundException e)
-        {
-          System.out
-              .println("Invalid arguments; Specified Normalizer class doesn't exist");
-          return false;
-        }
-
-        normalizer = nm;
-      }
-      else if (cmd.startsWith("<") && cmd.endsWith(">")
-          && cmd.contains(":"))
-      {
-        cmd = cmd.substring(1, cmd.length() - 1);
-        int pos = cmd.indexOf(":");
-        conf.set(cmd.substring(0, pos), cmd.substring(pos));
-      }
-      else
-      {
-        System.out.println("Warning: Unresolved argument : " + cmd);
-        // moreArgs.insertArg(cmd);
-      }
-      argc--;
     }
+
+    conf.set("Cloud9.DocnoMappingFile", DriverUtil.argValue(args, DriverUtil.CL_DOCNO_MAPPING));
+    includeInternalLinks = DriverUtil.argExists(args, DriverUtil.CL_INCLUDE_INTERNAL_LINKS);
+    computeAnchorWeights = DriverUtil.argExists(args, DriverUtil.CL_COMPUTE_WEIGHTS);
+
+    String nm = DriverUtil.argValue(args, DriverUtil.CL_NORMALIZER);
+    try {
+      if (!AnchorTextNormalizer.class.isAssignableFrom(Class.forName(nm))) {
+        System.out
+          .println("Invalid arguments; Normalizer class must implement AnchorTextNormalizer interface.");
+        return false;
+      }
+    } catch (ClassNotFoundException e) {
+      System.out
+        .println("Invalid arguments; Specified Normalizer class doesn't exist");
+      return false;
+    }
+
+    normalizer = nm;
     return true;
   }
 }
