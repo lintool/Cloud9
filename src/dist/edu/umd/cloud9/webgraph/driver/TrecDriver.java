@@ -208,7 +208,7 @@ public class TrecDriver extends Configured implements Tool
   private static int printUsage()
   {
     System.out.println("\nusage: collection-path output-base"
-        + "[-cn {clue|trecweb|gov2|wt10g}] "
+        + "[-cn {trecweb|gov2|wt10g}] "
         + "[-ci userSpecifiedInputFormatClass] "
         + "[-cm userSpecifiedDocnoMappingClass] "
         + "-cf userSpecifiedDocnoMappingFile "
