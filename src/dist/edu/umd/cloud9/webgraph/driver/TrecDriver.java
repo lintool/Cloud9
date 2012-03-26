@@ -28,6 +28,7 @@ import edu.umd.cloud9.webgraph.BuildWebGraph;
 import edu.umd.cloud9.webgraph.CollectionConfigurationManager;
 import edu.umd.cloud9.webgraph.CollectHostnames;
 import edu.umd.cloud9.webgraph.ComputeWeight;
+import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.TrecExtractLinks;
 import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
 
@@ -68,8 +69,6 @@ import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
  * @author Nima Asadi , Modified by Fangyue Wang
  *
  */
-
-import edu.umd.cloud9.webgraph.DriverUtil;
 
 public class TrecDriver extends Configured implements Tool {
   private String inputBase;
@@ -179,9 +178,7 @@ public class TrecDriver extends Configured implements Tool {
                        "-docno userSpecifiedDocnoMappingFile " +
                        "[-il] " +
                        "[-caw] " +
-                       "[-normalizer normalizerClass] " +
-                       "[<key:value> ..]");
-
+                       "[-normalizer normalizerClass] ");
     System.out.println("Help:");
     System.out.println("[" + DriverUtil.CL_INPUT + " collection-path]\n\tinput directory");
     System.out.println("[" + DriverUtil.CL_OUTPUT + " output-base]\n\toutput directory");
