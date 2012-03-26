@@ -35,6 +35,8 @@ public class DriverUtil {
   public static final String CL_INPUT = "-input";
   public static final String CL_OUTPUT = "-output";
   public static final String CL_DOCNO_MAPPING = "-docno";
+  public static final String CL_MAX_LENGTH = "-maxLength";
+  public static final String CL_NUMBER_OF_REDUCERS = "-numReducers";
 
   public static String argValue(String[] args, String option) throws IllegalArgumentException {
     for(int i = 0; i < args.length - 1; i++) {

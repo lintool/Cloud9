@@ -48,6 +48,7 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
+import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.IndexableAnchorText;
 import edu.umd.cloud9.webgraph.data.IndexableAnchorTextForwardIndex;
@@ -111,9 +112,9 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
   }
 
   private static int printUsage() {
-    System.out.println("usage: [collection-path] [output-path]" +
-                       " [docno-mapping-class] [docno-mapping-file]" +
-                       " [num-reducers] [optional: maximum content length]");
+    System.out.println("usage: [-input collection-path] [-output output-path]" +
+                       " [-docnoClass docno-mapping-class] [-docno docno-mapping-file]" +
+                       " [-numReducers num-reducers] [optional:-maxLength maximum content length]");
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
   }
@@ -130,13 +131,13 @@ public class BuildIndexableAnchorCollection extends Configured implements Tool {
     JobConf conf = new JobConf(getConf());
     FileSystem fs = FileSystem.get(conf);
 
-    String collectionPath = args[0];
-    String outputPath = args[1];
-    String docnoMappingClass = args[2];
-    String docnoMapping = args[3];
-    int numReducers = Integer.parseInt(args[4]);
-    if(args.length == 6) {
-      conf.setInt("Cloud9.maxContentLength", Integer.parseInt(args[5]));
+    String collectionPath = DriverUtil.argValue(args, DriverUtil.CL_INPUT);
+    String outputPath = DriverUtil.argValue(args, DriverUtil.CL_OUTPUT);
+    String docnoMappingClass = DriverUtil.argValue(args, DriverUtil.CL_DOCNO_MAPPING_CLASS);
+    String docnoMapping = DriverUtil.argValue(args, DriverUtil.CL_DOCNO_MAPPING);
+    int numReducers = Integer.parseInt(DriverUtil.argValue(args, DriverUtil.CL_NUMBER_OF_REDUCERS));
+    if(DriverUtil.argExists(args, DriverUtil.CL_MAX_LENGTH)) {
+      conf.setInt("Cloud9.maxContentLength", Integer.parseInt(DriverUtil.argValue(args, DriverUtil.CL_MAX_LENGTH)));
     }
     conf.set("Cloud9.DocnoMappingClass", docnoMappingClass);
 
