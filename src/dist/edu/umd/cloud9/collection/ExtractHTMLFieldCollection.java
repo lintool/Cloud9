@@ -46,7 +46,7 @@ import org.htmlparser.util.ParserException;
 
 import edu.umd.cloud9.collection.line.TextDocument;
 import edu.umd.cloud9.util.PowerTool;
-import edu.umd.cloud9.webgraph.driver.TrecExtractLinks.Map.LinkCounter;
+import edu.umd.cloud9.webgraph.TrecExtractLinks.Map.LinkCounter;
 
 /**
  * <p>
