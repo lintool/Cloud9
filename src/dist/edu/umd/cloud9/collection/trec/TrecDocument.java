@@ -25,13 +25,14 @@ import org.apache.hadoop.io.WritableUtils;
 import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.collection.Indexable;
+import edu.umd.cloud9.collection.generic.WebDocument;
 
 /**
  * Object representing a TREC document.
  *
  * @author Jimmy Lin
  */
-public class TrecDocument extends Indexable {
+public class TrecDocument extends WebDocument {
 
   /**
    * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.
@@ -113,4 +114,11 @@ public class TrecDocument extends Indexable {
     doc.doc = s;
     doc.docid = null;
   }
+
+@Override
+public String getURL()
+{
+    // TODO Auto-generated method stub
+    return null;
+}
 }
