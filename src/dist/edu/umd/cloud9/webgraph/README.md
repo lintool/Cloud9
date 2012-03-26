@@ -22,7 +22,7 @@ For other TREC collections, use the following driver instead:
 * `-inputFormat` and `-docnoClass`: When `-collection` is not specified, you must provide the input format and docno mapping class in order to run this generic driver on collections other than the supported set (i.e., gov2, wt10g, and trecweb). Please note that to be compatible with the framework, the input document set must be a collection of `WebDocument`s.
 
 
-Build Indexable Anchor Collection
+Building Indexable Anchor Collections
 ---------------------------------
 
 To be able to index an anchor collection, anchors must be Indexable. The following driver converts the output of the above into Indexable objects.
