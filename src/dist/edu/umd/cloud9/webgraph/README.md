@@ -11,7 +11,9 @@ To extract anchor text from the ClueWeb09 collection, please use the following:
 * `-begin` and `-end`: For example, to extract anchors from segments 2, 3, and 4 use `-begin 2 -end 4` and similarly use `-begin n -end n` to extract anchors from segment `n`.
 * `-il`: Consider internal links. Without this option internal links will be discarded.
 * `-caw`: Compute the default weighting scheme proposed by [Metzler et. al.](http://dl.acm.org/citation.cfm?id=1571981).
-* `-normalizer`: A subclass of `edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer`;
+* `-normalizer`: A subclass of `edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer`.
+
+Note that the input must be a collection of sequence files.
 
 For other TREC collections, use the following driver instead:
 
@@ -21,6 +23,7 @@ For other TREC collections, use the following driver instead:
 
 * `-inputFormat` and `-docnoClass`: When `-collection` is not specified, you must provide the input format and docno mapping class in order to run this generic driver on collections other than the supported set (i.e., gov2, wt10g, and trecweb). Please note that to be compatible with the framework, the input document set must be a collection of `WebDocument`s.
 
+Note that when `-collection` is used, `-input` must point to the *raw* document collection (not repacked sequence files).
 
 Building Indexable Anchor Collections
 ---------------------------------
