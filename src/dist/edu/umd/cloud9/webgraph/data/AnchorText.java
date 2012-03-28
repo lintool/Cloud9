@@ -507,7 +507,7 @@ public class AnchorText implements WritableComparable<AnchorText>, AnchorTextCon
 	
 	
 	//checks whether the anchor text object has a valid text field.
-	private boolean hasValidText() {
+	public boolean hasValidText() {
 		
 		if(type == Type.EXTERNAL_IN_LINK.val || type == Type.INTERNAL_IN_LINK.val ||
 				type == Type.URL_FIELD.val || type == Type.OTHER_TYPES.val || 
