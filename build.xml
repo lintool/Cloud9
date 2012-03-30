@@ -9,7 +9,7 @@
   <property name="test.dir" location="test" />
   <property name="javadoc.dir" location="docs/api/" />
 
-  <property name="version" value="1.2.11"/>
+  <property name="version" value="1.3.1"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -109,6 +109,9 @@
     <javac classpathref="lib.path.id" srcdir="${src.dir}/test" destdir="${build.dir}" optimize="on" debug="on">
       <compilerarg value="-Xlint:unchecked" />
     </javac>
+    <javac classpathref="lib.path.id" srcdir="${src.dir}/integration" destdir="${build.dir}" optimize="on" debug="on">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
     <copy todir="${build.dir}">
       <fileset dir="${src.dir}/test" excludes="**/*.java" />
       <fileset dir="${src.dir}/dist" excludes="**/*.java" />
@@ -143,7 +146,7 @@
         <batchtest todir="${test.dir}">
           <fileset dir="${build.dir}">
             <include name="**/*Test.class" />
-            <exclude name="edu/umd/cloud9/example/translation/*.class" />
+            <exclude name="edu/umd/cloud9/integration/**/*.class" />
           </fileset>
         </batchtest>
     </junit>

@@ -27,11 +27,11 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.LineReader;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.trec.NumberTrecDocuments;
-import edu.umd.cloud9.io.FSLineReader;
+import edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder;
 
 /**
  * <p>
@@ -69,7 +69,7 @@ public class TextDocnoMapping implements DocnoMapping {
 	/**
 	 * Creates a mappings file from the contents of a flat text file containing
 	 * docid to docno mappings. This method is used by
-	 * {@link NumberTrecDocuments} internally.
+	 * {@link TrecDocnoMappingBuilder} internally.
 	 * 
 	 * @param inputFile
 	 *            flat text file containing docid to docno mappings
@@ -82,7 +82,7 @@ public class TextDocnoMapping implements DocnoMapping {
 	static public void writeDocnoData(String inputFile, String outputFile, FileSystem fs)
 			throws IOException {
 		sLogger.info("Writing docno data to " + outputFile);
-		FSLineReader reader = new FSLineReader(inputFile, fs);
+		LineReader reader = new LineReader(fs.open(new Path(inputFile)));
 		List<String> list = new ArrayList<String>();
 
 		sLogger.info("Reading " + inputFile);
@@ -143,6 +143,11 @@ public class TextDocnoMapping implements DocnoMapping {
 
 		return arr;
 	}
+
+  @Override
+  public Builder getBuilder() {
+    throw new UnsupportedOperationException();
+  }
 
 	/**
 	 * Simple program the provides access to the docno/docid mappings.

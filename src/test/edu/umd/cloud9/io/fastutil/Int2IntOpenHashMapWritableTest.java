@@ -28,7 +28,7 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.io.fastuil.Int2IntOpenHashMapWritable;
+import edu.umd.cloud9.io.map.Int2IntOpenHashMapWritable;
 
 public class Int2IntOpenHashMapWritableTest {
 

@@ -78,7 +78,7 @@ public class TrecDocnoMapping implements DocnoMapping {
 
   /**
    * Creates a mappings file from the contents of a flat text file containing docid to docno
-   * mappings. This method is used by {@link NumberTrecDocuments} internally.
+   * mappings. This method is used by {@link TrecDocnoMappingBuilder} internally.
    *
    * @param input flat text file containing docid to docno mappings
    * @param output output mappings data file
@@ -151,6 +151,11 @@ public class TrecDocnoMapping implements DocnoMapping {
     arr[0] = "";
 
     return arr;
+  }
+
+  @Override
+  public Builder getBuilder() {
+    return new TrecDocnoMappingBuilder();
   }
 
   /**

@@ -27,14 +27,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -51,7 +47,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * <ul>
  * <li>[input] path to the document collection
  * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the docnos mappings file
+ * <li>[mappings-file] path to the docno mappings file
  * </ul>
  *
  * <p>
@@ -61,63 +57,61 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * <blockquote><pre>
  * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
  *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.medline.DemoCountMedlineCitations \
+ * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments2 \
  *   -libjars=guava-r09.jar \
- *   /shared/collections/medline04 \
+ *   /shared/collections/trec/trec4-5_noCRFR.xml \
  *   /user/jimmylin/count-tmp \
  *   /user/jimmylin/docno-mapping.dat
  * </pre></blockquote>
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class DemoCountMedlineCitations extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(DemoCountMedlineCitations.class);
   private static enum Count { DOCS };
 
-  private static class MyMapper extends MapReduceBase implements
-      Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
-
-    private final static Text outKey = new Text();
-    private final static IntWritable outVal = new IntWritable(1);
+  private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
+    private static final Text docid = new Text();
+    private static final IntWritable val = new IntWritable(1);
     private DocnoMapping docMapping;
 
-    public void configure(JobConf job) {
+    @Override
+    public void setup(Context context) {
       try {
-        Path[] localFiles = DistributedCache.getLocalCacheFiles(job);
+        Configuration conf = context.getConfiguration();
+        Path[] localFiles = DistributedCache.getLocalCacheFiles(conf);
 
         // Instead of hard-coding the actual concrete DocnoMapping class, have the name of the
         // class passed in as a property; this makes the mapper more general.
-        docMapping = (DocnoMapping) Class.forName(job.get("DocnoMappingClass")).newInstance();
+        docMapping = (DocnoMapping) Class.forName(conf.get("DocnoMappingClass")).newInstance();
 
-        // simply assume that the mappings file is the only file in the
-        // distributed cache
-        docMapping.loadMapping(localFiles[0], FileSystem.getLocal(job));
+        // Simply assume that the mappings file is the only file in the distributed cache.
+        docMapping.loadMapping(localFiles[0], FileSystem.getLocal(conf));
       } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("Error initializing DocnoMapping!");
       }
     }
 
-    public void map(LongWritable key, MedlineCitation doc,
-        OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-      reporter.incrCounter(Count.DOCS, 1);
-
-      outKey.set(doc.getDocid());
+    @Override
+    public void map(LongWritable key, MedlineCitation doc, Context context)
+        throws IOException, InterruptedException {
+      context.getCounter(Count.DOCS).increment(1);
+      docid.set(doc.getDocid());
       int docno = docMapping.getDocno(doc.getDocid());
       if ( docno <= 0) {
-        throw new RuntimeException("Error, unable to find docno for docid " + doc.getDocid());
+        throw new RuntimeException("Error, unable to find docno for docid " + docid);
       }
-
-      outVal.set(docno);
-      output.collect(outKey, outVal);
+      val.set(docno);
+      context.write(docid, val);
     }
   }
 
   /**
    * Creates an instance of this tool.
    */
-  public DemoCountMedlineCitations() {}
+  public DemoCountMedlineCitations() {
+  }
 
   private static int printUsage() {
     System.out.println("usage: [input] [output-dir] [mappings-file]");
@@ -138,38 +132,38 @@ public class DemoCountMedlineCitations extends Configured implements Tool {
     String outputPath = args[1];
     String mappingFile = args[2];
 
-    LOG.info("input: " + inputPath);
-    LOG.info("output dir: " + outputPath);
-    LOG.info("docno mapping file: " + mappingFile);
+    LOG.info("Tool: " + DemoCountMedlineCitations.class.getCanonicalName());
+    LOG.info(" - input: " + inputPath);
+    LOG.info(" - output dir: " + outputPath);
+    LOG.info(" - docno mapping file: " + mappingFile);
 
-    JobConf conf = new JobConf(getConf(), DemoCountMedlineCitations.class);
-    conf.setJobName("DemoCountMedlineCitations");
+    Job job = new Job(getConf(), DemoCountMedlineCitations.class.getSimpleName());
+    job.setJarByClass(DemoCountMedlineCitations.class);
 
-    conf.setNumReduceTasks(0);
+    job.setNumReduceTasks(0);
 
     // Pass in the class name as a String; this is makes the mapper general in being able to load
     // any collection of Indexable objects that has docid/docno mapping specified by a DocnoMapping
     // object.
-    conf.set("DocnoMappingClass", MedlineDocnoMapping.class.getCanonicalName());
+    job.getConfiguration().set("DocnoMappingClass", MedlineDocnoMapping.class.getCanonicalName());
 
-    // put the mapping file in the distributed cache so each map worker will
-    // have it
-    DistributedCache.addCacheFile(new URI(mappingFile), conf);
+    // Put the mapping file in the distributed cache so each map worker will have it.
+    DistributedCache.addCacheFile(new URI(mappingFile), job.getConfiguration());
 
-    FileInputFormat.setInputPaths(conf, new Path(inputPath));
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-    FileOutputFormat.setCompressOutput(conf, false);
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(job, false);
 
-    conf.setInputFormat(MedlineCitationInputFormat.class);
-    conf.setOutputKeyClass(Text.class);
-    conf.setOutputValueClass(IntWritable.class);
+    job.setInputFormatClass(MedlineCitationInputFormat.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
 
-    conf.setMapperClass(MyMapper.class);
+    job.setMapperClass(MyMapper.class);
 
-    // delete the output directory if it exists already
-    FileSystem.get(conf).delete(new Path(outputPath), true);
+    // Delete the output directory if it exists already.
+    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
 
-    JobClient.runJob(conf);
+    job.waitForCompletion(true);
 
     return 0;
   }
