@@ -28,18 +28,20 @@ import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
+import edu.umd.cloud9.collection.generic.WebDocument;
+
 public class TrecDocumentInputFormat extends
-    IndexableFileInputFormat<LongWritable, TrecDocument> {
+    IndexableFileInputFormat<LongWritable, WebDocument> {
 
   @Override
-  public RecordReader<LongWritable, TrecDocument> createRecordReader(
+  public RecordReader<LongWritable, WebDocument> createRecordReader(
       InputSplit split, TaskAttemptContext context) throws IOException,
       InterruptedException {
     return new TrecDocumentRecordReader();
   }
 
   public static class TrecDocumentRecordReader extends
-      RecordReader<LongWritable, TrecDocument> {
+      RecordReader<LongWritable, WebDocument> {
     private final XMLRecordReader reader = new XMLRecordReader();
     private final TrecDocument doc = new TrecDocument();
 
@@ -59,7 +61,7 @@ public class TrecDocumentInputFormat extends
     }
 
     @Override
-    public TrecDocument getCurrentValue() throws IOException, InterruptedException {
+    public WebDocument getCurrentValue() throws IOException, InterruptedException {
       TrecDocument.readDocument(doc, reader.getCurrentValue().toString());
       return doc;
     }
