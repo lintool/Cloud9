@@ -51,10 +51,7 @@ import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
  * @author Nima Asadi
  *
  */
-
-@SuppressWarnings("deprecation")
 public class CollectHostnames extends PowerTool {
-
 	private static final Logger sLogger = Logger.getLogger(CollectHostnames.class);
 	
 	public static class Map extends MapReduceBase implements

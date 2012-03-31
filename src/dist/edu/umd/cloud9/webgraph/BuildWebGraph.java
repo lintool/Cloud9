@@ -48,10 +48,7 @@ import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
  * @author Nima Asadi
  *
  */
-
-@SuppressWarnings("deprecation")
 public class BuildWebGraph extends PowerTool {
-
 	private static final Logger LOG = Logger.getLogger(BuildWebGraph.class);
 	
 	public static class Map extends MapReduceBase implements

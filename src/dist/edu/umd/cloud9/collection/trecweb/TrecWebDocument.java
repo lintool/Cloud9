@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.WritableUtils;
 
-import edu.umd.cloud9.collection.generic.WebDocument;
+import edu.umd.cloud9.collection.WebDocument;
 
 public class TrecWebDocument extends WebDocument {
 

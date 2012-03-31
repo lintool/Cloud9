@@ -25,7 +25,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -59,22 +58,16 @@ import edu.umd.cloud9.webgraph.TrecExtractLinks.Map.LinkCounter;
  * @author fangyue
  * @author metzler
  */
-
 public class ExtractHTMLFieldCollection extends PowerTool {
   private static final Logger LOG = Logger.getLogger(ExtractHTMLFieldCollection.class);
 
-  public static class MyMapper extends Mapper<LongWritable, Indexable, LongWritable, TextDocument>
-  {
-
+  public static class MyMapper extends Mapper<LongWritable, Indexable, LongWritable, TextDocument> {
     // TODO: allow this to support user-defined regular expressions, not just the "heading" one pre-defined here
-    public static class HeadingTagFilter implements NodeFilter
-    {
+    public static class HeadingTagFilter implements NodeFilter {
       private static final long serialVersionUID = 3848416345122090905L;
+      private final Pattern pattern = Pattern.compile("h[123456]", Pattern.CASE_INSENSITIVE);
 
-      Pattern pattern = Pattern.compile("h[123456]", Pattern.CASE_INSENSITIVE);
-
-      public boolean accept(Node node)
-      {
+      public boolean accept(Node node) {
         return (pattern.matcher(node.getText()).matches());
       }
     }
@@ -164,7 +157,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     super(conf);
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("unchecked")
   @Override
   public int runTool() throws Exception {
     Configuration conf = getConf();
