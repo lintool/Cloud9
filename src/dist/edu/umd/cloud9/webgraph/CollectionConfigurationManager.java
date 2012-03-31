@@ -1,33 +1,27 @@
 package edu.umd.cloud9.webgraph;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.trec.TrecDocnoMapping;
-import edu.umd.cloud9.collection.trec.TrecDocumentInputFormat;
-import edu.umd.cloud9.collection.trecweb.Gov2DocnoMapping;
 import edu.umd.cloud9.collection.trecweb.TrecWebDocumentInputFormat;
-import edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping;
 
-public class CollectionConfigurationManager
-{
+public class CollectionConfigurationManager {
   public static final String[] supported = { "trecweb", "gov2", "wt10g" };
 
   private boolean userSpecifiedInputFormat = false;
   private boolean userSpecifiedDocnoMapping = false;
   private int tgtConf = -1;
-  private Class userSpecifiedInputFormatClass;
+  private Class<? extends InputFormat> userSpecifiedInputFormatClass;
   private String userSpecifiedDocnoMappingClass;
 
-  public static boolean isSupported(String tgtCollection)
-  {
+  public static boolean isSupported(String tgtCollection) {
     return (getCollectionIndex(tgtCollection) >= 0);
   }
 
-  private static int getCollectionIndex(String tgtCollection)
-  {
+  private static int getCollectionIndex(String tgtCollection) {
     tgtCollection = tgtCollection.toLowerCase();
     for (int i = 0; i < supported.length; i++)
       if (tgtCollection.startsWith(supported[i]))
@@ -35,26 +29,20 @@ public class CollectionConfigurationManager
     return -1;
   }
 
-  public boolean setConfByCollection(String collectionName)
-  {
+  public boolean setConfByCollection(String collectionName) {
     int index = getCollectionIndex(collectionName);
-    if (index == -1)
-    {
+    if (index == -1) {
       return false;
     }
     tgtConf = index;
     return true;
   }
 
-  public boolean setUserSpecifiedInputFormat(String className)
-  {
+  public boolean setUserSpecifiedInputFormat(String className) {
     Class userClass;
-    try
-    {
+    try {
       userClass = Class.forName(className);
-    }
-    catch (ClassNotFoundException e)
-    {
+    } catch (ClassNotFoundException e) {
       return false;
     }
 
@@ -69,15 +57,11 @@ public class CollectionConfigurationManager
     return true;
   }
 
-  public boolean setUserSpecifiedDocnoMappingClass(String className)
-  {
+  public boolean setUserSpecifiedDocnoMappingClass(String className) {
     Class userClass;
-    try
-    {
+    try {
       userClass = Class.forName(className);
-    }
-    catch (ClassNotFoundException e)
-    {
+    } catch (ClassNotFoundException e) {
       return false;
     }
 
@@ -92,40 +76,38 @@ public class CollectionConfigurationManager
     return true;
   }
 
-  public void applyJobConfig(Job job) throws Exception
-  {
+  public void applyJobConfig(Job job) throws Exception {
     if (userSpecifiedInputFormat) {
       job.setInputFormatClass(userSpecifiedInputFormatClass);
-    }
-    else {
+    } else {
       switch (tgtConf) {
-        case 0: case 1: case 2:
-          job.setInputFormatClass(TrecWebDocumentInputFormat.class);
-          break;
-        default:
-          throw new Exception("InputFormat class not specified");
+      case 0:
+      case 1:
+      case 2:
+        job.setInputFormatClass(TrecWebDocumentInputFormat.class);
+        break;
+      default:
+        throw new Exception("InputFormat class not specified");
       }
     }
   }
 
-  public void applyConfig(Configuration conf) throws Exception
-  {
-    if (userSpecifiedDocnoMapping)
-    {
+  public void applyConfig(Configuration conf) throws Exception {
+    if (userSpecifiedDocnoMapping) {
       conf.set("Cloud9.DocnoMappingClass", userSpecifiedDocnoMappingClass);
-    }
-    else
-    {
-      switch (tgtConf)
-      {
-        case 1:
-          conf.set("Cloud9.DocnoMappingClass", "edu.umd.cloud9.collection.trecweb.Gov2DocnoMapping");
-          break;
-        case 2:
-          conf.set("Cloud9.DocnoMappingClass", "edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping");
-          break;
-        case 0: default:
-          throw new Exception("DocnoMapping class not specified");
+    } else {
+      switch (tgtConf) {
+      case 1:
+        conf.set("Cloud9.DocnoMappingClass",
+            edu.umd.cloud9.collection.trecweb.Gov2DocnoMapping.class.getCanonicalName());
+        break;
+      case 2:
+        conf.set("Cloud9.DocnoMappingClass",
+            edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping.class.getCanonicalName());
+        break;
+      case 0:
+      default:
+        throw new Exception("DocnoMapping class not specified");
       }
     }
   }

@@ -9,10 +9,10 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import edu.umd.cloud9.collection.IndexableFileInputFormat;
+import edu.umd.cloud9.collection.WebDocument;
 import edu.umd.cloud9.collection.XMLInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
-import edu.umd.cloud9.collection.generic.WebDocument;
 
 public class TrecWebDocumentInputFormat extends
     IndexableFileInputFormat<LongWritable, WebDocument> {

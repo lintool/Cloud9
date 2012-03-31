@@ -48,8 +48,6 @@ import edu.umd.cloud9.webgraph.data.AnchorText;
  * @author Nima Asadi
  *
  */
-
-@SuppressWarnings("deprecation")
 public class ComputeWeight extends PowerTool {
 
 	private static final Logger LOG = Logger.getLogger(ComputeWeight.class);

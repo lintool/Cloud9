@@ -65,10 +65,7 @@ import edu.umd.cloud9.webgraph.data.IndexableAnchorTextForwardIndex;
  * @author Nima Asadi
  * 
  */
-
-@SuppressWarnings("deprecation")
 public class BuildAnchorTextForwardIndex extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(BuildAnchorTextForwardIndex.class);
 
 	private static enum Blocks {

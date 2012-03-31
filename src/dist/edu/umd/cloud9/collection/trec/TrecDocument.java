@@ -25,7 +25,7 @@ import org.apache.hadoop.io.WritableUtils;
 import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.collection.Indexable;
-import edu.umd.cloud9.collection.generic.WebDocument;
+import edu.umd.cloud9.collection.WebDocument;
 
 /**
  * Object representing a TREC document.
