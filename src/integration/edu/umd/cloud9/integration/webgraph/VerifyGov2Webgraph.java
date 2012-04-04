@@ -26,7 +26,7 @@ import edu.umd.cloud9.webgraph.driver.TrecDriver;
 
 public class VerifyGov2Webgraph {
   private static final Random rand = new Random();
-  private static final String tmp = "/tmp-" + VerifyGov2Webgraph.class.getSimpleName() + rand.nextInt(10000);
+  private static final String tmp = "/tmp/tmp-" + VerifyGov2Webgraph.class.getSimpleName() + rand.nextInt(10000);
 
   private static final String collectionPath =
     "/shared/collections/gov2/collection.raw/gov2-corpus/GX000";
