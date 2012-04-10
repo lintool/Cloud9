@@ -207,6 +207,5 @@ public class ClueWebDriver extends Configured implements Tool {
   public static void main(String[] args) throws Exception {
     int res = ToolRunner
       .run(new Configuration(), new ClueWebDriver(), args);
-    System.exit(res);
   }
 }

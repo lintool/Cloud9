@@ -165,7 +165,6 @@ public class TrecDriver extends Configured implements Tool {
   public static void main(String[] args) throws Exception {
     int res = ToolRunner
       .run(new Configuration(), new TrecDriver(), args);
-    System.exit(res);
   }
 
   private static int printUsage() {
