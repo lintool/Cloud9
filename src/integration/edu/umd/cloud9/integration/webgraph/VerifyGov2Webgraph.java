@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.integration.IntegrationUtils;
@@ -43,15 +44,15 @@ public class VerifyGov2Webgraph {
     "safety health mining", 0.25f);
 
   // Galago: part 00000, key = 400
-  private ImmutableMap<String, int[]> anchorSources1 = ImmutableMap.of(
+  private ImmutableMap<String, ImmutableSet<Integer>> anchorSources1 = ImmutableMap.of(
     "mine safety health administration",
-    new int[] {28502, 11970, 11445, 65562, 67427, 6338},
+    ImmutableSet.of(28502, 11970, 11445, 65562, 67427, 6338),
     "mine safety health administration msha",
-    new int[] {25765, 24550, 14962, 82536, 68902, 46419, 35554, 6461, 17709},
+    ImmutableSet.of(25765, 24550, 14962, 82536, 68902, 46419, 35554, 6461, 17709),
     "msha",
-    new int[] {25765, 1050, 35317},
+    ImmutableSet.of(25765, 1050, 35317),
     "safety health mining",
-    new int[] {29107});
+    ImmutableSet.of(29107));
 
   // Galago: part 00010, key = 210
   private ImmutableMap<String, Float> anchorList2 = ImmutableMap.of(
@@ -59,11 +60,11 @@ public class VerifyGov2Webgraph {
     "richland operations office rl", 0.5f);
 
   // Galago: part 00010, key = 210
-  private ImmutableMap<String, int[]> anchorSources2 = ImmutableMap.of(
+  private ImmutableMap<String, ImmutableSet<Integer>> anchorSources2 = ImmutableMap.of(
     "hanford",
-    new int[] {55133, 89334, 51706, 52487, 44864, 39214},
+    ImmutableSet.of(55133, 89334, 51706, 52487, 44864, 39214),
     "richland operations office rl",
-    new int[] {51706});
+    ImmutableSet.of(51706));
 
   @Test
   public void runTrecDriver() throws Exception {
@@ -127,13 +128,13 @@ public class VerifyGov2Webgraph {
     }
   }
 
-  private void verifySources(Map<String, int[]> anchor, ArrayListWritable<AnchorText> value) {
+  private void verifySources(Map<String, ImmutableSet<Integer>> anchor, ArrayListWritable<AnchorText> value) {
     for (int i = 0; i < value.size(); i++) {
       if(anchor.containsKey(value.get(i).getText())) {
         int[] srcs = value.get(i).getDocuments();
-        assertEquals(anchor.get(value.get(i).getText()).length, srcs.length);
+        assertEquals(anchor.get(value.get(i).getText()).size(), srcs.length);
         for(int j = 0; j < srcs.length; j++) {
-          assertEquals(anchor.get(value.get(i).getText())[j], srcs[j]);
+          assertTrue(anchor.get(value.get(i).getText()).contains(srcs[j]));
         }
       }
     }
