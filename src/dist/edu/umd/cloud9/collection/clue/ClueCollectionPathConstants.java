@@ -1,17 +1,17 @@
 package edu.umd.cloud9.collection.clue;
 
-import java.security.InvalidParameterException;
-
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Class that provides convenience methods for processing portions of the Clue
  * Web collection with Hadoop. Static methods in this class allow the user to
  * easily "select" different portions of the collection to serve as input to a
  * MapReduce job.
- * 
+ *
  * @author Jimmy Lin
  */
 public class ClueCollectionPathConstants {
@@ -257,8 +257,7 @@ public class ClueCollectionPathConstants {
 	 *            base path for the Clue Web collection
 	 */
 	public static void addEnglishCollectionPart(JobConf conf, String base, int i) {
-		if (i < 1 || i > 10)
-			throw new InvalidParameterException("Invalid part of the collection!");
+	  Preconditions.checkArgument(i >= 1 && i <= 10);
 
 		for (String s : sEnglishSections[i - 1]) {
 			FileInputFormat.addInputPath(conf, new Path(base + "/" + s));

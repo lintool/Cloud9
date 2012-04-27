@@ -204,7 +204,8 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 	@Override
 	public int get(K key) {
-		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
+    if (key == null)
+      return getForNullKey();
 		int hash = hash(key.hashCode());
 		for (Entry<K> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
@@ -212,12 +213,26 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 				return e.value;
 		}
 
-		return DEFAULT_VALUE;
+    return DEFAULT_VALUE;
 	}
+
+	 /**
+   * Offloaded version of get() to look up null keys. Null keys map to index
+   * 0. This null case is split out into separate methods for the sake of
+   * performance in the two most commonly used operations (get and put), but
+   * incorporated with conditionals in others.
+   */
+  private int getForNullKey() {
+    for (Entry<K> e = table[0]; e != null; e = e.next) {
+      if (e.key == null)
+        return e.value;
+    }
+
+    return DEFAULT_VALUE;
+  }
 
 	@Override
 	public boolean containsKey(K key) {
-		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
 		return getEntry(key) != null;
 	}
 
@@ -237,13 +252,15 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 
 	@Override
 	public int put(K key, int value) {
-		if ( key == null ) { throw new IllegalArgumentException("Key cannot be null!"); }
+    if (key == null) {
+      return putForNullKey(value);
+    }
 		int hash = hash(key.hashCode());
 		int i = indexFor(hash, table.length);
 		for (Entry<K> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
-				int oldValue = e.value;
+        int oldValue = e.value;
 				e.value = value;
 				e.recordAccess(this);
 				return oldValue;
@@ -254,6 +271,24 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		addEntry(hash, key, value, i);
 		return DEFAULT_VALUE;
 	}
+
+	 /**
+   * Offloaded version of put for null keys
+   */
+  private int putForNullKey(int value) {
+    for (Entry<K> e = table[0]; e != null; e = e.next) {
+      if (e.key == null) {
+        int oldValue = value;
+        e.value = value;
+        e.recordAccess(this);
+        return oldValue;
+      }
+    }
+    
+    modCount++;
+    addEntry(0, null, value, 0);
+    return DEFAULT_VALUE;
+  }
 
 	/**
 	 * This method is used instead of put by constructors and pseudoconstructors
@@ -892,6 +927,23 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 			this.put(key, 1);
 		}
 	}
+
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
+  public void increment(K key, int value) {
+    if (this.containsKey(key)) {
+      this.put(key, this.get(key) + value);
+    } else {
+      this.put(key, value);
+    }
+  }
 
 	/**
 	 * Returns entries sorted by descending value. Ties broken by the key.

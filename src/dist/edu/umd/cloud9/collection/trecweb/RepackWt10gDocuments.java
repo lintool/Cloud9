@@ -56,6 +56,7 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  * 
  */
+@SuppressWarnings("deprecation")
 public class RepackWt10gDocuments extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(RepackWt10gDocuments.class);

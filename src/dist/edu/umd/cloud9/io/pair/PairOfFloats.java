@@ -135,9 +135,7 @@ public class PairOfFloats implements WritableComparable<PairOfFloats> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfFloats obj) {
-		PairOfFloats pair = (PairOfFloats) obj;
-
+	public int compareTo(PairOfFloats pair) {
 		float pl = pair.getLeftElement();
 		float pr = pair.getRightElement();
 
@@ -200,8 +198,8 @@ public class PairOfFloats implements WritableComparable<PairOfFloats> {
 			float thatLeftValue = readFloat(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				int thisRightValue = readInt(b1, s1 + 4);
-				int thatRightValue = readInt(b2, s2 + 4);
+				float thisRightValue = readFloat(b1, s1 + 4);
+				float thatRightValue = readFloat(b2, s2 + 4);
 
 				return (thisRightValue < thatRightValue ? -1
 						: (thisRightValue == thatRightValue ? 0 : 1));

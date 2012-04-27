@@ -98,8 +98,9 @@ public class HFormatterWG extends Configured implements Tool {
 					links.add(curr);
 				}
 			}
-			dataOut.setAdjacencyList(links);
-			dataOut.setHARank((float) 1.0);
+			dataOut.setOutlinks(links);
+			dataOut.setHRank((float) 0.0);
+			System.out.println(">>>" + keyOut.get() + " | " + dataOut.toString());
 			output.collect(keyOut, dataOut);
 			// emit mentioned mentioner -> mentioned (mentioners) in links
 			// emit mentioner mentioned -> mentioner (mentions) outlinks
@@ -123,14 +124,14 @@ public class HFormatterWG extends Configured implements Tool {
 
 			while (values.hasNext()) {
 				valIn = values.next();
-				ArrayListOfIntsWritable adjListIn = valIn.getAdjacencyList();
+				ArrayListOfIntsWritable adjListIn = valIn.getOutlinks();
 				adjListIn.trimToSize();
-				adjList.addAll(adjListIn.getArray());
+				adjList.addUnique(adjListIn.getArray());
 				valOut.setNodeId(valIn.getNodeId());
 			}
-			valOut.setAdjacencyList(adjList);
+			valOut.setOutlinks(adjList);
 			valOut.setType(HITSNode.TYPE_HUB_COMPLETE);
-			valOut.setHARank((float) 0.0);
+			valOut.setHRank((float) 0.0);
 
 			output.collect(key, valOut);
 
@@ -180,7 +181,6 @@ public class HFormatterWG extends Configured implements Tool {
 		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
 		conf.setMapperClass(HFormatMapper.class);
-		;
 		conf.setReducerClass(HFormatReducer.class);
 
 		// Delete the output directory if it exists already
@@ -190,6 +190,7 @@ public class HFormatterWG extends Configured implements Tool {
 
 		long startTime = System.currentTimeMillis();
 		DistributedCache.addCacheFile(stopList.toUri(), conf);
+		conf.setStrings("stoplist", stopList.toString());
 		JobClient.runJob(conf);
 		sLogger.info("Job Finished in "
 				+ (System.currentTimeMillis() - startTime) / 1000.0
@@ -201,7 +202,10 @@ public class HFormatterWG extends Configured implements Tool {
 	private static HashSet<Integer> readStopList(JobConf jc) {
 		HashSet<Integer> out = new HashSet<Integer>();
 		try {
+			//System.out.println(">> " + DistributedCache.getLocalCacheFiles(jc).toString());
 			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(jc);
+			//String[] cacheFiles;
+			//cacheFiles = jc.getStrings("stoplist");
 			FileReader fr = new FileReader(cacheFiles[0].toString());
 			BufferedReader stopReader = new BufferedReader(fr);
 			String line;

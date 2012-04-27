@@ -64,7 +64,8 @@ public class DocumentForwardIndexHttpServer {
 			sLogger.info("port: " + port);
 			sLogger.info("forward index: " + indexFile);
 
-			FSDataInputStream in = FileSystem.get(conf).open(new Path(indexFile));
+			FileSystem fs = FileSystem.get(conf);
+			FSDataInputStream in = fs.open(new Path(indexFile));
 			String indexClass = in.readUTF();
 			in.close();
 
@@ -73,7 +74,7 @@ public class DocumentForwardIndexHttpServer {
 			try {
 				sForwardIndex = (DocumentForwardIndex<Indexable>) Class.forName(indexClass)
 						.newInstance();
-				sForwardIndex.loadIndex(indexFile, mappingFile);
+				sForwardIndex.loadIndex(new Path(indexFile), new Path(mappingFile), fs);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException("Error initializing forward index!");
@@ -114,8 +115,7 @@ public class DocumentForwardIndexHttpServer {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
 
-			out.println("<html><head><title>Collection Access: "
-					+ sForwardIndex.getCollectionPath() + "</title><head>");
+			out.println("<html><head><title>Collection Access: " + sForwardIndex.getCollectionPath() + "</title><head>");
 			out.println("<body>");
 
 			out.println("<h3>Collection Access: " + sForwardIndex.getCollectionPath() + "</h3>");
@@ -123,6 +123,9 @@ public class DocumentForwardIndexHttpServer {
 			int firstDocno = sForwardIndex.getFirstDocno();
 			int lastDocno = sForwardIndex.getLastDocno();
 			int numDocs = lastDocno - firstDocno;
+
+			sLogger.info("first docno: " + firstDocno);
+      sLogger.info("last docno: " + lastDocno);
 
 			String firstDocid = sForwardIndex.getDocid(firstDocno);
 			String lastDocid = sForwardIndex.getDocid(lastDocno);

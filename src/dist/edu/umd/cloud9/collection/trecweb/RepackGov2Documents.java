@@ -56,6 +56,7 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  * 
  */
+@SuppressWarnings("deprecation")
 public class RepackGov2Documents extends Configured implements Tool {
 
 	private static final Logger sLogger = Logger.getLogger(RepackGov2Documents.class);

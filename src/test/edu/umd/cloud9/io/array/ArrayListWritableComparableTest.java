@@ -276,5 +276,4 @@ public class ArrayListWritableComparableTest {
 	public static junit.framework.Test suite() {
 		return new JUnit4TestAdapter(ArrayListWritableComparableTest.class);
 	}
-
 }

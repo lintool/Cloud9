@@ -18,6 +18,13 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -36,97 +43,100 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
- * Tool for counting the number of pages in a particular Wikipedia XML dump
- * file. This program keeps track of total number of pages, redirect pages,
- * disambiguation pages, empty pages, actual articles (including stubs), stubs,
- * and non-articles ("File:", "Category:", "Wikipedia:", etc.). This also
- * provides a skeleton for MapReduce programs to process the collection. The
- * program takes a single command-line argument, which is the path to the
- * Wikipedia XML dump file.
- * </p>
- * 
- * <p>
- * Here's a sample invocation:
- * </p>
- * 
- * <blockquote>
- * 
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPages \
- *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
- *   /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml
- * </pre>
- * 
- * </blockquote>
- * 
+ * Tool for counting the number of pages in a particular Wikipedia XML dump file. This program keeps
+ * track of total number of pages, redirect pages, disambiguation pages, empty pages, actual
+ * articles (including stubs), stubs, and non-articles ("File:", "Category:", "Wikipedia:", etc.).
+ * This also provides a skeleton for MapReduce programs to process the collection. Specify input
+ * path to the Wikipedia XML dump file with the {@code -input} flag.
+ *
  * @author Jimmy Lin
  */
 @SuppressWarnings("deprecation")
 public class DemoCountWikipediaPages extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
+  private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
 
-	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
+  private static enum PageTypes {
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+  };
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
-		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-			reporter.incrCounter(PageTypes.TOTAL, 1);
+    public void map(LongWritable key, WikipediaPage p, OutputCollector<Text, IntWritable> output,
+        Reporter reporter) throws IOException {
+      reporter.incrCounter(PageTypes.TOTAL, 1);
 
-			if (p.isRedirect()) {
-				reporter.incrCounter(PageTypes.REDIRECT, 1);
+      if (p.isRedirect()) {
+        reporter.incrCounter(PageTypes.REDIRECT, 1);
 
-			} else if (p.isDisambiguation()) {
-				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
-			} else if (p.isEmpty()) {
-				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else if (p.isArticle()) {
-				reporter.incrCounter(PageTypes.ARTICLE, 1);
+      } else if (p.isDisambiguation()) {
+        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+      } else if (p.isEmpty()) {
+        reporter.incrCounter(PageTypes.EMPTY, 1);
+      } else if (p.isArticle()) {
+        reporter.incrCounter(PageTypes.ARTICLE, 1);
 
-				if (p.isStub()) {
-					reporter.incrCounter(PageTypes.STUB, 1);
-				}
-			} else {
-				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
-			}
-		}
-	}
+        if (p.isStub()) {
+          reporter.incrCounter(PageTypes.STUB, 1);
+        }
+      } else {
+        reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
+      }
+    }
+  }
 
-	public int run(String[] args) throws Exception {
-		if (args.length != 1) {
-			System.out.println("usage: [input]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+  private static final String INPUT_OPTION = "input";
 
-		String inputPath = args[0];
+  @SuppressWarnings("static-access")
+  @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
 
-		LOG.info("Tool name: DemoCountWikipediaPages");
-		LOG.info(" - xml dump file: " + inputPath);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
-		conf.setJobName("DemoCountWikipediaPages");
+    if (!cmdline.hasOption(INPUT_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-		conf.setNumMapTasks(10);
-		conf.setNumReduceTasks(0);
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    LOG.info("Tool name: " + this.getClass().getName());
+    LOG.info(" - XML dump file: " + inputPath);
 
-		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputFormat(NullOutputFormat.class);
+    JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
+    conf.setJobName(String.format("DemoCountWikipediaPages[%s: %s]", INPUT_OPTION, inputPath));
 
-		conf.setMapperClass(MyMapper.class);
+    conf.setNumMapTasks(10);
+    conf.setNumReduceTasks(0);
 
-		JobClient.runJob(conf);
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
 
-		return 0;
-	}
+    conf.setInputFormat(WikipediaPageInputFormat.class);
+    conf.setOutputFormat(NullOutputFormat.class);
 
-	public DemoCountWikipediaPages() {}
+    conf.setMapperClass(MyMapper.class);
 
-	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new DemoCountWikipediaPages(), args);
-	}
+    JobClient.runJob(conf);
+
+    return 0;
+  }
+
+  public DemoCountWikipediaPages() {
+  }
+
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new DemoCountWikipediaPages(), args);
+  }
 }

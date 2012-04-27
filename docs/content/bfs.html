@@ -87,26 +87,41 @@ reasons):</p>
 and nodeid 4 points to nodes 2 and 3.</p>
 
 <p>Here, we'll be running parallel breadth-first search on Wikipedia.
-First, refer to this page on <a href="wikipedia.html">working with
+Refer to this page on <a href="wikipedia.html">working with
 Wikipedia</a>.  It contains instructions for packing Wikipedia pages
 from the raw XML distribution into block-compressed SequenceFiles for
-convenient access.  Once you've done that, here's a sample invocation
-for extracting the link graph in the above text format:</p>
+convenient access. Briefly, here are the steps:</p>
+
+<p>First, build a docno mapping, making sure that you include all
+pages with the
+<code>-keep_all</code> option:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output_path tmp \
+  -output_file Wikipedia/docno-en-all-20110405.dat -keep_all
+</pre>
+
+<p>Next, repack the collection into block-compressed
+SequenceFiles:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.block/en-all-20110405 \
+  -mapping_file Wikipedia/docno-en-all-20110405.dat -compression_type block
+</pre>
+
+<p>Once you've done that, extract the link graph:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
-  -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
-  /user/jimmy/Wikipedia/compressed.block/en-20101011 \
-  /user/jimmy/Wikipedia/edges /user/jimmy/Wikipedia/adjacency 10
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/compressed.block/en-all-20110405 \
+  -edges_output Wikipedia/en-20110405-edges -adjacency_list_output Wikipedia/en-20110405-adjacency \
+  -num_partitions 10
 </pre>
-
-<p>The command-line arguments, in order: directory of Wikipedia
-source, directory for storing edge information, directory for storing
-adjacency lists (in the above text format), and number of partitions.
-The number of nodes in the link graph is stored in a counter and can
-be read either from the command line or from the jobtracker.  We see
-that this dump of Wikipedia contains 10,476,611 nodes (pages) and
-96,714,610 (edges).</p>
 
 <!--
 docid 332 = Animalia (book)
@@ -132,25 +147,28 @@ Distances from:
 -->
 
 <p>After extracting the link structure, we take the plain-text
-representation and pack it into appropriate Hadoop data
-structures:</p>
+representation and pack it into appropriate Hadoop data structures. At
+the same time, we specify the source of the breadth-first search::</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.EncodeBFSGraph \
- /user/jimmy/Wikipedia/adjacency /user/jimmy/Wikipedia/bfs/iter0000 12
+ -libjars guava-r09.jar \
+ -input Wikipedia/en-20110405-adjacency -output Wikipedia/bfs/iter0000 -src 12
 </pre>
 
-<p>The final argument is the source node to start the search from: in
-this case, we'll
-use <a href="http://en.wikipedia.org/wiki/Anarchism">Anarchism</a>,
-the first article in the dataset.</p>
+<p>We'll start from nodeid
+12, <a href="http://en.wikipedia.org/wiki/Anarchism">Anarchism</a>,
+which is the first full article in the dataset. The number of nodes in
+the link graph is stored in a counter and can be read either from the
+command line or from the jobtracker.  We see that this dump of
+Wikipedia contains 11,120,945 nodes (pages) and 102,713,863 edges.</p>
 
 <p>This handy program can be used to find all reachable nodes and
 print them in plain text:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
- /user/jimmy/Wikipedia/bfs/iter0000 /user/jimmy/Wikipedia/bfs-reachable/iter0000
+ -input Wikipedia/bfs/iter0000 -output Wikipedia/bfs-reachable/iter0000
 </pre>
 
 <p>As a sanity check, we see that only the source node is
@@ -160,7 +178,8 @@ reachable.</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.IterateBFS \
- /user/jimmy/Wikipedia/bfs/iter0000 /user/jimmy/Wikipedia/bfs/iter0001 10
+ -libjars guava-r09.jar \
+ -input Wikipedia/bfs/iter0000 -output Wikipedia/bfs/iter0001 -num_partitions 10
 </pre>
 
 <p>The final argument is the number of partitions (ten in our case).
@@ -168,7 +187,7 @@ We can pull out and examine the reachable nodes:</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
- /user/jimmy/Wikipedia/bfs/iter0001 /user/jimmy/Wikipedia/bfs-reachable/iter0001
+ -input Wikipedia/bfs/iter0001 -output Wikipedia/bfs-reachable/iter0001
 </pre>
 
 <p>Running more iterations, we'll get the following results:</p>
@@ -177,31 +196,33 @@ hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
 <tr><td class="myheader"><b>Iteration</b></td><td class="myheader"><b>Reachable nodes</b></td><td class="myheader"><b>Map out records</b></td></tr>
 
 <tr><td class="mycell" style="text-align:right"> 0</td><td class="mycell" style="text-align:right">        1</td><td class="mycell" style="text-align:right">-</td></tr>
-<tr><td class="mycell" style="text-align:right"> 1</td><td class="mycell" style="text-align:right">      402</td><td class="mycell" style="text-align:right">10,477,013</td></tr>
-<tr><td class="mycell" style="text-align:right"> 2</td><td class="mycell" style="text-align:right">   26,918</td><td class="mycell" style="text-align:right">10,516,462</td></tr>
-<tr><td class="mycell" style="text-align:right"> 3</td><td class="mycell" style="text-align:right">  652,957</td><td class="mycell" style="text-align:right">11,778,714</td></tr>
-<tr><td class="mycell" style="text-align:right"> 4</td><td class="mycell" style="text-align:right">2,929,026</td><td class="mycell" style="text-align:right">19,423,280</td></tr>
-<tr><td class="mycell" style="text-align:right"> 5</td><td class="mycell" style="text-align:right">4,334,786</td><td class="mycell" style="text-align:right">28,358,129</td></tr>
-<tr><td class="mycell" style="text-align:right"> 6</td><td class="mycell" style="text-align:right">4,705,444</td><td class="mycell" style="text-align:right">31,655,034</td></tr>
-<tr><td class="mycell" style="text-align:right"> 7</td><td class="mycell" style="text-align:right">4,766,277</td><td class="mycell" style="text-align:right">32,378,512</td></tr>
-<tr><td class="mycell" style="text-align:right"> 8</td><td class="mycell" style="text-align:right">4,781,015</td><td class="mycell" style="text-align:right">32,513,101</td></tr>
-<tr><td class="mycell" style="text-align:right"> 9</td><td class="mycell" style="text-align:right">4,783,220</td><td class="mycell" style="text-align:right">32,540,965</td></tr>
-<tr><td class="mycell" style="text-align:right">10</td><td class="mycell" style="text-align:right">4,783,878</td><td class="mycell" style="text-align:right">32,546,609</td></tr>
-<tr><td class="mycell" style="text-align:right">11</td><td class="mycell" style="text-align:right">4,784,104</td><td class="mycell" style="text-align:right">32,548,431</td></tr>
-<tr><td class="mycell" style="text-align:right">12</td><td class="mycell" style="text-align:right">4,784,264</td><td class="mycell" style="text-align:right">32,549,342</td></tr>
-<tr><td class="mycell" style="text-align:right">13</td><td class="mycell" style="text-align:right">4,784,350</td><td class="mycell" style="text-align:right">32,549,904</td></tr>
-<tr><td class="mycell" style="text-align:right">14</td><td class="mycell" style="text-align:right">4,784,404</td><td class="mycell" style="text-align:right">32,550,233</td></tr>
-<tr><td class="mycell" style="text-align:right">15</td><td class="mycell" style="text-align:right">4,784,439</td><td class="mycell" style="text-align:right">32,550,485</td></tr>
-<tr><td class="mycell" style="text-align:right">16</td><td class="mycell" style="text-align:right">4,784,478</td><td class="mycell" style="text-align:right">32,550,676</td></tr>
-<tr><td class="mycell" style="text-align:right">17</td><td class="mycell" style="text-align:right">4,784,502</td><td class="mycell" style="text-align:right">32,550,781</td></tr>
-<tr><td class="mycell" style="text-align:right">18</td><td class="mycell" style="text-align:right">4,784,521</td><td class="mycell" style="text-align:right">32,550,881</td></tr>
-<tr><td class="mycell" style="text-align:right">19</td><td class="mycell" style="text-align:right">4,784,534</td><td class="mycell" style="text-align:right">32,550,957</td></tr>
-<tr><td class="mycell" style="text-align:right">20</td><td class="mycell" style="text-align:right">4,784,548</td><td class="mycell" style="text-align:right">32,551,041</td></tr>
-<tr><td class="mycell" style="text-align:right">21</td><td class="mycell" style="text-align:right">4,784,559</td><td class="mycell" style="text-align:right">32,551,092</td></tr>
-<tr><td class="mycell" style="text-align:right">22</td><td class="mycell" style="text-align:right">4,784,571</td><td class="mycell" style="text-align:right">32,551,146</td></tr>
-<tr><td class="mycell" style="text-align:right">23</td><td class="mycell" style="text-align:right">4,784,582</td><td class="mycell" style="text-align:right">32,551,178</td></tr>
-<tr><td class="mycell" style="text-align:right">24</td><td class="mycell" style="text-align:right">4,784,593</td><td class="mycell" style="text-align:right">32,551,237</td></tr>
-<tr><td class="mycell" style="text-align:right">25</td><td class="mycell" style="text-align:right">4,784,604</td><td class="mycell" style="text-align:right">32,551,266</td></tr>
+<tr><td class="mycell" style="text-align:right"> 1</td><td class="mycell" style="text-align:right">      450</td><td class="mycell" style="text-align:right">11,121,395</td></tr>
+<tr><td class="mycell" style="text-align:right"> 2</td><td class="mycell" style="text-align:right">   30,294</td><td class="mycell" style="text-align:right">11,165,680</td></tr>
+<tr><td class="mycell" style="text-align:right"> 3</td><td class="mycell" style="text-align:right">  710,630</td><td class="mycell" style="text-align:right">12,554,117</td></tr>
+<tr><td class="mycell" style="text-align:right"> 4</td><td class="mycell" style="text-align:right">3,110,012</td><td class="mycell" style="text-align:right">20,719,498</td></tr>
+<tr><td class="mycell" style="text-align:right"> 5</td><td class="mycell" style="text-align:right">4,570,005</td><td class="mycell" style="text-align:right">30,100,708</td></tr>
+<tr><td class="mycell" style="text-align:right"> 6</td><td class="mycell" style="text-align:right">4,944,834</td><td class="mycell" style="text-align:right">33,473,621</td></tr>
+<tr><td class="mycell" style="text-align:right"> 7</td><td class="mycell" style="text-align:right">5,007,042</td><td class="mycell" style="text-align:right">34,203,283</td></tr>
+<tr><td class="mycell" style="text-align:right"> 8</td><td class="mycell" style="text-align:right">5,021,245</td><td class="mycell" style="text-align:right">34,338,610</td></tr>
+<tr><td class="mycell" style="text-align:right"> 9</td><td class="mycell" style="text-align:right">5,023,561</td><td class="mycell" style="text-align:right">34,365,974</td></tr>
+
+<tr><td class="mycell" style="text-align:right">10</td><td class="mycell" style="text-align:right">5,024,255</td><td class="mycell" style="text-align:right">34,371,951</td></tr>
+<tr><td class="mycell" style="text-align:right">11</td><td class="mycell" style="text-align:right">5,024,575</td><td class="mycell" style="text-align:right">34,374,052</td></tr>
+<tr><td class="mycell" style="text-align:right">12</td><td class="mycell" style="text-align:right">5,024,770</td><td class="mycell" style="text-align:right">34,375,175</td></tr>
+<tr><td class="mycell" style="text-align:right">13</td><td class="mycell" style="text-align:right">5,024,848</td><td class="mycell" style="text-align:right">34,375,746</td></tr>
+<tr><td class="mycell" style="text-align:right">14</td><td class="mycell" style="text-align:right">5,024,907</td><td class="mycell" style="text-align:right">34,376,080</td></tr>
+<tr><td class="mycell" style="text-align:right">15</td><td class="mycell" style="text-align:right">5,024,949</td><td class="mycell" style="text-align:right">34,376,360</td></tr>
+<tr><td class="mycell" style="text-align:right">16</td><td class="mycell" style="text-align:right">5,024,991</td><td class="mycell" style="text-align:right">34,376,581</td></tr>
+<tr><td class="mycell" style="text-align:right">17</td><td class="mycell" style="text-align:right">5,025,027</td><td class="mycell" style="text-align:right">34,376,794</td></tr>
+<tr><td class="mycell" style="text-align:right">18</td><td class="mycell" style="text-align:right">5,025,049</td><td class="mycell" style="text-align:right">34,376,919</td></tr>
+<tr><td class="mycell" style="text-align:right">19</td><td class="mycell" style="text-align:right">5,025,067</td><td class="mycell" style="text-align:right">34,377,022</td></tr>
+
+<tr><td class="mycell" style="text-align:right">20</td><td class="mycell" style="text-align:right">5,025,080</td><td class="mycell" style="text-align:right">34,377,115</td></tr>
+<tr><td class="mycell" style="text-align:right">21</td><td class="mycell" style="text-align:right">5,025,091</td><td class="mycell" style="text-align:right">34,377,177</td></tr>
+<tr><td class="mycell" style="text-align:right">22</td><td class="mycell" style="text-align:right">5,025,102</td><td class="mycell" style="text-align:right">34,377,225</td></tr>
+<tr><td class="mycell" style="text-align:right">23</td><td class="mycell" style="text-align:right">5,025,112</td><td class="mycell" style="text-align:right">34,377,269</td></tr>
+<tr><td class="mycell" style="text-align:right">24</td><td class="mycell" style="text-align:right">5,025,121</td><td class="mycell" style="text-align:right">34,377,315</td></tr>
+<tr><td class="mycell" style="text-align:right">25</td><td class="mycell" style="text-align:right">5,025,132</td><td class="mycell" style="text-align:right">34,377,359</td></tr>
 
 </table>
 
@@ -214,7 +235,7 @@ specific distance (e.g., 25 hops away):</p>
 
 <pre>
 hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindNodeAtDistance \
- /user/jimmy/Wikipedia/bfs/iter0025 /user/jimmy/Wikipedia/bfs-d/iter0025 25
+ -input Wikipedia/bfs/iter0025 -output Wikipedia/bfs-d/iter0025 -distance 25
 </pre>
 
 <p>As it turns out, there are really long chains of articles in

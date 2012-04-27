@@ -98,6 +98,7 @@ import edu.umd.cloud9.io.pair.PairOfInts;
  * </p>
  * 
  */
+@SuppressWarnings("deprecation")
 public class HadoopSortRandomPairsOfInts {
 
 	private HadoopSortRandomPairsOfInts() {

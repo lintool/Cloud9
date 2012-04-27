@@ -18,6 +18,13 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -36,24 +43,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
  * Tool for taking a Wikipedia XML dump file and spits out articles in a flat
  * text file (article title and content, separated by a tap).
- * </p>
- *
- * <p>
- * Here's a sample invocation:
- * </p>
- *
- * <blockquote>
- *
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
- *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
- *   /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml /user/jimmy/Wikipedia/txt
- * </pre>
- *
- * </blockquote>
  *
  * @author Jimmy Lin
  */
@@ -95,22 +86,43 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 		}
 	}
 
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_OPTION = "output";
+
+  @SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.out.println("usage: [input] [output]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT_OPTION));
 
-		String inputPath = args[0];
-		String outputPath = args[1];
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		LOG.info("Tool name: DumpWikipediaToPlainText");
-		LOG.info(" - xml dump file: " + inputPath);
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+		String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+
+		LOG.info("Tool name: " + this.getClass().getName());
+		LOG.info(" - XML dump file: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
 
 		JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
-		conf.setJobName("DumpWikipediaToPlainText");
+    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s]",
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath));
 
 		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(0);

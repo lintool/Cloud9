@@ -81,7 +81,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 	 */
 	private static class HAMapper extends MapReduceBase implements
 	Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
-		// private Tuple valIn = MAP_SCHEMA.instantiate();
+		
 		private HITSNode valOut = new HITSNode();
 		private ArrayListOfIntsWritable empty = new ArrayListOfIntsWritable();
 
@@ -89,65 +89,38 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
 				throws IOException {
 
-			int type = value.getType();
-			int typeOut = 0;
-			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				typeOut = HITSNode.TYPE_AUTH_STRUCTURE;
-			}
-			if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				typeOut = HITSNode.TYPE_HUB_STRUCTURE;
-			}
-			valOut.setType(typeOut);
-			valOut.setAdjacencyList(adjList);
-
-			output.collect(key, valOut);
-
-			typeOut = 0;
-
-			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-				typeOut = HITSNode.TYPE_AUTH_MASS;
-			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-				typeOut = HITSNode.TYPE_HUB_MASS;
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
-
-			valOut.setType(typeOut);
-			valOut.setHARank(value.getHARank());
-			// valOut.setAdjacencyList(empty);
-			valOut.setNodeId(value.getNodeId());
-
-			output.collect(key, valOut);
-
-			// Iterator itr = adjList.iterator();
+			//emit existing h&a vals & structure
+			output.collect(key, value);
+			
+			//auth score for a node X is sum of all hub scores from nodes linking to X
+			// so for each outgoing link X1...XN, contribute this node's hub score as part of node X1...XN's auth score
+			// ( total auth score will be summed in reducer)
+			int typeOut = HITSNode.TYPE_AUTH_MASS;
+			ArrayListOfIntsWritable adjList = value.getOutlinks();
 			int curr;
-			typeOut = 0;
-
-			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE
-					|| value.getType() == HITSNode.TYPE_AUTH_MASS) {
-				typeOut = HITSNode.TYPE_HUB_MASS;
-			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE
-					|| value.getType() == HITSNode.TYPE_HUB_MASS) {
-				typeOut = HITSNode.TYPE_AUTH_MASS;
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
-
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
 				valOut.setType(typeOut);
-				valOut.setHARank(value.getHARank());
-				valOut.setAdjacencyList(empty);
-
+				valOut.setARank(value.getHRank());
+				output.collect(new IntWritable(curr), valOut);
+			}
+			
+			//hub score for a node X is sum of all auth scores from nodes linked from X
+			// so for each incoming link X1...XN, contribute this node's auth score as part of node X1...XN's hub score
+			// ( total hub score will be summed in reducer)
+			typeOut = HITSNode.TYPE_HUB_MASS;
+			adjList = value.getInlinks();
+			for (int i = 0; i < adjList.size(); i++) {
+				curr = adjList.get(i);
+				valOut.setType(typeOut);
+				valOut.setHRank(value.getARank());
 				output.collect(new IntWritable(curr), valOut);
 			}
 		}
 
 	}
 
+	//wrong!! FIXME1
 	// mapper using in-mapper combining
 	private static class HAMapperIMC extends MapReduceBase implements
 			Mapper<IntWritable, HITSNode, IntWritable, HITSNode> {
@@ -161,9 +134,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 
 		private static HITSNode valOut = new HITSNode();
 
-		// private static ArrayListOfIntsWritable empty = new
-		// ArrayListOfIntsWritable();
-
 		public void configure(JobConf job) {
 			rankmapA.clear();
 			rankmapH.clear();
@@ -174,74 +144,32 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				throws IOException {
 
 			mOutput = output;
-
-			int type = value.getType();
 			int typeOut = 0;
-			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				typeOut = HITSNode.TYPE_AUTH_STRUCTURE;
-			}
-			if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				typeOut = HITSNode.TYPE_HUB_STRUCTURE;
-			}
-			valOut.setType(typeOut);
-			valOut.setAdjacencyList(adjList);
-			valOut.setNodeId(key.get());
-
-			// System.out.println("[key: " + key.toString() + " ] <value: " +
-			// valOut.toString() + " >");
-			output.collect(key, valOut);
-
-			typeOut = 0;
-
-			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-				if (rankmapA.containsKey(key.get())) {
-					rankmapA.put(key.get(), sumLogProbs(
-							rankmapA.get(key.get()), value.getHARank()));
-				} else {
-					rankmapA.put(key.get(), value.getHARank());
-					// rankmapA.put(key.get(),
-					// sumLogProbs(rankmapA.get(key.get()), 0));
-				}
-			}
-
-			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-				if (rankmapH.containsKey(key.get())) {
-					rankmapH.put(key.get(), sumLogProbs(
-							rankmapH.get(key.get()), value.getHARank()));
-				} else {
-					rankmapH.put(key.get(), value.getHARank());
-					// rankmapH.put(key.get(),
-					// sumLogProbs(rankmapH.get(key.get()), 0));
-				}
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
+			ArrayListOfIntsWritable adjList;
+			output.collect(key, value);
 
 			int curr;
 			typeOut = 0;
-
+			//emit avals to inlinks as hvals
+			adjList = value.getOutlinks();
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
-				// System.out.println("[key: " + key.toString() + "] [curr: " +
-				// curr + "]");
-				if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-					if (rankmapH.containsKey(curr)) {
-						rankmapH.put(curr, sumLogProbs(rankmapH.get(curr),
-								value.getHARank()));
-					} else {
-						rankmapH.put(curr, value.getHARank());
-					}
-				} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-					if (rankmapA.containsKey(curr)) {
-						rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
-								value.getHARank()));
-					} else {
-						rankmapA.put(curr, value.getHARank());
-					}
+				if (rankmapA.containsKey(curr)) {
+					rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
+							value.getHRank()));
 				} else {
-					System.err.println("Unknown node type: " + value.getType());
+					rankmapA.put(curr, value.getHRank());
+				}
+			}
+			//emit hvals to outlinks as avals
+			adjList = value.getInlinks();
+			for (int i = 0; i < adjList.size(); i++) {
+				curr = adjList.get(i);
+				if (rankmapH.containsKey(curr)) {
+					rankmapH.put(curr, sumLogProbs(rankmapH.get(curr),
+							value.getARank()));
+				} else {
+					rankmapH.put(curr, value.getARank());
 				}
 			}
 		}
@@ -252,17 +180,16 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			for (MapIF.Entry e : rankmapH.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_HUB_MASS);
-				mass.setHARank(e.getValue());
+				mass.setHRank(e.getValue());
 				mass.setNodeId(e.getKey());
-				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
+			mass = new HITSNode();
 			for (MapIF.Entry e : rankmapA.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_AUTH_MASS);
-				mass.setHARank(e.getValue());
+				mass.setARank(e.getValue());
 				mass.setNodeId(e.getKey());
-				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
 			}
 		}
@@ -272,8 +199,7 @@ public class HubsAndAuthorities extends Configured implements Tool {
 	private static class HAReducer extends MapReduceBase implements
 			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
 		private HITSNode valIn;
-		private HITSNode hvalOut = new HITSNode();
-		private HITSNode avalOut = new HITSNode();
+		private HITSNode valOut = new HITSNode();
 
 		private int jobIter = 0;
 
@@ -289,8 +215,8 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			float hrank = Float.NEGATIVE_INFINITY;
 			float arank = Float.NEGATIVE_INFINITY;
 
-			hvalOut.setAdjacencyList(adjList);
-			avalOut.setAdjacencyList(adjList);
+			valOut.setInlinks(adjList);
+			valOut.setOutlinks(adjList);
 
 			while (values.hasNext()) {
 				valIn = values.next();
@@ -299,41 +225,28 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				int type = valIn.getType();
 				adjList.clear();
 
-				if (type == HITSNode.TYPE_AUTH_STRUCTURE
-						|| type == HITSNode.TYPE_HUB_STRUCTURE) {
-					adjList = valIn.getAdjacencyList();
-					if (type == HITSNode.TYPE_HUB_STRUCTURE) {
-						// System.out.println("H> " + key.toString() + " " +
-						// type + " " + adjList.toString());
-						hvalOut.setAdjacencyList(new ArrayListOfIntsWritable(
-								adjList));
+				if (type == HITSNode.TYPE_NODE_COMPLETE || type == HITSNode.TYPE_NODE_STRUCTURE) {
+					//adjList = valIn.getAdjacencyList();
+					valOut.setOutlinks(new ArrayListOfIntsWritable(
+								valIn.getOutlinks()));
 						// System.out.println(key.toString() + " " + "H" + " " +
 						// hpayloadOut.toString());
-					} else if (type == HITSNode.TYPE_AUTH_STRUCTURE) {
-						// System.out.println("A> " + key.toString() + " " +
-						// type + " " + adjList.toString());
-						avalOut.setAdjacencyList(new ArrayListOfIntsWritable(
-								adjList));
+					valOut.setInlinks(new ArrayListOfIntsWritable(
+								valIn.getInlinks()));
 						// System.out.println(key.toString() + " " + "A" + " " +
 						// hpayloadOut.toString());
-					} else {
-						System.err.println("Unknown Node Type: " + type);
-					}
-				}
+					} 
 				// else add rank to current rank
+				else if (type == HITSNode.TYPE_HUB_MASS) {
+					hrank = sumLogProbs(hrank, valIn.getHRank());
+				} else if (type == HITSNode.TYPE_AUTH_MASS) {
+					// arank += rankIn;
+					arank = sumLogProbs(arank, valIn.getARank());
+				}
 				else {
-					float rankIn = valIn.getHARank();
-					if (type == HITSNode.TYPE_HUB_MASS) {
-						// hrank += rankIn;
-						hrank = sumLogProbs(hrank, rankIn);
-					} else if (type == HITSNode.TYPE_AUTH_MASS) {
-						// arank += rankIn;
-						arank = sumLogProbs(arank, rankIn);
-					}
+					System.err.println("Unexpected Node Type: " + type);
 				}
 			}
-			// System.out.println(key.toString() + " " + "H" + " " +
-			// hpayloadOut.toString());
 
 			// if this is the first run, set rank to 0 for nodes with no inlinks
 			// or outlinks
@@ -346,15 +259,12 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				}
 			}
 			// build output tuple and write to output
-			hvalOut.setHARank(hrank);
-			avalOut.setHARank(arank);
-			hvalOut.setType(HITSNode.TYPE_HUB_COMPLETE);
-			avalOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-			hvalOut.setNodeId(key.get());
-			avalOut.setNodeId(key.get());
+			valOut.setHRank(hrank);
+			valOut.setARank(arank);
+			valOut.setType(HITSNode.TYPE_NODE_COMPLETE);
+			valOut.setNodeId(key.get());
 
-			output.collect(key, hvalOut);
-			output.collect(key, avalOut);
+			output.collect(key, valOut);
 		}
 	}
 
@@ -368,18 +278,15 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				throws IOException {
 
 			int type = value.getType();
-			rank.set(value.getHARank() * 2);
 
-			// System.out.println(key.toString() + " " + valOut.toString());
-			String textType = "?";
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				textType = "A";
-			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				textType = "H";
+			if (type == HITSNode.TYPE_NODE_COMPLETE) {
+				rank.set(value.getARank() * 2);
+				output.collect(new Text("A"), rank);
+				rank.set(value.getHRank() * 2);
+				output.collect(new Text("H"), rank);
 			} else {
 				System.err.println("Bad Type: " + type);
 			}
-			output.collect(new Text(textType), rank);
 		}
 
 	}
@@ -403,13 +310,18 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			mOutput = output;
 
 			int type = value.getType();
-			float rank = value.getHARank() * 2;
+			float arank = value.getARank() * 2;
+			float hrank = value.getHRank() * 2;// <===FIXME
 
 			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				asum = sumLogProbs(asum, rank);
+				asum = sumLogProbs(asum, arank);
 			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				hsum = sumLogProbs(hsum, rank);
-			} else {
+				hsum = sumLogProbs(hsum, hrank);
+			} else if (type == HITSNode.TYPE_NODE_COMPLETE || type == HITSNode.TYPE_NODE_MASS){
+				asum = sumLogProbs(asum, arank);
+				hsum = sumLogProbs(hsum, hrank);
+			}
+			else {
 				System.err.println("Bad Type: " + type);
 			}
 		}
@@ -479,37 +391,19 @@ public class HubsAndAuthorities extends Configured implements Tool {
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
 				throws IOException {
 
-			// System.out.println("H: " + rootSumH);
-			// System.out.println("A: " + rootSumA);
-			int typeI = value.getType();
-			String type = "?";
-			if (typeI == HITSNode.TYPE_HUB_COMPLETE) {
-				type = "H";
-			} else if (typeI == HITSNode.TYPE_AUTH_COMPLETE) {
-				type = "A";
-			}
+			float arank = value.getARank();
+			float hrank = value.getHRank();
 
-			float rank = value.getHARank();
-
-			if (type.equals("H")) {
-				rank = rank - rootSumH;
-			} else if (type.equals("A")) {
-				rank = rank - rootSumA;
-			} else {
-				try {
-					throw new Exception("Invalid Rank Type");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			hrank = hrank - rootSumH;
+			arank = arank - rootSumA;
 
 			nodeOut.setNodeId(key.get());
-			nodeOut.setType(typeI);
-			nodeOut.setHARank(rank);
-			nodeOut.setAdjacencyList(value.getAdjacencyList());
-			// System.out.println(tupleOut.toString());
+			nodeOut.setType(HITSNode.TYPE_NODE_COMPLETE);
+			nodeOut.setARank(arank);
+			nodeOut.setHRank(hrank);
+			nodeOut.setInlinks(value.getInlinks());
+			nodeOut.setOutlinks(value.getOutlinks());
 
-			// System.out.println(key.toString() + " " + valOut.toString());
 			output.collect(key, nodeOut);
 		}
 
@@ -689,7 +583,6 @@ public class HubsAndAuthorities extends Configured implements Tool {
 			boolean useCombiner, boolean useInmapCombiner, boolean useRange,
 			int mapTasks, int reduceTasks) throws IOException {
 
-		// FIXME
 		String inputPath = path + "/iter" + sFormat.format(jter) + "t";
 		String outputPath = path + "/iter" + sFormat.format(jter);
 		String tempPath = path + "/sqrt";

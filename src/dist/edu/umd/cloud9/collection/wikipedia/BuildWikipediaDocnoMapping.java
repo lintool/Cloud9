@@ -19,6 +19,13 @@ package edu.umd.cloud9.collection.wikipedia;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -41,140 +48,156 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * <p>
- * Tool for building the mapping between Wikipedia internal ids (docids) and
- * sequentially-numbered ints (docnos). The program takes four command-line
- * arguments:
- * </p>
- * 
- * <ul>
- * <li>[input] path to the Wikipedia XML dump file
- * <li>[output-dir] path to temporary MapReduce output directory
- * <li>[output-file] path to location of mappings file
- * <li>[num-mappers] number of mappers to run
- * </ul>
- * 
- * <p>
- * Here's a sample invocation:
- * </p>
- * 
- * <blockquote>
- * 
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
- *   -libjars bliki-core-3.0.15.jar,commons-lang-2.5.jar \
- *   /user/jimmy/Wikipedia/raw/enwiki-20101011-pages-articles.xml tmp \
- *   /user/jimmy/Wikipedia/docno-en-20101011.dat 100
- * </pre>
- * 
- * </blockquote>
- * 
+ * Tool for building the mapping between Wikipedia internal ids (docids) and sequentially-numbered
+ * ints (docnos).
+ *
  * @author Jimmy Lin
  */
 @SuppressWarnings("deprecation")
 public class BuildWikipediaDocnoMapping extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
+  private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 
-	private static enum PageTypes {
-		TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB
-	};
+  private static enum PageTypes {
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+  };
 
-	private static class MyMapper extends MapReduceBase implements
-			Mapper<LongWritable, WikipediaPage, IntWritable, IntWritable> {
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, WikipediaPage, IntWritable, IntWritable> {
 
-		private final static IntWritable keyOut = new IntWritable();
-		private final static IntWritable valOut = new IntWritable(1);
+    private final static IntWritable keyOut = new IntWritable();
+    private final static IntWritable valOut = new IntWritable(1);
 
-		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
-				throws IOException {
-			reporter.incrCounter(PageTypes.TOTAL, 1);
+    private boolean keepAll;
 
-			if (p.isRedirect()) {
-				reporter.incrCounter(PageTypes.REDIRECT, 1);
-			} else if (p.isDisambiguation()) {
-				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
-			} else if (p.isEmpty()) {
-				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else {
-				reporter.incrCounter(PageTypes.ARTICLE, 1);
+    public void configure(JobConf job) {
+      keepAll = job.getBoolean(KEEP_ALL_OPTION, false);
+    }
 
-				if (p.isStub()) {
-					reporter.incrCounter(PageTypes.STUB, 1);
-				}
-			}
+    public void map(LongWritable key, WikipediaPage p,
+        OutputCollector<IntWritable, IntWritable> output, Reporter reporter) throws IOException {
+      reporter.incrCounter(PageTypes.TOTAL, 1);
 
-			keyOut.set(Integer.parseInt(p.getDocid()));
-			output.collect(keyOut, valOut);
+      // If we're keeping all pages, don't bother checking.
+      if (keepAll) {
+        keyOut.set(Integer.parseInt(p.getDocid()));
+        output.collect(keyOut, valOut);
+        return;
+      }
 
-		}
-	}
+      if (p.isRedirect()) {
+        reporter.incrCounter(PageTypes.REDIRECT, 1);
+      } else if (p.isDisambiguation()) {
+        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+      } else if (p.isEmpty()) {
+        reporter.incrCounter(PageTypes.EMPTY, 1);
+      } else if (p.isArticle()) {
+        reporter.incrCounter(PageTypes.ARTICLE, 1);
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+        if (p.isStub()) {
+          reporter.incrCounter(PageTypes.STUB, 1);
+        }
 
-		private final static IntWritable cnt = new IntWritable(1);
+        keyOut.set(Integer.parseInt(p.getDocid()));
+        output.collect(keyOut, valOut);
+      } else {
+        reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
+      }
+    }
+  }
 
-		public void reduce(IntWritable key, Iterator<IntWritable> values,
-				OutputCollector<IntWritable, IntWritable> output, Reporter reporter)
-				throws IOException {
-			output.collect(key, cnt);
+  private static class MyReducer extends MapReduceBase implements
+      Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
-			cnt.set(cnt.get() + 1);
-		}
-	}
+    private final static IntWritable cnt = new IntWritable(1);
 
-	public int run(String[] args) throws Exception {
-		if (args.length != 4) {
-			System.out.println("usage: [input-path] [output-path] [output-file] [num-mappers]");
-			ToolRunner.printGenericCommandUsage(System.out);
-			return -1;
-		}
+    public void reduce(IntWritable key, Iterator<IntWritable> values,
+        OutputCollector<IntWritable, IntWritable> output, Reporter reporter) throws IOException {
+      output.collect(key, cnt);
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		String outputFile = args[2];
-		int mapTasks = Integer.parseInt(args[3]);
+      cnt.set(cnt.get() + 1);
+    }
+  }
 
-		LOG.info("Tool name: BuildWikipediaDocnoMapping");
-		LOG.info(" - input: " + inputPath);
-		LOG.info(" - output path: " + outputPath);
-		LOG.info(" - output file: " + outputFile);
-		LOG.info(" - number of mappers: " + mapTasks);
+  private static final String INPUT_OPTION = "input";
+  private static final String OUTPUT_PATH_OPTION = "output_path";
+  private static final String OUTPUT_FILE_OPTION = "output_file";
+  private static final String KEEP_ALL_OPTION = "keep_all";
 
-		JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
-		conf.setJobName("BuildWikipediaDocnoMapping");
+  @SuppressWarnings("static-access")
+  @Override
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("tmp output directory").create(OUTPUT_PATH_OPTION));
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("output file").create(OUTPUT_FILE_OPTION));
+    options.addOption(KEEP_ALL_OPTION, false, "keep all pages");
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(1);
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-		FileOutputFormat.setCompressOutput(conf, false);
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_PATH_OPTION)
+        || !cmdline.hasOption(OUTPUT_FILE_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(IntWritable.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+    String inputPath = cmdline.getOptionValue(INPUT_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_PATH_OPTION);
+    String outputFile = cmdline.getOptionValue(OUTPUT_FILE_OPTION);
+    boolean keepAll = Boolean.parseBoolean(cmdline.getOptionValue(KEEP_ALL_OPTION));
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setReducerClass(MyReducer.class);
+    LOG.info("Tool name: " + this.getClass().getName());
+    LOG.info(" - input: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - output file: " + outputFile);
+    LOG.info(" - keep all pages: " + keepAll);
 
-		// Delete the output directory if it exists already.
-		FileSystem.get(conf).delete(new Path(outputPath), true);
+    JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
+    conf.setJobName(String.format("BuildWikipediaDocnoMapping[%s: %s, %s: %s]", INPUT_OPTION,
+        inputPath, OUTPUT_FILE_OPTION, outputFile));
 
-		RunningJob job = JobClient.runJob(conf);
-		Counters c = job.getCounters();
-		long cnt = c.getCounter(PageTypes.TOTAL);
+    conf.setBoolean(KEEP_ALL_OPTION, keepAll);
+    conf.setNumReduceTasks(1);
 
-		WikipediaDocnoMapping.writeDocnoMappingData(outputPath + "/part-00000", (int) cnt, outputFile);
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileOutputFormat.setCompressOutput(conf, false);
 
-		return 0;
-	}
+    conf.setInputFormat(WikipediaPageInputFormat.class);
+    conf.setOutputKeyClass(IntWritable.class);
+    conf.setOutputValueClass(IntWritable.class);
+    conf.setOutputFormat(TextOutputFormat.class);
 
-	public BuildWikipediaDocnoMapping() {}
+    conf.setMapperClass(MyMapper.class);
+    conf.setReducerClass(MyReducer.class);
 
-	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
-	}
+    // Delete the output directory if it exists already.
+    FileSystem.get(conf).delete(new Path(outputPath), true);
+
+    RunningJob job = JobClient.runJob(conf);
+    Counters c = job.getCounters();
+    long cnt = keepAll ? c.getCounter(PageTypes.TOTAL) : c.getCounter(PageTypes.ARTICLE);
+
+    WikipediaDocnoMapping.writeDocnoMappingData(FileSystem.get(conf),
+        outputPath + "/part-00000", (int) cnt, outputFile);
+
+    return 0;
+  }
+
+  public BuildWikipediaDocnoMapping() {}
+
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
+  }
 }

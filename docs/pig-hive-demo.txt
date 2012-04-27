@@ -1,0 +1,103 @@
+The Cloudera instructions for setup are here:
+http://www.cloudera.com/blog/2011/06/cloudera-distribution-including-apache-hadoop-3-demo-vm-installation-on-mac-os-x-using-virtualbox-cdh/
+
+But they're a bit out of date.
+
+For Mac, you have to use VirtualBox:
+
+https://www.virtualbox.org/wiki/Downloads
+
+VirtualBox 4.1.6 for OS X hosts
+VirtualBox 4.1.6 Oracle VM VirtualBox Extension Pack
+
+If you're using the CDH3u2 image, use Ubuntu (64 bit) as the OS.
+
+A few troubleshooting issues:
+
+If you get the error: "Failed to load VMMR0.r0
+(VERR_SUPLIB_WORLD_WRITABLE)", it's complaining because the directory
+/Application is world writable. Apparently, that's bad practice, so
+change that.
+
+If during bootup the image crashes on "NET: Registered Protocol family
+2", to fix: In the virtual machine configuration check the "Enable IO
+APIC".
+
+---
+
+# Data prep:
+
+head -31103 bible+shakes.nopunc > bible.txt
+tail -125112 bible+shakes.nopunc > shakes.txt
+
+
+# Pig
+
+a = load '/user/jimmy/bible.txt' as (text: chararray);
+b = foreach a generate flatten(TOKENIZE(text)) as term;
+c = group b by term;
+d = foreach c generate group as term, COUNT(b) as count;
+
+store d into '/user/jimmy/cnt-bible';
+
+e = filter d by term matches 'a.*';
+f = order e by count desc;
+g = limit f 10;
+
+dump g;
+
+p = load '/user/jimmy/shakes.txt' as (text: chararray);
+q = foreach p generate flatten(TOKENIZE(text)) as term;
+r = group q by term;
+s = foreach r generate group as term, COUNT(q) as count;
+
+store s into '/user/jimmy/cnt-shakes';
+
+x = join d by term, s by term;
+y = foreach x generate d::term as term, d::count as bcnt, s::count as scnt;
+z = filter y by bcnt > 10000 and scnt > 10000;
+
+dump z;
+
+
+
+# Hive
+
+show tables;
+create table wordcount_bible (term string, count int) row format delimited fields terminated by '\t' stored as textfile;
+hadoop fs -rmr /user/jimmy/cnt-bible/_logs
+load data inpath '/user/jimmy/cnt-bible' into table wordcount_bible;
+
+create table wordcount_shakes (term string, count int) row format delimited fields terminated by '\t' stored as textfile;
+hadoop fs -rmr /user/jimmy/cnt-shakes/_logs
+load data inpath '/user/jimmy/cnt-shakes' into table wordcount_shakes;
+
+select * from wordcount_bible where count > 1000 sort by count desc limit 10;
+
+select * from wordcount_bible where term LIKE 'a%' sort by count desc limit 10;
+
+SELECT b.term, b.count, s.count FROM
+  wordcount_bible b JOIN wordcount_shakes s ON
+  (b.term = s.term)
+  WHERE b.count > 10000 AND s.count > 10000
+  ORDER BY term;
+
+
+
+# Inverted indexing in Pig
+
+cat bible+shakes.nopunc | perl -pe '$_ = "$.\t$_"' > collection.txt
+
+a = load '/user/jimmy/collection.txt' as (docid: int, text: chararray);
+b = foreach a generate flatten(TOKENIZE(text)) as term, docid;
+c = group b by term;
+d = foreach c generate group as term, b.docid as postings;
+
+store d into '/user/jimmy/index1';
+
+x = foreach c {
+  s = order b by docid;
+  generate group, s.docid;
+}
+
+store d into '/user/jimmy/index2';

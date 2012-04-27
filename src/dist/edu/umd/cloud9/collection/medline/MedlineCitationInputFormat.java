@@ -35,105 +35,103 @@ import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 
 /**
- * Hadoop <code>InputFormat</code> for processing the MEDLINE citations in XML
- * format.
- * 
+ * Hadoop {@code InputFormat} for processing the MEDLINE citations in XML format (old API).
+ *
  * @author Jimmy Lin
  */
+@SuppressWarnings("deprecation")
 public class MedlineCitationInputFormat extends
-		IndexableFileInputFormat<LongWritable, MedlineCitation> implements JobConfigurable {
-	
-	private CompressionCodecFactory compressionCodecs = null;
+    IndexableFileInputFormat<LongWritable, MedlineCitation> implements JobConfigurable {
 
-	/**
-	 * Creates a <code>MedlineCitationInputFormat</code>.
-	 */
-	public MedlineCitationInputFormat() {
-	}
+  private CompressionCodecFactory compressionCodecs = null;
 
-	public void configure(JobConf conf) {
-		compressionCodecs = new CompressionCodecFactory(conf);
-	}
+  /**
+   * Creates a {@code MedlineCitationInputFormat}.
+   */
+  public MedlineCitationInputFormat() {}
 
-	protected boolean isSplitable(FileSystem fs, Path file) {
-		return compressionCodecs.getCodec(file) == null;
-	}
+  @Override
+  public void configure(JobConf conf) {
+    compressionCodecs = new CompressionCodecFactory(conf);
+  }
 
-	/**
-	 * Returns a <code>RecordReader</code> for this <code>InputFormat</code>.
-	 */
-	public RecordReader<LongWritable, MedlineCitation> getRecordReader(InputSplit inputSplit,
-			JobConf conf, Reporter reporter) throws IOException {
-		return new MedlineCitationRecordReader((FileSplit) inputSplit, conf);
-	}
+  @Override
+  protected boolean isSplitable(FileSystem fs, Path file) {
+    return compressionCodecs.getCodec(file) == null;
+  }
 
-	/**
-	 * Hadoop <code>RecordReader</code> for reading MEDLINE citations in XML
-	 * format.
-	 */
-	public static class MedlineCitationRecordReader implements
-			RecordReader<LongWritable, MedlineCitation> {
+  /**
+   * Returns a {@code RecordReader} for this {@code InputFormat}.
+   */
+  public RecordReader<LongWritable, MedlineCitation> getRecordReader(InputSplit inputSplit,
+      JobConf conf, Reporter reporter) throws IOException {
+    return new MedlineCitationRecordReader((FileSplit) inputSplit, conf);
+  }
 
-		private XMLRecordReader mReader;
-		private Text mText = new Text();
-		private LongWritable mLong = new LongWritable();
+  /**
+   * Hadoop {@code RecordReader} for reading MEDLINE citations in XML format.
+   */
+  public static class MedlineCitationRecordReader implements
+      RecordReader<LongWritable, MedlineCitation> {
+    private XMLRecordReader reader;
+    private Text text = new Text();
+    private LongWritable pos = new LongWritable();
 
-		/**
-		 * Creates a <code>MedlineCitationRecordReader</code>.
-		 */
-		public MedlineCitationRecordReader(FileSplit split, JobConf conf) throws IOException {
-			conf.set(XMLInputFormat.START_TAG_KEY, MedlineCitation.XML_START_TAG);
-			conf.set(XMLInputFormat.END_TAG_KEY, MedlineCitation.XML_END_TAG);
+    /**
+     * Creates a {@code MedlineCitationRecordReader}.
+     */
+    public MedlineCitationRecordReader(FileSplit split, JobConf conf) throws IOException {
+      conf.set(XMLInputFormat.START_TAG_KEY, MedlineCitation.XML_START_TAG);
+      conf.set(XMLInputFormat.END_TAG_KEY, MedlineCitation.XML_END_TAG);
 
-			mReader = new XMLRecordReader(split, conf);
-		}
+      reader = new XMLRecordReader(split, conf);
+    }
 
-		/**
-		 * Reads the next key-value pair.
-		 */
-		public boolean next(LongWritable key, MedlineCitation value) throws IOException {
-			if (mReader.next(mLong, mText) == false)
-				return false;
-			key.set(mLong.get());
-			MedlineCitation.readCitation(value, mText.toString());
-			return true;
-		}
+    /**
+     * Reads the next key-value pair.
+     */
+    public boolean next(LongWritable key, MedlineCitation value) throws IOException {
+      if (reader.next(pos, text) == false)
+        return false;
+      key.set(pos.get());
+      MedlineCitation.readCitation(value, text.toString());
+      return true;
+    }
 
-		/**
-		 * Creates an object for the key.
-		 */
-		public LongWritable createKey() {
-			return new LongWritable();
-		}
+    /**
+     * Creates an object for the key.
+     */
+    public LongWritable createKey() {
+      return new LongWritable();
+    }
 
-		/**
-		 * Creates an object for the value.
-		 */
-		public MedlineCitation createValue() {
-			return new MedlineCitation();
-		}
+    /**
+     * Creates an object for the value.
+     */
+    public MedlineCitation createValue() {
+      return new MedlineCitation();
+    }
 
-		/**
-		 * Returns the current position in the input.
-		 */
-		public long getPos() throws IOException {
-			return mReader.getPos();
-		}
+    /**
+     * Returns the current position in the input.
+     */
+    public long getPos() throws IOException {
+      return reader.getPos();
+    }
 
-		/**
-		 * Closes this InputSplit.
-		 */
-		public void close() throws IOException {
-			mReader.close();
-		}
+    /**
+     * Closes this InputSplit.
+     */
+    public void close() throws IOException {
+      reader.close();
+    }
 
-		/**
-		 * Returns progress on how much input has been consumed.
-		 */
-		public float getProgress() throws IOException {
-			return ((float) (mReader.getPos() - mReader.getStart()))
-					/ ((float) (mReader.getEnd() - mReader.getStart()));
-		}
-
-	}
+    /**
+     * Returns progress on how much input has been consumed.
+     */
+    public float getProgress() throws IOException {
+      return ((float) (reader.getPos() - reader.getStart()))
+          / ((float) (reader.getEnd() - reader.getStart()));
+    }
+  }
 }

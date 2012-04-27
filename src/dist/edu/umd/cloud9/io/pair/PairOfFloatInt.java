@@ -136,9 +136,7 @@ public class PairOfFloatInt implements WritableComparable<PairOfFloatInt> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfFloatInt obj) {
-		PairOfFloatInt pair = (PairOfFloatInt) obj;
-
+	public int compareTo(PairOfFloatInt pair) {
 		float pl = pair.getLeftElement();
 		int pr = pair.getRightElement();
 

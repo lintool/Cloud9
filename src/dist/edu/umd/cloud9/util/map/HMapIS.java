@@ -878,6 +878,15 @@ public class HMapIS implements MapIS, Cloneable, Serializable {
 		}
 	}
 	
+  /**
+   * Increments the key by some value. If the key does not exist in the map, its value is
+   * set to the parameter value.
+   * 
+   * @param key
+   *            key to increment
+   * @param value
+   *            increment value
+   */
 	public void increment(int key, short value) {
 		if (this.containsKey(key)) {
 			this.put(key, (short) (this.get(key) + value));

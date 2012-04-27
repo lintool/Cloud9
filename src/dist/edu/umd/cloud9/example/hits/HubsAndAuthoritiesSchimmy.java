@@ -97,47 +97,40 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 				OutputCollector<IntWritable, HITSNode> output, Reporter reporter)
 				throws IOException {
 
-			int type = value.getType();
 			int typeOut = 0;
-			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
-
-			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-				typeOut = HITSNode.TYPE_AUTH_MASS;
-			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-				typeOut = HITSNode.TYPE_HUB_MASS;
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
 
 			valOut.setType(typeOut);
-			valOut.setHARank(value.getHARank());
-			// valOut.setAdjacencyList(empty);
+			valOut.setARank(value.getARank());
+			valOut.setHRank(value.getHRank());
+			valOut.setType(HITSNode.TYPE_NODE_MASS);
 			valOut.setNodeId(value.getNodeId());
 
 			output.collect(key, valOut);
 
-			// Iterator itr = adjList.iterator();
 			int curr;
-			typeOut = 0;
-
-			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE
-					|| value.getType() == HITSNode.TYPE_AUTH_MASS) {
-				typeOut = HITSNode.TYPE_HUB_MASS;
-			} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE
-					|| value.getType() == HITSNode.TYPE_HUB_MASS) {
-				typeOut = HITSNode.TYPE_AUTH_MASS;
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
-
+			//auth score for a node X is sum of all hub scores from nodes linking to X
+			// so for each outgoing link X1...XN, contribute this node's hub score as part of node X1...XN's auth score
+			// ( total auth score will be summed in reducer)
+			typeOut = HITSNode.TYPE_AUTH_MASS;
+			ArrayListOfIntsWritable adjList = value.getOutlinks();
+			
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
 				valOut.setType(typeOut);
-				valOut.setHARank(value.getHARank());
-				valOut.setAdjacencyList(empty);
-
+				valOut.setARank(value.getHRank());
+				output.collect(new IntWritable(curr), valOut);
+			}
+			
+			//hub score for a node X is sum of all auth scores from nodes linked from X
+			// so for each incoming link X1...XN, contribute this node's auth score as part of node X1...XN's hub score
+			// ( total hub score will be summed in reducer)
+			typeOut = HITSNode.TYPE_HUB_MASS;
+			adjList = value.getInlinks();
+			
+			for (int i = 0; i < adjList.size(); i++) {
+				curr = adjList.get(i);
+				valOut.setType(typeOut);
+				valOut.setHRank(value.getARank());
 				output.collect(new IntWritable(curr), valOut);
 			}
 		}
@@ -171,58 +164,44 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 
 			mOutput = output;
 
-			int type = value.getType();
-			int typeOut = 0;
-			ArrayListOfIntsWritable adjList = value.getAdjacencyList();
+			ArrayListOfIntsWritable adjList;
+			valOut.setNodeId(value.getNodeId());
+			valOut.setType(HITSNode.TYPE_NODE_MASS);
+			valOut.setARank(value.getARank());
+			valOut.setHRank(value.getHRank());
+			output.collect(key, valOut);
 
 			// check type using new types
-			if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-				if (rankmapA.containsKey(key.get())) {
-					rankmapA.put(key.get(), sumLogProbs(
-							rankmapA.get(key.get()), value.getHARank()));
-				} else {
-					rankmapA.put(key.get(), value.getHARank());
-					// rankmapA.put(key.get(),
-					// sumLogProbs(rankmapA.get(key.get()), 0));
-				}
-			}
+			//emit hvals to outlinks as avals
 
-			else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-				if (rankmapH.containsKey(key.get())) {
-					rankmapH.put(key.get(), sumLogProbs(
-							rankmapH.get(key.get()), value.getHARank()));
-				} else {
-					rankmapH.put(key.get(), value.getHARank());
-					// rankmapH.put(key.get(),
-					// sumLogProbs(rankmapH.get(key.get()), 0));
-				}
-			} else {
-				System.err.print("Unknown node type: " + typeOut);
-			}
+
+
+			//emit avals to inlinks as hvals
+
 
 			int curr;
-			typeOut = 0;
-
+			
+			adjList = value.getOutlinks();
 			for (int i = 0; i < adjList.size(); i++) {
 				curr = adjList.get(i);
 				// System.out.println("[key: " + key.toString() + "] [curr: " +
 				// curr + "]");
-				if (value.getType() == HITSNode.TYPE_AUTH_COMPLETE) {
-					if (rankmapH.containsKey(curr)) {
-						rankmapH.put(curr, sumLogProbs(rankmapH.get(curr),
-								value.getHARank()));
-					} else {
-						rankmapH.put(curr, value.getHARank());
-					}
-				} else if (value.getType() == HITSNode.TYPE_HUB_COMPLETE) {
-					if (rankmapA.containsKey(curr)) {
-						rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
-								value.getHARank()));
-					} else {
-						rankmapA.put(curr, value.getHARank());
-					}
+				if (rankmapA.containsKey(curr)) {
+					rankmapA.put(curr, sumLogProbs(rankmapA.get(curr),
+							value.getHRank()));
 				} else {
-					System.err.println("Unknown node type: " + value.getType());
+					rankmapA.put(curr, value.getHRank());
+				}
+			}
+			
+			adjList = value.getInlinks();
+			for (int i = 0; i < adjList.size(); i++) {
+				curr = adjList.get(i);
+				if (rankmapH.containsKey(curr)) {
+					rankmapH.put(curr, sumLogProbs(rankmapH.get(curr),
+							value.getARank()));
+				} else {
+					rankmapH.put(curr, value.getARank());
 				}
 			}
 		}
@@ -233,7 +212,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 			for (MapIF.Entry e : rankmapH.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_HUB_MASS);
-				mass.setHARank(e.getValue());
+				mass.setHRank(e.getValue());
 				mass.setNodeId(e.getKey());
 				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
@@ -241,7 +220,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 			for (MapIF.Entry e : rankmapA.entrySet()) {
 				n.set(e.getKey());
 				mass.setType(HITSNode.TYPE_AUTH_MASS);
-				mass.setHARank(e.getValue());
+				mass.setARank(e.getValue());
 				mass.setNodeId(e.getKey());
 				// System.out.println(e.getKey() + " " + e.getValue());
 				mOutput.collect(n, mass);
@@ -253,8 +232,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 	private static class HAReducer extends MapReduceBase implements
 			Reducer<IntWritable, HITSNode, IntWritable, HITSNode> {
 		private HITSNode valIn;
-		private HITSNode hvalOut = new HITSNode();
-		private HITSNode avalOut = new HITSNode();
+		private HITSNode valOut = new HITSNode();
 
 		private OutputCollector<IntWritable, HITSNode> mOutput;
 		private Reporter mReporter;
@@ -314,8 +292,8 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 			float arank = Float.NEGATIVE_INFINITY;
 			long pos;
 
-			hvalOut.setAdjacencyList(adjList);
-			avalOut.setAdjacencyList(adjList);
+			valOut.setInlinks(adjList);
+			valOut.setOutlinks(adjList);
 
 			mOutput = output;
 			mReporter = reporter;
@@ -363,13 +341,14 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 
 				// get type
 				int type = valIn.getType();
-				float rankIn = valIn.getHARank();
-				if (type == HITSNode.TYPE_HUB_MASS) {
+				float arankIn = valIn.getARank();
+				float hrankIn = valIn.getHRank();
+				if (type == HITSNode.TYPE_HUB_MASS ) {
 					// hrank += rankIn;
-					hrank = sumLogProbs(hrank, rankIn);
+					hrank = sumLogProbs(hrank, hrankIn);
 				} else if (type == HITSNode.TYPE_AUTH_MASS) {
 					// arank += rankIn;
-					arank = sumLogProbs(arank, rankIn);
+					arank = sumLogProbs(arank, arankIn);
 				}
 			}
 			// System.out.println(key.toString() + " " + "H" + " " +
@@ -386,10 +365,12 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 				}
 			}
 			// build output tuple and write to output
-			if (mStateNode.getType() == HITSNode.TYPE_AUTH_COMPLETE)
-				avalOut.setAdjacencyList(mStateNode.getAdjacencyList());
-			else if (mStateNode.getType() == HITSNode.TYPE_HUB_COMPLETE)
-				hvalOut.setAdjacencyList(mStateNode.getAdjacencyList());
+			if (mStateNode.getType() == HITSNode.TYPE_NODE_COMPLETE)
+			{
+				valOut.setInlinks(mStateNode.getInlinks()); //????
+				valOut.setOutlinks(mStateNode.getOutlinks());
+			}
+			/*
 			pos = reader.getPosition();
 			// read ahead to seek if there is another adjlist
 			reader.next(mStateNid, mStateNode);
@@ -402,16 +383,13 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 			// if not, go back
 			else {
 				reader.seek(pos);
-			}
-			hvalOut.setHARank(hrank);
-			avalOut.setHARank(arank);
-			hvalOut.setType(HITSNode.TYPE_HUB_COMPLETE);
-			avalOut.setType(HITSNode.TYPE_AUTH_COMPLETE);
-			hvalOut.setNodeId(key.get());
-			avalOut.setNodeId(key.get());
+			}*/
+			valOut.setHRank(hrank);
+			valOut.setARank(arank);
+			valOut.setType(HITSNode.TYPE_NODE_COMPLETE);
+			valOut.setNodeId(key.get());
 
-			output.collect(key, hvalOut);
-			output.collect(key, avalOut);
+			output.collect(key, valOut);
 		}
 
 		public void close() throws IOException {
@@ -438,18 +416,16 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 				throws IOException {
 
 			int type = value.getType();
-			rank.set(value.getHARank() * 2);
 
 			// System.out.println(key.toString() + " " + valOut.toString());
-			String textType = "?";
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				textType = "A";
-			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				textType = "H";
+			if (type == HITSNode.TYPE_NODE_COMPLETE) {
+				rank.set(value.getARank() * 2);
+				output.collect(new Text("A"), rank);
+				rank.set(value.getHRank() * 2);
+				output.collect(new Text("H"), rank);
 			} else {
 				System.err.println("Bad Type: " + type);
 			}
-			output.collect(new Text(textType), rank);
 		}
 
 	}
@@ -473,12 +449,12 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 			mOutput = output;
 
 			int type = value.getType();
-			float rank = value.getHARank() * 2;
+			float arank = value.getARank() * 2;
+			float hrank = value.getHRank() * 2;// <===FIXME
 
-			if (type == HITSNode.TYPE_AUTH_COMPLETE) {
-				asum = sumLogProbs(asum, rank);
-			} else if (type == HITSNode.TYPE_HUB_COMPLETE) {
-				hsum = sumLogProbs(hsum, rank);
+			if (type == HITSNode.TYPE_NODE_COMPLETE) {
+				asum = sumLogProbs(asum, arank);
+				hsum = sumLogProbs(hsum, hrank);
 			} else {
 				System.err.println("Bad Type: " + type);
 			}
@@ -551,36 +527,23 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 
 			// System.out.println("H: " + rootSumH);
 			// System.out.println("A: " + rootSumA);
-			int typeI = value.getType();
-			String type = "?";
-			if (typeI == HITSNode.TYPE_HUB_COMPLETE) {
-				type = "H";
-			} else if (typeI == HITSNode.TYPE_AUTH_COMPLETE) {
-				type = "A";
-			}
+			float arank = value.getARank();
+			float hrank = value.getHRank();
 
-			float rank = value.getHARank();
-
-			if (type.equals("H")) {
-				rank = rank - rootSumH;
-			} else if (type.equals("A")) {
-				rank = rank - rootSumA;
-			} else {
-				try {
-					throw new Exception("Invalid Rank Type");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			hrank = hrank - rootSumH;
+			arank = arank - rootSumA;
 
 			nodeOut.setNodeId(key.get());
-			nodeOut.setType(typeI);
-			nodeOut.setHARank(rank);
-			nodeOut.setAdjacencyList(value.getAdjacencyList());
+			nodeOut.setType(HITSNode.TYPE_NODE_COMPLETE);
+			nodeOut.setARank(arank);
+			nodeOut.setHRank(hrank);
+			nodeOut.setInlinks(value.getInlinks());
+			nodeOut.setOutlinks(value.getOutlinks());
 			// System.out.println(tupleOut.toString());
 
 			// System.out.println(key.toString() + " " + valOut.toString());
 			output.collect(key, nodeOut);
+	
 		}
 
 	}

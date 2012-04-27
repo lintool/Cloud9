@@ -139,9 +139,7 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 *         this pair should be sorted before, sorted after, or is equal to
 	 *         <code>obj</code>.
 	 */
-	public int compareTo(PairOfStringLong obj) {
-		PairOfStringLong pair = (PairOfStringLong) obj;
-
+	public int compareTo(PairOfStringLong pair) {
 		String pl = pair.getLeftElement();
 		long pr = pair.getRightElement();
 
