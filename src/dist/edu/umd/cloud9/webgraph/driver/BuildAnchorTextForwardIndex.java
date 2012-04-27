@@ -37,11 +37,11 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 import edu.umd.cloud9.webgraph.data.AnchorText;
@@ -65,10 +65,7 @@ import edu.umd.cloud9.webgraph.data.IndexableAnchorTextForwardIndex;
  * @author Nima Asadi
  * 
  */
-
-@SuppressWarnings("deprecation")
 public class BuildAnchorTextForwardIndex extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(BuildAnchorTextForwardIndex.class);
 
 	private static enum Blocks {
@@ -135,7 +132,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 			return -1;
 		}
 
-		JobConf conf = new JobConf(BuildAnchorTextForwardIndex.class);
+	        JobConf conf = new JobConf(getConf());
 		FileSystem fs = FileSystem.get(conf);
 
 		String collectionPath = args[0];
@@ -177,7 +174,7 @@ public class BuildAnchorTextForwardIndex extends Configured implements Tool {
 		LOG.info("number of blocks: " + blocks);
 
 		LOG.info("Writing index file...");
-		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
+		LineReader reader = new LineReader(fs.open(new Path(outputPath + "/part-00000")));
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
 		out.writeUTF(IndexableAnchorTextForwardIndex.class.getName());

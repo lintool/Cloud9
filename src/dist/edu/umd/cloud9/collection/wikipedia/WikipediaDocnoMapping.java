@@ -131,6 +131,11 @@ public class WikipediaDocnoMapping implements DocnoMapping {
     return arr;
   }
 
+  @Override
+  public Builder getBuilder() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Simple program the provides access to the docno/docid mappings.
    *

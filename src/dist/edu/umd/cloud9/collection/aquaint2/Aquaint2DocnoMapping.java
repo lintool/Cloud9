@@ -111,6 +111,11 @@ public class Aquaint2DocnoMapping implements DocnoMapping {
     return arr;
   }
 
+  @Override
+  public Builder getBuilder() {
+    throw new UnsupportedOperationException();
+  }
+
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {
       System.out.println("usage: (list|getDocno|getDocid) [mapping-file] [docid/docno]");

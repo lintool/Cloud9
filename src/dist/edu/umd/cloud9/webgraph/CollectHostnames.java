@@ -51,10 +51,7 @@ import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
  * @author Nima Asadi
  *
  */
-
-@SuppressWarnings("deprecation")
 public class CollectHostnames extends PowerTool {
-
 	private static final Logger sLogger = Logger.getLogger(CollectHostnames.class);
 	
 	public static class Map extends MapReduceBase implements
@@ -74,7 +71,7 @@ public class CollectHostnames extends PowerTool {
 						//extract the hostname for a given URL
 						host = new URI(data.getText()).getHost();
 					}catch(Exception e) {
-						throw new RuntimeException(e);
+						return;
 					}
 			}
 			

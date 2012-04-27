@@ -16,13 +16,12 @@
 
 package edu.umd.cloud9.collection;
 
-import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 /**
  * Abstract class representing a {@link FileInputFormat} for {@link Indexable} objects ({@code
- * org.apache.hadoop.mapred} API).
+ * org.apache.hadoop.mapreduce} API).
  */
-@SuppressWarnings("deprecation")
 public abstract class IndexableFileInputFormat<K, V extends Indexable> extends
     FileInputFormat<K, V> {
 }

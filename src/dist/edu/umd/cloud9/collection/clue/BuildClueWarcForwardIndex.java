@@ -20,11 +20,11 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.FSLineReader;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 
 /**
@@ -47,12 +47,10 @@ public class BuildClueWarcForwardIndex extends Configured implements Tool {
 			MapRunnable<IntWritable, ClueWarcRecord, IntWritable, Text> {
 
 		int fileno;
-		long pos = -1;
 
 		private static final IntWritable sOutputKey = new IntWritable();
 		private static final Text sOutputValue = new Text();
 
-		@SuppressWarnings("unchecked")
 		public void configure(JobConf job) {
 			String file = job.get("map.input.file");
 			fileno = Integer.parseInt(file.substring(file.indexOf("part-") + 5));
@@ -150,7 +148,7 @@ public class BuildClueWarcForwardIndex extends Configured implements Tool {
 		sLogger.info("number of blocks: " + blocks);
 
 		sLogger.info("Writing index file...");
-		FSLineReader reader = new FSLineReader(outputPath + "/part-00000", fs);
+		LineReader reader = new LineReader(fs.open(new Path(outputPath + "/part-00000")));
 		FSDataOutputStream out = fs.create(new Path(indexFile), true);
 
 		out.writeUTF("edu.umd.cloud9.collection.clue.ClueWarcForwardIndex");
