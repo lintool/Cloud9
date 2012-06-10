@@ -8,8 +8,10 @@
   <property name="dist.dir" value="dist"/>
   <property name="test.dir" location="test" />
   <property name="javadoc.dir" location="docs/api/" />
+  <property name="test.junit.dir" location="${test.dir}/junit" />
+  <property name="integration.dir" location="${test.dir}/integration" />
 
-  <property name="version" value="1.3.1"/>
+  <property name="version" value="1.3.2"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -136,27 +138,54 @@
   </target>
 
   <target name="test" depends="jar" description="Execute Unit Tests">
-    <mkdir dir="${test.dir}" />
+    <mkdir dir="${test.junit.dir}" />
     <junit printsummary="yes" fork="yes" maxmemory="1024m">
       <sysproperty key="java.library.path" path="${lib.dir}" />
       <sysproperty key="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser" />
       <classpath refid="run.path.id" />
 
       <formatter type="xml" />
-        <batchtest todir="${test.dir}">
+        <batchtest todir="${test.junit.dir}">
           <fileset dir="${build.dir}">
             <include name="**/*Test.class" />
             <exclude name="edu/umd/cloud9/integration/**/*.class" />
           </fileset>
         </batchtest>
     </junit>
-    <junitreport todir="${test.dir}">
-      <fileset dir="${test.dir}">
+    <junitreport todir="${test.junit.dir}">
+      <fileset dir="${test.junit.dir}">
         <include name="TEST-*.xml" />
       </fileset>
-      <report format="noframes" styledir="etc/" todir="${test.dir}" />
+      <report format="noframes" styledir="etc/" todir="${test.junit.dir}" />
     </junitreport>
   </target>
+
+	<target name="integration" depends="jar" description="Run integration tests">
+		<mkdir dir="${integration.dir}" />
+		<junit printsummary="yes" fork="yes" maxmemory="2048m">
+			<sysproperty key="java.library.path" path="${lib.dir}" />
+			<sysproperty key="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser" />
+			<classpath refid="run.path.id" />
+
+			<formatter type="xml" />
+			<batchtest todir="${integration.dir}">
+				<fileset dir="${build.dir}">
+                                        <include name="edu/umd/cloud9/integration/**/*.class" />
+                                        <exclude name="edu/umd/cloud9/integration/IntegrationUtils*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${integration.dir}">
+			<fileset dir="${integration.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" styledir="etc/" todir="${integration.dir}" />
+		</junitreport>
+
+                <mail messageMimeType="text/html" messageFile="${integration.dir}/junit-noframes.html" tolist="umd-ivory@googlegroups.com" subject="Cloud9 integration test results" mailhost="smtp.umiacs.umd.edu" from="jimmylin@umd.edu" />
+
+	</target>
 
   <target name="javadoc">
     <javadoc destdir="${javadoc.dir}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" classpathref="lib.path.id">

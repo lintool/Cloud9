@@ -67,10 +67,18 @@ public class TextDocument extends Indexable {
 		return mDocid;
 	}
 
-	public String getContent() {
+  public void setDocid(String docid) {
+    mDocid = docid;
+  }
+
+  public String getContent() {
 		return mContents;
 	}
 
+	public void setContent(String contents) {
+	  mContents = contents;
+	}
+	
 	public static void readDocument(TextDocument doc, String s) {
 		if (s == null) {
 			throw new RuntimeException("Error, can't read null string!");

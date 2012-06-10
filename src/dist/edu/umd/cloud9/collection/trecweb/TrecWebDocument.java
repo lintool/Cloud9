@@ -24,9 +24,9 @@ import java.io.IOException;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.WritableUtils;
 
-import edu.umd.cloud9.collection.Indexable;
+import edu.umd.cloud9.collection.WebDocument;
 
-public class TrecWebDocument extends Indexable {
+public class TrecWebDocument extends WebDocument {
 
   /**
    * Start delimiter of the document, which is &lt;<code>DOC</code>&gt;.
@@ -40,6 +40,7 @@ public class TrecWebDocument extends Indexable {
 
   private String docid;
   private String content;
+  private String url;
 
   /**
    * Creates an empty <code>Doc2Document</code> object.
@@ -72,12 +73,12 @@ public class TrecWebDocument extends Indexable {
     byte[] bytes = new byte[length];
     in.readFully(bytes, 0, length);
     content = new String(bytes);
-    // Gov2Document.readDocument(this, new String(bytes));
   }
 
   /**
    * Returns the docid of this Gov2 document.
    */
+  @Override
   public String getDocid() {
     return docid;
   }
@@ -85,8 +86,14 @@ public class TrecWebDocument extends Indexable {
   /**
    * Returns the content of this Gov2 document.
    */
+  @Override
   public String getContent() {
     return content;
+  }
+
+  @Override
+  public String getURL() {
+    return url;
   }
 
   /**
@@ -109,7 +116,18 @@ public class TrecWebDocument extends Indexable {
 
       doc.docid = s.substring(start + 7, end);
     }
+    
+    start = s.indexOf("<DOCHDR>");
+    
+    if (start == -1) {
+      throw new RuntimeException("Unable to find DOCHDR tag!");
+    }
+    else {
+      int end = s.indexOf(" ", start);
 
+      doc.url = s.substring(start + 9, end);
+    }
+    
     start = s.indexOf("</DOCHDR>");
 
     if (start == -1) {
