@@ -76,7 +76,7 @@ public class WikipediaPage extends Indexable {
     byte[] bytes = page.getBytes();
     WritableUtils.writeVInt(out, bytes.length);
     out.write(bytes, 0, bytes.length);
-    out.writeUTF(language);
+    out.writeUTF(language == null ? "unk" : language);
   }
 
   /**

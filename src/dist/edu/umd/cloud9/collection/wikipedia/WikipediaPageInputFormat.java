@@ -17,7 +17,6 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileSplit;
@@ -25,7 +24,6 @@ import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
-
 import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
