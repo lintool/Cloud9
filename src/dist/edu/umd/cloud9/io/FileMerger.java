@@ -1,6 +1,8 @@
 package edu.umd.cloud9.io;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -39,6 +41,8 @@ import com.google.common.base.Preconditions;
 
 public class FileMerger extends Configured implements Tool {
   private static final Logger sLogger = Logger.getLogger(FileMerger.class);
+
+  public static final Random random = new Random();
 
   public static final String PATH_INDICATOR = "path";
   public static final String INTEGER_INDICATOR = "int";
@@ -184,6 +188,7 @@ public class FileMerger extends Configured implements Tool {
       sequenceFileWriter = new SequenceFile.Writer(fs, conf, outputPath, keyClass, valueClass);
 
       for (FileStatus fileStatus : fileStatuses) {
+        sLogger.info("Openning file " + fileStatus.getPath() + "...");
         sequenceFileReader = new SequenceFile.Reader(fs, fileStatus.getPath(), conf);
 
         while (sequenceFileReader.next(key, value)) {
@@ -234,7 +239,8 @@ public class FileMerger extends Configured implements Tool {
 
     Path inputPath = new Path(inputFiles);
 
-    Path mergePath = new Path(inputPath.getParent().toString() + Path.SEPARATOR + MERGE);
+    Path mergePath = new Path(inputPath.getParent().toString() + Path.SEPARATOR + MERGE
+        + new BigInteger(100, random).toString(32));
     Preconditions.checkArgument(!fs.exists(mergePath), new IOException(
         "Intermediate merge directory already exists..."));
 
