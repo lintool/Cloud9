@@ -42,7 +42,8 @@ import com.google.common.base.Preconditions;
 public class FileMerger extends Configured implements Tool {
   private static final Logger sLogger = Logger.getLogger(FileMerger.class);
 
-  public static final Random random = new Random();
+  public static final Random RANDOM_GENERATOR = new Random();
+  public static final int DEFAULT_RANDOM_STRING_LENGTH = 20;
 
   public static final String PATH_INDICATOR = "path";
   public static final String INTEGER_INDICATOR = "int";
@@ -65,6 +66,25 @@ public class FileMerger extends Configured implements Tool {
   public static final boolean TEXT_FILE_INPUT = false;
 
   public static final String FILE_CONTENT_DELIMITER = "";
+
+  /**
+   * Generate a random string of given length.
+   * 
+   * @param length
+   * @return
+   */
+  public static String generateRandomString(int length) {
+    return new BigInteger(length * 4, RANDOM_GENERATOR).toString(32);
+  }
+
+  /**
+   * Generate a random string of default length.
+   * 
+   * @return
+   */
+  public static String generateRandomString() {
+    return generateRandomString(DEFAULT_RANDOM_STRING_LENGTH);
+  }
 
   /**
    * This method merges all files (in {@link TextFormat}) specified by the glob expression
@@ -240,7 +260,7 @@ public class FileMerger extends Configured implements Tool {
     Path inputPath = new Path(inputFiles);
 
     Path mergePath = new Path(inputPath.getParent().toString() + Path.SEPARATOR + MERGE
-        + new BigInteger(100, random).toString(32));
+        + generateRandomString());
     Preconditions.checkArgument(!fs.exists(mergePath), new IOException(
         "Intermediate merge directory already exists..."));
 
