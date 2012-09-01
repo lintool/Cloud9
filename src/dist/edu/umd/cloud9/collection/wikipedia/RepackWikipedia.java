@@ -17,7 +17,6 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -48,7 +47,6 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class RepackWikipedia extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(RepackWikipedia.class);
 
@@ -82,7 +80,6 @@ public class RepackWikipedia extends Configured implements Tool {
         OutputCollector<IntWritable, WikipediaPage> output, Reporter reporter) throws IOException {
       reporter.incrCounter(Records.TOTAL, 1);
       String id = doc.getDocid();
-
       if (id != null) {
         // We're going to discard pages that aren't in the docno mapping.
         int n = docnoMapping.getDocno(id);
