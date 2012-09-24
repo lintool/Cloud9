@@ -360,7 +360,7 @@ public class WikipediaPage extends Indexable {
     page.isDisambig = s.indexOf("{{disambig", page.textStart) != -1 || s.indexOf("{{Disambig", page.textStart) != -1;
     page.isRedirect = s.substring(page.textStart + 27, page.textStart + 36).compareTo("#REDIRECT") == 0 ||
     s.substring(page.textStart + 27, page.textStart + 36).compareTo("#redirect") == 0;
-    page.isStub = s.indexOf("stub}}", page.textStart) != -1;
+    page.isStub = s.indexOf("stub}}", page.textStart) != -1 || s.indexOf("Wikipedia:Stub") != -1;
   }
 
 }

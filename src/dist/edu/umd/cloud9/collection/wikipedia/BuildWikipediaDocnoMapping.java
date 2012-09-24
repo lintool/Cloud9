@@ -18,7 +18,6 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 import java.util.Iterator;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -58,7 +57,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 
   private static enum PageTypes {
-    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE, OTHER
   };
 
   private static class MyMapper extends MapReduceBase implements
@@ -91,11 +90,18 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
       } else if (p.isEmpty()) {
         reporter.incrCounter(PageTypes.EMPTY, 1);
       } else if (p.isArticle()) {
+        // heuristic: potentially template or stub article
+        if (p.getTitle().length() > 0.3*p.getContent().length()) {
+          reporter.incrCounter(PageTypes.OTHER, 1);
+          return;
+        }
+
         reporter.incrCounter(PageTypes.ARTICLE, 1);
 
         if (p.isStub()) {
           reporter.incrCounter(PageTypes.STUB, 1);
         }
+        
 
         keyOut.set(Integer.parseInt(p.getDocid()));
         output.collect(keyOut, valOut);
