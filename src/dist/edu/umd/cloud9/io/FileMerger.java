@@ -1,6 +1,8 @@
 package edu.umd.cloud9.io;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -31,6 +33,7 @@ import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -39,6 +42,9 @@ import com.google.common.base.Preconditions;
 
 public class FileMerger extends Configured implements Tool {
   private static final Logger sLogger = Logger.getLogger(FileMerger.class);
+
+  public static final Random RANDOM_GENERATOR = new Random();
+  public static final int DEFAULT_RANDOM_STRING_LENGTH = 20;
 
   public static final String PATH_INDICATOR = "path";
   public static final String INTEGER_INDICATOR = "int";
@@ -63,6 +69,25 @@ public class FileMerger extends Configured implements Tool {
   public static final String FILE_CONTENT_DELIMITER = "";
 
   /**
+   * Generate a random string of given length.
+   * 
+   * @param length
+   * @return
+   */
+  public static String generateRandomString(int length) {
+    return new BigInteger(length * 4, RANDOM_GENERATOR).toString(32);
+  }
+
+  /**
+   * Generate a random string of default length.
+   * 
+   * @return
+   */
+  public static String generateRandomString() {
+    return generateRandomString(DEFAULT_RANDOM_STRING_LENGTH);
+  }
+
+  /**
    * This method merges all files (in {@link TextFormat}) specified by the glob expression
    * <code>inputFiles<code>
    * 
@@ -73,24 +98,28 @@ public class FileMerger extends Configured implements Tool {
    * @return
    * @throws IOException
    */
-  public static Path mergeTextFiles(String inputFiles, String outputFile, int numberOfMappers,
-      boolean deleteSource) throws IOException {
+  public static Path mergeTextFiles(Configuration configuration, String inputFiles,
+      String outputFile, int numberOfMappers, boolean deleteSource) throws IOException {
+    // TODO: add in configuration
+
     if (numberOfMappers <= 0) {
-      return mergeTextFiles(inputFiles, outputFile, deleteSource, false);
+      return mergeTextFiles(configuration, inputFiles, outputFile, deleteSource, false);
     } else {
-      return mergeFilesDistribute(inputFiles, outputFile, numberOfMappers, LongWritable.class,
-          Text.class, TextInputFormat.class, TextOutputFormat.class, deleteSource, false);
+      return mergeFilesDistribute(configuration, inputFiles, outputFile, numberOfMappers,
+          LongWritable.class, Text.class, TextInputFormat.class, TextOutputFormat.class,
+          deleteSource, false);
     }
   }
 
-  public static Path mergeTextFiles(String inputFiles, String outputFile, int numberOfMappers,
-      boolean deleteSource, boolean deleteDestinationFileIfExist) throws IOException {
+  public static Path mergeTextFiles(Configuration configuration, String inputFiles,
+      String outputFile, int numberOfMappers, boolean deleteSource,
+      boolean deleteDestinationFileIfExist) throws IOException {
     if (numberOfMappers <= 0) {
-      return mergeTextFiles(inputFiles, outputFile, deleteSource, deleteDestinationFileIfExist);
+      return mergeTextFiles(configuration, inputFiles, outputFile, deleteSource, deleteDestinationFileIfExist);
     } else {
-      return mergeFilesDistribute(inputFiles, outputFile, numberOfMappers, LongWritable.class,
-          Text.class, TextInputFormat.class, TextOutputFormat.class, deleteSource,
-          deleteDestinationFileIfExist);
+      return mergeFilesDistribute(configuration, inputFiles, outputFile, numberOfMappers,
+          LongWritable.class, Text.class, TextInputFormat.class, TextOutputFormat.class,
+          deleteSource, deleteDestinationFileIfExist);
     }
   }
 
@@ -101,9 +130,10 @@ public class FileMerger extends Configured implements Tool {
    * @return
    * @throws IOException
    */
-  private static Path mergeTextFiles(String inputFiles, String outputFile, boolean deleteSource,
-      boolean deleteDestinationFileIfExist) throws IOException {
-    JobConf conf = new JobConf(FileMerger.class);
+  private static Path mergeTextFiles(Configuration configuration, String inputFiles,
+      String outputFile, boolean deleteSource, boolean deleteDestinationFileIfExist)
+      throws IOException {
+    JobConf conf = new JobConf(configuration, FileMerger.class);
     FileSystem fs = FileSystem.get(conf);
 
     Path inputPath = new Path(inputFiles);
@@ -126,36 +156,39 @@ public class FileMerger extends Configured implements Tool {
     return outputPath;
   }
 
-  public static Path mergeSequenceFiles(String inputFiles, String outputFile, int numberOfMappers,
-      Class<? extends Writable> keyClass, Class<? extends Writable> valueClass, boolean deleteSource)
-      throws IOException, InstantiationException, IllegalAccessException {
+  public static Path mergeSequenceFiles(Configuration configuration, String inputFiles,
+      String outputFile, int numberOfMappers, Class<? extends Writable> keyClass,
+      Class<? extends Writable> valueClass, boolean deleteSource) throws IOException,
+      InstantiationException, IllegalAccessException {
     if (numberOfMappers <= 0) {
-      return mergeSequenceFiles(inputFiles, outputFile, keyClass, valueClass, deleteSource, false);
+      return mergeSequenceFiles(configuration, inputFiles, outputFile, keyClass, valueClass, deleteSource, false);
     } else {
-      return mergeFilesDistribute(inputFiles, outputFile, numberOfMappers, keyClass, valueClass,
-          SequenceFileInputFormat.class, SequenceFileOutputFormat.class, deleteSource, false);
+      return mergeFilesDistribute(configuration, inputFiles, outputFile, numberOfMappers, keyClass,
+          valueClass, SequenceFileInputFormat.class, SequenceFileOutputFormat.class, deleteSource,
+          false);
     }
   }
 
-  public static Path mergeSequenceFiles(String inputFiles, String outputFile, int numberOfMappers,
-      Class<? extends Writable> keyClass, Class<? extends Writable> valueClass,
-      boolean deleteSource, boolean deleteDestinationFileIfExist) throws IOException,
-      InstantiationException, IllegalAccessException {
+  public static Path mergeSequenceFiles(Configuration configuration, String inputFiles,
+      String outputFile, int numberOfMappers, Class<? extends Writable> keyClass,
+      Class<? extends Writable> valueClass, boolean deleteSource,
+      boolean deleteDestinationFileIfExist) throws IOException, InstantiationException,
+      IllegalAccessException {
     if (numberOfMappers <= 0) {
-      return mergeSequenceFiles(inputFiles, outputFile, keyClass, valueClass, deleteSource,
+      return mergeSequenceFiles(configuration, inputFiles, outputFile, keyClass, valueClass, deleteSource,
           deleteDestinationFileIfExist);
     } else {
-      return mergeFilesDistribute(inputFiles, outputFile, numberOfMappers, keyClass, valueClass,
-          SequenceFileInputFormat.class, SequenceFileOutputFormat.class, deleteSource,
+      return mergeFilesDistribute(configuration, inputFiles, outputFile, numberOfMappers, keyClass,
+          valueClass, SequenceFileInputFormat.class, SequenceFileOutputFormat.class, deleteSource,
           deleteDestinationFileIfExist);
     }
   }
 
-  private static Path mergeSequenceFiles(String inputFiles, String outputFile,
-      Class<? extends Writable> keyClass, Class<? extends Writable> valueClass,
+  private static Path mergeSequenceFiles(Configuration configuration, String inputFiles,
+      String outputFile, Class<? extends Writable> keyClass, Class<? extends Writable> valueClass,
       boolean deleteSource, boolean deleteDestinationFileIfExist) throws IOException,
       InstantiationException, IllegalAccessException {
-    JobConf conf = new JobConf(FileMerger.class);
+    JobConf conf = new JobConf(configuration, FileMerger.class);
     FileSystem fs = FileSystem.get(conf);
 
     Path inputPath = new Path(inputFiles);
@@ -184,6 +217,7 @@ public class FileMerger extends Configured implements Tool {
       sequenceFileWriter = new SequenceFile.Writer(fs, conf, outputPath, keyClass, valueClass);
 
       for (FileStatus fileStatus : fileStatuses) {
+        sLogger.info("Openning file " + fileStatus.getPath() + "...");
         sequenceFileReader = new SequenceFile.Reader(fs, fileStatus.getPath(), conf);
 
         while (sequenceFileReader.next(key, value)) {
@@ -204,12 +238,12 @@ public class FileMerger extends Configured implements Tool {
     return outputPath;
   }
 
-  private static Path mergeFilesDistribute(String inputFiles, String outputFile,
-      int numberOfMappers, Class<? extends Writable> keyClass,
+  private static Path mergeFilesDistribute(Configuration configuration, String inputFiles,
+      String outputFile, int numberOfMappers, Class<? extends Writable> keyClass,
       Class<? extends Writable> valueClass, Class<? extends FileInputFormat> fileInputClass,
       Class<? extends FileOutputFormat> fileOutputClass, boolean deleteSource,
       boolean deleteDestinationFileIfExist) throws IOException {
-    JobConf conf = new JobConf(FileMerger.class);
+    JobConf conf = new JobConf(configuration, FileMerger.class);
     conf.setJobName(FileMerger.class.getSimpleName());
     FileSystem fs = FileSystem.get(conf);
 
@@ -234,7 +268,8 @@ public class FileMerger extends Configured implements Tool {
 
     Path inputPath = new Path(inputFiles);
 
-    Path mergePath = new Path(inputPath.getParent().toString() + Path.SEPARATOR + MERGE);
+    Path mergePath = new Path(inputPath.getParent().toString() + Path.SEPARATOR + MERGE
+        + generateRandomString());
     Preconditions.checkArgument(!fs.exists(mergePath), new IOException(
         "Intermediate merge directory already exists..."));
 
@@ -277,6 +312,9 @@ public class FileMerger extends Configured implements Tool {
   }
 
   @Override
+  /**
+   * TODO: add in hadoop configuration
+   */
   public int run(String[] args) throws IOException {
     Options options = new Options();
 
@@ -303,6 +341,9 @@ public class FileMerger extends Configured implements Tool {
 
     String inputPath = "";
     String outputPath = "";
+
+    GenericOptionsParser genericOptionsParser = new GenericOptionsParser(args);
+    Configuration configuration = genericOptionsParser.getConfiguration();
 
     CommandLineParser parser = new GnuParser();
     HelpFormatter formatter = new HelpFormatter();
@@ -351,7 +392,7 @@ public class FileMerger extends Configured implements Tool {
     }
 
     try {
-      merge(inputPath, outputPath, mapperTasks, textFileFormat, deleteSource);
+      merge(configuration, inputPath, outputPath, mapperTasks, textFileFormat, deleteSource);
     } catch (InstantiationException ie) {
       ie.printStackTrace();
     } catch (IllegalAccessException iae) {
@@ -361,9 +402,9 @@ public class FileMerger extends Configured implements Tool {
     return 0;
   }
 
-  public static Path merge(String inputPath, String outputPath, int mapperTasks,
-      boolean textFileFormat, boolean deleteSource) throws IOException, InstantiationException,
-      IllegalAccessException {
+  public static Path merge(Configuration configuration, String inputPath, String outputPath,
+      int mapperTasks, boolean textFileFormat, boolean deleteSource) throws IOException,
+      InstantiationException, IllegalAccessException {
     Class<? extends Writable> keyClass = LongWritable.class;
     Class<? extends Writable> valueClass = Text.class;
 
@@ -384,10 +425,10 @@ public class FileMerger extends Configured implements Tool {
     }
 
     if (textFileFormat) {
-      return mergeTextFiles(inputPath, outputPath, mapperTasks, deleteSource);
+      return mergeTextFiles(configuration, inputPath, outputPath, mapperTasks, deleteSource);
     } else {
-      return mergeSequenceFiles(inputPath, outputPath, mapperTasks, keyClass, valueClass,
-          deleteSource);
+      return mergeSequenceFiles(configuration, inputPath, outputPath, mapperTasks, keyClass,
+          valueClass, deleteSource);
     }
   }
 
