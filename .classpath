@@ -41,5 +41,48 @@
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="lib/bliki-core-3.0.16-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/bliki-core-3.0.16-sources.jar"/>
+	<classpathentry kind="lib" path="lib/collections-generic-4.01-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/collections-generic-4.01-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/dsiutils-1.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09-sources.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-streaming-0.20.2-cdh3u1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-streaming-0.20.2-cdh3u1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-1.3.7.jar"/>
+	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung-api-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.8.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.8.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jwnl-1.3.3.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16-sources.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/maxent-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.8.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating-sources.jar"/>
+	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/sux4j-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/tools-1.5.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/tools-1.5.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/tools-1.5.0.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
