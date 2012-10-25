@@ -11,6 +11,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Tool;
@@ -22,11 +23,11 @@ import org.apache.log4j.Logger;
  * Combine a number of sequence files into a smaller number of sequence files. <p>
  * <p>
  * Input: Any number of sequence files containing key-value pairs, each of a certain type.<p>
- * Output: N sequence files containing all key-value pairs given as input.<p>
+ * Output: N sequence or text files containing all key-value pairs given as input.<p>
  * <p>
  * Given the number of desired sequence files, say N, map over a number of sequence files and partition all key-value pairs into N.<p>
  * <p>
- * Usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]<p>
+ * Usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name] [seqeuence|text]<p>
  *<p> 
  * @author ferhanture
  *
@@ -40,13 +41,13 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 	}
 	
 	private static int printUsage() {
-		System.out.println("usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name]");
+		System.out.println("usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name] [seqeuence|text]");
 //		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
 	
 	public int run(String[] args) throws Exception {
-		if (args.length != 6 && args.length!=7) {
+		if (args.length != 7 && args.length!=8) {
 			printUsage();
 			return -1;
 		}
@@ -63,7 +64,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 			valueClass = Class.forName(valueClassName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Class not found");
+			throw new RuntimeException("Class not found: "+keyClassName + "," + valueClassName);
 		}
 		
 		JobConf job = new JobConf(CombineSequenceFiles.class);
@@ -83,7 +84,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		job.setInt("mapred.map.max.attempts", 100);
 		job.setInt("mapred.reduce.max.attempts", 100);
 		job.setInt("mapred.task.timeout", 600000000);
-		if(args.length==7){
+		if(args.length==8){
 			job.set("mapred.job.tracker", "local");
 			job.set("fs.default.name", "file:///");
 		}
@@ -107,7 +108,13 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		job.setOutputValueClass(valueClass);
 		job.setMapperClass(IdentityMapper.class);
 		job.setReducerClass(IdentityReducer.class);
-		job.setOutputFormat(SequenceFileOutputFormat.class);
+		if (args[6].equals("sequence")) {
+		  job.setOutputFormat(SequenceFileOutputFormat.class);
+		}else if (args[6].equals("text")) {
+      job.setOutputFormat(TextOutputFormat.class);		  
+		}else {
+      throw new RuntimeException("Unknown output format: "+args[6]);
+		}
 
 		JobClient.runJob(job); 		
 

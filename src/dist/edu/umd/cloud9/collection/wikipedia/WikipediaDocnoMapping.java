@@ -144,7 +144,7 @@ public class WikipediaDocnoMapping implements DocnoMapping {
    */
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {
-      System.out.println("usage: (getDocno|getDocid) [mapping-file] [docid/docno]");
+      System.out.println("usage: (getDocno|getDocid|printAll) [mapping-file] [docid/docno]");
       System.exit(-1);
     }
 
@@ -170,6 +170,10 @@ public class WikipediaDocnoMapping implements DocnoMapping {
       } catch (Exception e) {
         System.err.print("Invalid docno!");
       }
+    } else if (args[0].equals("printAll")) {
+        for (int docno = 1; docno < mapping.docids.length; docno++) {
+          System.out.println(mapping.getDocid(docno)+"\t"+docno);
+        }
     } else {
       System.out.println("Invalid command!");
       System.out.println("usage: (getDocno|getDocid) [mapping-file] [docid/docno]");
