@@ -41,8 +41,9 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 
   @Override
   public int getDocno(String docid) {
-    if (docid == null)
+    if (docid == null) {
       return -1;
+    }
 
     String sec = docid.substring(10, 16);
     int secStart = subdirMapping.get(sec);
@@ -60,8 +61,9 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
   public String getDocid(int docno) {
     int i = 0;
     for (i = 0; i < offets.length; i++) {
-      if (docno < offets[i])
+      if (docno < offets[i]) {
         break;
+      }
     }
     i--;
 

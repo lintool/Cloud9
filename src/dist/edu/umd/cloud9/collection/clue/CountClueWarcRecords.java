@@ -2,6 +2,7 @@ package edu.umd.cloud9.collection.clue;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -200,6 +201,8 @@ public class CountClueWarcRecords extends Configured implements Tool {
 	 * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
+    LOG.info("Running " + CountClueWarcRecords.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
 		ToolRunner.run(new CountClueWarcRecords(), args);
 	}
 }

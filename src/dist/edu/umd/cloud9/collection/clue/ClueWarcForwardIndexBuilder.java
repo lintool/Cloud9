@@ -128,7 +128,7 @@ public class ClueWarcForwardIndexBuilder extends Configured implements Tool {
       return -1;
     }
 
-    JobConf conf = new JobConf(ClueWarcForwardIndexBuilder.class);
+    JobConf conf = new JobConf(getConf(), ClueWarcForwardIndexBuilder.class);
     FileSystem fs = FileSystem.get(conf);
 
     String collectionPath = cmdline.getOptionValue(COLLECTION_OPTION);
