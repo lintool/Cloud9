@@ -5,7 +5,6 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-
 public class GammaTest {
   public static double PRECISION_3 = 1e-3f;
   public static double PRECISION_6 = 1e-6f;
@@ -67,14 +66,19 @@ public class GammaTest {
     assertEquals(edu.umd.cloud9.math.Gamma.lgamma(10000), cern.jet.stat.Gamma.logGamma(10000),
         PRECISION_9);
 
-    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(1000), cern.jet.stat.Gamma.logGamma(1000), PRECISION_12);
-    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(100), cern.jet.stat.Gamma.logGamma(100), PRECISION_12);
-    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(10), cern.jet.stat.Gamma.logGamma(10), PRECISION_12);
+    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(1000), cern.jet.stat.Gamma.logGamma(1000),
+        PRECISION_12);
+    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(100), cern.jet.stat.Gamma.logGamma(100),
+        PRECISION_12);
+    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(10), cern.jet.stat.Gamma.logGamma(10),
+        PRECISION_12);
 
     // precision drops down accordingly when computing digamma function for small value
     assertEquals(edu.umd.cloud9.math.Gamma.lgamma(1), cern.jet.stat.Gamma.logGamma(1), PRECISION_9);
-    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(0.1), cern.jet.stat.Gamma.logGamma(0.1), PRECISION_9);
-    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(0.01), cern.jet.stat.Gamma.logGamma(0.01), PRECISION_9);
+    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(0.1), cern.jet.stat.Gamma.logGamma(0.1),
+        PRECISION_9);
+    assertEquals(edu.umd.cloud9.math.Gamma.lgamma(0.01), cern.jet.stat.Gamma.logGamma(0.01),
+        PRECISION_9);
     assertEquals(edu.umd.cloud9.math.Gamma.lgamma(0.001), cern.jet.stat.Gamma.logGamma(0.001),
         PRECISION_6);
   }
