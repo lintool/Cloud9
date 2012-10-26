@@ -52,6 +52,15 @@ import edu.umd.cloud9.collection.DocnoMapping;
 /**
  * Tool for building a document forward index for TREC collections. Run without any arguments
  * for help. The guava jar must be included using {@code -libjar} for this tool to run.
+ * Sample invocation
+ *
+ * <pre>
+ * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder \
+ *  -libjars guava.jar \
+ *  -collection /shared/collections/trec/trec4-5_noCRFR.xml \
+ *  -docnoMapping /shared/collections/trec/docno-mapping.dat \
+ *  -index findex.dat
+ * </pre>
  *
  * @author Jimmy Lin
  */

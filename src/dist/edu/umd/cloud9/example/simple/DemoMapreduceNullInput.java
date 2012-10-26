@@ -33,7 +33,7 @@ public class DemoMapreduceNullInput {
 
 	private static class MyMapper extends NullMapper {
 		@Override
-		public void run(Context context) throws IOException, InterruptedException {
+		public void runSafely(Context context) {
 			LOG.info("Counting to 10:");
 			for (int i = 0; i < 10; i++) {
 				LOG.info(i + 1 + "...");

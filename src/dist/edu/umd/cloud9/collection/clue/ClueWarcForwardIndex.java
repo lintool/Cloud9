@@ -153,6 +153,7 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
       while (reader.next(key))
         ;
       lastDocno = key.get();
+      reader.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
