@@ -75,13 +75,8 @@ public class DocumentForwardIndexHttpServer extends Configured implements Tool {
 
         LOG.info("index class: " + indexClass);
 
-        try {
-          INDEX = (DocumentForwardIndex<Indexable>) Class.forName(indexClass).newInstance();
-          INDEX.loadIndex(new Path(indexFile), new Path(mappingFile), fs);
-        } catch (Exception e) {
-          e.printStackTrace();
-          throw new RuntimeException("Error initializing forward index!");
-        }
+        INDEX = (DocumentForwardIndex<Indexable>) Class.forName(indexClass).newInstance();
+        INDEX.loadIndex(new Path(indexFile), new Path(mappingFile), fs);
 
         Server server = new Server(port);
         org.mortbay.jetty.servlet.Context root = new org.mortbay.jetty.servlet.Context(server, "/",
@@ -102,7 +97,8 @@ public class DocumentForwardIndexHttpServer extends Configured implements Tool {
 
         while (true);
       } catch (Exception e) {
-
+        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     }
   }
@@ -330,7 +326,7 @@ public class DocumentForwardIndexHttpServer extends Configured implements Tool {
       fs.delete(tmpPath, true);
     }
 
-    Job job = new Job(conf, "DocumentForwardIndexHttpServer");
+    Job job = new Job(conf, DocumentForwardIndexHttpServer.class.getSimpleName());
     job.setJarByClass(DocumentForwardIndexHttpServer.class);
 
     job.getConfiguration().set("mapred.child.java.opts", "-Xmx1024m");

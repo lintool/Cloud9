@@ -114,7 +114,7 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
 
   public TrecForwardIndexBuilder() {}
 
-  public static final String COLLECTIION_OPTION = "collection";
+  public static final String COLLECTION_OPTION = "collection";
   public static final String INDEX_OPTION = "index";
   public static final String MAPPING_OPTION = "docnoMapping";
 
@@ -125,7 +125,7 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     Options options = new Options();
     options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("(required) collection path").create(COLLECTIION_OPTION));
+        .withDescription("(required) collection path").create(COLLECTION_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("(required) output index path").create(INDEX_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
@@ -140,7 +140,7 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
       return -1;
     }
 
-    if (!cmdline.hasOption(COLLECTIION_OPTION) || !cmdline.hasOption(INDEX_OPTION) ||
+    if (!cmdline.hasOption(COLLECTION_OPTION) || !cmdline.hasOption(INDEX_OPTION) ||
         !cmdline.hasOption(MAPPING_OPTION)) {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(this.getClass().getName(), options);
@@ -148,7 +148,7 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
       return -1;
     }
 
-    String collectionPath = cmdline.getOptionValue(COLLECTIION_OPTION);
+    String collectionPath = cmdline.getOptionValue(COLLECTION_OPTION);
     String indexFile = cmdline.getOptionValue(INDEX_OPTION);
     String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
     String tmpDir = "tmp-" + TrecForwardIndexBuilder.class.getSimpleName() + "-"

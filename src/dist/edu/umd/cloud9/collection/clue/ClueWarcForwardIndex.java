@@ -16,6 +16,7 @@ import edu.umd.cloud9.collection.DocumentForwardIndex;
 
 public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord> {
   private static final Logger LOG = Logger.getLogger(ClueWarcForwardIndex.class);
+  private static DecimalFormat FORMAT5 = new DecimalFormat("00000");
 
   private Configuration conf;
   private FileSystem fs;
@@ -32,8 +33,10 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 
   @Override
   public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
-    LOG.info("Loading forward index: " + index);
+    this.conf = fs.getConf();
+    this.fs = fs;
 
+    LOG.info("Loading forward index: " + index);
     docnoMapping.loadMapping(mapping, fs);
 
     FSDataInputStream in = fs.open(index);
@@ -70,9 +73,10 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
   public ClueWarcRecord getDocument(int docno) {
     long start = System.currentTimeMillis();
 
-    // trap invalid docnos
-    if (docno < getFirstDocno() || docno > getLastDocno())
+    // Trap invalid docnos.
+    if (docno < getFirstDocno() || docno > getLastDocno()) {
       return null;
+    }
 
     int idx = Arrays.binarySearch(docnos, docno);
 
@@ -135,14 +139,14 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 
   @Override
   public int getLastDocno() {
-    if (lastDocno != -1)
+    if (lastDocno != -1) {
       return lastDocno;
+    }
 
     // Find the last entry, and then see all the way to the end of the collection.
     int idx = docnos.length - 1;
 
-    DecimalFormat df = new DecimalFormat("00000");
-    String file = collectionPath + "/part-" + df.format(fileno[idx]);
+    String file = collectionPath + "/part-" + FORMAT5.format(fileno[idx]);
 
     try {
       SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
@@ -150,8 +154,7 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
 
       reader.seek(offsets[idx]);
 
-      while (reader.next(key))
-        ;
+      while (reader.next(key));
       lastDocno = key.get();
       reader.close();
     } catch (IOException e) {
@@ -159,5 +162,35 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
     }
 
     return lastDocno;
+  }
+
+  /**
+   * Simple program the provides access to the document contents.
+   */
+  public static void main(String[] args) throws IOException {
+    if (args.length < 4) {
+      System.out.println("usage: [findex] [mapping-file] [getDocno|getDocid] [docid/docno]");
+      System.exit(-1);
+    }
+
+    Configuration conf = new Configuration();
+    FileSystem fs = FileSystem.get(conf);
+
+    System.out.println("forward index: " + args[0]);
+    System.out.println("mapping file: " + args[1]);
+
+    ClueWarcForwardIndex findex = new ClueWarcForwardIndex();
+    findex.loadIndex(new Path(args[0]), new Path(args[1]), fs);
+
+    if (args[2].equals("getDocno")) {
+      System.out.println("looking up docno " + args[3]);
+      System.out.println(findex.getDocument(Integer.parseInt(args[3])).getDisplayContent());
+    } else if (args[2].equals("getDocid")) {
+      System.out.println("looking up docid " + args[3]);
+      System.out.println(findex.getDocument(args[3]).getDisplayContent());
+    } else {
+      System.out.println("Invalid command!");
+      System.out.println("usage: [findex] [mapping-file] [getDocno|getDocid] [docid/docno]");
+    }
   }
 }

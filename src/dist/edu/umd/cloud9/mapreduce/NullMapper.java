@@ -39,8 +39,12 @@ public abstract class NullMapper extends
   public void run(Mapper<NullWritable, NullWritable, NullWritable, NullWritable>.Context context) {
     Thread t = new HeartbeatThread(context);
     t.start();
-    runSafely(context);
-    t.interrupt();
+    try {
+      runSafely(context);
+    } catch (Exception e) {
+      t.interrupt();
+      throw new RuntimeException(e);
+    }
   }
 
   public abstract void runSafely(Context context);

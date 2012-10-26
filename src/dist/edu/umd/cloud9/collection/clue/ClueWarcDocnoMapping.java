@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -100,6 +101,43 @@ public class ClueWarcDocnoMapping implements DocnoMapping {
 
   @Override
   public Builder getBuilder() {
-    throw new UnsupportedOperationException();
+    return new ClueWarcDocnoMappingBuilder();
+  }
+
+  /**
+   * Simple program the provides access to the docno/docid mappings.
+   */
+  public static void main(String[] args) throws IOException {
+    if (args.length < 2) {
+      System.out.println("usage: (getDocno|getDocid) [mapping-file] [docid/docno]");
+      System.exit(-1);
+    }
+
+    Configuration conf = new Configuration();
+    FileSystem fs = FileSystem.get(conf);
+
+    System.out.println("loading mapping file " + args[1]);
+    ClueWarcDocnoMapping mapping = new ClueWarcDocnoMapping();
+    mapping.loadMapping(new Path(args[1]), fs);
+
+    if (args[0].equals("getDocno")) {
+      System.out.println("looking up docno for \"" + args[2] + "\"");
+      int idx = mapping.getDocno(args[2]);
+      if (idx > 0) {
+        System.out.println(mapping.getDocno(args[2]));
+      } else {
+        System.err.print("Invalid docid!");
+      }
+    } else if (args[0].equals("getDocid")) {
+      try {
+        System.out.println("looking up docid for " + args[2]);
+        System.out.println(mapping.getDocid(Integer.parseInt(args[2])));
+      } catch (Exception e) {
+        System.err.print("Invalid docno!");
+      }
+    } else {
+      System.out.println("Invalid command!");
+      System.out.println("usage: (list|getDocno|getDocid) [mappings-file] [docid/docno]");
+    }
   }
 }

@@ -52,8 +52,8 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  */
-public class DemoCountTrecDocuments extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(DemoCountTrecDocuments.class);
+public class CountTrecDocuments extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(CountTrecDocuments.class);
   private static enum Count { DOCS };
 
   private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
@@ -92,7 +92,7 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public DemoCountTrecDocuments() {}
+  public CountTrecDocuments() {}
 
   public static final String COLLECTION_OPTION = "collection";
   public static final String OUTPUT_OPTION = "output";
@@ -132,13 +132,13 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
     String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
     String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
 
-    LOG.info("Tool: " + DemoCountTrecDocuments.class.getCanonicalName());
+    LOG.info("Tool: " + CountTrecDocuments.class.getCanonicalName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    Job job = new Job(getConf(), DemoCountTrecDocuments.class.getSimpleName());
-    job.setJarByClass(DemoCountTrecDocuments.class);
+    Job job = new Job(getConf(), CountTrecDocuments.class.getSimpleName());
+    job.setJarByClass(CountTrecDocuments.class);
 
     job.setNumReduceTasks(0);
 
@@ -176,8 +176,8 @@ public class DemoCountTrecDocuments extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    LOG.info("Running " + DemoCountTrecDocuments.class.getCanonicalName() +
+    LOG.info("Running " + CountTrecDocuments.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
-    ToolRunner.run(new Configuration(), new DemoCountTrecDocuments(), args);
+    ToolRunner.run(new Configuration(), new CountTrecDocuments(), args);
   }
 }
