@@ -18,14 +18,12 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
 
@@ -37,7 +35,6 @@ import edu.umd.cloud9.collection.Indexable;
  * @author Jimmy Lin
  */
 public class WikipediaPage extends Indexable {
-
   /**
    * Start delimiter of the page, which is &lt;<code>page</code>&gt;.
    */
@@ -73,10 +70,10 @@ public class WikipediaPage extends Indexable {
    * Deserializes this object.
    */
   public void write(DataOutput out) throws IOException {
-    byte[] bytes = page.getBytes();
+    byte[] bytes = page.getBytes("UTF-8");
     WritableUtils.writeVInt(out, bytes.length);
     out.write(bytes, 0, bytes.length);
-    out.writeUTF(language);
+    out.writeUTF(language == null ? "unk" : language);
   }
 
   /**
@@ -86,7 +83,7 @@ public class WikipediaPage extends Indexable {
     int length = WritableUtils.readVInt(in);
     byte[] bytes = new byte[length];
     in.readFully(bytes, 0, length);
-    WikipediaPage.readPage(this, new String(bytes));
+    WikipediaPage.readPage(this, new String(bytes, "UTF-8"));
     language = in.readUTF();
   }
 
