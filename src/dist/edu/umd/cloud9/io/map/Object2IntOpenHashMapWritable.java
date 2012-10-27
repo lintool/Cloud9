@@ -14,9 +14,8 @@ import java.util.Set;
 
 import org.apache.hadoop.io.Writable;
 
-public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2IntOpenHashMap<K>
-		implements Writable {
-
+public class Object2IntOpenHashMapWritable<K extends Writable>
+    extends Object2IntOpenHashMap<K> implements Writable {
 	private static final long serialVersionUID = 276091731841463L;
 
 	/**
@@ -28,9 +27,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
@@ -45,7 +43,7 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 		K objK;
 
 		try {
-			Class keyClass = Class.forName(keyClassName);
+			Class<K> keyClass = (Class<K>) Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);
@@ -64,9 +62,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 
 	/**
 	 * Serializes the map.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		// Write out the number of entries in the map
@@ -90,9 +87,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -103,15 +99,13 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 		return bytesOut.toByteArray();
 	}
 
-	/**
-	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapSIW</code> object
-	 * @throws IOException
-	 */
+  /**
+   * Creates object from serialized representation.
+   *
+   * @param in source of serialized representation
+   * @return newly-created object
+   * @throws IOException
+   */
 	public static <K extends Writable> Object2IntOpenHashMapWritable<K> create(DataInput in)
 			throws IOException {
 		Object2IntOpenHashMapWritable<K> m = new Object2IntOpenHashMapWritable<K>();
@@ -120,13 +114,13 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 		return m;
 	}
 
-	/**
-	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
-	 * @throws IOException
-	 */
+  /**
+   * Creates object from serialized representation.
+   *
+   * @param in source of serialized representation
+   * @return newly-created object
+   * @throws IOException
+   */
 	public static <K extends Writable> Object2IntOpenHashMapWritable<K> create(byte[] bytes)
 			throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
@@ -134,9 +128,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 
 	/**
 	 * Adds values of keys from another map to this map.
-	 * 
-	 * @param m
-	 *            the other map
+	 *
+	 * @param m the other map
 	 */
 	public void plus(Object2IntOpenHashMapWritable<K> m) {
 		for (Object2IntMap.Entry<K> e : m.object2IntEntrySet()) {
@@ -152,9 +145,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 
 	/**
 	 * Computes the dot product of this map with another map.
-	 * 
-	 * @param m
-	 *            the other map
+	 *
+	 * @param m the other map
 	 */
 	public int dot(Object2IntOpenHashMapWritable<K> m) {
 		int s = 0;
@@ -173,9 +165,8 @@ public class Object2IntOpenHashMapWritable<K extends Writable> extends Object2In
 	/**
 	 * Increments the key. If the key does not exist in the map, its value is
 	 * set to one.
-	 * 
-	 * @param key
-	 *            key to increment
+	 *
+	 * @param key key to increment
 	 */
 	public void increment(K key) {
 		if (this.containsKey(key)) {

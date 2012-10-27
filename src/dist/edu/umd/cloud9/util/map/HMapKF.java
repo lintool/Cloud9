@@ -1004,7 +1004,7 @@ public class HMapKF<K extends Comparable<?>> implements MapKF<K>, Cloneable, Ser
 				if (e1.getKey() == e2.getKey())
 					return 0;
 
-				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
+				return ((Comparable<K>) e1.getKey()).compareTo(e2.getKey());
 			}
 		});
 

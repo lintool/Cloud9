@@ -714,6 +714,7 @@ public class HubsAndAuthoritiesSchimmy extends Configured implements Tool {
 					.getPath(), conf);
 
 			reader.next(key, value);
+			@SuppressWarnings("unchecked")
 			int np = p.getPartition(key, value, numPartitions);
 			reader.close();
 

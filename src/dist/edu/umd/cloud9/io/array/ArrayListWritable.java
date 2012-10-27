@@ -72,7 +72,7 @@ public class ArrayListWritable<E extends Writable> extends ArrayList<E> implemen
 		String className = in.readUTF();
 		E obj;
 		try {
-			Class c = Class.forName(className);
+			Class<E> c = (Class<E>) Class.forName(className);
 			for (int i = 0; i < numFields; i++) {
 				obj = (E) c.newInstance();
 				obj.readFields(in);

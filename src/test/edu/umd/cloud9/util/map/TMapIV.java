@@ -21,6 +21,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import edu.umd.cloud9.util.map.MapIV.Entry;
+
 /**
  * A Red-Black tree based {@link NavigableMap} implementation. The map is sorted according to the
  * {@linkplain Comparable natural ordering} of its keys, or by a {@link Comparator} provided at map
@@ -503,6 +505,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    * 
    * @return a shallow copy of this map
    */
+  @SuppressWarnings("unchecked")
   public Object clone() {
     TMapIV<V> clone = null;
     try {
@@ -738,7 +741,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    */
   public NavigableMapIV<V> descendingMap() {
     NavigableMapIV<V> km = descendingMap;
-    return (km != null) ? km : (descendingMap = new DescendingSubMap(this, true, Integer.MIN_VALUE,
+    return (km != null) ? km : (descendingMap = new DescendingSubMap<V>(this, true, Integer.MIN_VALUE,
         true, true, Integer.MAX_VALUE, true));
   }
 
@@ -753,7 +756,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    * @since 1.6
    */
   public NavigableMapIV<V> subMap(int fromKey, boolean fromInclusive, int toKey, boolean toInclusive) {
-    return new AscendingSubMap(this, false, fromKey, fromInclusive, false, toKey, toInclusive);
+    return new AscendingSubMap<V>(this, false, fromKey, fromInclusive, false, toKey, toInclusive);
   }
 
   /**
@@ -767,7 +770,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    * @since 1.6
    */
   public NavigableMapIV<V> headMap(int toKey, boolean inclusive) {
-    return new AscendingSubMap(this, true, Integer.MIN_VALUE, true, false, toKey, inclusive);
+    return new AscendingSubMap<V>(this, true, Integer.MIN_VALUE, true, false, toKey, inclusive);
   }
 
   /**
@@ -781,7 +784,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    * @since 1.6
    */
   public NavigableMapIV<V> tailMap(int fromKey, boolean inclusive) {
-    return new AscendingSubMap(this, false, fromKey, inclusive, true, Integer.MAX_VALUE, true);
+    return new AscendingSubMap<V>(this, false, fromKey, inclusive, true, Integer.MAX_VALUE, true);
   }
 
   /**
@@ -860,6 +863,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
       return new EntryIterator(getFirstEntry());
     }
 
+    @SuppressWarnings("unchecked")
     public boolean contains(Object o) {
       if (!(o instanceof MapIV.Entry))
         return false;
@@ -869,6 +873,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
       return p != null && valEquals(p.getValue(), value);
     }
 
+    @SuppressWarnings("unchecked")
     public boolean remove(Object o) {
       if (!(o instanceof MapIV.Entry))
         return false;
@@ -906,19 +911,22 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
   }
 
   static final class KeySet extends AbstractSet<Integer> implements NavigableSet<Integer> {
-    private final NavigableMapIV m;
+    private final NavigableMapIV<?> m;
 
-    KeySet(NavigableMapIV map) {
+    KeySet(NavigableMapIV<?> map) {
       m = map;
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator<Integer> iterator() {
-      if (m instanceof TMapIV)
+      if (m instanceof TMapIV) {
         return ((TMapIV<Object>) m).keyIterator();
-      else
-        return (Iterator<Integer>) (((TMapIV.NavigableSubMap) m).keyIterator());
+      } else {
+        return (Iterator<Integer>) (((TMapIV.NavigableSubMap<?>) m).keyIterator());
+      }
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator<Integer> descendingIterator() {
       if (m instanceof TreeMap)
         return ((TMapIV<Object>) m).descendingKeyIterator();
@@ -967,12 +975,12 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
     }
 
     public Integer pollFirst() {
-      MapIV.Entry<Object> e = m.pollFirstEntry();
+      MapIV.Entry<?> e = m.pollFirstEntry();
       return e == null ? null : e.getKey();
     }
 
     public Integer pollLast() {
-      MapIV.Entry<Object> e = m.pollLastEntry();
+      MapIV.Entry<?> e = m.pollLastEntry();
       return e == null ? null : e.getKey();
     }
 
@@ -984,27 +992,27 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
 
     public NavigableSet<Integer> subSet(int fromElement, boolean fromInclusive, int toElement,
         boolean toInclusive) {
-      NavigableMapIV<Object> nmap = m.subMap(fromElement, fromInclusive, toElement, toInclusive);
+      NavigableMapIV<?> nmap = m.subMap(fromElement, fromInclusive, toElement, toInclusive);
       TreeSet<Integer> t = new TreeSet<Integer>();
-      for (MapIV.Entry<Object> entry : nmap.entrySet()) {
+      for (MapIV.Entry<?> entry : nmap.entrySet()) {
         t.add(entry.getKey());
       }
       return t;
     }
 
     public NavigableSet<Integer> headSet(int toElement, boolean inclusive) {
-      NavigableMapIV<Object> nmap = m.headMap(toElement, inclusive);
+      NavigableMapIV<?> nmap = m.headMap(toElement, inclusive);
       TreeSet<Integer> t = new TreeSet<Integer>();
-      for (MapIV.Entry<Object> entry : nmap.entrySet()) {
+      for (MapIV.Entry<?> entry : nmap.entrySet()) {
         t.add(entry.getKey());
       }
       return t;
     }
 
     public NavigableSet<Integer> tailSet(int fromElement, boolean inclusive) {
-      NavigableMapIV<Object> nmap = m.tailMap(fromElement, inclusive);
+      NavigableMapIV<?> nmap = m.tailMap(fromElement, inclusive);
       TreeSet<Integer> t = new TreeSet<Integer>();
-      for (MapIV.Entry<Object> entry : nmap.entrySet()) {
+      for (MapIV.Entry<?> entry : nmap.entrySet()) {
         t.add(entry.getKey());
       }
       return t;
@@ -1023,9 +1031,9 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
     }
 
     public NavigableSet<Integer> descendingSet() {
-      NavigableMapIV<Object> nmap = m.descendingMap();
+      NavigableMapIV<?> nmap = m.descendingMap();
       TreeSet<Integer> t = new TreeSet<Integer>();
-      for (MapIV.Entry<Object> entry : nmap.entrySet()) {
+      for (MapIV.Entry<?> entry : nmap.entrySet()) {
         t.add(entry.getKey());
       }
       return t;
@@ -1597,7 +1605,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
         if (size == -1 || sizeModCount != m.modCount) {
           sizeModCount = m.modCount;
           size = 0;
-          Iterator i = iterator();
+          Iterator<Entry<V>> i = iterator();
           while (i.hasNext()) {
             size++;
             i.next();
@@ -1611,6 +1619,7 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
         return n == null || tooHigh(n.key);
       }
 
+      @SuppressWarnings("unchecked")
       public boolean contains(Object o) {
         if (!(o instanceof MapIV.Entry))
           return false;
@@ -1618,10 +1627,11 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
         int key = entry.getKey();
         if (!inRange(key))
           return false;
-        TMapIV.Entry node = m.getEntry(key);
+        TMapIV.Entry<V> node = m.getEntry(key);
         return node != null && valEquals(node.getValue(), entry.getValue());
       }
 
+      @SuppressWarnings("unchecked")
       public boolean remove(Object o) {
         if (!(o instanceof MapIV.Entry))
           return false;
@@ -1779,24 +1789,24 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
         throw new IllegalArgumentException("fromKey out of range");
       if (!inRange(toKey, toInclusive))
         throw new IllegalArgumentException("toKey out of range");
-      return new AscendingSubMap(m, false, fromKey, fromInclusive, false, toKey, toInclusive);
+      return new AscendingSubMap<V>(m, false, fromKey, fromInclusive, false, toKey, toInclusive);
     }
 
     public NavigableMapIV<V> headMap(int toKey, boolean inclusive) {
       if (!inRange(toKey, inclusive))
         throw new IllegalArgumentException("toKey out of range");
-      return new AscendingSubMap(m, fromStart, lo, loInclusive, false, toKey, inclusive);
+      return new AscendingSubMap<V>(m, fromStart, lo, loInclusive, false, toKey, inclusive);
     }
 
     public NavigableMapIV<V> tailMap(int fromKey, boolean inclusive) {
       if (!inRange(fromKey, inclusive))
         throw new IllegalArgumentException("fromKey out of range");
-      return new AscendingSubMap(m, false, fromKey, inclusive, toEnd, hi, hiInclusive);
+      return new AscendingSubMap<V>(m, false, fromKey, inclusive, toEnd, hi, hiInclusive);
     }
 
     public NavigableMapIV<V> descendingMap() {
       NavigableMapIV<V> mv = descendingMapView;
-      return (mv != null) ? mv : (descendingMapView = new DescendingSubMap(m, fromStart, lo,
+      return (mv != null) ? mv : (descendingMapView = new DescendingSubMap<V>(m, fromStart, lo,
           loInclusive, toEnd, hi, hiInclusive));
     }
 
@@ -1885,24 +1895,24 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
         throw new IllegalArgumentException("fromKey out of range");
       if (!inRange(toKey, toInclusive))
         throw new IllegalArgumentException("toKey out of range");
-      return new DescendingSubMap(m, false, toKey, toInclusive, false, fromKey, fromInclusive);
+      return new DescendingSubMap<V>(m, false, toKey, toInclusive, false, fromKey, fromInclusive);
     }
 
     public NavigableMapIV<V> headMap(int toKey, boolean inclusive) {
       if (!inRange(toKey, inclusive))
         throw new IllegalArgumentException("toKey out of range");
-      return new DescendingSubMap(m, false, toKey, inclusive, toEnd, hi, hiInclusive);
+      return new DescendingSubMap<V>(m, false, toKey, inclusive, toEnd, hi, hiInclusive);
     }
 
     public NavigableMapIV<V> tailMap(int fromKey, boolean inclusive) {
       if (!inRange(fromKey, inclusive))
         throw new IllegalArgumentException("fromKey out of range");
-      return new DescendingSubMap(m, fromStart, lo, loInclusive, false, fromKey, inclusive);
+      return new DescendingSubMap<V>(m, fromStart, lo, loInclusive, false, fromKey, inclusive);
     }
 
     public NavigableMapIV<V> descendingMap() {
       NavigableMapIV<V> mv = descendingMapView;
-      return (mv != null) ? mv : (descendingMapView = new AscendingSubMap(m, fromStart, lo,
+      return (mv != null) ? mv : (descendingMapView = new AscendingSubMap<V>(m, fromStart, lo,
           loInclusive, toEnd, hi, hiInclusive));
     }
 
@@ -2440,7 +2450,8 @@ public class TMapIV<V> implements NavigableMapIV<V>, Cloneable, java.io.Serializ
    *          the level at which nodes should be red. Must be equal to computeRedLevel for tree of
    *          this size.
    */
-  private final Entry<V> buildFromSorted(int level, int lo, int hi, int redLevel, Iterator it,
+  @SuppressWarnings("unchecked")
+  private final Entry<V> buildFromSorted(int level, int lo, int hi, int redLevel, Iterator<?> it,
       java.io.ObjectInputStream str, V defaultVal) throws java.io.IOException,
       ClassNotFoundException {
     /*
