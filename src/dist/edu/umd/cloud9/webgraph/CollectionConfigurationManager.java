@@ -38,10 +38,11 @@ public class CollectionConfigurationManager {
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean setUserSpecifiedInputFormat(String className) {
-    Class userClass;
+    Class<? extends InputFormat> userClass;
     try {
-      userClass = Class.forName(className);
+      userClass = (Class<? extends InputFormat>) Class.forName(className);
     } catch (ClassNotFoundException e) {
       return false;
     }
