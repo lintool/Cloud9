@@ -6,7 +6,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 
-public class NoSplitSequenceFileInputFormat<K extends WritableComparable, V extends Writable>
+public class NoSplitSequenceFileInputFormat<K extends WritableComparable<?>, V extends Writable>
 		extends SequenceFileInputFormat<K, V> {
 
 	protected boolean isSplitable(FileSystem fs, Path filename) {

@@ -66,7 +66,7 @@ public class HMapIVW<V extends WritableComparable<?>> extends HMapIV<V> implemen
 		V objV;
 
 		try {
-			Class valueClass = Class.forName(valueClassName);
+			Class<V> valueClass = (Class<V>) Class.forName(valueClassName);
 			for (int i = 0; i < numEntries; i++) {
 				int k = in.readInt();
 

@@ -14,7 +14,7 @@ public class CollectionConfigurationManager {
   private boolean userSpecifiedInputFormat = false;
   private boolean userSpecifiedDocnoMapping = false;
   private int tgtConf = -1;
-  private Class<? extends InputFormat> userSpecifiedInputFormatClass;
+  private Class<? extends InputFormat<?, ?>> userSpecifiedInputFormatClass;
   private String userSpecifiedDocnoMappingClass;
 
   public static boolean isSupported(String tgtCollection) {
@@ -40,9 +40,9 @@ public class CollectionConfigurationManager {
 
   @SuppressWarnings("unchecked")
   public boolean setUserSpecifiedInputFormat(String className) {
-    Class<? extends InputFormat> userClass;
+    Class<? extends InputFormat<?, ?>> userClass;
     try {
-      userClass = (Class<? extends InputFormat>) Class.forName(className);
+      userClass = (Class<? extends InputFormat<?, ?>>) Class.forName(className);
     } catch (ClassNotFoundException e) {
       return false;
     }
@@ -58,10 +58,11 @@ public class CollectionConfigurationManager {
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   public boolean setUserSpecifiedDocnoMappingClass(String className) {
-    Class userClass;
+    Class<? extends DocnoMapping> userClass;
     try {
-      userClass = Class.forName(className);
+      userClass = (Class<? extends DocnoMapping>) Class.forName(className);
     } catch (ClassNotFoundException e) {
       return false;
     }

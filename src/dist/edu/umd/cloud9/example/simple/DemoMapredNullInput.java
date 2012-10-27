@@ -21,11 +21,11 @@ import java.io.IOException;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.mapred.NullInputFormat;
 import edu.umd.cloud9.mapred.NullMapper;
-import edu.umd.cloud9.mapred.NullOutputFormat;
 
 public class DemoMapredNullInput {
 	private static final Logger LOG = Logger.getLogger(DemoMapredNullInput.class);

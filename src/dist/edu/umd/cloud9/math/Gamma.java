@@ -38,7 +38,7 @@ public class Gamma {
   }
 
   public static void main(String argv[]) {
-    double a, b, c, d, e, ulp;
+    double a, b, c, d, e;
     for (int i = 1; i < 171; ++i) {
       a = Math.log(factorial(i));
       b = lgamma(i + 1);
@@ -48,9 +48,6 @@ public class Gamma {
 
       System.out.printf("%3d | %6s | %6s | %6s | %6s |\n", i, ulps(b, a), ulps(e, a), ulps(c, a),
           i >= 10 ? ulps(d, a) : "-1000+");
-      // System.out.printf("<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
-      // i, ulps(b, a), ulps(e, a), ulps(c, a), i >= 10 ? ulps(d, a):
-      // "-1000+");
     }
 
     boolean doBenchmark = true;
@@ -85,12 +82,6 @@ public class Gamma {
       t2 = System.currentTimeMillis();
       System.out.println("f : " + (t2 - t1));
 
-      /*
-       * t1 = System.currentTimeMillis(); for (int r = 0; r < N; ++r) { for (int i = 1; i < 171;
-       * ++i) { c = lanczosLGamma9(i); } } t2 = System.currentTimeMillis();
-       * System.out.println("Lanczos 8 : " + (t2 - t1));
-       */
-
       t1 = System.currentTimeMillis();
       for (int r = 0; r < N; ++r) {
         for (int i = 1; i < 171; ++i) {
@@ -102,8 +93,11 @@ public class Gamma {
     }
   }
 
-  private static final double zero = 0.0, one = 1.0, two = 2.0, half = .5,
-      SQRT2PI = 2.50662827463100024157, LN_SQRT2PI = 0.9189385332046727418;
+  private static final double zero = 0.0;
+  private static final double one = 1.0;
+  private static final double half = 0.5;
+  private static final double SQRT2PI = 2.50662827463100024157;
+  private static final double LN_SQRT2PI = 0.9189385332046727418;
 
   private static final int HI(double x) {
     return (int) (Double.doubleToLongBits(x) >> 32);
