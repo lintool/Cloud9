@@ -12,7 +12,7 @@
     </dependency>
     <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="0.20.2-cdh3u3" />
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" />
-    <dependency org="com.google.guava" name="guava" rev="r09" />
+    <dependency org="com.google.guava" name="guava" rev="13.0.1" />
     <dependency org="commons-cli" name="commons-cli" rev="1.2" />
     <dependency org="commons-collections" name="commons-collections" rev="3.2.1" />
     <dependency org="commons-lang" name="commons-lang" rev="2.6" />
