@@ -53,7 +53,6 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 

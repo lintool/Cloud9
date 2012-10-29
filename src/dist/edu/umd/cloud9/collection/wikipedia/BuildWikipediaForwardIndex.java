@@ -54,7 +54,6 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
  * 
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class BuildWikipediaForwardIndex extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(BuildWikipediaForwardIndex.class);
 

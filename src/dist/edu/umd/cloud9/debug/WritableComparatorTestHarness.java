@@ -9,8 +9,9 @@ import org.apache.hadoop.io.WritableComparator;
 
 public class WritableComparatorTestHarness {
 
+  @SuppressWarnings("rawtypes")
 	public static int compare(WritableComparator comparator, WritableComparable obj1,
-			WritableComparable obj2) {
+			 WritableComparable obj2) {
 
 		byte[] bytes1 = null, bytes2 = null;
 

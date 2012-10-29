@@ -33,7 +33,6 @@ import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWritable, WikipediaPage> {
 	/**
 	 * Returns a {@code RecordReader} for this {@code InputFormat}.

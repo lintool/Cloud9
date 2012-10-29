@@ -31,8 +31,9 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
   private int[] offsets;
   private short[] fileno;
   private String collectionPath;
+  private int lastDocno = -1;
 
-  private WikipediaDocnoMapping mDocnoMapping = new WikipediaDocnoMapping();
+  private WikipediaDocnoMapping docnoMapping = new WikipediaDocnoMapping();
 
   public WikipediaForwardIndex() {
     conf = new Configuration();
@@ -47,7 +48,7 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
     this.fs = fs;
 
     LOG.info("Loading forward index: " + index);
-    mDocnoMapping.loadMapping(mapping, fs);
+    docnoMapping.loadMapping(mapping, fs);
 
     FSDataInputStream in = fs.open(index);
 
@@ -125,17 +126,17 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
   @Override
   public WikipediaPage getDocument(String docid) {
-    return getDocument(mDocnoMapping.getDocno(docid));
+    return getDocument(docnoMapping.getDocno(docid));
   }
 
   @Override
   public int getDocno(String docid) {
-    return mDocnoMapping.getDocno(docid);
+    return docnoMapping.getDocno(docid);
   }
 
   @Override
   public String getDocid(int docno) {
-    return mDocnoMapping.getDocid(docno);
+    return docnoMapping.getDocid(docno);
   }
 
   @Override
@@ -143,12 +144,10 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
     return docnos[0];
   }
 
-  private int mLastDocno = -1;
-
   @Override
   public int getLastDocno() {
-    if (mLastDocno != -1) {
-      return mLastDocno;
+    if (lastDocno != -1) {
+      return lastDocno;
     }
 
     // find the last entry, and then see all the way to the end of the
@@ -165,13 +164,13 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
       reader.seek(offsets[idx]);
 
-      while (reader.next(key))
-        ;
-      mLastDocno = key.get();
+      while (reader.next(key));
+      lastDocno = key.get();
+      reader.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    return mLastDocno;
+    return lastDocno;
   }
 }

@@ -56,7 +56,6 @@ import edu.umd.cloud9.io.pair.PairOfStringInt;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class BuildWikipediaLinkGraph extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(BuildWikipediaLinkGraph.class);
 

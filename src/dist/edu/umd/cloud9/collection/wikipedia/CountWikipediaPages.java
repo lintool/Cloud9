@@ -51,9 +51,8 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
-public class DemoCountWikipediaPages extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(DemoCountWikipediaPages.class);
+public class CountWikipediaPages extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(CountWikipediaPages.class);
 
   private static enum PageTypes {
     TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
@@ -115,7 +114,7 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - XML dump file: " + inputPath);
 
-    JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
+    JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
     conf.setJobName(String.format("DemoCountWikipediaPages[%s: %s]", INPUT_OPTION, inputPath));
 
     conf.setNumMapTasks(10);
@@ -133,10 +132,10 @@ public class DemoCountWikipediaPages extends Configured implements Tool {
     return 0;
   }
 
-  public DemoCountWikipediaPages() {
+  public CountWikipediaPages() {
   }
 
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new DemoCountWikipediaPages(), args);
+    ToolRunner.run(new CountWikipediaPages(), args);
   }
 }
