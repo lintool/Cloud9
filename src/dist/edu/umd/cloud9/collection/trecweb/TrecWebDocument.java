@@ -59,7 +59,7 @@ public class TrecWebDocument extends WebDocument {
    */
   public void write(DataOutput out) throws IOException {
     out.writeUTF(docid);
-    byte[] bytes = content.getBytes();
+    byte[] bytes = content.getBytes("UTF-8");
     WritableUtils.writeVInt(out, bytes.length);
     out.write(bytes, 0, bytes.length);
   }
@@ -72,7 +72,7 @@ public class TrecWebDocument extends WebDocument {
     int length = WritableUtils.readVInt(in);
     byte[] bytes = new byte[length];
     in.readFully(bytes, 0, length);
-    content = new String(bytes);
+    content = new String(bytes, "UTF-8");
   }
 
   /**
