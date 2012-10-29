@@ -77,7 +77,8 @@ public class VerifyGov2Webgraph {
 
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-r09"));
     jars.add(IntegrationUtils.getJar("lib", "dsiutils"));
     jars.add(IntegrationUtils.getJar("lib", "fastutil"));
     jars.add(IntegrationUtils.getJar("lib", "sux4j"));

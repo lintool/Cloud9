@@ -6,10 +6,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2-cdh3u3">
-        <exclude name="ant"/>
-        <exclude name="hadoop-ant"/>
-    </dependency>
+    <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2-cdh3u3" />
     <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="0.20.2-cdh3u3" />
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" />
     <dependency org="com.google.guava" name="guava" rev="13.0.1" />
