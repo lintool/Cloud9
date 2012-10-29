@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="lib/commons-net-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/concurrent-1.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/core-3.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb-1.8.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/htmlparser-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.5.2.jar"/>
@@ -57,9 +56,6 @@
 	<classpathentry kind="lib" path="lib/dsiutils-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jsr305-1.3.7.jar"/>
 	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jung-api-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1-sources.jar"/>
@@ -84,5 +80,10 @@
 	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2-cdh3u3.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-streaming-0.20.2-cdh3u3-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-streaming-0.20.2-cdh3u3.jar"/>
+	<classpathentry kind="lib" path="lib/guava-13.0.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/guava-13.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/guava-13.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09-jarjar.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-1.3.9.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
