@@ -37,8 +37,8 @@ import edu.umd.cloud9.io.Tuple;
  * @author Jimmy Lin
  * @author Tamer Elsayed
  */
-@SuppressWarnings("unchecked")
-public class ArrayListWritableComparable<E extends WritableComparable<?>> extends ArrayList<E>
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class ArrayListWritableComparable<E extends WritableComparable> extends ArrayList<E>
     implements WritableComparable<ArrayListWritableComparable<E>> {
 
   private static final long serialVersionUID = 1L;
