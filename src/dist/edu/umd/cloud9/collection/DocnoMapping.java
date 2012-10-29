@@ -92,14 +92,14 @@ public interface DocnoMapping {
     int build(Path src, Path dest, Configuration conf) throws IOException;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static class DefaultBuilderOptions {
     public Class<? extends InputFormat> inputFormat;
     public String collection;
     public String docnoMapping;
   }
 
-  @SuppressWarnings( { "static-access", "unchecked" })
+  @SuppressWarnings( { "static-access", "unchecked", "rawtypes" })
   public static class BuilderUtils {
     public static final String COLLECTION_OPTION = "collection";
     public static final String MAPPING_OPTION = "docnoMapping";

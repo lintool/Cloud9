@@ -992,7 +992,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 				if (e1.getKey() == e2.getKey())
 					return 0;
 
-				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
+				return ((Comparable<K>) e1.getKey()).compareTo(e2.getKey());
 			}
 		});
 
@@ -1052,7 +1052,7 @@ public class HMapKI<K extends Comparable<?>> implements MapKI<K>, Cloneable, Ser
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapKI.Entry<K>>() {
 			public int compare(MapKI.Entry<K> e1, MapKI.Entry<K> e2) {
-				return ((Comparable) e1.getKey()).compareTo(e2.getKey());
+				return ((Comparable<K>) e1.getKey()).compareTo(e2.getKey());
 			}
 		});
 

@@ -41,9 +41,8 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
 
 	/**
 	 * Deserializes the map.
-	 * 
-	 * @param in
-	 *            source for raw byte representation
+	 *
+	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
 		this.clear();
@@ -61,9 +60,8 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
 
 	/**
 	 * Serializes the map.
-	 * 
-	 * @param out
-	 *            where to write the raw byte representation
+	 *
+	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
 		// Write out the number of entries in the map
@@ -80,9 +78,8 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
 
 	/**
 	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
+	 *
+	 * @return byte array representing the serialized representation of this object
 	 * @throws IOException
 	 */
 	public byte[] serialize() throws IOException {
@@ -93,15 +90,13 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
 		return bytesOut.toByteArray();
 	}
 
-	/**
-	 * Creates a <code>OHMapSIW</code> object from a <code>DataInput</code>.
-	 * 
-	 * @param in
-	 *            <code>DataInput</code> for reading the serialized
-	 *            representation
-	 * @return a newly-created <code>OHMapSIW</code> object
-	 * @throws IOException
-	 */
+  /**
+   * Creates object from serialized representation.
+   *
+   * @param in source of serialized representation
+   * @return newly-created object
+   * @throws IOException
+   */
 	public static String2FloatOpenHashMapWritable create(DataInput in) throws IOException {
 		String2FloatOpenHashMapWritable m = new String2FloatOpenHashMapWritable();
 		m.readFields(in);
@@ -109,22 +104,21 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
 		return m;
 	}
 
-	/**
-	 * Returns the serialized representation of this object as a byte array.
-	 * 
-	 * @return byte array representing the serialized representation of this
-	 *         object
-	 * @throws IOException
-	 */
+  /**
+   * Creates object from serialized representation.
+   *
+   * @param in source of serialized representation
+   * @return newly-created object
+   * @throws IOException
+   */
 	public static String2FloatOpenHashMapWritable create(byte[] bytes) throws IOException {
 		return create(new DataInputStream(new ByteArrayInputStream(bytes)));
 	}
 
 	/**
 	 * Adds values of keys from another map to this map.
-	 * 
-	 * @param m
-	 *            the other map
+	 *
+	 * @param m the other map
 	 */
 	public void plus(String2FloatOpenHashMapWritable m) {
 		for (Object2FloatMap.Entry<String> e : m.object2FloatEntrySet()) {

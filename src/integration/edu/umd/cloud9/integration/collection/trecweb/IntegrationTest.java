@@ -43,7 +43,8 @@ public class IntegrationTest {
 
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
@@ -78,7 +79,8 @@ public class IntegrationTest {
 
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
@@ -113,7 +115,8 @@ public class IntegrationTest {
 
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
@@ -144,7 +147,8 @@ public class IntegrationTest {
 
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
+    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 

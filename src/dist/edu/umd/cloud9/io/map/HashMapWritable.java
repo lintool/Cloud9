@@ -92,8 +92,8 @@ public class HashMapWritable<K extends Writable, V extends Writable> extends Has
 		K objK;
 		V objV;
 		try {
-			Class keyClass = Class.forName(keyClassName);
-			Class valueClass = Class.forName(valueClassName);
+			Class<K> keyClass = (Class<K>) Class.forName(keyClassName);
+			Class<V> valueClass = (Class<V>) Class.forName(valueClassName);
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);

@@ -450,14 +450,16 @@ public class FibonacciHeap<T extends Comparable> {
         	return this.key;
         }
 
-        private boolean isGreaterThan(Node n) {
+        @SuppressWarnings("unchecked")
+        private boolean isGreaterThan(Node<T> n) {
         	if ( this.key > n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) > 0))
         		return true;
         	
         	return false;
         }
 
-        private boolean isLessThan(Node n) {
+        @SuppressWarnings("unchecked")
+        private boolean isLessThan(Node<T> n) {
         	if ( this.key < n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) < 0))
         		return true;
         	

@@ -732,7 +732,7 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 
 		@Override @SuppressWarnings("unchecked")
 		public boolean contains(Object o) {
-			MapIV.Entry e = (MapIV.Entry<V>) o;
+			MapIV.Entry<V> e = (MapIV.Entry<V>) o;
 			Entry<V> candidate = getEntry(e.getKey());
 			return candidate != null && candidate.equals(e);
 		}
@@ -866,8 +866,8 @@ public class HMapIV<V> implements MapIV<V>, Cloneable, Serializable {
 
 		// sort the entries
 		Arrays.sort(entries, new Comparator<MapIV.Entry<V>>() {
-			public int compare(MapIV.Entry e1, MapIV.Entry e2) {
-				return ((Comparable) e1.getValue()).compareTo(e2.getValue());
+			public int compare(MapIV.Entry<V> e1, MapIV.Entry<V> e2) {
+				return ((Comparable<V>) e1.getValue()).compareTo(e2.getValue());
 			}
 		});
 

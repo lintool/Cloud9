@@ -54,9 +54,9 @@ public class PairOfWritables<L extends Writable, R extends Writable> implements 
 		String valueClassName = in.readUTF();
 
 		try {
-			Class keyClass = Class.forName(keyClassName);
+			Class<L> keyClass = (Class<L>) Class.forName(keyClassName);
 			leftElement = (L) keyClass.newInstance();
-			Class valueClass = Class.forName(valueClassName);
+			Class<R> valueClass = (Class<R>) Class.forName(valueClassName);
 			rightElement = (R) valueClass.newInstance();
 
 			leftElement.readFields(in);

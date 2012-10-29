@@ -66,7 +66,7 @@ public class HMapKIW<K extends WritableComparable<?>> extends HMapKI<K> implemen
 		K objK;
 
 		try {
-			Class keyClass = Class.forName(keyClassName);
+			Class<K> keyClass = (Class<K>) Class.forName(keyClassName);
 			for (int i = 0; i < numEntries; i++) {
 				objK = (K) keyClass.newInstance();
 				objK.readFields(in);

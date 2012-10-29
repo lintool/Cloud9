@@ -46,7 +46,7 @@ public class ClueWarcDocnoMappingBuilder extends Configured implements Tool, Doc
       return -1;
     }
 
-    LOG.info("Tool name: " + ClueWarcDocnoMappingBuilder.class.getCanonicalName());
+    LOG.info("Tool name: " + ClueWarcDocnoMappingBuilder.class.getSimpleName());
     LOG.info(" - input path: " + options.collection);
     LOG.info(" - output file: " + options.docnoMapping);
 

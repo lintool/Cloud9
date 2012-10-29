@@ -138,7 +138,7 @@ public class Int2FloatOpenHashMapWritable extends Int2FloatOpenHashMap implement
   /**
    * Creates object from serialized representation.
    *
-   * @return byte array representing the serialized representation
+   * @param in source of serialized representation
    * @return newly-created object
    * @throws IOException
    */

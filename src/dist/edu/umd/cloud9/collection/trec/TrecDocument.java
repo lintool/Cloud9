@@ -24,7 +24,6 @@ import org.apache.hadoop.io.WritableUtils;
 
 import com.google.common.base.Preconditions;
 
-import edu.umd.cloud9.collection.Indexable;
 import edu.umd.cloud9.collection.WebDocument;
 
 /**
@@ -115,10 +114,8 @@ public class TrecDocument extends WebDocument {
     doc.docid = null;
   }
 
-@Override
-public String getURL()
-{
-    // TODO Auto-generated method stub
+  @Override
+  public String getURL() {
     return null;
-}
+  }
 }

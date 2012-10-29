@@ -402,6 +402,7 @@ public class FileMerger extends Configured implements Tool {
     return 0;
   }
 
+  @SuppressWarnings("unchecked")
   public static Path merge(Configuration configuration, String inputPath, String outputPath,
       int mapperTasks, boolean textFileFormat, boolean deleteSource) throws IOException,
       InstantiationException, IllegalAccessException {
@@ -422,6 +423,7 @@ public class FileMerger extends Configured implements Tool {
       } catch (Exception e) {
         throw new RuntimeException("Error in loading key/value class");
       }
+      reader.close();
     }
 
     if (textFileFormat) {

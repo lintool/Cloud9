@@ -157,7 +157,7 @@ public class ExtractHTMLFieldCollection extends PowerTool {
     super(conf);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public int runTool() throws Exception {
     Configuration conf = getConf();

@@ -1,4 +1,4 @@
-package edu.umd.cloud9.integration.collection.trec;
+package edu.umd.cloud9.integration.collection.clue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -17,17 +17,18 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.trec.CountTrecDocuments;
-import edu.umd.cloud9.collection.trec.TrecDocnoMapping;
-import edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder;
-import edu.umd.cloud9.collection.trec.TrecForwardIndex;
-import edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder;
+import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
+import edu.umd.cloud9.collection.clue.ClueWarcDocnoMappingBuilder;
+import edu.umd.cloud9.collection.clue.ClueWarcForwardIndex;
+import edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder;
+import edu.umd.cloud9.collection.clue.CountClueWarcRecords;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
 public class IntegrationTest {
   private static final Random random = new Random();
 
-  private static final Path collectionPath = new Path("/shared/collections/trec/trec4-5_noCRFR.xml");
+  private static final Path collectionPath =
+      new Path("/shared/collections/ClueWeb09/collection.compressed.block/en.01");
   private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() +
       "-" + random.nextInt(10000);
 
@@ -47,19 +48,19 @@ public class IntegrationTest {
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
-    TrecDocnoMappingBuilder.main(new String[] { libjars,
+    ClueWarcDocnoMappingBuilder.main(new String[] { libjars,
         IntegrationUtils.D_JT, IntegrationUtils.D_NN,
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile });
 
-    TrecDocnoMapping mapping = new TrecDocnoMapping();
+    ClueWarcDocnoMapping mapping = new ClueWarcDocnoMapping();
     mapping.loadMapping(new Path(mappingFile), fs);
 
-    assertEquals("FBIS3-1", mapping.getDocid(1));
-    assertEquals("LA061490-0139", mapping.getDocid(400000));
+    assertEquals("clueweb09-en0000-00-00000", mapping.getDocid(1));
+    assertEquals("clueweb09-en0000-29-13313", mapping.getDocid(1000000));
 
-    assertEquals(1, mapping.getDocno("FBIS3-1"));
-    assertEquals(400000, mapping.getDocno("LA061490-0139"));
+    assertEquals(1, mapping.getDocno("clueweb09-en0000-00-00000"));
+    assertEquals(1000000, mapping.getDocno("clueweb09-en0000-29-13313"));
   }
 
   @Test
@@ -76,14 +77,13 @@ public class IntegrationTest {
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
-    String output = tmpPrefix + "-cnt";
-    CountTrecDocuments.main(new String[] { libjars,
+    CountClueWarcRecords.main(new String[] { libjars,
         IntegrationUtils.D_JT, IntegrationUtils.D_NN,
-        "-collection=" + collectionPath,
-        "-output=" + output,
+        "-repacked",
+        "-path=" + collectionPath,
         "-docnoMapping=" + mappingFile });
   }
-
+  
   @Test
   public void testForwardIndex() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
@@ -99,21 +99,22 @@ public class IntegrationTest {
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
     String index = tmpPrefix + "-findex.dat";
-    TrecForwardIndexBuilder.main(new String[] { libjars,
+    ClueWarcForwardIndexBuilder.main(new String[] { libjars,
         IntegrationUtils.D_JT, IntegrationUtils.D_NN,
         "-collection=" + collectionPath,
-        "-index=" + index,
-        "-docnoMapping=" + mappingFile });
+        "-index=" + index });
 
-    TrecForwardIndex findex = new TrecForwardIndex();
+    ClueWarcForwardIndex findex = new ClueWarcForwardIndex();
     findex.loadIndex(new Path(index), new Path(mappingFile), fs);
 
-    assertTrue(findex.getDocument(1).getContent().contains("Newspapers in the Former Yugoslav Republic"));
-    assertTrue(findex.getDocument("FBIS3-1").getContent().contains("Newspapers in the Former Yugoslav Republic"));
+    assertTrue(findex.getDocument(14069750).getContent()
+        .contains("Vizergy: How Design and SEO work together"));
+    assertTrue(findex.getDocument("clueweb09-en0008-76-19728").getContent()
+        .contains("Jostens - Homeschool Yearbooks"));
     assertEquals(1, findex.getFirstDocno());
-    assertEquals(472525, findex.getLastDocno());
+    assertEquals(50220423, findex.getLastDocno());
   }
-
+  
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(IntegrationTest.class);
   }

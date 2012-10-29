@@ -3,6 +3,7 @@ package edu.umd.cloud9.collection;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.servlet.ServletException;
@@ -10,334 +11,359 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import edu.umd.cloud9.mapred.NullInputFormat;
-import edu.umd.cloud9.mapred.NullMapper;
-import edu.umd.cloud9.mapred.NullOutputFormat;
+import edu.umd.cloud9.mapreduce.NullInputFormat;
+import edu.umd.cloud9.mapreduce.NullMapper;
 
 /**
- * <p>
- * Web server for providing access to documents in a collection. Sample
- * command-line invocation:
- * </p>
- * 
- * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
- *   /shared/ClueWeb09/collection.compressed.block/findex.en.01.dat \
- *   /shared/ClueWeb09/docno-mapping.dat
- * </pre>
- * 
+ * Web server for providing access to documents in a collection.
+ *
  * @author Jimmy Lin
- * 
  */
-public class DocumentForwardIndexHttpServer {
+public class DocumentForwardIndexHttpServer extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(DocumentForwardIndexHttpServer.class);
+  private static DocumentForwardIndex<Indexable> INDEX;
+
+  // Keys for passing data into mapper via conf object.
+  private static final String INDEX_KEY = "index";
+  private static final String DOCNO_MAPPING_KEY = "docnoMapping";
+  private static final String TMP_KEY = "tmp";
 
-	private static final Logger sLogger = Logger.getLogger(DocumentForwardIndexHttpServer.class);
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private static class MyMapper extends NullMapper {
+    @Override
+    public void runSafely(Mapper.Context context) {
+      try {
+        int port = 8888;
 
-	private static DocumentForwardIndex<Indexable> sForwardIndex;
+        Configuration conf = context.getConfiguration();
+        String indexFile = conf.get(INDEX_KEY);
+        String mappingFile = conf.get(DOCNO_MAPPING_KEY);
+        Path tmpPath = new Path(conf.get(TMP_KEY));
 
-	@SuppressWarnings("unchecked")
-	private static class ServerMapper extends NullMapper {
-		public void run(JobConf conf, Reporter reporter) throws IOException {
-			int port = 8888;
+        String host = InetAddress.getLocalHost().toString();
 
-			String indexFile = conf.get("IndexFile");
-			String mappingFile = conf.get("DocnoMappingDataFile");
-			Path tmpPath = new Path(conf.get("TmpPath"));
+        LOG.info("host: " + host);
+        LOG.info("port: " + port);
+        LOG.info("forward index: " + indexFile);
 
-			String host = InetAddress.getLocalHost().toString();
+        FileSystem fs = FileSystem.get(conf);
+        FSDataInputStream in = fs.open(new Path(indexFile));
+        String indexClass = in.readUTF();
+        in.close();
 
-			sLogger.info("host: " + host);
-			sLogger.info("port: " + port);
-			sLogger.info("forward index: " + indexFile);
+        LOG.info("index class: " + indexClass);
 
-			FileSystem fs = FileSystem.get(conf);
-			FSDataInputStream in = fs.open(new Path(indexFile));
-			String indexClass = in.readUTF();
-			in.close();
+        INDEX = (DocumentForwardIndex<Indexable>) Class.forName(indexClass).newInstance();
+        INDEX.loadIndex(new Path(indexFile), new Path(mappingFile), fs);
 
-			sLogger.info("index class: " + indexClass);
+        Server server = new Server(port);
+        org.mortbay.jetty.servlet.Context root = new org.mortbay.jetty.servlet.Context(server, "/",
+            org.mortbay.jetty.servlet.Context.SESSIONS);
+        root.addServlet(new ServletHolder(new FetchDocidServlet()), "/fetch_docid");
+        root.addServlet(new ServletHolder(new FetchDocnoServlet()), "/fetch_docno");
+        root.addServlet(new ServletHolder(new HomeServlet()), "/");
 
-			try {
-				sForwardIndex = (DocumentForwardIndex<Indexable>) Class.forName(indexClass)
-						.newInstance();
-				sForwardIndex.loadIndex(new Path(indexFile), new Path(mappingFile), fs);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("Error initializing forward index!");
-			}
+        FSDataOutputStream out = FileSystem.get(conf).create(tmpPath, true);
+        out.writeUTF(host);
+        out.close();
 
-			Server server = new Server(port);
-			Context root = new Context(server, "/", Context.SESSIONS);
-			root.addServlet(new ServletHolder(new FetchDocidServlet()), "/fetch_docid");
-			root.addServlet(new ServletHolder(new FetchDocnoServlet()), "/fetch_docno");
-			root.addServlet(new ServletHolder(new HomeServlet()), "/");
+        try {
+          server.start();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
 
-			FSDataOutputStream out = FileSystem.get(conf).create(tmpPath, true);
-			out.writeUTF(host);
-			out.close();
+        while (true);
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
+    }
+  }
 
-			try {
-				server.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+  private DocumentForwardIndexHttpServer() {}
 
-			while (true)
-				;
-		}
-	}
+  // This must be public.
+  public static class HomeServlet extends HttpServlet {
 
-	private DocumentForwardIndexHttpServer() {
-	}
+    static final long serialVersionUID = 8253865405L;
+    static final Random r = new Random();
 
-	// this has to be public
-	public static class HomeServlet extends HttpServlet {
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+        IOException {
+      res.setContentType("text/html");
+      PrintWriter out = res.getWriter();
 
-		static final long serialVersionUID = 8253865405L;
-		static final Random r = new Random();
-
-		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
-				IOException {
-			res.setContentType("text/html");
-			PrintWriter out = res.getWriter();
-
-			out.println("<html><head><title>Collection Access: " + sForwardIndex.getCollectionPath() + "</title><head>");
-			out.println("<body>");
-
-			out.println("<h3>Collection Access: " + sForwardIndex.getCollectionPath() + "</h3>");
-
-			int firstDocno = sForwardIndex.getFirstDocno();
-			int lastDocno = sForwardIndex.getLastDocno();
-			int numDocs = lastDocno - firstDocno;
-
-			sLogger.info("first docno: " + firstDocno);
-      sLogger.info("last docno: " + lastDocno);
-
-			String firstDocid = sForwardIndex.getDocid(firstDocno);
-			String lastDocid = sForwardIndex.getDocid(lastDocno);
-
-			out.println("First document: docno <a href=\"/fetch_docno?docno=" + firstDocno + "\">"
-					+ firstDocno + "</a> or <a href=\"/fetch_docid?docid=" + firstDocid + "\">"
-					+ firstDocid + "</a><br/>");
-			out.println("Last document: docno <a href=\"/fetch_docno?docno=" + lastDocno + "\">"
-					+ lastDocno + "</a> or <a href=\"/fetch_docid?docid=" + lastDocid + "\">"
-					+ lastDocid + "</a>");
-
-			out.println("<h3>Fetch a docid</h3>");
-
-			String id;
-
-			out.println("<p>(random examples: ");
-
-			id = sForwardIndex.getDocid(r.nextInt(numDocs) + firstDocno);
-			out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>, ");
-
-			id = sForwardIndex.getDocid(r.nextInt(numDocs) + firstDocno);
-			out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>, ");
-
-			id = sForwardIndex.getDocid(r.nextInt(numDocs) + firstDocno);
-			out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>)</p>");
-
-			out.println("<form method=\"post\" action=\"fetch_docid\">");
-			out.println("<input type=\"text\" name=\"docid\" size=\"60\" />");
-			out.println("<input type=\"submit\" value=\"Fetch!\" />");
-			out.println("</form>");
-			out.println("</p>");
-
-			out.println("<h3>Fetch a docno</h3>");
-
-			int n;
-			out.println("<p>(random examples: ");
-
-			n = r.nextInt(numDocs) + firstDocno;
-			out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>, ");
-
-			n = r.nextInt(numDocs) + firstDocno;
-			out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>, ");
-
-			n = r.nextInt(numDocs) + firstDocno;
-			out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>)</p>");
-
-			out.println("<p>");
-			out.println("<form method=\"post\" action=\"fetch_docno\">");
-			out.println("<input type=\"text\" name=\"docno\" size=\"60\" />");
-			out.println("<input type=\"submit\" value=\"Fetch!\" />");
-			out.println("</form>");
-			out.println("</p>");
-
-			out.print("</body></html>\n");
-
-			out.close();
-		}
-	}
-
-	// this has to be public
-	public static class FetchDocidServlet extends HttpServlet {
-		static final long serialVersionUID = 3986721097L;
-
-		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
-				IOException {
-			doPost(req, res);
-		}
-
-		public void doPost(HttpServletRequest req, HttpServletResponse res)
-				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching document by docid");
-			String docid = null;
-
-			try {
-				if (req.getParameterValues("docid") != null)
-					docid = req.getParameterValues("docid")[0];
-
-				Indexable doc = sForwardIndex.getDocument(docid);
-
-				if (doc != null) {
-					sLogger.info("fetched: " + doc.getDocid());
-					res.setContentType(doc.getDisplayContentType());
-
-					PrintWriter out = res.getWriter();
-					out.print(doc.getDisplayContent());
-					out.close();
-				} else {
-					throw new Exception();
-				}
-			} catch (Exception e) {
-				// catch-all, in case anything goes wrong
-				sLogger.info("trapped error fetching " + docid);
-				res.setContentType("text/html");
-
-				PrintWriter out = res.getWriter();
-				out.print("<html><head><title>Invalid docid!</title><head>\n");
-				out.print("<body>\n");
-				out.print("<h1>Error!</h1>\n");
-				out.print("<h3>Invalid docid: " + docid + "</h3>\n");
-				out.print("</body></html>\n");
-				out.close();
-			}
-		}
-
-	}
-
-	// this has to be public
-	public static class FetchDocnoServlet extends HttpServlet {
-		static final long serialVersionUID = 5970126341L;
-
-		public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
-				IOException {
-			doPost(req, res);
-		}
-
-		public void doPost(HttpServletRequest req, HttpServletResponse res)
-				throws ServletException, IOException {
-			sLogger.info("triggered servlet for fetching document by docno");
-
-			int docno = 0;
-			try {
-				if (req.getParameterValues("docno") != null)
-					docno = Integer.parseInt(req.getParameterValues("docno")[0]);
-
-				Indexable doc = sForwardIndex.getDocument(docno);
-
-				if (doc != null) {
-					sLogger.info("fetched: " + doc.getDocid() + " = docno " + docno);
-					res.setContentType(doc.getDisplayContentType());
-
-					PrintWriter out = res.getWriter();
-					out.print(doc.getDisplayContent());
-					out.close();
-				} else {
-					throw new Exception();
-				}
-			} catch (Exception e) {
-				sLogger.info("trapped error fetching " + docno);
-				res.setContentType("text/html");
-
-				PrintWriter out = res.getWriter();
-				out.print("<html><head><title>Invalid docno!</title><head>\n");
-				out.print("<body>\n");
-				out.print("<h1>Error!</h1>\n");
-				out.print("<h3>Invalid docno: " + docno + "</h3>\n");
-				out.print("</body></html>\n");
-				out.close();
-			}
-		}
-	}
-
-	// TODO: this should probably be made into a "Tool"
-	public static void main(String[] args) throws Exception {
-		Configuration conf = new Configuration();
-		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-
-		if (otherArgs.length != 2) {
-			System.out.println("usage: [index-file] [docno-mapping-data-file]");
-			System.exit(-1);
-		}
-
-		String indexFile = otherArgs[0];
-		String mappingFile = otherArgs[1];
-
-		sLogger.info("Launching DocumentForwardIndexHttpServer");
-		sLogger.info(" - index file: " + indexFile);
-		sLogger.info(" - docno mapping data file: " + mappingFile);
-
-		FileSystem fs = FileSystem.get(conf);
-
-		Random rand = new Random();
-		int r = rand.nextInt();
-		
-		// this tmp file as a rendezvous point
-		Path tmpPath = new Path("/tmp/" + r);
-
-		if (fs.exists(tmpPath)) {
-			fs.delete(tmpPath, true);
-		}
-
-		JobConf job = new JobConf(conf, DocumentForwardIndexHttpServer.class);
-
-		job.setJobName("ForwardIndexServer:" + indexFile);
-
-		job.set("mapred.child.java.opts", "-Xmx1024m");
-
-		job.setNumMapTasks(1);
-		job.setNumReduceTasks(0);
-
-		job.setInputFormat(NullInputFormat.class);
-		job.setOutputFormat(NullOutputFormat.class);
-		job.setMapperClass(ServerMapper.class);
-
-		job.set("IndexFile", indexFile);
-		job.set("DocnoMappingDataFile", mappingFile);
-		job.set("TmpPath", tmpPath.toString());
-
-		JobClient client = new JobClient(job);
-		client.submitJob(job);
-
-		sLogger.info("Waiting for server to start up...");
-
-		while (!fs.exists(tmpPath)) {
-			Thread.sleep(50000);
-			sLogger.info("...");
-		}
-
-		FSDataInputStream in = fs.open(tmpPath);
-		String host = in.readUTF();
-		in.close();
-
-		sLogger.info("host: " + host);
-		sLogger.info("port: 8888");
-	}
+      out.println("<html><head><title>Collection Access: " + INDEX.getCollectionPath()
+          + "</title><head>");
+      out.println("<body>");
+
+      out.println("<h3>Collection Access: " + INDEX.getCollectionPath() + "</h3>");
+
+      int firstDocno = INDEX.getFirstDocno();
+      int lastDocno = INDEX.getLastDocno();
+      int numDocs = lastDocno - firstDocno;
+
+      LOG.info("first docno: " + firstDocno);
+      LOG.info("last docno: " + lastDocno);
+
+      String firstDocid = INDEX.getDocid(firstDocno);
+      String lastDocid = INDEX.getDocid(lastDocno);
+
+      out.println("First document: docno <a href=\"/fetch_docno?docno=" + firstDocno + "\">"
+          + firstDocno + "</a> or <a href=\"/fetch_docid?docid=" + firstDocid + "\">" + firstDocid
+          + "</a><br/>");
+      out.println("Last document: docno <a href=\"/fetch_docno?docno=" + lastDocno + "\">"
+          + lastDocno + "</a> or <a href=\"/fetch_docid?docid=" + lastDocid + "\">" + lastDocid
+          + "</a>");
+
+      out.println("<h3>Fetch a docid</h3>");
+
+      String id;
+
+      out.println("<p>(random examples: ");
+
+      id = INDEX.getDocid(r.nextInt(numDocs) + firstDocno);
+      out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>, ");
+
+      id = INDEX.getDocid(r.nextInt(numDocs) + firstDocno);
+      out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>, ");
+
+      id = INDEX.getDocid(r.nextInt(numDocs) + firstDocno);
+      out.println("<a href=\"/fetch_docid?docid=" + id + "\">" + id + "</a>)</p>");
+
+      out.println("<form method=\"post\" action=\"fetch_docid\">");
+      out.println("<input type=\"text\" name=\"docid\" size=\"60\" />");
+      out.println("<input type=\"submit\" value=\"Fetch!\" />");
+      out.println("</form>");
+      out.println("</p>");
+
+      out.println("<h3>Fetch a docno</h3>");
+
+      int n;
+      out.println("<p>(random examples: ");
+
+      n = r.nextInt(numDocs) + firstDocno;
+      out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>, ");
+
+      n = r.nextInt(numDocs) + firstDocno;
+      out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>, ");
+
+      n = r.nextInt(numDocs) + firstDocno;
+      out.println("<a href=\"/fetch_docno?docno=" + n + "\">" + n + "</a>)</p>");
+
+      out.println("<p>");
+      out.println("<form method=\"post\" action=\"fetch_docno\">");
+      out.println("<input type=\"text\" name=\"docno\" size=\"60\" />");
+      out.println("<input type=\"submit\" value=\"Fetch!\" />");
+      out.println("</form>");
+      out.println("</p>");
+
+      out.print("</body></html>\n");
+
+      out.close();
+    }
+  }
+
+  // this has to be public
+  public static class FetchDocidServlet extends HttpServlet {
+    static final long serialVersionUID = 3986721097L;
+
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+        IOException {
+      doPost(req, res);
+    }
+
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+        IOException {
+      LOG.info("triggered servlet for fetching document by docid");
+      String docid = null;
+
+      try {
+        if (req.getParameterValues("docid") != null)
+          docid = req.getParameterValues("docid")[0];
+
+        Indexable doc = INDEX.getDocument(docid);
+
+        if (doc != null) {
+          LOG.info("fetched: " + doc.getDocid());
+          res.setContentType(doc.getDisplayContentType());
+
+          PrintWriter out = res.getWriter();
+          out.print(doc.getDisplayContent());
+          out.close();
+        } else {
+          throw new Exception();
+        }
+      } catch (Exception e) {
+        // catch-all, in case anything goes wrong
+        LOG.info("trapped error fetching " + docid);
+        res.setContentType("text/html");
+
+        PrintWriter out = res.getWriter();
+        out.print("<html><head><title>Invalid docid!</title><head>\n");
+        out.print("<body>\n");
+        out.print("<h1>Error!</h1>\n");
+        out.print("<h3>Invalid docid: " + docid + "</h3>\n");
+        out.print("</body></html>\n");
+        out.close();
+      }
+    }
+
+  }
+
+  // this has to be public
+  public static class FetchDocnoServlet extends HttpServlet {
+    static final long serialVersionUID = 5970126341L;
+
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+        IOException {
+      doPost(req, res);
+    }
+
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException,
+        IOException {
+      LOG.info("triggered servlet for fetching document by docno");
+
+      int docno = 0;
+      try {
+        if (req.getParameterValues("docno") != null)
+          docno = Integer.parseInt(req.getParameterValues("docno")[0]);
+
+        Indexable doc = INDEX.getDocument(docno);
+
+        if (doc != null) {
+          LOG.info("fetched: " + doc.getDocid() + " = docno " + docno);
+          res.setContentType(doc.getDisplayContentType());
+
+          PrintWriter out = res.getWriter();
+          out.print(doc.getDisplayContent());
+          out.close();
+        } else {
+          throw new Exception();
+        }
+      } catch (Exception e) {
+        LOG.info("trapped error fetching " + docno);
+        res.setContentType("text/html");
+
+        PrintWriter out = res.getWriter();
+        out.print("<html><head><title>Invalid docno!</title><head>\n");
+        out.print("<body>\n");
+        out.print("<h1>Error!</h1>\n");
+        out.print("<h3>Invalid docno: " + docno + "</h3>\n");
+        out.print("</body></html>\n");
+        out.close();
+      }
+    }
+  }
+  
+  public static final String INDEX_OPTION = "index";
+  public static final String MAPPING_OPTION = "docnoMapping";
+
+  @SuppressWarnings("static-access")
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) forward index path").create(INDEX_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) DocnoMapping data path").create(MAPPING_OPTION));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
+
+    if (!cmdline.hasOption(INDEX_OPTION) || !cmdline.hasOption(MAPPING_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String indexFile = cmdline.getOptionValue(INDEX_OPTION);
+    String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
+
+    LOG.info("Launching DocumentForwardIndexHttpServer");
+    LOG.info(" - index file: " + indexFile);
+    LOG.info(" - docno mapping data file: " + mappingFile);
+
+    Configuration conf = getConf();
+    FileSystem fs = FileSystem.get(conf);
+
+    Random rand = new Random();
+    int r = rand.nextInt();
+
+    // This tmp file as a rendezvous point.
+    Path tmpPath = new Path("/tmp/" + r);
+
+    if (fs.exists(tmpPath)) {
+      fs.delete(tmpPath, true);
+    }
+
+    Job job = new Job(conf, DocumentForwardIndexHttpServer.class.getSimpleName());
+    job.setJarByClass(DocumentForwardIndexHttpServer.class);
+
+    job.getConfiguration().set("mapred.child.java.opts", "-Xmx1024m");
+    job.getConfiguration().set(INDEX_KEY, indexFile);
+    job.getConfiguration().set(DOCNO_MAPPING_KEY, mappingFile);
+    job.getConfiguration().set(TMP_KEY, tmpPath.toString());
+
+    job.setNumReduceTasks(0);
+    job.setInputFormatClass(NullInputFormat.class);
+    job.setOutputFormatClass(NullOutputFormat.class);
+    job.setMapperClass(MyMapper.class);
+
+    job.submit();
+
+    LOG.info("Waiting for server to start up...");
+
+    while (!fs.exists(tmpPath)) {
+      Thread.sleep(50000);
+      LOG.info("...");
+    }
+
+    FSDataInputStream in = fs.open(tmpPath);
+    String host = in.readUTF();
+    in.close();
+
+    LOG.info("host: " + host);
+    LOG.info("port: 8888");
+
+    return 0;
+  }
+
+  /**
+   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   */
+  public static void main(String[] args) throws Exception {
+    LOG.info("Running " + DocumentForwardIndexHttpServer.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(new DocumentForwardIndexHttpServer(), args);
+  }
 }
