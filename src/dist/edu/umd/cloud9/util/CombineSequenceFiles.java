@@ -5,6 +5,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
@@ -32,9 +33,8 @@ import org.apache.log4j.Logger;
  * @author ferhanture
  *
  */
-@SuppressWarnings("deprecation")
 public class CombineSequenceFiles  extends Configured implements Tool{
-	private static final Logger sLogger = Logger.getLogger(CombineSequenceFiles.class);
+	private static final Logger LOG = Logger.getLogger(CombineSequenceFiles.class);
 
 	public CombineSequenceFiles(){
 		
@@ -46,7 +46,8 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		return -1;
 	}
 	
-	public int run(String[] args) throws Exception {
+	@SuppressWarnings("unchecked")
+  public int run(String[] args) throws Exception {
 		if (args.length != 7 && args.length!=8) {
 			printUsage();
 			return -1;
@@ -58,10 +59,10 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		String keyClassName = args[4];
 		String valueClassName = args[5];
 
-		Class keyClass, valueClass;
+		Class<? extends Writable> keyClass, valueClass;
 		try {
-			keyClass = Class.forName(keyClassName);
-			valueClass = Class.forName(valueClassName);
+			keyClass = (Class<? extends Writable>) Class.forName(keyClassName);
+			valueClass = (Class<? extends Writable>) Class.forName(valueClassName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Class not found: "+keyClassName + "," + valueClassName);
@@ -75,7 +76,7 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		FileStatus[] stat = FileSystem.get(job).listStatus(new Path(inputPath));
 		for (int i = 0; i < stat.length; ++i) {
 			FileInputFormat.addInputPath(job, stat[i].getPath());
-			sLogger.info("Added: "+stat[i].getPath());
+			LOG.info("Added: "+stat[i].getPath());
 		}
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(job, false);
@@ -88,15 +89,15 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 			job.set("mapred.job.tracker", "local");
 			job.set("fs.default.name", "file:///");
 		}
-		sLogger.setLevel(Level.INFO);
+		LOG.setLevel(Level.INFO);
 		
-		sLogger.info("Running job "+job.getJobName());
-		sLogger.info("Input directory: "+inputPath);
-		sLogger.info("Output directory: "+outputPath);
-		sLogger.info("Number of mappers: "+numMappers);
-		sLogger.info("Number of reducers: "+numReducers);
-		sLogger.info("Key class: "+keyClass.getName());
-		sLogger.info("Value class: "+valueClass.getName());
+		LOG.info("Running job "+job.getJobName());
+		LOG.info("Input directory: "+inputPath);
+		LOG.info("Output directory: "+outputPath);
+		LOG.info("Number of mappers: "+numMappers);
+		LOG.info("Number of reducers: "+numReducers);
+		LOG.info("Key class: "+keyClass.getName());
+		LOG.info("Value class: "+valueClass.getName());
 
 		
 		job.setNumMapTasks(numMappers);

@@ -48,7 +48,6 @@ import org.apache.log4j.Logger;
  *
  * @author Jimmy Lin
  */
-@SuppressWarnings("deprecation")
 public class DumpWikipediaToPlainText extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(DumpWikipediaToPlainText.class);
 
@@ -120,7 +119,7 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 		LOG.info(" - XML dump file: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
 
-		JobConf conf = new JobConf(getConf(), DemoCountWikipediaPages.class);
+		JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
     conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s]",
         INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath));
 
