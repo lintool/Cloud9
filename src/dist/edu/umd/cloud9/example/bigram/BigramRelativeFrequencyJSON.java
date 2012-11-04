@@ -37,201 +37,180 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 
-import edu.umd.cloud9.io.JSONObjectWritable;
+import edu.umd.cloud9.io.JsonWritable;
 
 public class BigramRelativeFrequencyJSON extends Configured implements Tool {
 
-	private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJSON.class);
+  private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJSON.class);
 
-	// Define custom intermediate key; must specify sort order.
-	public static class MyTuple extends JSONObjectWritable implements WritableComparable<MyTuple> {
-		public int compareTo(MyTuple that) {
-			try {
-				String thisLeft = this.getStringUnchecked("Left");
-				String thatLeft = that.getStringUnchecked("Left");
+  // Define custom intermediate key; must specify sort order.
+  public static class MyTuple extends JsonWritable implements WritableComparable<MyTuple> {
+    public int compareTo(MyTuple that) {
+      String thisLeft = this.getJsonObject().get("Left").getAsString();
+      String thatLeft = that.getJsonObject().get("Left").getAsString();
 
-				if (thisLeft.equals(thatLeft)) {
-					String thisRight = this.getStringUnchecked("Right");
-					String thatRight = that.getStringUnchecked("Right");
+      if (thisLeft.equals(thatLeft)) {
+        String thisRight = this.getJsonObject().get("Right").getAsString();
+        String thatRight = that.getJsonObject().get("Right").getAsString();
 
-					return thisRight.compareTo(thatRight);
-				}
-				return thisLeft.compareTo(thatLeft);
-			} catch (JSONException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Unexpected error comparing JSON objects!");
-			}
-		}
-	}
+        return thisRight.compareTo(thatRight);
+      }
+      return thisLeft.compareTo(thatLeft);
+    }
+  }
 
-	// Mapper: emits (token, 1) for every bigram occurrence.
-	protected static class MyMapper extends	Mapper<LongWritable, Text, MyTuple, FloatWritable> {
-		// Reuse objects to save overhead of object creation.
-		private static final FloatWritable one = new FloatWritable(1);
-		private static final MyTuple bigram = new MyTuple();
+  // Mapper: emits (token, 1) for every bigram occurrence.
+  protected static class MyMapper extends Mapper<LongWritable, Text, MyTuple, FloatWritable> {
+    // Reuse objects to save overhead of object creation.
+    private static final FloatWritable one = new FloatWritable(1);
+    private static final MyTuple bigram = new MyTuple();
 
-		@Override
-		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			String line = value.toString();
+    @Override
+    public void map(LongWritable key, Text value, Context context) throws IOException,
+        InterruptedException {
+      String line = value.toString();
 
-			String prev = null;
-			StringTokenizer itr = new StringTokenizer(line);
-			while (itr.hasMoreTokens()) {
-				String cur = itr.nextToken();
+      String prev = null;
+      StringTokenizer itr = new StringTokenizer(line);
+      while (itr.hasMoreTokens()) {
+        String cur = itr.nextToken();
 
-				// Wmit only if we have an actual bigram.
-				if (prev != null) {
+        // Wmit only if we have an actual bigram.
+        if (prev != null) {
 
-					// Simple way to truncate tokens that are too long.
-					if (cur.length() > 100) {
-						cur = cur.substring(0, 100);
-					}
+          // Simple way to truncate tokens that are too long.
+          if (cur.length() > 100) {
+            cur = cur.substring(0, 100);
+          }
 
-					if (prev.length() > 100) {
-						prev = prev.substring(0, 100);
-					}
+          if (prev.length() > 100) {
+            prev = prev.substring(0, 100);
+          }
 
-					try {
-						bigram.put("Left", prev);
-						bigram.put("Right", cur);
-						context.write(bigram, one);
+          bigram.getJsonObject().addProperty("Left", prev);
+          bigram.getJsonObject().addProperty("Right", cur);
+          context.write(bigram, one);
 
-						bigram.put("Left", prev);
-						bigram.put("Right", "*");
-						context.write(bigram, one);
-					} catch (JSONException e) {
-						e.printStackTrace();
-						throw new IOException();
-					}
-				}
-				prev = cur;
-			}
-		}
-	}
+          bigram.getJsonObject().addProperty("Left", prev);
+          bigram.getJsonObject().addProperty("Right", "*");
+          context.write(bigram, one);
+        }
+        prev = cur;
+      }
+    }
+  }
 
-	protected static class MyCombiner extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
-		private final static FloatWritable sumWritable = new FloatWritable();
+  protected static class MyCombiner extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
+    private final static FloatWritable sumWritable = new FloatWritable();
 
-		@Override
-		public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
-			int sum = 0;
-			Iterator<FloatWritable> iter = values.iterator();
-			while (iter.hasNext()) {
-				sum += iter.next().get();
-			}
-			sumWritable.set(sum);
-			context.write(key, sumWritable);
-		}
-	}
+    @Override
+    public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context)
+        throws IOException, InterruptedException {
+      int sum = 0;
+      Iterator<FloatWritable> iter = values.iterator();
+      while (iter.hasNext()) {
+        sum += iter.next().get();
+      }
+      sumWritable.set(sum);
+      context.write(key, sumWritable);
+    }
+  }
 
-	protected static class MyReducer extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
-		private static final FloatWritable value = new FloatWritable();
-		private float marginal = 0.0f;
+  protected static class MyReducer extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
+    private static final FloatWritable value = new FloatWritable();
+    private float marginal = 0.0f;
 
-		@Override
-		public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
-			float sum = 0.0f;
-			Iterator<FloatWritable> iter = values.iterator();
-			while (iter.hasNext()) {
-				sum += iter.next().get();
-			}
+    @Override
+    public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context)
+        throws IOException, InterruptedException {
+      float sum = 0.0f;
+      Iterator<FloatWritable> iter = values.iterator();
+      while (iter.hasNext()) {
+        sum += iter.next().get();
+      }
 
-			try {
-				if (key.getStringUnchecked("Right").equals("*")) {
-					value.set(sum);
-					context.write(key, value);
-					marginal = sum;
-				} else {
-					value.set(sum / marginal);
-					context.write(key, value);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-				throw new RuntimeException();
-			}
-		}
-	}
+      if (key.getJsonObject().get("Right").getAsString().equals("*")) {
+        value.set(sum);
+        context.write(key, value);
+        marginal = sum;
+      } else {
+        value.set(sum / marginal);
+        context.write(key, value);
+      }
+    }
+  }
 
-	protected static class MyPartitioner extends Partitioner<MyTuple, FloatWritable> {
-		@Override
-		public int getPartition(MyTuple key, FloatWritable value, int numReduceTasks) {
-			String left;
+  protected static class MyPartitioner extends Partitioner<MyTuple, FloatWritable> {
+    @Override
+    public int getPartition(MyTuple key, FloatWritable value, int numReduceTasks) {
+      return (key.getJsonObject().get("Left").getAsString().hashCode() & Integer.MAX_VALUE) 
+          % numReduceTasks;
+    }
+  }
 
-			try {
-				left = key.getStringUnchecked("Left");
-			} catch (JSONException e) {
-				e.printStackTrace();
-				throw new RuntimeException();
-			}
+  private BigramRelativeFrequencyJSON() {
+  }
 
-			return (left.hashCode() & Integer.MAX_VALUE) % numReduceTasks;
-		}
-	}
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [num-reducers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-	private BigramRelativeFrequencyJSON() {}
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-reducers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+    String inputPath = args[0];
+    String outputPath = args[1];
+    int reduceTasks = Integer.parseInt(args[2]);
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+    LOG.info("Tool name: BigramRelativeFrequencyJSON");
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - num reducers: " + reduceTasks);
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int reduceTasks = Integer.parseInt(args[2]);
+    Job job = new Job(getConf(), "BigramRelativeFrequencyJSON");
+    job.setJarByClass(BigramRelativeFrequencyJSON.class);
 
-		LOG.info("Tool name: BigramRelativeFrequencyJSON");
-		LOG.info(" - input path: " + inputPath);
-		LOG.info(" - output path: " + outputPath);
-		LOG.info(" - num reducers: " + reduceTasks);
+    job.setNumReduceTasks(reduceTasks);
 
-		Job job = new Job(getConf(), "BigramRelativeFrequencyJSON");
-		job.setJarByClass(BigramRelativeFrequencyJSON.class);
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		job.setNumReduceTasks(reduceTasks);
+    job.setMapOutputKeyClass(MyTuple.class);
+    job.setMapOutputValueClass(FloatWritable.class);
+    job.setOutputKeyClass(MyTuple.class);
+    job.setOutputValueClass(FloatWritable.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		FileInputFormat.setInputPaths(job, new Path(inputPath));
-		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    job.setMapperClass(MyMapper.class);
+    job.setCombinerClass(MyCombiner.class);
+    job.setReducerClass(MyReducer.class);
+    job.setPartitionerClass(MyPartitioner.class);
 
-		job.setMapOutputKeyClass(MyTuple.class);
-		job.setMapOutputValueClass(FloatWritable.class);
-		job.setOutputKeyClass(MyTuple.class);
-		job.setOutputValueClass(FloatWritable.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    // Delete the output directory if it exists already
+    Path outputDir = new Path(outputPath);
+    FileSystem.get(getConf()).delete(outputDir, true);
 
-		job.setMapperClass(MyMapper.class);
-		job.setCombinerClass(MyCombiner.class);
-		job.setReducerClass(MyReducer.class);
-		job.setPartitionerClass(MyPartitioner.class);
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+        + " seconds");
 
-		// Delete the output directory if it exists already
-		Path outputDir = new Path(outputPath);
-		FileSystem.get(getConf()).delete(outputDir, true);
+    return 0;
+  }
 
-		long startTime = System.currentTimeMillis();
-		job.waitForCompletion(true);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BigramRelativeFrequencyJSON(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new BigramRelativeFrequencyJSON(), args);
+  }
 }

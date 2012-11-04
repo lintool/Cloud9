@@ -36,9 +36,9 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.apache.pig.data.Tuple;
 
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
+import edu.umd.cloud9.io.pair.PairOfStringInt;
 
 /**
  * <p>
@@ -71,64 +71,45 @@ import edu.umd.cloud9.io.Tuple;
  * @author Jimmy Lin
  */
 public class DemoWordCountTuple1 extends Configured implements Tool {
-	private static final Logger sLogger = Logger.getLogger(DemoWordCountTuple1.class);
+	private static final Logger LOG = Logger.getLogger(DemoWordCountTuple1.class);
 
-	// create the schema for the tuple that will serve as the key
-	private static final Schema KEY_SCHEMA = new Schema();
-
-	// define the schema statically
-	static {
-		KEY_SCHEMA.addField("Token", String.class, "");
-		KEY_SCHEMA.addField("EvenOrOdd", Integer.class, new Integer(1));
-	}
-
-	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MyMapper extends Mapper<LongWritable, Tuple, Tuple, IntWritable> {
-
-		// define value '1' statically so we can reuse the object, i.e., avoid
-		// unnecessary object creation
+	// Mapper that emits tuple as the key, and value '1' for each occurrence.
+	private static class MyMapper extends Mapper<LongWritable, Tuple, PairOfStringInt, IntWritable> {
 		private final static IntWritable one = new IntWritable(1);
-
-		// once again, reuse tuples if possible
-		private Tuple tupleOut = KEY_SCHEMA.instantiate();
-
+		private final static PairOfStringInt PAIR = new PairOfStringInt();
+		
 		@Override
-		public void map(LongWritable key, Tuple tupleIn, Context context) throws IOException,
-				InterruptedException {
-
-			// the input value is a tuple; get field 0
-			String line = (String) tupleIn.get(0);
+		public void map(LongWritable key, Tuple tuple, Context context)
+		    throws IOException,	InterruptedException {
+			String line = (String) tuple.get(0);
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
 				String token = itr.nextToken();
 
-				// put new values into the tuple
-				tupleOut.set("Token", token);
-				tupleOut.set("EvenOrOdd", line.length() % 2);
+				PAIR.set(token, line.length() % 2);
 
-				// emit key-value pair
-				context.write(tupleOut, one);
+				context.write(PAIR, one);
 			}
 		}
 	}
 
-	// reducer counts up tuple occurrences
-	private static class MyReducer extends Reducer<Tuple, IntWritable, Tuple, IntWritable> {
-		private final static IntWritable SumValue = new IntWritable();
+	// Reducer counts up tuple occurrences.
+  private static class MyReducer extends
+      Reducer<PairOfStringInt, IntWritable, PairOfStringInt, IntWritable> {
+		private final static IntWritable SUM = new IntWritable();
 
 		@Override
-		public void reduce(Tuple tupleKey, Iterable<IntWritable> values, Context context)
+		public void reduce(PairOfStringInt tupleKey, Iterable<IntWritable> values, Context context)
 				throws IOException, InterruptedException {
 			Iterator<IntWritable> iter = values.iterator();
-			// sum values
 			int sum = 0;
 			while (iter.hasNext()) {
 				sum += iter.next().get();
 			}
 
-			// keep original tuple key, emit sum of counts as value
-			SumValue.set(sum);
-			context.write(tupleKey, SumValue);
+			// Keep original tuple key, emit sum of counts as value.
+			SUM.set(sum);
+			context.write(tupleKey, SUM);
 		}
 	}
 
@@ -157,12 +138,12 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 		String outputPath = args[1];
 		int numReduceTasks = Integer.parseInt(args[2]);
 
-		sLogger.info("Tool: DemoWordCountTuple1");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - number of reducers: " + numReduceTasks);
+		LOG.info("Tool: DemoWordCountTuple1");
+		LOG.info(" - input path: " + inputPath);
+		LOG.info(" - output path: " + outputPath);
+		LOG.info(" - number of reducers: " + numReduceTasks);
 
-		Configuration conf = new Configuration();
+		Configuration conf = getConf();
 		Job job = new Job(conf, "DemoWordCountTuple1");
 
 		job.setJarByClass(DemoWordCountTuple1.class);
@@ -173,31 +154,29 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		job.setOutputKeyClass(Tuple.class);
+		job.setOutputKeyClass(PairOfStringInt.class);
 		job.setOutputValueClass(IntWritable.class);
 
 		job.setMapperClass(MyMapper.class);
 		job.setCombinerClass(MyReducer.class);
 		job.setReducerClass(MyReducer.class);
 
-		// Delete the output directory if it exists already
+		// Delete the output directory if it exists already.
 		Path outputDir = new Path(outputPath);
 		FileSystem.get(conf).delete(outputDir, true);
 
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+		LOG.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
 				+ " seconds");
 
 		return 0;
 	}
 
 	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
+	 * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new DemoWordCountTuple1(), args);
-		System.exit(res);
+		ToolRunner.run(new DemoWordCountTuple1(), args);
 	}
 }

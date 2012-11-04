@@ -27,9 +27,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
-
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
+import org.apache.pig.data.BinSedesTuple;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 /**
  * <p>
@@ -48,19 +48,12 @@ import edu.umd.cloud9.io.Tuple;
  * @see DemoPackJSON
  */
 public class DemoPackTuples1 {
-	private static final Logger sLogger = Logger.getLogger(DemoPackTuples1.class);
+	private static final Logger LOG = Logger.getLogger(DemoPackTuples1.class);
 
-	private DemoPackTuples1() {
-	}
-
-	// define the tuple schema for the input record
-	private static final Schema RECORD_SCHEMA = new Schema();
-	static {
-		RECORD_SCHEMA.addField("text", String.class, "");
-	}
-
-	// instantiate a single tuple
-	private static Tuple tuple = RECORD_SCHEMA.instantiate();
+	private static final LongWritable LONG = new LongWritable();
+	private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
+	
+	private DemoPackTuples1() {}
 
 	/**
 	 * Runs the demo.
@@ -74,27 +67,22 @@ public class DemoPackTuples1 {
 		String infile = args[0];
 		String outfile = args[1];
 
-		sLogger.info("input: " + infile);
-		sLogger.info("output: " + outfile);
+		LOG.info("input: " + infile);
+		LOG.info("output: " + outfile);
 
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-				LongWritable.class, Tuple.class);
+				LongWritable.class, BinSedesTuple.class);
 
-		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
-		// the key
-		LongWritable l = new LongWritable();
+		System.out.println(TUPLE_FACTORY.getClass()); 
 		long cnt = 0;
-
 		String line;
 		while ((line = data.readLine()) != null) {
-			// write the record
-			tuple.set(0, line);
-			l.set(cnt);
-			writer.append(l, tuple);
+      LONG.set(cnt);
+			writer.append(LONG, TUPLE_FACTORY.newTuple(line));
 
 			cnt++;
 		}
@@ -102,6 +90,6 @@ public class DemoPackTuples1 {
 		data.close();
 		writer.close();
 
-		sLogger.info("Wrote " + cnt + " records.");
+		LOG.info("Wrote " + cnt + " records.");
 	}
 }

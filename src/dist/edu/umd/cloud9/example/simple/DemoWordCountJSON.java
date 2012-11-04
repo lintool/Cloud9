@@ -37,15 +37,13 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 
-import edu.umd.cloud9.io.JSONObjectWritable;
+import edu.umd.cloud9.io.JsonWritable;
 
 /**
  * <p>
- * Demo that illustrates use of {@link JSONObjectWritable} objects as
- * intermediate keys in a MapReduce job. This Hadoop Tool takes the following
- * command-line arguments:
+ * Demo that illustrates use of {@link JSONObjectWritable} objects as intermediate keys in a
+ * MapReduce job. This Hadoop Tool takes the following command-line arguments:
  * </p>
  * 
  * <ul>
@@ -55,16 +53,14 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * </ul>
  * 
  * <p>
- * Input comes from a flat text collection packed into a SequenceFile with
- * {@link DemoPackJSON}. Output shows the count of words on even- and odd-length
- * lines.
+ * Input comes from a flat text collection packed into a SequenceFile with {@link DemoPackJSON}.
+ * Output shows the count of words on even- and odd-length lines.
  * </p>
  * 
  * <p>
- * Format of the output SequenceFile: The key is a JSON object. The field named
- * "Token" contains a word and the field named "EvenOrOdd" indicates whether the
- * word was found on a even-length or odd-length line. The value is the count of
- * the word on either even- or odd-length lines.
+ * Format of the output SequenceFile: The key is a JSON object. The field named "Token" contains a
+ * word and the field named "EvenOrOdd" indicates whether the word was found on a even-length or
+ * odd-length line. The value is the count of the word on either even- or odd-length lines.
  * </p>
  * 
  * @see DemoWordCountTuple1
@@ -73,174 +69,154 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * @author Jimmy Lin
  */
 public class DemoWordCountJSON extends Configured implements Tool {
-	private static final Logger sLogger = Logger.getLogger(DemoWordCountJSON.class);
+  private static final Logger sLogger = Logger.getLogger(DemoWordCountJSON.class);
 
-	// define custom intermediate key; must specify sort order
-	public static class MyKey extends JSONObjectWritable implements WritableComparable<MyKey> {
-		public int compareTo(MyKey that) {
-			try {
-				String thisToken = this.getStringUnchecked("Token");
-				String thatToken = that.getStringUnchecked("Token");
+  // define custom intermediate key; must specify sort order
+  public static class MyKey extends JsonWritable implements WritableComparable<MyKey> {
+    public int compareTo(MyKey that) {
+      String thisToken = this.getJsonObject().get("Token").getAsString();
+      String thatToken = that.getJsonObject().get("Token").getAsString();
 
-				// if tokens are equal, must check "EvenOrOdd" field
-				if (thisToken.equals(thatToken)) {
-					// otherwise, sort by "EvenOrOdd" field
-					int thisEO = this.getIntUnchecked("EvenOrOdd");
-					int thatEO = that.getIntUnchecked("EvenOrOdd");
+      // if tokens are equal, must check "EvenOrOdd" field
+      if (thisToken.equals(thatToken)) {
+        // otherwise, sort by "EvenOrOdd" field
+        int thisEO = this.getJsonObject().get("EvenOrOdd").getAsInt();
+        int thatEO = that.getJsonObject().get("EvenOrOdd").getAsInt();
 
-					if (thisEO < thatEO)
-						return -1;
+        if (thisEO < thatEO)
+          return -1;
 
-					if (thisEO > thatEO)
-						return 1;
+        if (thisEO > thatEO)
+          return 1;
 
-					// if we get here, it means the tuples are equal
-					return 0;
-				}
+        // if we get here, it means the tuples are equal
+        return 0;
+      }
 
-				// determine sort order based on token
-				return thisToken.compareTo(thatToken);
-			} catch (JSONException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Unexpected error comparing JSON objects!");
-			}
-		}
+      // determine sort order based on token
+      return thisToken.compareTo(thatToken);
+    }
 
-		public int hashCode() {
-			int val = -1;
-			try {
-				val = this.getStringUnchecked("Token").hashCode();
-			} catch (JSONException e) {
-				throw new RuntimeException("Unexpected error with JSON objects!");
-			}
-			return val;
-		}
-	}
+    public int hashCode() {
+      return this.getJsonObject().getAsJsonPrimitive("Token").getAsString().hashCode();
+    }
+  }
 
-	// mapper that emits a json object as the key, and value '1' for each
-	// occurrence
-	protected static class MyMapper extends
-			Mapper<LongWritable, JSONObjectWritable, MyKey, IntWritable> {
+  // mapper that emits a json object as the key, and value '1' for each
+  // occurrence
+  protected static class MyMapper extends Mapper<LongWritable, JsonWritable, MyKey, IntWritable> {
 
-		// define value '1' statically so we can reuse the object, i.e., avoid
-		// unnecessary object creation
-		private final static IntWritable one = new IntWritable(1);
+    // define value '1' statically so we can reuse the object, i.e., avoid
+    // unnecessary object creation
+    private final static IntWritable one = new IntWritable(1);
 
-		// once again, reuse keys if possible
-		private final static MyKey key = new MyKey();
+    // once again, reuse keys if possible
+    private final static MyKey key = new MyKey();
 
-		@Override
-		public void map(LongWritable dummy, JSONObjectWritable jsonIn, Context context)
-				throws IOException, InterruptedException {
+    @Override
+    public void map(LongWritable dummy, JsonWritable jsonIn, Context context)
+        throws IOException, InterruptedException {
 
-			try {
-				// the input value is a JSON object
-				String line = (String) jsonIn.get("text");
-				StringTokenizer itr = new StringTokenizer(line);
-				while (itr.hasMoreTokens()) {
-					String token = itr.nextToken();
+        // the input value is a JSON object
+        String line = (String) jsonIn.getJsonObject().get("text").getAsString();
+        StringTokenizer itr = new StringTokenizer(line);
+        while (itr.hasMoreTokens()) {
+          String token = itr.nextToken();
 
-					// put new values into the tuple
-					key.clear();
-					key.put("Token", token);
-					key.put("EvenOrOdd", line.length() % 2);
+          // put new values into the tuple
+          key.getJsonObject().addProperty("Token", token);
+          key.getJsonObject().addProperty("EvenOrOdd", line.length() % 2);
 
-					// emit key-value pair
-					context.write(key, one);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Unexpected error with JSON objects!");
-			}
-		}
-	}
+          // emit key-value pair
+          context.write(key, one);
+        }
+    }
+  }
 
-	// reducer counts up tuple occurrences
-	protected static class MyReducer extends Reducer<MyKey, IntWritable, MyKey, IntWritable> {
-		private final static IntWritable SumValue = new IntWritable();
+  // reducer counts up tuple occurrences
+  protected static class MyReducer extends Reducer<MyKey, IntWritable, MyKey, IntWritable> {
+    private final static IntWritable SumValue = new IntWritable();
 
-		@Override
-		public void reduce(MyKey keyIn, Iterable<IntWritable> values, Context context)
-				throws IOException, InterruptedException {
-			Iterator<IntWritable> iter = values.iterator();
-			// sum values
-			int sum = 0;
-			while (iter.hasNext()) {
-				sum += iter.next().get();
-			}
+    @Override
+    public void reduce(MyKey keyIn, Iterable<IntWritable> values, Context context)
+        throws IOException, InterruptedException {
+      Iterator<IntWritable> iter = values.iterator();
+      // sum values
+      int sum = 0;
+      while (iter.hasNext()) {
+        sum += iter.next().get();
+      }
 
-			// keep original tuple key, emit sum of counts as value
-			SumValue.set(sum);
-			context.write(keyIn, SumValue);
-		}
-	}
+      // keep original tuple key, emit sum of counts as value
+      SumValue.set(sum);
+      context.write(keyIn, SumValue);
+    }
+  }
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public DemoWordCountJSON() {
-	}
+  /**
+   * Creates an instance of this tool.
+   */
+  public DemoWordCountJSON() {
+  }
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-reducers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [num-reducers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int numReduceTasks = Integer.parseInt(args[2]);
+    String inputPath = args[0];
+    String outputPath = args[1];
+    int numReduceTasks = Integer.parseInt(args[2]);
 
-		sLogger.info("Tool: DemoWordCountJSON");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - number of reducers: " + numReduceTasks);
+    sLogger.info("Tool: DemoWordCountJSON");
+    sLogger.info(" - input path: " + inputPath);
+    sLogger.info(" - output path: " + outputPath);
+    sLogger.info(" - number of reducers: " + numReduceTasks);
 
-		Configuration conf = new Configuration();
-		Job job = new Job(conf, "DemoWordCountJSON");
-		job.setJarByClass(DemoWordCountJSON.class);
-		job.setNumReduceTasks(numReduceTasks);
+    Configuration conf = getConf();
+    Job job = new Job(conf, "DemoWordCountJSON");
+    job.setJarByClass(DemoWordCountJSON.class);
+    job.setNumReduceTasks(numReduceTasks);
 
-		FileInputFormat.setInputPaths(job, new Path(inputPath));
-		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.setOutputKeyClass(MyKey.class);
-		job.setOutputValueClass(IntWritable.class);
+    job.setOutputKeyClass(MyKey.class);
+    job.setOutputValueClass(IntWritable.class);
 
-		job.setMapperClass(MyMapper.class);
-		job.setCombinerClass(MyReducer.class);
-		job.setReducerClass(MyReducer.class);
+    job.setMapperClass(MyMapper.class);
+    job.setCombinerClass(MyReducer.class);
+    job.setReducerClass(MyReducer.class);
 
-		// Delete the output directory if it exists already
-		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
+    // Delete the output directory if it exists already
+    Path outputDir = new Path(outputPath);
+    FileSystem.get(conf).delete(outputDir, true);
 
-		long startTime = System.currentTimeMillis();
-		job.waitForCompletion(true);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-				+ " seconds");
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+        + " seconds");
 
-		return 0;
-	}
+    return 0;
+  }
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new DemoWordCountJSON(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new DemoWordCountJSON(), args);
+  }
 }

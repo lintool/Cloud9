@@ -84,14 +84,15 @@ import edu.umd.cloud9.io.pair.PairOfInts;
  * 
  */
 public class BenchmarkPairOfInts {
+  private static final int SAMPLES = 1000000;
 
-	private BenchmarkPairOfInts() {
-	}
+	private BenchmarkPairOfInts() {}
 
 	/**
 	 * Runs this benchmark.
 	 */
 	public static void main(String[] args) throws Exception {
+    System.out.println("Number of samples: " + SAMPLES);
 		Random r = new Random();
 
 		long startTime;
@@ -100,12 +101,12 @@ public class BenchmarkPairOfInts {
 		startTime = System.currentTimeMillis();
 
 		List<PairOfInts> listPairOfInts1 = new ArrayList<PairOfInts>();
-		for (int i = 0; i < 2000000; i++) {
+		for (int i = 0; i < SAMPLES; i++) {
 			listPairOfInts1.add(new PairOfInts(r.nextInt(1000), r.nextInt(1000)));
 		}
 
 		duration = (System.currentTimeMillis() - startTime) / 1000.0;
-		System.out.println("Generated 2m PairOfInts in " + duration + " seconds");
+		System.out.println("Generated PairOfInts in " + duration + " seconds");
 
 		startTime = System.currentTimeMillis();
 		List<PairOfInts> listPairOfInts2 = new ArrayList<PairOfInts>();
@@ -114,12 +115,12 @@ public class BenchmarkPairOfInts {
 		}
 
 		duration = (System.currentTimeMillis() - startTime) / 1000.0;
-		System.out.println("Cloned 2m PairOfInts in " + duration + " seconds");
+		System.out.println("Cloned PairOfInts in " + duration + " seconds");
 
 		startTime = System.currentTimeMillis();
 		Collections.sort(listPairOfInts2);
 		duration = (System.currentTimeMillis() - startTime) / 1000.0;
 
-		System.out.println("Sorted 2m PairOfInts in " + duration + " seconds");
+		System.out.println("Sorted PairOfInts in " + duration + " seconds");
 	}
 }

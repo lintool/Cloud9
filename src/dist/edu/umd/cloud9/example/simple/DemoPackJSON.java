@@ -27,9 +27,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 
-import edu.umd.cloud9.io.JSONObjectWritable;
+import edu.umd.cloud9.io.JsonWritable;
 
 /**
  * <p>
@@ -44,15 +43,14 @@ import edu.umd.cloud9.io.JSONObjectWritable;
  * @see DemoPackTuples2
  */
 public class DemoPackJSON {
-	private static final Logger sLogger = Logger.getLogger(DemoPackJSON.class);
+	private static final Logger LOG = Logger.getLogger(DemoPackJSON.class);
 
-	private DemoPackJSON() {
-	}
+	private DemoPackJSON() {}
 
 	/**
 	 * Runs the demo.
 	 */
-	public static void main(String[] args) throws IOException, JSONException {
+	public static void main(String[] args) throws IOException {
 		if (args.length != 2) {
 			System.out.println("usage: [input] [output]");
 			System.exit(-1);
@@ -61,27 +59,26 @@ public class DemoPackJSON {
 		String infile = args[0];
 		String outfile = args[1];
 
-		sLogger.info("input: " + infile);
-		sLogger.info("output: " + outfile);
+		LOG.info("input: " + infile);
+		LOG.info("output: " + outfile);
 
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-				LongWritable.class, JSONObjectWritable.class);
+				LongWritable.class, JsonWritable.class);
 
 		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
 		// the key
 		LongWritable l = new LongWritable();
-		JSONObjectWritable json = new JSONObjectWritable();
+		JsonWritable json = new JsonWritable();
 		long cnt = 0;
 
 		String line;
 		while ((line = data.readLine()) != null) {
 			// write the record
-			json.clear();
-			json.put("text", line);
+			json.getJsonObject().addProperty("text", line);
 			l.set(cnt);
 			writer.append(l, json);
 
@@ -91,6 +88,6 @@ public class DemoPackJSON {
 		data.close();
 		writer.close();
 
-		sLogger.info("Wrote " + cnt + " records.");
+		LOG.info("Wrote " + cnt + " records.");
 	}
 }

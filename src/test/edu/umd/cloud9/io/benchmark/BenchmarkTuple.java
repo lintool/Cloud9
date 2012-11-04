@@ -18,70 +18,89 @@ package edu.umd.cloud9.io.benchmark;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
+import org.apache.pig.backend.executionengine.ExecException;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 /**
- * Benchmark for {@link Tuple}. See {@link BenchmarkPairOfInts} for more
- * details.
+ * Benchmark for {@link Tuple}. See {@link BenchmarkPairOfInts} for more details.
  */
 public class BenchmarkTuple {
+  private static final int SAMPLES = 1000000;
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
-	private BenchmarkTuple() {
-	}
+  private BenchmarkTuple() {}
 
-	// create the schema for the tuple that will serve as the key
-	private static final Schema MY_SCHEMA = new Schema();
+  /**
+   * Runs this benchmark.
+   */
+  public static void main(String[] args) throws Exception {
+    System.out.println("Number of samples: " + SAMPLES);
+    Random r = new Random();
 
-	// define the schema statically
-	static {
-		MY_SCHEMA.addField("left", Integer.class, new Integer(1));
-		MY_SCHEMA.addField("right", Integer.class, new Integer(1));
-	}
+    long startTime;
+    double duration;
 
-	/**
-	 * Runs this benchmark.
-	 */
-	public static void main(String[] args) throws Exception {
-		Random r = new Random();
+    startTime = System.currentTimeMillis();
 
-		long startTime;
-		double duration;
+    List<Tuple> listTuples1 = new ArrayList<Tuple>();
+    for (int i = 0; i < SAMPLES; i++) {
+      Tuple tuple = TUPLE_FACTORY.newTuple();
+      tuple.append(r.nextInt(1000));
+      tuple.append(r.nextInt(1000));
+      listTuples1.add(tuple);
+    }
 
-		startTime = System.currentTimeMillis();
+    duration = (System.currentTimeMillis() - startTime) / 1000.0;
+    System.out.println("Generated Tuples in " + duration + " seconds");
 
-		List<Tuple> listTuples1 = new ArrayList<Tuple>();
-		for (int i = 0; i < 2000000; i++) {
-			Tuple tuple = MY_SCHEMA.instantiate();
-			tuple.set(0, r.nextInt(1000));
-			tuple.set(1, r.nextInt(1000));
-			listTuples1.add(tuple);
-		}
+    startTime = System.currentTimeMillis();
 
-		duration = (System.currentTimeMillis() - startTime) / 1000.0;
-		System.out.println("Generated 2m Tuples in " + duration + " seconds");
+    List<Tuple> listTuples2 = new ArrayList<Tuple>();
+    for (Tuple t : listTuples1) {
+      Tuple n = TUPLE_FACTORY.newTuple();
+      n.append(t.get(0));
+      n.append(t.get(1));
+      listTuples2.add(n);
+    }
 
-		startTime = System.currentTimeMillis();
+    duration = (System.currentTimeMillis() - startTime) / 1000.0;
+    System.out.println("Cloned Tuples in " + duration + " seconds");
 
-		List<Tuple> listTuples2 = new ArrayList<Tuple>();
-		for (Tuple t : listTuples1) {
-			Tuple n = MY_SCHEMA.instantiate();
-			n.set(0, t.get(0));
-			n.set(1, t.get(1));
-			listTuples2.add(n);
-		}
+    startTime = System.currentTimeMillis();
+    Collections.sort(listTuples2, new Comparator<Tuple>() {
+      @Override
+      public int compare(Tuple thisOne, Tuple thatOne) {
+        int thisLeft;
+        try {
+          thisLeft = (Integer) thisOne.get(0);
+          int thisRight = (Integer) thisOne.get(1);
 
-		duration = (System.currentTimeMillis() - startTime) / 1000.0;
-		System.out.println("Cloned 2m Tuples in " + duration + " seconds");
+          int thatLeft = (Integer) thatOne.get(0);
+          int thatRight = (Integer) thatOne.get(1);
 
-		startTime = System.currentTimeMillis();
-		Collections.sort(listTuples2);
-		duration = (System.currentTimeMillis() - startTime) / 1000.0;
+          if (thisLeft == thatLeft) {
+            if (thisRight < thatRight) return -1;
+            if (thisRight > thatRight) return 1;
+            return 0;
+          }
 
-		System.out.println("Sorted 2m Tuples in " + duration + " seconds");
+          if (thisLeft < thatLeft) return -1;
+          if (thisLeft > thatLeft) return 1;
 
-	}
+          return 0;
+        } catch (ExecException e) {
+          e.printStackTrace();
+          return 0;
+        }
+      }
+    });
+    duration = (System.currentTimeMillis() - startTime) / 1000.0;
+
+    System.out.println("Sorted Tuples in " + duration + " seconds");
+  }
 }

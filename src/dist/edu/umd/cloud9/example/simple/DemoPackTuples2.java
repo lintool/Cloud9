@@ -27,12 +27,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
-
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
-import edu.umd.cloud9.io.array.ArrayListWritable;
+import org.apache.pig.data.BinSedesTuple;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 /**
  * <p>
@@ -61,20 +59,11 @@ import edu.umd.cloud9.io.array.ArrayListWritable;
  * @see DemoPackJSON
  */
 public class DemoPackTuples2 {
-	private static final Logger sLogger = Logger.getLogger(DemoPackTuples2.class);
+	private static final Logger LOG = Logger.getLogger(DemoPackTuples2.class);
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
 	private DemoPackTuples2() {
 	}
-
-	// define the tuple schema for the input record
-	private static final Schema RECORD_SCHEMA = new Schema();
-	static {
-		RECORD_SCHEMA.addField("length", Integer.class);
-		RECORD_SCHEMA.addField("tokens", ArrayListWritable.class, "");
-	}
-
-	// instantiate a single tuple
-	private static Tuple tuple = RECORD_SCHEMA.instantiate();
 
 	/**
 	 * Runs the demo.
@@ -88,13 +77,13 @@ public class DemoPackTuples2 {
 		String infile = args[0];
 		String outfile = args[1];
 
-		sLogger.info("input: " + infile);
-		sLogger.info("output: " + outfile);
+		LOG.info("input: " + infile);
+		LOG.info("output: " + outfile);
 
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-				LongWritable.class, Tuple.class);
+				LongWritable.class, BinSedesTuple.class);
 
 		// read in raw text records, line separated
 		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
@@ -104,15 +93,14 @@ public class DemoPackTuples2 {
 
 		String line;
 		while ((line = data.readLine()) != null) {
-			ArrayListWritable<Text> tokens = new ArrayListWritable<Text>();
+      Tuple tuple = TUPLE_FACTORY.newTuple();
+      tuple.append(new Integer(line.length()));
+
 			StringTokenizer itr = new StringTokenizer(line);
 			while (itr.hasMoreTokens()) {
-				tokens.add(new Text(itr.nextToken()));
+			  tuple.append(itr.nextToken());
 			}
 
-			// write the record
-			tuple.set("length", line.length());
-			tuple.set("tokens", tokens);
 			l.set(cnt);
 			writer.append(l, tuple);
 
@@ -122,6 +110,6 @@ public class DemoPackTuples2 {
 		data.close();
 		writer.close();
 
-		sLogger.info("Wrote " + cnt + " records.");
+		LOG.info("Wrote " + cnt + " records.");
 	}
 }

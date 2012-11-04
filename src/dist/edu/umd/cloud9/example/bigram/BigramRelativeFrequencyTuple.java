@@ -36,30 +36,23 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
+import org.apache.pig.backend.executionengine.ExecException;
+import org.apache.pig.data.BinSedesTuple;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 public class BigramRelativeFrequencyTuple extends Configured implements Tool {
-
 	private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyTuple.class);
-
-	private static final Schema SCHEMA = new Schema();
-
-	// Define the schema statically.
-	static {
-		SCHEMA.addField("Left", String.class, "");
-		SCHEMA.addField("Right", String.class, "");
-	}
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
 	// Mapper: emits (token, 1) for every bigram occurrence.
 	protected static class MyMapper extends	Mapper<LongWritable, Text, Tuple, FloatWritable> {
 		// Reuse objects to save overhead of object creation.
 		private static final FloatWritable one = new FloatWritable(1);
-		private static final Tuple tuple = SCHEMA.instantiate();
 
 		@Override
-		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+		public void map(LongWritable key, Text value, Context context)
+		    throws IOException, InterruptedException {
 			String line = value.toString();
 
 			String prev = null;
@@ -79,13 +72,15 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
 						prev = prev.substring(0, 100);
 					}
 
-					tuple.set("Left", prev);
-					tuple.set("Right", cur);
-					context.write(tuple, one);
+					Tuple tuple1 = TUPLE_FACTORY.newTuple();
+					tuple1.append(prev);
+					tuple1.append(cur);
+					context.write(tuple1, one);
 
-					tuple.set("Left", prev);
-					tuple.setSymbol("Right", "*");
-					context.write(tuple, one);
+					Tuple tuple2 = TUPLE_FACTORY.newTuple();
+					tuple2.append(prev);
+					tuple2.append("*");
+					context.write(tuple2, one);
 				}
 				prev = cur;
 			}
@@ -112,14 +107,15 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
 		private float marginal = 0.0f;
 
 		@Override
-		public void reduce(Tuple key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Tuple key, Iterable<FloatWritable> values, Context context)
+		    throws IOException, InterruptedException {
 			float sum = 0.0f;
 			Iterator<FloatWritable> iter = values.iterator();
 			while (iter.hasNext()) {
 				sum += iter.next().get();
 			}
 
-			if (key.containsSymbol("Right") && key.getSymbol("Right").equals("*")) {
+			if ( key.get(1).equals("*")) {
 				value.set(sum);
 				context.write(key, value);
 				marginal = sum;
@@ -133,7 +129,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
 	protected static class MyPartitioner extends Partitioner<Tuple, FloatWritable> {
 		@Override
 		public int getPartition(Tuple key, FloatWritable value, int numReduceTasks) {
-			return (key.get("Left").hashCode() & Integer.MAX_VALUE) % numReduceTasks;
+			try {
+        return (((String) key.get(0)).hashCode() & Integer.MAX_VALUE) % numReduceTasks;
+      } catch (ExecException e) {
+        e.printStackTrace();
+        return 0;
+      }
 		}
 	}
 
@@ -171,9 +172,9 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
 		FileInputFormat.setInputPaths(job, new Path(inputPath));
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		job.setMapOutputKeyClass(Tuple.class);
+		job.setMapOutputKeyClass(BinSedesTuple.class);
 		job.setMapOutputValueClass(FloatWritable.class);
-		job.setOutputKeyClass(Tuple.class);
+		job.setOutputKeyClass(BinSedesTuple.class);
 		job.setOutputValueClass(FloatWritable.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
@@ -198,7 +199,6 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BigramRelativeFrequencyTuple(), args);
-		System.exit(res);
+		ToolRunner.run(new BigramRelativeFrequencyTuple(), args);
 	}
 }

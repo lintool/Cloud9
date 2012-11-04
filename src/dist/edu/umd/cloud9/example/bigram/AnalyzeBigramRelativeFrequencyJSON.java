@@ -16,20 +16,19 @@
 
 package edu.umd.cloud9.example.bigram;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
-import org.json.JSONException;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequencyJSON {
-	public static void main(String[] args) throws JSONException {
+	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
 			System.out.println("usage: [input-path]");
 			System.exit(-1);
@@ -37,19 +36,20 @@ public class AnalyzeBigramRelativeFrequencyJSON {
 
 		System.out.println("input path: " + args[0]);
 
-		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> pairs = SequenceFileUtils.readDirectory(new Path(args[0]));
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> pairs = 
+		    SequenceFileUtils.readDirectory(new Path(args[0]));
 
-		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list1 = new ArrayList<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
-		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list2 = new ArrayList<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>>();
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list1 = Lists.newArrayList();
+		List<PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable>> list2 = Lists.newArrayList();
 
 		for (PairOfWritables<BigramRelativeFrequencyJSON.MyTuple, FloatWritable> p : pairs) {
 			BigramRelativeFrequencyJSON.MyTuple bigram = p.getLeftElement();
 
-			if (bigram.getStringUnchecked("Left").equals("light")) {
+			if (bigram.getJsonObject().get("Left").getAsString().equals("light")) {
 				list1.add(p);
 			}
 
-			if (bigram.getStringUnchecked("Left").equals("contain")) {
+			if (bigram.getJsonObject().get("Left").getAsString().equals("contain")) {
 				list2.add(p);
 			}
 		}
