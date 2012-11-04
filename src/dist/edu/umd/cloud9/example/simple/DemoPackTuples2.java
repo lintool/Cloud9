@@ -56,7 +56,7 @@ import org.apache.pig.data.TupleFactory;
  * </ul>
  * 
  * @see DemoPackTuples1
- * @see DemoPackJsonx
+ * @see DemoPackJson
  */
 public class DemoPackTuples2 {
 	private static final Logger LOG = Logger.getLogger(DemoPackTuples2.class);

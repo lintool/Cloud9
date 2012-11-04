@@ -66,7 +66,7 @@ import edu.umd.cloud9.io.pair.PairOfStringInt;
  * </p>
  * 
  * @see DemoWordCountTuple2
- * @see DemoWordCountJsonx
+ * @see DemoWordCountJson
  * 
  * @author Jimmy Lin
  */

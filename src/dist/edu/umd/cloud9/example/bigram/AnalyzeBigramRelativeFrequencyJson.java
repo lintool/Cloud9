@@ -27,7 +27,7 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
-public class AnalyzeBigramRelativeFrequencyJsonx {
+public class AnalyzeBigramRelativeFrequencyJson {
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
 			System.out.println("usage: [input-path]");
@@ -36,14 +36,14 @@ public class AnalyzeBigramRelativeFrequencyJsonx {
 
 		System.out.println("input path: " + args[0]);
 
-		List<PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable>> pairs = 
+		List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> pairs = 
 		    SequenceFileUtils.readDirectory(new Path(args[0]));
 
-		List<PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable>> list1 = Lists.newArrayList();
-		List<PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable>> list2 = Lists.newArrayList();
+		List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list1 = Lists.newArrayList();
+		List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list2 = Lists.newArrayList();
 
-		for (PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> p : pairs) {
-			BigramRelativeFrequencyJsonx.MyTuple bigram = p.getLeftElement();
+		for (PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> p : pairs) {
+			BigramRelativeFrequencyJson.MyTuple bigram = p.getLeftElement();
 
 			if (bigram.getJsonObject().get("Left").getAsString().equals("light")) {
 				list1.add(p);
@@ -55,10 +55,10 @@ public class AnalyzeBigramRelativeFrequencyJsonx {
 		}
 
 		Collections.sort(list1,
-				new Comparator<PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable>>() {
+				new Comparator<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>>() {
 					public int compare(
-							PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> e1,
-							PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> e2) {
+							PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> e1,
+							PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> e2) {
 						if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
 							return e1.getLeftElement().compareTo(e2.getLeftElement());
 						}
@@ -68,8 +68,8 @@ public class AnalyzeBigramRelativeFrequencyJsonx {
 				});
 
 		int i = 0;
-		for (PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> p : list1) {
-			BigramRelativeFrequencyJsonx.MyTuple bigram = p.getLeftElement();
+		for (PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> p : list1) {
+			BigramRelativeFrequencyJson.MyTuple bigram = p.getLeftElement();
 			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 
@@ -79,10 +79,10 @@ public class AnalyzeBigramRelativeFrequencyJsonx {
 		}
 
 		Collections.sort(list2,
-				new Comparator<PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable>>() {
+				new Comparator<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>>() {
 					public int compare(
-							PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> e1,
-							PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> e2) {
+							PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> e1,
+							PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> e2) {
 						if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
 							return e1.getLeftElement().compareTo(e2.getLeftElement());
 						}
@@ -92,8 +92,8 @@ public class AnalyzeBigramRelativeFrequencyJsonx {
 				});
 
 		i = 0;
-		for (PairOfWritables<BigramRelativeFrequencyJsonx.MyTuple, FloatWritable> p : list2) {
-			BigramRelativeFrequencyJsonx.MyTuple bigram = p.getLeftElement();
+		for (PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> p : list2) {
+			BigramRelativeFrequencyJson.MyTuple bigram = p.getLeftElement();
 			System.out.println(bigram + "\t" + p.getRightElement());
 			i++;
 

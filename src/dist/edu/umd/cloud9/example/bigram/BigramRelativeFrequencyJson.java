@@ -40,9 +40,9 @@ import org.apache.log4j.Logger;
 
 import edu.umd.cloud9.io.JsonWritable;
 
-public class BigramRelativeFrequencyJsonx extends Configured implements Tool {
+public class BigramRelativeFrequencyJson extends Configured implements Tool {
 
-  private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJsonx.class);
+  private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJson.class);
 
   // Define custom intermediate key; must specify sort order.
   public static class MyTuple extends JsonWritable implements WritableComparable<MyTuple> {
@@ -149,7 +149,7 @@ public class BigramRelativeFrequencyJsonx extends Configured implements Tool {
     }
   }
 
-  private BigramRelativeFrequencyJsonx() {
+  private BigramRelativeFrequencyJson() {
   }
 
   private static int printUsage() {
@@ -177,7 +177,7 @@ public class BigramRelativeFrequencyJsonx extends Configured implements Tool {
     LOG.info(" - num reducers: " + reduceTasks);
 
     Job job = new Job(getConf(), "BigramRelativeFrequencyJSON");
-    job.setJarByClass(BigramRelativeFrequencyJsonx.class);
+    job.setJarByClass(BigramRelativeFrequencyJson.class);
 
     job.setNumReduceTasks(reduceTasks);
 
@@ -211,6 +211,6 @@ public class BigramRelativeFrequencyJsonx extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new BigramRelativeFrequencyJsonx(), args);
+    ToolRunner.run(new BigramRelativeFrequencyJson(), args);
   }
 }

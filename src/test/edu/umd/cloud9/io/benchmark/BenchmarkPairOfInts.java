@@ -41,7 +41,7 @@ import edu.umd.cloud9.io.pair.PairOfInts;
  * 
  * <p>
  * See below for results comparing this benchmark to {@link BenchmarkTuple} and
- * {@link BenchmarkJsonx} (on the equivalent task). All times measured in
+ * {@link BenchmarkJson} (on the equivalent task). All times measured in
  * seconds.
  * </p>
  * 

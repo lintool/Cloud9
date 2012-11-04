@@ -42,10 +42,10 @@ import edu.umd.cloud9.io.JsonWritable;
  * @see DemoPackTuples1
  * @see DemoPackTuples2
  */
-public class DemoPackJsonx {
-	private static final Logger LOG = Logger.getLogger(DemoPackJsonx.class);
+public class DemoPackJson {
+	private static final Logger LOG = Logger.getLogger(DemoPackJson.class);
 
-	private DemoPackJsonx() {}
+	private DemoPackJson() {}
 
 	/**
 	 * Runs the demo.
