@@ -53,7 +53,7 @@ import edu.umd.cloud9.io.JsonWritable;
  * </ul>
  * 
  * <p>
- * Input comes from a flat text collection packed into a SequenceFile with {@link DemoPackJSON}.
+ * Input comes from a flat text collection packed into a SequenceFile with {@link DemoPackJsonx}.
  * Output shows the count of words on even- and odd-length lines.
  * </p>
  * 
@@ -68,8 +68,8 @@ import edu.umd.cloud9.io.JsonWritable;
  * 
  * @author Jimmy Lin
  */
-public class DemoWordCountJSON extends Configured implements Tool {
-  private static final Logger sLogger = Logger.getLogger(DemoWordCountJSON.class);
+public class DemoWordCountJsonx extends Configured implements Tool {
+  private static final Logger sLogger = Logger.getLogger(DemoWordCountJsonx.class);
 
   // define custom intermediate key; must specify sort order
   public static class MyKey extends JsonWritable implements WritableComparable<MyKey> {
@@ -156,7 +156,7 @@ public class DemoWordCountJSON extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public DemoWordCountJSON() {
+  public DemoWordCountJsonx() {
   }
 
   private static int printUsage() {
@@ -185,7 +185,7 @@ public class DemoWordCountJSON extends Configured implements Tool {
 
     Configuration conf = getConf();
     Job job = new Job(conf, "DemoWordCountJSON");
-    job.setJarByClass(DemoWordCountJSON.class);
+    job.setJarByClass(DemoWordCountJsonx.class);
     job.setNumReduceTasks(numReduceTasks);
 
     FileInputFormat.setInputPaths(job, new Path(inputPath));
@@ -217,6 +217,6 @@ public class DemoWordCountJSON extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new DemoWordCountJSON(), args);
+    ToolRunner.run(new DemoWordCountJsonx(), args);
   }
 }

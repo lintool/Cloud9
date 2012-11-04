@@ -28,10 +28,10 @@ import edu.umd.cloud9.io.JsonWritable;
 /**
  * Benchmark for {@link JSONObjectWritable}. See {@link BenchmarkPairOfInts} for more details.
  */
-public class BenchmarkJSON {
+public class BenchmarkJsonx {
   private static final int SAMPLES = 1000000;
   
-  private BenchmarkJSON() {}
+  private BenchmarkJsonx() {}
 
   /**
    * Runs this benchmark.
