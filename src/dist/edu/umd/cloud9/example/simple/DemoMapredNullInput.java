@@ -28,38 +28,38 @@ import edu.umd.cloud9.mapred.NullInputFormat;
 import edu.umd.cloud9.mapred.NullMapper;
 
 public class DemoMapredNullInput {
-	private static final Logger LOG = Logger.getLogger(DemoMapredNullInput.class);
+  private static final Logger LOG = Logger.getLogger(DemoMapredNullInput.class);
 
-	private DemoMapredNullInput() {}
+  private DemoMapredNullInput() {}
 
-	private static class MyMapper extends NullMapper {
-		public void run(JobConf conf, Reporter reporter) throws IOException {
-			LOG.info("Counting to 10:");
-			for (int i = 0; i < 10; i++) {
-				LOG.info(i + 1 + "...");
-				try {
-					Thread.sleep(10000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+  private static class MyMapper extends NullMapper {
+    public void run(JobConf conf, Reporter reporter) throws IOException {
+      LOG.info("Counting to 10:");
+      for (int i = 0; i < 10; i++) {
+        LOG.info(i + 1 + "...");
+        try {
+          Thread.sleep(10000);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
-	/**
-	 * Runs the demo.
-	 */
-	public static void main(String[] args) throws IOException {
-		JobConf conf = new JobConf(DemoMapredNullInput.class);
-		conf.setJobName("DemoMapredNullInput");
+  /**
+   * Runs the demo.
+   */
+  public static void main(String[] args) throws IOException {
+    JobConf conf = new JobConf(DemoMapredNullInput.class);
+    conf.setJobName("DemoMapredNullInput");
 
-		conf.setNumMapTasks(10);
-		conf.setNumReduceTasks(0);
+    conf.setNumMapTasks(10);
+    conf.setNumReduceTasks(0);
 
-		conf.setInputFormat(NullInputFormat.class);
-		conf.setOutputFormat(NullOutputFormat.class);
-		conf.setMapperClass(MyMapper.class);
+    conf.setInputFormat(NullInputFormat.class);
+    conf.setOutputFormat(NullOutputFormat.class);
+    conf.setMapperClass(MyMapper.class);
 
-		JobClient.runJob(conf);
-	}
+    JobClient.runJob(conf);
+  }
 }

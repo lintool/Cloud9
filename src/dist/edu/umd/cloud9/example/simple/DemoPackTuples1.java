@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,68 +28,58 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
 import org.apache.pig.data.BinSedesTuple;
-import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 
 /**
- * <p>
- * Demo that packs the sample collection into a SequenceFile as {@link Tuple}
- * objects. The records are stored in a local SequenceFile; this file can then
- * be transfered over to HDFS to serve as the input to
- * {@link DemoWordCountTuple1}.
- * </p>
- * 
- * <p>
- * Each record is a tuple; the first field of the tuple is a String with the
- * field name "text", which consists of the raw text of the record.
- * </p>
- * 
- * @see DemoPackTuples2
- * @see DemoPackJson
+ * Demo that packs the sample collection into a {@code SequenceFile} of Pig Tuples. The key in each
+ * record is a {@link LongWritable} indicating the record count (sequential numbering). The value in
+ * each record is a Pig Tuple with a single field containing the text of the line. Designed to work
+ * with {@link DemoWordCountTuple1}.
+ *
+ * @author Jimmy Lin
  */
 public class DemoPackTuples1 {
-	private static final Logger LOG = Logger.getLogger(DemoPackTuples1.class);
+  private static final Logger LOG = Logger.getLogger(DemoPackTuples1.class);
 
-	private static final LongWritable LONG = new LongWritable();
-	private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
-	
-	private DemoPackTuples1() {}
+  private static final LongWritable LONG = new LongWritable();
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
-	/**
-	 * Runs the demo.
-	 */
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.out.println("usage: [input] [output]");
-			System.exit(-1);
-		}
+  private DemoPackTuples1() {}
 
-		String infile = args[0];
-		String outfile = args[1];
+  /**
+   * Runs the demo.
+   */
+  public static void main(String[] args) throws IOException {
+    if (args.length != 2) {
+      System.out.println("usage: [input] [output]");
+      System.exit(-1);
+    }
 
-		LOG.info("input: " + infile);
-		LOG.info("output: " + outfile);
+    String infile = args[0];
+    String outfile = args[1];
 
-		Configuration conf = new Configuration();
-		FileSystem fs = FileSystem.get(conf);
-		SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-				LongWritable.class, BinSedesTuple.class);
+    LOG.info("input: " + infile);
+    LOG.info("output: " + outfile);
 
-		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
+    Configuration conf = new Configuration();
+    FileSystem fs = FileSystem.get(conf);
+    SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
+        LongWritable.class, BinSedesTuple.class);
 
-		System.out.println(TUPLE_FACTORY.getClass()); 
-		long cnt = 0;
-		String line;
-		while ((line = data.readLine()) != null) {
+    BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
+
+    long cnt = 0;
+    String line;
+    while ((line = data.readLine()) != null) {
       LONG.set(cnt);
-			writer.append(LONG, TUPLE_FACTORY.newTuple(line));
+      writer.append(LONG, TUPLE_FACTORY.newTuple(line));
 
-			cnt++;
-		}
+      cnt++;
+    }
 
-		data.close();
-		writer.close();
+    data.close();
+    writer.close();
 
-		LOG.info("Wrote " + cnt + " records.");
-	}
+    LOG.info("Wrote " + cnt + " records.");
+  }
 }

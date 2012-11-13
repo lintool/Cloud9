@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,45 +41,23 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.JsonWritable;
 
 /**
- * <p>
- * Demo that illustrates use of {@link JSONObjectWritable} objects as intermediate keys in a
- * MapReduce job. This Hadoop Tool takes the following command-line arguments:
- * </p>
- * 
- * <ul>
- * <li>[input-path] input path</li>
- * <li>[output-path] output path</li>
- * <li>[num-reducers] number of reducers</li>
- * </ul>
- * 
- * <p>
- * Input comes from a flat text collection packed into a SequenceFile with {@link DemoPackJson}.
- * Output shows the count of words on even- and odd-length lines.
- * </p>
- * 
- * <p>
- * Format of the output SequenceFile: The key is a JSON object. The field named "Token" contains a
- * word and the field named "EvenOrOdd" indicates whether the word was found on a even-length or
- * odd-length line. The value is the count of the word on either even- or odd-length lines.
- * </p>
- * 
- * @see DemoWordCountTuple1
- * @see DemoWordCountTuple2
- * 
+ * Modified word count demo designed to work with {@link DemoPackJson}. Counts words on even-length
+ * or odd-length lines to demonstrate use of specialized intermediate data structures.
+ *
  * @author Jimmy Lin
  */
 public class DemoWordCountJson extends Configured implements Tool {
-  private static final Logger sLogger = Logger.getLogger(DemoWordCountJson.class);
+  private static final Logger LOG = Logger.getLogger(DemoWordCountJson.class);
 
-  // define custom intermediate key; must specify sort order
+  // Define custom intermediate key; must specify sort order.
   public static class MyKey extends JsonWritable implements WritableComparable<MyKey> {
     public int compareTo(MyKey that) {
       String thisToken = this.getJsonObject().get("Token").getAsString();
       String thatToken = that.getJsonObject().get("Token").getAsString();
 
-      // if tokens are equal, must check "EvenOrOdd" field
+      // If tokens are equal, must check "EvenOrOdd" field.
       if (thisToken.equals(thatToken)) {
-        // otherwise, sort by "EvenOrOdd" field
+        // Otherwise, sort by "EvenOrOdd" field.
         int thisEO = this.getJsonObject().get("EvenOrOdd").getAsInt();
         int thatEO = that.getJsonObject().get("EvenOrOdd").getAsInt();
 
@@ -89,11 +67,11 @@ public class DemoWordCountJson extends Configured implements Tool {
         if (thisEO > thatEO)
           return 1;
 
-        // if we get here, it means the tuples are equal
+        // If we get here, it means the tuples are equal.
         return 0;
       }
 
-      // determine sort order based on token
+      // Determine sort order based on token.
       return thisToken.compareTo(thatToken);
     }
 
@@ -102,62 +80,52 @@ public class DemoWordCountJson extends Configured implements Tool {
     }
   }
 
-  // mapper that emits a json object as the key, and value '1' for each
-  // occurrence
+  // Mapper: emits a JSON object as the key, and value '1' for each occurrence.
   protected static class MyMapper extends Mapper<LongWritable, JsonWritable, MyKey, IntWritable> {
-
-    // define value '1' statically so we can reuse the object, i.e., avoid
-    // unnecessary object creation
-    private final static IntWritable one = new IntWritable(1);
-
-    // once again, reuse keys if possible
-    private final static MyKey key = new MyKey();
+    private final static IntWritable ONE = new IntWritable(1);
+    private final static MyKey KEY = new MyKey();
 
     @Override
     public void map(LongWritable dummy, JsonWritable jsonIn, Context context)
         throws IOException, InterruptedException {
+      String line = (String) jsonIn.getJsonObject().get("text").getAsString();
+      StringTokenizer itr = new StringTokenizer(line);
+      while (itr.hasMoreTokens()) {
+        String token = itr.nextToken();
 
-        // the input value is a JSON object
-        String line = (String) jsonIn.getJsonObject().get("text").getAsString();
-        StringTokenizer itr = new StringTokenizer(line);
-        while (itr.hasMoreTokens()) {
-          String token = itr.nextToken();
+        // Put new values into the tuple.
+        KEY.getJsonObject().addProperty("Token", token);
+        KEY.getJsonObject().addProperty("EvenOrOdd", line.length() % 2);
 
-          // put new values into the tuple
-          key.getJsonObject().addProperty("Token", token);
-          key.getJsonObject().addProperty("EvenOrOdd", line.length() % 2);
-
-          // emit key-value pair
-          context.write(key, one);
-        }
+        // Emit key-value pair.
+        context.write(KEY, ONE);
+      }
     }
   }
 
-  // reducer counts up tuple occurrences
+  // Reducer counts up tuple occurrences.
   protected static class MyReducer extends Reducer<MyKey, IntWritable, MyKey, IntWritable> {
-    private final static IntWritable SumValue = new IntWritable();
+    private final static IntWritable SUM = new IntWritable();
 
     @Override
     public void reduce(MyKey keyIn, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
       Iterator<IntWritable> iter = values.iterator();
-      // sum values
       int sum = 0;
       while (iter.hasNext()) {
         sum += iter.next().get();
       }
 
-      // keep original tuple key, emit sum of counts as value
-      SumValue.set(sum);
-      context.write(keyIn, SumValue);
+      // Keep original tuple key, emit sum of counts as value.
+      SUM.set(sum);
+      context.write(keyIn, SUM);
     }
   }
 
   /**
    * Creates an instance of this tool.
    */
-  public DemoWordCountJson() {
-  }
+  public DemoWordCountJson() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [num-reducers]");
@@ -178,13 +146,13 @@ public class DemoWordCountJson extends Configured implements Tool {
     String outputPath = args[1];
     int numReduceTasks = Integer.parseInt(args[2]);
 
-    sLogger.info("Tool: DemoWordCountJSON");
-    sLogger.info(" - input path: " + inputPath);
-    sLogger.info(" - output path: " + outputPath);
-    sLogger.info(" - number of reducers: " + numReduceTasks);
+    LOG.info("Tool: " + DemoWordCountJson.class.getSimpleName());
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - number of reducers: " + numReduceTasks);
 
     Configuration conf = getConf();
-    Job job = new Job(conf, "DemoWordCountJSON");
+    Job job = new Job(conf, DemoWordCountJson.class.getSimpleName());
     job.setJarByClass(DemoWordCountJson.class);
     job.setNumReduceTasks(numReduceTasks);
 
@@ -201,14 +169,13 @@ public class DemoWordCountJson extends Configured implements Tool {
     job.setCombinerClass(MyReducer.class);
     job.setReducerClass(MyReducer.class);
 
-    // Delete the output directory if it exists already
+    // Delete the output directory if it exists already.
     Path outputDir = new Path(outputPath);
     FileSystem.get(conf).delete(outputDir, true);
 
     long startTime = System.currentTimeMillis();
     job.waitForCompletion(true);
-    sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-        + " seconds");
+    LOG.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
     return 0;
   }
