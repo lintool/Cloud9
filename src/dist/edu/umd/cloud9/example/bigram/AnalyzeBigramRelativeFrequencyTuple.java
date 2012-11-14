@@ -29,76 +29,76 @@ import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequencyTuple {
-	public static void main(String[] args) throws Exception {
-		if (args.length != 1) {
-			System.out.println("usage: [input-path]");
-			System.exit(-1);
-		}
+  public static void main(String[] args) throws Exception {
+    if (args.length != 1) {
+      System.out.println("usage: [input-path]");
+      System.exit(-1);
+    }
 
-		System.out.println("input path: " + args[0]);
+    System.out.println("input path: " + args[0]);
 
-		List<PairOfWritables<Tuple, FloatWritable>> pairs = 
-		    SequenceFileUtils.readDirectory(new Path(args[0]));
+    List<PairOfWritables<Tuple, FloatWritable>> pairs = SequenceFileUtils.readDirectory(new Path(
+        args[0]));
 
-		List<PairOfWritables<Tuple, FloatWritable>> list1 = Lists.newArrayList();
-		List<PairOfWritables<Tuple, FloatWritable>> list2 = Lists.newArrayList();
+    List<PairOfWritables<Tuple, FloatWritable>> list1 = Lists.newArrayList();
+    List<PairOfWritables<Tuple, FloatWritable>> list2 = Lists.newArrayList();
 
-		for (PairOfWritables<Tuple, FloatWritable> p : pairs) {
-			Tuple bigram = p.getLeftElement();
+    for (PairOfWritables<Tuple, FloatWritable> p : pairs) {
+      Tuple bigram = p.getLeftElement();
 
-			if (bigram.get(0).equals("light")) {
-				list1.add(p);
-			}
+      if (bigram.get(0).equals("light")) {
+        list1.add(p);
+      }
 
-			if (bigram.get(0).equals("contain")) {
-				list2.add(p);
-			}
-		}
+      if (bigram.get(0).equals("contain")) {
+        list2.add(p);
+      }
+    }
 
-		Collections.sort(list1, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
-			@SuppressWarnings("unchecked")
-      public int compare(PairOfWritables<Tuple, FloatWritable> e1,
-					PairOfWritables<Tuple, FloatWritable> e2) {
-				if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
-					return e1.getLeftElement().compareTo(e2.getLeftElement());
-				}
-
-				return e2.getRightElement().compareTo(e1.getRightElement());
-			}
-		});
-
-		int i = 0;
-		for (PairOfWritables<Tuple, FloatWritable> p : list1) {
-			Tuple bigram = p.getLeftElement();
-			System.out.println(bigram + "\t" + p.getRightElement());
-			i++;
-
-			if (i > 10) {
-				break;
-			}
-		}
-
-		Collections.sort(list2, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
+    Collections.sort(list1, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
       @SuppressWarnings("unchecked")
-			public int compare(PairOfWritables<Tuple, FloatWritable> e1,
-					PairOfWritables<Tuple, FloatWritable> e2) {
-				if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
-					return e1.getLeftElement().compareTo(e2.getLeftElement());
-				}
+      public int compare(PairOfWritables<Tuple, FloatWritable> e1,
+          PairOfWritables<Tuple, FloatWritable> e2) {
+        if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+          return e1.getLeftElement().compareTo(e2.getLeftElement());
+        }
 
-				return e2.getRightElement().compareTo(e1.getRightElement());
-			}
-		});
+        return e2.getRightElement().compareTo(e1.getRightElement());
+      }
+    });
 
-		i = 0;
-		for (PairOfWritables<Tuple, FloatWritable> p : list2) {
-			Tuple bigram = p.getLeftElement();
-			System.out.println(bigram + "\t" + p.getRightElement());
-			i++;
+    int i = 0;
+    for (PairOfWritables<Tuple, FloatWritable> p : list1) {
+      Tuple bigram = p.getLeftElement();
+      System.out.println(bigram + "\t" + p.getRightElement());
+      i++;
 
-			if (i > 10) {
-				break;
-			}
-		}
-	}
+      if (i > 10) {
+        break;
+      }
+    }
+
+    Collections.sort(list2, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
+      @SuppressWarnings("unchecked")
+      public int compare(PairOfWritables<Tuple, FloatWritable> e1,
+          PairOfWritables<Tuple, FloatWritable> e2) {
+        if (e1.getRightElement().compareTo(e2.getRightElement()) == 0) {
+          return e1.getLeftElement().compareTo(e2.getLeftElement());
+        }
+
+        return e2.getRightElement().compareTo(e1.getRightElement());
+      }
+    });
+
+    i = 0;
+    for (PairOfWritables<Tuple, FloatWritable> p : list2) {
+      Tuple bigram = p.getLeftElement();
+      System.out.println(bigram + "\t" + p.getRightElement());
+      i++;
+
+      if (i > 10) {
+        break;
+      }
+    }
+  }
 }

@@ -144,7 +144,7 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
   protected static class MyPartitioner extends Partitioner<MyTuple, FloatWritable> {
     @Override
     public int getPartition(MyTuple key, FloatWritable value, int numReduceTasks) {
-      return (key.getJsonObject().get("Left").getAsString().hashCode() & Integer.MAX_VALUE) 
+      return (key.getJsonObject().get("Left").getAsString().hashCode() & Integer.MAX_VALUE)
           % numReduceTasks;
     }
   }
