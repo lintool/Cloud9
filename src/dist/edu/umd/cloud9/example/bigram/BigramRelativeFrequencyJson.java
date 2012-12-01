@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -36,19 +37,34 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-import org.apache.pig.backend.executionengine.ExecException;
-import org.apache.pig.data.BinSedesTuple;
-import org.apache.pig.data.Tuple;
-import org.apache.pig.data.TupleFactory;
 
-public class BigramRelativeFrequencyTuple extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyTuple.class);
-  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
+import edu.umd.cloud9.io.JsonWritable;
+
+public class BigramRelativeFrequencyJson extends Configured implements Tool {
+
+  private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJson.class);
+
+  // Define custom intermediate key; must specify sort order.
+  public static class MyTuple extends JsonWritable implements WritableComparable<MyTuple> {
+    public int compareTo(MyTuple that) {
+      String thisLeft = this.getJsonObject().get("Left").getAsString();
+      String thatLeft = that.getJsonObject().get("Left").getAsString();
+
+      if (thisLeft.equals(thatLeft)) {
+        String thisRight = this.getJsonObject().get("Right").getAsString();
+        String thatRight = that.getJsonObject().get("Right").getAsString();
+
+        return thisRight.compareTo(thatRight);
+      }
+      return thisLeft.compareTo(thatLeft);
+    }
+  }
 
   // Mapper: emits (token, 1) for every bigram occurrence.
-  protected static class MyMapper extends Mapper<LongWritable, Text, Tuple, FloatWritable> {
+  protected static class MyMapper extends Mapper<LongWritable, Text, MyTuple, FloatWritable> {
     // Reuse objects to save overhead of object creation.
     private static final FloatWritable one = new FloatWritable(1);
+    private static final MyTuple bigram = new MyTuple();
 
     @Override
     public void map(LongWritable key, Text value, Context context) throws IOException,
@@ -60,7 +76,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
       while (itr.hasMoreTokens()) {
         String cur = itr.nextToken();
 
-        // Emit only if we have an actual bigram.
+        // Wmit only if we have an actual bigram.
         if (prev != null) {
 
           // Simple way to truncate tokens that are too long.
@@ -72,26 +88,24 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
             prev = prev.substring(0, 100);
           }
 
-          Tuple tuple1 = TUPLE_FACTORY.newTuple();
-          tuple1.append(prev);
-          tuple1.append(cur);
-          context.write(tuple1, one);
+          bigram.getJsonObject().addProperty("Left", prev);
+          bigram.getJsonObject().addProperty("Right", cur);
+          context.write(bigram, one);
 
-          Tuple tuple2 = TUPLE_FACTORY.newTuple();
-          tuple2.append(prev);
-          tuple2.append("*");
-          context.write(tuple2, one);
+          bigram.getJsonObject().addProperty("Left", prev);
+          bigram.getJsonObject().addProperty("Right", "*");
+          context.write(bigram, one);
         }
         prev = cur;
       }
     }
   }
 
-  protected static class MyCombiner extends Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
+  protected static class MyCombiner extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
     private final static FloatWritable sumWritable = new FloatWritable();
 
     @Override
-    public void reduce(Tuple key, Iterable<FloatWritable> values, Context context)
+    public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context)
         throws IOException, InterruptedException {
       int sum = 0;
       Iterator<FloatWritable> iter = values.iterator();
@@ -103,12 +117,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     }
   }
 
-  protected static class MyReducer extends Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
+  protected static class MyReducer extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
     private static final FloatWritable value = new FloatWritable();
     private float marginal = 0.0f;
 
     @Override
-    public void reduce(Tuple key, Iterable<FloatWritable> values, Context context)
+    public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context)
         throws IOException, InterruptedException {
       float sum = 0.0f;
       Iterator<FloatWritable> iter = values.iterator();
@@ -116,7 +130,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
         sum += iter.next().get();
       }
 
-      if (key.get(1).equals("*")) {
+      if (key.getJsonObject().get("Right").getAsString().equals("*")) {
         value.set(sum);
         context.write(key, value);
         marginal = sum;
@@ -127,19 +141,15 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     }
   }
 
-  protected static class MyPartitioner extends Partitioner<Tuple, FloatWritable> {
+  protected static class MyPartitioner extends Partitioner<MyTuple, FloatWritable> {
     @Override
-    public int getPartition(Tuple key, FloatWritable value, int numReduceTasks) {
-      try {
-        return (((String) key.get(0)).hashCode() & Integer.MAX_VALUE) % numReduceTasks;
-      } catch (ExecException e) {
-        e.printStackTrace();
-        return 0;
-      }
+    public int getPartition(MyTuple key, FloatWritable value, int numReduceTasks) {
+      return (key.getJsonObject().get("Left").getAsString().hashCode() & Integer.MAX_VALUE)
+          % numReduceTasks;
     }
   }
 
-  private BigramRelativeFrequencyTuple() {
+  private BigramRelativeFrequencyJson() {
   }
 
   private static int printUsage() {
@@ -161,22 +171,22 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     String outputPath = args[1];
     int reduceTasks = Integer.parseInt(args[2]);
 
-    LOG.info("Tool name: BigramRelativeFrequencyTuple");
+    LOG.info("Tool name: BigramRelativeFrequencyJSON");
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), "BigramRelativeFrequencyTuple");
-    job.setJarByClass(BigramRelativeFrequencyTuple.class);
+    Job job = new Job(getConf(), "BigramRelativeFrequencyJSON");
+    job.setJarByClass(BigramRelativeFrequencyJson.class);
 
     job.setNumReduceTasks(reduceTasks);
 
     FileInputFormat.setInputPaths(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-    job.setMapOutputKeyClass(BinSedesTuple.class);
+    job.setMapOutputKeyClass(MyTuple.class);
     job.setMapOutputValueClass(FloatWritable.class);
-    job.setOutputKeyClass(BinSedesTuple.class);
+    job.setOutputKeyClass(MyTuple.class);
     job.setOutputValueClass(FloatWritable.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
@@ -198,9 +208,9 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new BigramRelativeFrequencyTuple(), args);
+    ToolRunner.run(new BigramRelativeFrequencyJson(), args);
   }
 }

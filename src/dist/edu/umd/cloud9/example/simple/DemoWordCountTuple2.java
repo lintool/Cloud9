@@ -1,11 +1,11 @@
 /*
  * Cloud9: A MapReduce Library for Hadoop
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0 
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -36,166 +35,116 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import org.apache.pig.data.Tuple;
 
-import edu.umd.cloud9.io.Schema;
-import edu.umd.cloud9.io.Tuple;
-import edu.umd.cloud9.io.array.ArrayListWritable;
+import edu.umd.cloud9.io.pair.PairOfStringInt;
 
 /**
- * <p>
- * Another demo that illustrates use of {@link Tuple} objects as intermediate
- * keys in a MapReduce job. This Hadoop Tool takes the following command-line
- * arguments:
- * </p>
- * 
- * <ul>
- * <li>[input-path] input path</li>
- * <li>[output-path] output path</li>
- * <li>[num-reducers] number of reducers</li>
- * </ul>
- * 
- * <p>
- * Input comes from a flat text collection packed into a SequenceFile with
- * {@link DemoPackTuples2}; the tuples have complex internal structure. Output
- * shows the count of words on even- and odd-length lines. This demo does
- * exactly the same thing as {@link DemoWordCountTuple1}.
- * </p>
- * 
- * @see DemoWordCountTuple1
- * @see DemoWordCountJSON
- * 
+ * Modified word count demo designed to work with {@link DemoPackTuples2}. Counts words on
+ * even-length or odd-length lines to demonstrate use of specialized intermediate data structures.
+ *
  * @author Jimmy Lin
  */
 public class DemoWordCountTuple2 extends Configured implements Tool {
-	private static final Logger sLogger = Logger.getLogger(DemoWordCountTuple2.class);
+  private static final Logger LOG = Logger.getLogger(DemoWordCountTuple2.class);
 
-	// create the schema for the tuple that will serve as the key
-	private static final Schema KEY_SCHEMA = new Schema();
+  // Mapper that emits tuple as the key, and value '1' for each occurrence.
+  private static class MyMapper extends Mapper<LongWritable, Tuple, PairOfStringInt, IntWritable> {
+    private final static IntWritable ONE = new IntWritable(1);
+    private final static PairOfStringInt PAIR = new PairOfStringInt();
 
-	// define the schema statically
-	static {
-		KEY_SCHEMA.addField("Token", String.class, "");
-		KEY_SCHEMA.addField("EvenOrOdd", Integer.class, new Integer(1));
-	}
+    @Override
+    public void map(LongWritable key, Tuple tuple, Context context) throws IOException,
+        InterruptedException {
+      int length = (Integer) tuple.get(0);
+      for (int i = 1; i < tuple.size(); i++) {
+        PAIR.set((String) tuple.get(i), length % 2);
+        context.write(PAIR, ONE);
+      }
+    }
+  }
 
-	// mapper that emits tuple as the key, and value '1' for each occurrence
-	private static class MapClass extends Mapper<LongWritable, Tuple, Tuple, IntWritable> {
+  // Reducer counts up tuple occurrences.
+  private static class MyReducer extends
+      Reducer<PairOfStringInt, IntWritable, PairOfStringInt, IntWritable> {
+    private final static IntWritable SUM = new IntWritable();
 
-		// define value '1' statically so we can reuse the object, i.e., avoid
-		// unnecessary object creation
-		private final static IntWritable one = new IntWritable(1);
+    @Override
+    public void reduce(PairOfStringInt tupleKey, Iterable<IntWritable> values, Context context)
+        throws IOException, InterruptedException {
+      Iterator<IntWritable> iter = values.iterator();
+      int sum = 0;
+      while (iter.hasNext()) {
+        sum += iter.next().get();
+      }
 
-		// once again, reuse tuples if possible
-		private Tuple tupleOut = KEY_SCHEMA.instantiate();
+      // Keep original tuple key, emit sum of counts as value.
+      SUM.set(sum);
+      context.write(tupleKey, SUM);
+    }
+  }
 
-		@Override
-		public void map(LongWritable key, Tuple tupleIn, Context context) throws IOException,
-				InterruptedException {
+  /**
+   * Creates an instance of this tool.
+   */
+  public DemoWordCountTuple2() {}
 
-			@SuppressWarnings("unchecked")
-			ArrayListWritable<Text> list = (ArrayListWritable<Text>) tupleIn.get(1);
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [num-reducers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-			for (int i = 0; i < list.size(); i++) {
-				Text t = (Text) list.get(i);
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-				String token = t.toString();
+    String inputPath = args[0];
+    String outputPath = args[1];
+    int numReduceTasks = Integer.parseInt(args[2]);
 
-				// put new values into the tuple
-				tupleOut.set("Token", token);
-				tupleOut.set("EvenOrOdd", ((Integer) tupleIn.get(0)) % 2);
+    LOG.info("Tool: " + DemoWordCountTuple2.class.getSimpleName());
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - number of reducers: " + numReduceTasks);
 
-				// emit key-value pair
-				context.write(tupleOut, one);
-			}
-		}
-	}
+    Configuration conf = getConf();
+    Job job = new Job(conf, DemoWordCountTuple2.class.getSimpleName());
+    job.setJarByClass(DemoWordCountTuple2.class);
+    job.setNumReduceTasks(numReduceTasks);
 
-	// reducer counts up tuple occurrences
-	private static class ReduceClass extends Reducer<Tuple, IntWritable, Tuple, IntWritable> {
-		private final static IntWritable SumValue = new IntWritable();
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		@Override
-		public void reduce(Tuple tupleKey, Iterable<IntWritable> values, Context context)
-				throws IOException, InterruptedException {
-			Iterator<IntWritable> iter = values.iterator();
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    job.setOutputKeyClass(PairOfStringInt.class);
+    job.setOutputValueClass(IntWritable.class);
 
-			// sum values
-			int sum = 0;
-			while (iter.hasNext()) {
-				sum += iter.next().get();
-			}
+    job.setMapperClass(MyMapper.class);
+    job.setCombinerClass(MyReducer.class);
+    job.setReducerClass(MyReducer.class);
 
-			// keep original tuple key, emit sum of counts as value
-			SumValue.set(sum);
-			context.write(tupleKey, SumValue);
-		}
-	}
+    // Delete the output directory if it exists already.
+    Path outputDir = new Path(outputPath);
+    FileSystem.get(conf).delete(outputDir, true);
 
-	/**
-	 * Creates an instance of this tool.
-	 */
-	public DemoWordCountTuple2() {
-	}
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    LOG.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-reducers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+    return 0;
+  }
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
-
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int numReduceTasks = Integer.parseInt(args[2]);
-
-		sLogger.info("Tool: DemoWordCountTuple2");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - number of reducers: " + numReduceTasks);
-
-		Configuration conf = new Configuration();
-		Job job = new Job(conf, "DemoWordCountTuple2");
-		job.setJarByClass(DemoWordCountTuple2.class);
-		job.setNumReduceTasks(numReduceTasks);
-
-		FileInputFormat.setInputPaths(job, new Path(inputPath));
-		FileOutputFormat.setOutputPath(job, new Path(outputPath));
-
-		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-		job.setOutputKeyClass(Tuple.class);
-		job.setOutputValueClass(IntWritable.class);
-
-		job.setMapperClass(MapClass.class);
-		job.setCombinerClass(ReduceClass.class);
-		job.setReducerClass(ReduceClass.class);
-
-		// Delete the output directory if it exists already
-		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
-
-		long startTime = System.currentTimeMillis();
-		job.waitForCompletion(true);
-		sLogger.info("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-				+ " seconds");
-
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new DemoWordCountTuple2(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new DemoWordCountTuple2(), args);
+  }
 }

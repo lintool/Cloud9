@@ -2,6 +2,7 @@ package edu.umd.cloud9.example.memcached.demo;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -18,8 +19,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
-
-import edu.umd.cloud9.io.Tuple;
+import org.apache.pig.data.Tuple;
 
 public class GetLogProbFromHDFS {
 

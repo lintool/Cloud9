@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -36,46 +37,78 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-import org.apache.pig.data.Tuple;
 
-import edu.umd.cloud9.io.pair.PairOfStringInt;
+import edu.umd.cloud9.io.JsonWritable;
 
 /**
- * Modified word count demo designed to work with {@link DemoPackTuples1}. Counts words on
- * even-length or odd-length lines to demonstrate use of specialized intermediate data structures.
+ * Modified word count demo designed to work with {@link DemoPackJson}. Counts words on even-length
+ * or odd-length lines to demonstrate use of specialized intermediate data structures.
  *
  * @author Jimmy Lin
  */
-public class DemoWordCountTuple1 extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(DemoWordCountTuple1.class);
+public class DemoWordCountJson extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(DemoWordCountJson.class);
 
-  // Mapper that emits tuple as the key, and value '1' for each occurrence.
-  private static class MyMapper extends Mapper<LongWritable, Tuple, PairOfStringInt, IntWritable> {
-    private final static IntWritable one = new IntWritable(1);
-    private final static PairOfStringInt PAIR = new PairOfStringInt();
+  // Define custom intermediate key; must specify sort order.
+  public static class MyKey extends JsonWritable implements WritableComparable<MyKey> {
+    public int compareTo(MyKey that) {
+      String thisToken = this.getJsonObject().get("Token").getAsString();
+      String thatToken = that.getJsonObject().get("Token").getAsString();
+
+      // If tokens are equal, must check "EvenOrOdd" field.
+      if (thisToken.equals(thatToken)) {
+        // Otherwise, sort by "EvenOrOdd" field.
+        int thisEO = this.getJsonObject().get("EvenOrOdd").getAsInt();
+        int thatEO = that.getJsonObject().get("EvenOrOdd").getAsInt();
+
+        if (thisEO < thatEO)
+          return -1;
+
+        if (thisEO > thatEO)
+          return 1;
+
+        // If we get here, it means the tuples are equal.
+        return 0;
+      }
+
+      // Determine sort order based on token.
+      return thisToken.compareTo(thatToken);
+    }
+
+    public int hashCode() {
+      return this.getJsonObject().getAsJsonPrimitive("Token").getAsString().hashCode();
+    }
+  }
+
+  // Mapper: emits a JSON object as the key, and value '1' for each occurrence.
+  protected static class MyMapper extends Mapper<LongWritable, JsonWritable, MyKey, IntWritable> {
+    private final static IntWritable ONE = new IntWritable(1);
+    private final static MyKey KEY = new MyKey();
 
     @Override
-    public void map(LongWritable key, Tuple tuple, Context context) throws IOException,
-        InterruptedException {
-      String line = (String) tuple.get(0);
+    public void map(LongWritable dummy, JsonWritable jsonIn, Context context)
+        throws IOException, InterruptedException {
+      String line = (String) jsonIn.getJsonObject().get("text").getAsString();
       StringTokenizer itr = new StringTokenizer(line);
       while (itr.hasMoreTokens()) {
         String token = itr.nextToken();
 
-        PAIR.set(token, line.length() % 2);
+        // Put new values into the tuple.
+        KEY.getJsonObject().addProperty("Token", token);
+        KEY.getJsonObject().addProperty("EvenOrOdd", line.length() % 2);
 
-        context.write(PAIR, one);
+        // Emit key-value pair.
+        context.write(KEY, ONE);
       }
     }
   }
 
   // Reducer counts up tuple occurrences.
-  private static class MyReducer extends
-      Reducer<PairOfStringInt, IntWritable, PairOfStringInt, IntWritable> {
+  protected static class MyReducer extends Reducer<MyKey, IntWritable, MyKey, IntWritable> {
     private final static IntWritable SUM = new IntWritable();
 
     @Override
-    public void reduce(PairOfStringInt tupleKey, Iterable<IntWritable> values, Context context)
+    public void reduce(MyKey keyIn, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
       Iterator<IntWritable> iter = values.iterator();
       int sum = 0;
@@ -85,14 +118,14 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 
       // Keep original tuple key, emit sum of counts as value.
       SUM.set(sum);
-      context.write(tupleKey, SUM);
+      context.write(keyIn, SUM);
     }
   }
 
   /**
    * Creates an instance of this tool.
    */
-  public DemoWordCountTuple1() {}
+  public DemoWordCountJson() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [num-reducers]");
@@ -113,14 +146,14 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
     String outputPath = args[1];
     int numReduceTasks = Integer.parseInt(args[2]);
 
-    LOG.info("Tool: " + DemoWordCountTuple1.class.getSimpleName());
+    LOG.info("Tool: " + DemoWordCountJson.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - number of reducers: " + numReduceTasks);
 
     Configuration conf = getConf();
-    Job job = new Job(conf, DemoWordCountTuple1.class.getSimpleName());
-    job.setJarByClass(DemoWordCountTuple1.class);
+    Job job = new Job(conf, DemoWordCountJson.class.getSimpleName());
+    job.setJarByClass(DemoWordCountJson.class);
     job.setNumReduceTasks(numReduceTasks);
 
     FileInputFormat.setInputPaths(job, new Path(inputPath));
@@ -128,7 +161,8 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
-    job.setOutputKeyClass(PairOfStringInt.class);
+
+    job.setOutputKeyClass(MyKey.class);
     job.setOutputValueClass(IntWritable.class);
 
     job.setMapperClass(MyMapper.class);
@@ -150,6 +184,6 @@ public class DemoWordCountTuple1 extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new DemoWordCountTuple1(), args);
+    ToolRunner.run(new DemoWordCountJson(), args);
   }
 }

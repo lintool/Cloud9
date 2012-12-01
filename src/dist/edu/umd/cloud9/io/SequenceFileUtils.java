@@ -28,6 +28,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
@@ -35,32 +37,28 @@ import edu.umd.cloud9.io.pair.PairOfWritables;
  * Class containing a number of utility methods for manipulating SequenceFiles.
  */
 public class SequenceFileUtils {
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
 	private SequenceFileUtils() {}
 
-	public static <K extends Writable, V extends Writable> List<PairOfWritables<K, V>> readFile(Path path) {
+	public static <K extends Writable, V extends Writable> List<PairOfWritables<K, V>> readFile(Path path)
+	    throws IOException {
 		FileSystem fs;
-		try {
-			fs = FileSystem.get(new Configuration());
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to access the file system!");
-		}
+		fs = FileSystem.get(new Configuration());
 
 		return readFile(path, fs, Integer.MAX_VALUE);
 	}
 
-	public static <K extends Writable, V extends Writable> List<PairOfWritables<K, V>> readFile(Path path, int max) {
+	public static <K extends Writable, V extends Writable>
+	    List<PairOfWritables<K, V>> readFile(Path path, int max) throws IOException {
 		FileSystem fs;
-		try {
-			fs = FileSystem.get(new Configuration());
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to access the file system!");
-		}
+		fs = FileSystem.get(new Configuration());
 
 		return readFile(path, fs, max);
 	}
 
-	public static <K extends Writable, V extends Writable> List<PairOfWritables<K, V>> readFile(Path path, FileSystem fs) {
+	public static <K extends Writable, V extends Writable>
+	    List<PairOfWritables<K, V>> readFile(Path path, FileSystem fs) throws IOException {
 		return readFile(path, fs, Integer.MAX_VALUE);
 	}
 
@@ -72,15 +70,28 @@ public class SequenceFileUtils {
 	 * @return list of key-value pairs
 	 */
 	@SuppressWarnings("unchecked")
-	public static <K extends Writable, V extends Writable> List<PairOfWritables<K, V>> readFile(Path path, FileSystem fs, int max) {
+	public static <K extends Writable, V extends Writable>
+	    List<PairOfWritables<K, V>> readFile(Path path, FileSystem fs, int max) throws IOException {
 		List<PairOfWritables<K, V>> list = new ArrayList<PairOfWritables<K, V>>();
 
 		try {
 			int k = 0;
 			SequenceFile.Reader reader = new SequenceFile.Reader(fs, path, fs.getConf());
 
-			K key = (K) reader.getKeyClass().newInstance();
-			V value = (V) reader.getValueClass().newInstance();
+			K key;
+			V value;
+
+      if (Tuple.class.isAssignableFrom(reader.getKeyClass())) {
+        key = (K) TUPLE_FACTORY.newTuple();
+      } else {
+        key = (K) reader.getKeyClass().newInstance();
+      }
+
+      if (Tuple.class.isAssignableFrom(reader.getValueClass())) {
+        value = (V) TUPLE_FACTORY.newTuple();
+      } else {
+        value = (V) reader.getValueClass().newInstance();
+      }
 
 			while (reader.next(key, value)) {
 				k++;
@@ -89,44 +100,52 @@ public class SequenceFileUtils {
 					break;
 				}
 
-				key = (K) reader.getKeyClass().newInstance();
-				value = (V) reader.getValueClass().newInstance();
+				// Create new objects, because the key, value gets reused
+	      if (Tuple.class.isAssignableFrom(reader.getKeyClass())) {
+	        key = (K) TUPLE_FACTORY.newTuple();
+	      } else {
+	        key = (K) reader.getKeyClass().newInstance();
+	      }
+
+	      if (Tuple.class.isAssignableFrom(reader.getValueClass())) {
+	        value = (V) TUPLE_FACTORY.newTuple();
+	      } else {
+	        value = (V) reader.getValueClass().newInstance();
+	      }
 			}
 			reader.close();
-		} catch (Exception e) {
-			throw new RuntimeException("Error reading SequenceFile " + path);
-		}
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Error reading SequenceFile: " + e);
+		} catch (InstantiationException e) {
+      throw new RuntimeException("Error reading SequenceFile: " + e);
+    }
 
 		return list;
 	}
 
-	public static <K extends Writable, V extends Writable> SortedMap<K, V> readFileIntoMap(Path path) {
+	public static <K extends Writable, V extends Writable>
+	    SortedMap<K, V> readFileIntoMap(Path path) throws IOException {
 		FileSystem fs;
-		try {
-			fs = FileSystem.get(new Configuration());
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to access the file system!");
-		}
+		fs = FileSystem.get(new Configuration());
 
 		return readFileIntoMap(path, fs, Integer.MAX_VALUE);
 	}
 
-	public static <K extends Writable, V extends Writable> SortedMap<K, V> readFileIntoMap(Path path, int max) {
+	public static <K extends Writable, V extends Writable> SortedMap<K, V>
+	    readFileIntoMap(Path path, int max) throws IOException {
 		FileSystem fs;
-		try {
-			fs = FileSystem.get(new Configuration());
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to access the file system!");
-		}
+		fs = FileSystem.get(new Configuration());
 
 		return readFileIntoMap(path, fs, max);
 	}
 
-	public static <K extends Writable, V extends Writable> SortedMap<K, V> readFileIntoMap(Path path,	FileSystem fs) {
+	public static <K extends Writable, V extends Writable> SortedMap<K, V>
+	    readFileIntoMap(Path path,	FileSystem fs) throws IOException {
 		return readFileIntoMap(path, fs, Integer.MAX_VALUE);
 	}
 
-	public static <K extends Writable, V extends Writable> SortedMap<K, V> readFileIntoMap(Path path, FileSystem fs, int max) {
+	public static <K extends Writable, V extends Writable> SortedMap<K, V>
+	    readFileIntoMap(Path path, FileSystem fs, int max) throws IOException {
 		SortedMap<K, V> map = new TreeMap<K, V>();
 
 		for ( PairOfWritables<K,V> pair : SequenceFileUtils.<K, V>readFile(path, fs, max)) {

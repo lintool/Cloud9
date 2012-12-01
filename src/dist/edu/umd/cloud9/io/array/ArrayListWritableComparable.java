@@ -23,13 +23,10 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.io.WritableComparable;
 
-import edu.umd.cloud9.io.Tuple;
-
 /**
  * <p>
  * WritableComparable extension of a Java ArrayList. Elements in the list must be homogeneous and
- * must implement Hadoop's WritableComparable interface. This class, combined with {@link Tuple},
- * allows the user to define arbitrarily complex data structures.
+ * must implement Hadoop's WritableComparable interface.
  * </p>
  *
  * @param <E> type of list element

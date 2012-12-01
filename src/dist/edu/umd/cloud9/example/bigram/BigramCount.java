@@ -37,115 +37,117 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 public class BigramCount extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(BigramCount.class);
+  private static final Logger LOG = Logger.getLogger(BigramCount.class);
 
-	// Mapper: emits (token, 1) for every bigram occurrence.
-	protected static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+  // Mapper: emits (token, 1) for every bigram occurrence.
+  protected static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
-		// Reuse objects to save overhead of object creation.
-		private static final IntWritable one = new IntWritable(1);
-		private static final Text bigram = new Text();
+    // Reuse objects to save overhead of object creation.
+    private static final IntWritable one = new IntWritable(1);
+    private static final Text bigram = new Text();
 
-		@Override
-		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-			String line = value.toString();
+    @Override
+    public void map(LongWritable key, Text value, Context context) throws IOException,
+        InterruptedException {
+      String line = value.toString();
 
-			String prev = null;
-			StringTokenizer itr = new StringTokenizer(line);
-			while (itr.hasMoreTokens()) {
-				String cur = itr.nextToken();
+      String prev = null;
+      StringTokenizer itr = new StringTokenizer(line);
+      while (itr.hasMoreTokens()) {
+        String cur = itr.nextToken();
 
-				// Emit only if we have an actual bigram.
-				if (prev != null) {
-					bigram.set(prev + " " + cur);
-					context.write(bigram, one);
-				}
-				prev = cur;
-			}
-		}
-	}
+        // Emit only if we have an actual bigram.
+        if (prev != null) {
+          bigram.set(prev + " " + cur);
+          context.write(bigram, one);
+        }
+        prev = cur;
+      }
+    }
+  }
 
-	// Reducer: sums up all the counts.
-	protected static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+  // Reducer: sums up all the counts.
+  protected static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-		// Reuse objects
-		private final static IntWritable sumWritable = new IntWritable();
+    // Reuse objects
+    private final static IntWritable sumWritable = new IntWritable();
 
-		@Override
-		public void reduce(Text key, Iterable<IntWritable> values, Context context)	throws IOException, InterruptedException {
-			// sum up values
-			int sum = 0;
-			Iterator<IntWritable> iter = values.iterator();
-			while (iter.hasNext()) {
-				sum += iter.next().get();
-			}
-			sumWritable.set(sum);
-			context.write(key, sumWritable);
-		}
-	}
+    @Override
+    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException,
+        InterruptedException {
+      // sum up values
+      int sum = 0;
+      Iterator<IntWritable> iter = values.iterator();
+      while (iter.hasNext()) {
+        sum += iter.next().get();
+      }
+      sumWritable.set(sum);
+      context.write(key, sumWritable);
+    }
+  }
 
-	private BigramCount() {
-	}
+  private BigramCount() {
+  }
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-reducers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [num-reducers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int reduceTasks = Integer.parseInt(args[2]);
+    String inputPath = args[0];
+    String outputPath = args[1];
+    int reduceTasks = Integer.parseInt(args[2]);
 
-		LOG.info("Tool name: BigramCount");
-		LOG.info(" - input path: " + inputPath);
-		LOG.info(" - output path: " + outputPath);
-		LOG.info(" - num reducers: " + reduceTasks);
+    LOG.info("Tool name: BigramCount");
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - num reducers: " + reduceTasks);
 
-		Job job = new Job(getConf(), "BigramCount");
-		job.setJarByClass(BigramCount.class);
+    Job job = new Job(getConf(), "BigramCount");
+    job.setJarByClass(BigramCount.class);
 
-		job.setNumReduceTasks(reduceTasks);
+    job.setNumReduceTasks(reduceTasks);
 
-		FileInputFormat.setInputPaths(job, new Path(inputPath));
-		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(IntWritable.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IntWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.setMapperClass(MyMapper.class);
-		job.setCombinerClass(MyReducer.class);
-		job.setReducerClass(MyReducer.class);
+    job.setMapperClass(MyMapper.class);
+    job.setCombinerClass(MyReducer.class);
+    job.setReducerClass(MyReducer.class);
 
-		// Delete the output directory if it exists already
-		Path outputDir = new Path(outputPath);
-		FileSystem.get(getConf()).delete(outputDir, true);
+    // Delete the output directory if it exists already
+    Path outputDir = new Path(outputPath);
+    FileSystem.get(getConf()).delete(outputDir, true);
 
-		long startTime = System.currentTimeMillis();
-		job.waitForCompletion(true);
-		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+        + " seconds");
 
-		return 0;
-	}
+    return 0;
+  }
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BigramCount(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   */
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(new BigramCount(), args);
+    System.exit(res);
+  }
 }

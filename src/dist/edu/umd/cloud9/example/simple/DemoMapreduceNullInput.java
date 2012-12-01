@@ -27,37 +27,38 @@ import edu.umd.cloud9.mapreduce.NullInputFormat;
 import edu.umd.cloud9.mapreduce.NullMapper;
 
 public class DemoMapreduceNullInput {
-	private static final Logger LOG = Logger.getLogger(DemoMapreduceNullInput.class);
+  private static final Logger LOG = Logger.getLogger(DemoMapreduceNullInput.class);
 
-	private DemoMapreduceNullInput() {}
+  private DemoMapreduceNullInput() {}
 
-	private static class MyMapper extends NullMapper {
-		@Override
-		public void runSafely(Context context) {
-			LOG.info("Counting to 10:");
-			for (int i = 0; i < 10; i++) {
-				LOG.info(i + 1 + "...");
-				try {
-					Thread.sleep(10000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+  private static class MyMapper extends NullMapper {
+    @Override
+    public void runSafely(Context context) {
+      LOG.info("Counting to 10:");
+      for (int i = 0; i < 10; i++) {
+        LOG.info(i + 1 + "...");
+        try {
+          Thread.sleep(10000);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
-	/**
-	 * Runs the demo.
-	 */
-	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-		Job job = new Job(new Configuration(), "DemoMapreduceNullInput");
-		job.setJarByClass(DemoMapreduceNullInput.class);
+  /**
+   * Runs the demo.
+   */
+  public static void main(String[] args) throws IOException, InterruptedException,
+      ClassNotFoundException {
+    Job job = new Job(new Configuration(), "DemoMapreduceNullInput");
+    job.setJarByClass(DemoMapreduceNullInput.class);
 
-		job.setNumReduceTasks(0);
-		job.setInputFormatClass(NullInputFormat.class);
-		job.setOutputFormatClass(NullOutputFormat.class);
-		job.setMapperClass(MyMapper.class);
+    job.setNumReduceTasks(0);
+    job.setInputFormatClass(NullInputFormat.class);
+    job.setOutputFormatClass(NullOutputFormat.class);
+    job.setMapperClass(MyMapper.class);
 
-		job.waitForCompletion(true);
-	}
+    job.waitForCompletion(true);
+  }
 }

@@ -27,24 +27,21 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
-import org.apache.pig.data.BinSedesTuple;
-import org.apache.pig.data.TupleFactory;
+
+import edu.umd.cloud9.io.JsonWritable;
 
 /**
- * Demo that packs the sample collection into a {@code SequenceFile} of Pig Tuples. The key in each
- * record is a {@link LongWritable} indicating the record count (sequential numbering). The value in
- * each record is a Pig Tuple with a single field containing the text of the line. Designed to work
- * with {@link DemoWordCountTuple1}.
+ * Demo that packs the sample collection into a {@code SequenceFile} of {@link JSONObjectWritable}.
+ * The key in each record is a {@link LongWritable} indicating the record count (sequential
+ * numbering). The value in each record is a {@link JSONObjectWritable}, where the raw text is
+ * stored under the field name "text". Designed to work with {@link DemoWordCountJson}.
  *
  * @author Jimmy Lin
  */
-public class DemoPackTuples1 {
-  private static final Logger LOG = Logger.getLogger(DemoPackTuples1.class);
+public class DemoPackJson {
+  private static final Logger LOG = Logger.getLogger(DemoPackJson.class);
 
-  private static final LongWritable LONG = new LongWritable();
-  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
-
-  private DemoPackTuples1() {}
+  private DemoPackJson() {}
 
   /**
    * Runs the demo.
@@ -64,15 +61,20 @@ public class DemoPackTuples1 {
     Configuration conf = new Configuration();
     FileSystem fs = FileSystem.get(conf);
     SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-        LongWritable.class, BinSedesTuple.class);
+        LongWritable.class, JsonWritable.class);
 
+    // Read in raw text records, line separated.
     BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
+    LongWritable key = new LongWritable();
+    JsonWritable json = new JsonWritable();
     long cnt = 0;
+
     String line;
     while ((line = data.readLine()) != null) {
-      LONG.set(cnt);
-      writer.append(LONG, TUPLE_FACTORY.newTuple(line));
+      json.getJsonObject().addProperty("text", line);
+      key.set(cnt);
+      writer.append(key, json);
 
       cnt++;
     }

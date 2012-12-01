@@ -24,6 +24,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
+import org.apache.pig.data.Tuple;
+import org.apache.pig.data.TupleFactory;
 
 /**
  * <p>
@@ -43,6 +45,7 @@ import org.apache.hadoop.io.Writable;
  * </p>
  */
 public class ReadSequenceFile {
+  private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
 	private ReadSequenceFile() {}
 
@@ -89,8 +92,17 @@ public class ReadSequenceFile {
 		Writable key, value;
 		int n = 0;
 		try {
-			key = (Writable) reader.getKeyClass().newInstance();
-			value = (Writable) reader.getValueClass().newInstance();
+      if ( Tuple.class.isAssignableFrom(reader.getKeyClass())) {
+        key = TUPLE_FACTORY.newTuple();
+      } else {
+        key = (Writable) reader.getKeyClass().newInstance();
+      }
+
+      if ( Tuple.class.isAssignableFrom(reader.getValueClass())) {
+        value = TUPLE_FACTORY.newTuple();
+      } else {
+        value = (Writable) reader.getValueClass().newInstance();
+      }
 
 			while (reader.next(key, value)) {
 				System.out.println("Record " + n);

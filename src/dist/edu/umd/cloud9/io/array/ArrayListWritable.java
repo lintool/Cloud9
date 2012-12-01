@@ -23,17 +23,12 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.io.Tuple;
-
 /**
  * <p>
- * Writable extension of a Java ArrayList. Elements in the list must be
- * homogeneous and must implement Hadoop's Writable interface. This class,
- * combined with {@link Tuple}, allows the user to define arbitrarily complex
- * data structures.
+ * Writable extension of a Java ArrayList. Elements in the list must be homogeneous and must
+ * implement Hadoop's Writable interface.
  * </p>
  *
- * @see Tuple
  * @param <E> type of list element
  *
  * @author Jimmy Lin
