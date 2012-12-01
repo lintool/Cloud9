@@ -39,7 +39,7 @@ package edu.umd.cloud9.util;
  *
  * @author  Nathan Fiedler
  */
-public class FibonacciHeap<T extends Comparable> {
+public class FibonacciHeap<T extends Comparable<T>> {
     /** Points to the minimum node in the heap. */
     private Node<T> min;
     /** Number of nodes in the heap. If the type is ever widened,
@@ -321,7 +321,7 @@ public class FibonacciHeap<T extends Comparable> {
      *
      * @author  Nathan Fiedler
      */
-    public static class Node<T extends Comparable> {
+    public static class Node<T extends Comparable<T>> {
         /** Data object for this node, holds the key value. */
         private T datum;
         /** Key value for this node. */
@@ -450,7 +450,6 @@ public class FibonacciHeap<T extends Comparable> {
         	return this.key;
         }
 
-        @SuppressWarnings("unchecked")
         private boolean isGreaterThan(Node<T> n) {
         	if ( this.key > n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) > 0))
         		return true;
@@ -458,7 +457,6 @@ public class FibonacciHeap<T extends Comparable> {
         	return false;
         }
 
-        @SuppressWarnings("unchecked")
         private boolean isLessThan(Node<T> n) {
         	if ( this.key < n.key || ( this.key == n.key && this.datum.compareTo((T) n.datum) < 0))
         		return true;

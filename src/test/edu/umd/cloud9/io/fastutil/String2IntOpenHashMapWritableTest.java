@@ -139,6 +139,8 @@ public class String2IntOpenHashMapWritableTest {
     }
     assertEquals(5, map1.size());
     assertEquals(0, map2.size());
+
+    in.close();
   }
 
   public static junit.framework.Test suite() {

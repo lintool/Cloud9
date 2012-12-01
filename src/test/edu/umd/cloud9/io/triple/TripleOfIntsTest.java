@@ -35,71 +35,71 @@ import edu.umd.cloud9.debug.WritableComparatorTestHarness;
 
 public class TripleOfIntsTest {
 
-	@Test
-	public void testBasic() throws IOException {
-		TripleOfInts threeInts = new TripleOfInts(1, 2, 3);
+  @Test
+  public void testBasic() throws IOException {
+    TripleOfInts threeInts = new TripleOfInts(1, 2, 3);
 
-		assertEquals(threeInts.getLeftElement(), 1);
-		assertEquals(threeInts.getMiddleElement(), 2);
-		assertEquals(threeInts.getRightElement(), 3);
-	}
+    assertEquals(threeInts.getLeftElement(), 1);
+    assertEquals(threeInts.getMiddleElement(), 2);
+    assertEquals(threeInts.getRightElement(), 3);
+  }
 
-	@Test
-	public void testSerialize() throws IOException {
-		TripleOfInts origThreeInts = new TripleOfInts(1, 2, 3);
+  @Test
+  public void testSerialize() throws IOException {
+    TripleOfInts origThreeInts = new TripleOfInts(1, 2, 3);
 
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		DataOutputStream dataOut = new DataOutputStream(bytesOut);
+    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+    DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
-		origThreeInts.write(dataOut);
+    origThreeInts.write(dataOut);
 
-		TripleOfInts threeInts = new TripleOfInts();
+    TripleOfInts threeInts = new TripleOfInts();
 
-		threeInts.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
+    threeInts.readFields(new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray())));
 
-		assertEquals(threeInts.getLeftElement(), 1);
-		assertEquals(threeInts.getMiddleElement(), 2);
-		assertEquals(threeInts.getRightElement(), 3);
-	}
+    assertEquals(threeInts.getLeftElement(), 1);
+    assertEquals(threeInts.getMiddleElement(), 2);
+    assertEquals(threeInts.getRightElement(), 3);
+  }
 
-	@Test
-	public void testComparison1() throws IOException {
-		TripleOfInts threeInts1 = new TripleOfInts(1, 2, 3);
-		TripleOfInts threeInts2 = new TripleOfInts(1, 2, 3);
-		TripleOfInts threeInts3 = new TripleOfInts(1, 2, 2);
-		TripleOfInts threeInts4 = new TripleOfInts(1, 1, 3);
-		TripleOfInts threeInts5 = new TripleOfInts(0, 2, 3);
+  @Test
+  public void testComparison1() throws IOException {
+    TripleOfInts threeInts1 = new TripleOfInts(1, 2, 3);
+    TripleOfInts threeInts2 = new TripleOfInts(1, 2, 3);
+    TripleOfInts threeInts3 = new TripleOfInts(1, 2, 2);
+    TripleOfInts threeInts4 = new TripleOfInts(1, 1, 3);
+    TripleOfInts threeInts5 = new TripleOfInts(0, 2, 3);
 
-		assertTrue(threeInts1.equals(threeInts2));
-		assertFalse(threeInts1.equals(threeInts3));
+    assertTrue(threeInts1.equals(threeInts2));
+    assertFalse(threeInts1.equals(threeInts3));
 
-		assertTrue(threeInts1.compareTo(threeInts2) == 0);
-		assertTrue(threeInts1.compareTo(threeInts3) > 0);
-		assertTrue(threeInts1.compareTo(threeInts4) > 0);
-		assertTrue(threeInts1.compareTo(threeInts5) > 0);
-		assertTrue(threeInts2.compareTo(threeInts3) > 0);
-		assertTrue(threeInts2.compareTo(threeInts4) > 0);
-	}
+    assertTrue(threeInts1.compareTo(threeInts2) == 0);
+    assertTrue(threeInts1.compareTo(threeInts3) > 0);
+    assertTrue(threeInts1.compareTo(threeInts4) > 0);
+    assertTrue(threeInts1.compareTo(threeInts5) > 0);
+    assertTrue(threeInts2.compareTo(threeInts3) > 0);
+    assertTrue(threeInts2.compareTo(threeInts4) > 0);
+  }
 
-	@Test
-	public void testComparison2() throws IOException {
-		WritableComparator comparator = new TripleOfInts.Comparator();
+  @Test
+  public void testComparison2() throws IOException {
+    WritableComparator comparator = new TripleOfInts.Comparator();
 
-		TripleOfInts threeInts1 = new TripleOfInts(1, 2, 3);
-		TripleOfInts threeInts2 = new TripleOfInts(1, 2, 3);
-		TripleOfInts threeInts3 = new TripleOfInts(1, 2, 2);
-		TripleOfInts threeInts4 = new TripleOfInts(1, 1, 3);
-		TripleOfInts threeInts5 = new TripleOfInts(0, 2, 3);
+    TripleOfInts threeInts1 = new TripleOfInts(1, 2, 3);
+    TripleOfInts threeInts2 = new TripleOfInts(1, 2, 3);
+    TripleOfInts threeInts3 = new TripleOfInts(1, 2, 2);
+    TripleOfInts threeInts4 = new TripleOfInts(1, 1, 3);
+    TripleOfInts threeInts5 = new TripleOfInts(0, 2, 3);
 
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts2) == 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts3) > 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts4) > 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts5) > 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts2, threeInts3) > 0);
-		assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts2, threeInts4) > 0);
-	}
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts2) == 0);
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts3) > 0);
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts4) > 0);
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts1, threeInts5) > 0);
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts2, threeInts3) > 0);
+    assertTrue(WritableComparatorTestHarness.compare(comparator, threeInts2, threeInts4) > 0);
+  }
 
-	public static junit.framework.Test suite() {
-		return new JUnit4TestAdapter(TripleOfIntsTest.class);
-	}
+  public static junit.framework.Test suite() {
+    return new JUnit4TestAdapter(TripleOfIntsTest.class);
+  }
 }

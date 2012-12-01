@@ -6,7 +6,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import junit.framework.JUnit4TestAdapter;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -21,7 +23,6 @@ import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.integration.IntegrationUtils;
 import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.map.HMapSFW;
 import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.driver.TrecDriver;
@@ -112,6 +113,7 @@ public class VerifyGov2Webgraph {
     reader.next(key, value);
     verifyWeights(anchorList1, value);
     verifySources(anchorSources1, value);
+    reader.close();
 
     reader = new SequenceFile.Reader(fs,
         new Path(collectionOutput + "/" + DriverUtil.OUTPUT_WEGIHTED_REVERSE_WEBGRAPH + "/part-00010"), fs.getConf());
@@ -119,6 +121,7 @@ public class VerifyGov2Webgraph {
     reader.next(key, value);
     verifyWeights(anchorList2, value);
     verifySources(anchorSources2, value);
+    reader.close();
   }
 
   private void verifyWeights(Map<String, Float> anchor, ArrayListWritable<AnchorText> value) {
