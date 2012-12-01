@@ -33,6 +33,7 @@ public abstract class NullMapper extends MapReduceBase implements
 					mReporter.incrCounter(Heartbeat.COUNT, 1);
 					Thread.sleep(60000);
 				} catch (InterruptedException e) {
+          break;
 				}
 			}
 		}
@@ -50,6 +51,9 @@ public abstract class NullMapper extends MapReduceBase implements
 		pulse.start();
 
 		run(mConf, reporter);
+
+		// Once we return from method, kill the heartbeat thread.
+		pulse.interrupt();
 	}
 
 	public abstract void run(JobConf conf, Reporter reporter) throws IOException;

@@ -45,6 +45,9 @@ public abstract class NullMapper extends
       t.interrupt();
       throw new RuntimeException(e);
     }
+
+    // Once we return from method, kill the heartbeat thread.
+    t.interrupt();
   }
 
   public abstract void runSafely(Context context);
