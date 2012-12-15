@@ -89,13 +89,17 @@ public class VerifyGov2Webgraph {
     jars.add(IntegrationUtils.getJar("lib", "htmlparser"));
     jars.add(IntegrationUtils.getJar("lib", "pcj"));
 
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.webgraph.driver.TrecDriver.class.getCanonicalName(),
+        String.format("-libjars=%s", Joiner.on(",").join(jars)),
+        "-input", collectionPath,
+        "-output", collectionOutput,
+        "-collection", "gov2",
+        "-docno", docnoMapping,
+        "-caw",
+        "-normalizer", edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer.class.getCanonicalName()};
 
-    TrecDriver.main(new String[] {libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
-        "-input", collectionPath, "-output", collectionOutput,
-        "-collection", "gov2", "-docno", docnoMapping,
-        "-caw", "-normalizer", "edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer"});
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
 
   @Test
