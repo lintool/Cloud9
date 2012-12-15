@@ -214,17 +214,11 @@ public class ClueWarcForwardIndexBuilder extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
     LOG.info("Running " + ClueWarcForwardIndexBuilder.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
     ToolRunner.run(new ClueWarcForwardIndexBuilder(), args);
-  }
-
-  public static void main(Configuration conf, String[] args) throws Exception {
-    LOG.info("Running " + ClueWarcForwardIndexBuilder.class.getCanonicalName() +
-        " with args " + Arrays.toString(args));
-    ToolRunner.run(conf, new ClueWarcForwardIndexBuilder(), args);
   }
 }

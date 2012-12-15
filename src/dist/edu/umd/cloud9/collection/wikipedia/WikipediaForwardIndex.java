@@ -25,7 +25,6 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
   private static final Logger LOG = Logger.getLogger(WikipediaPage.class);
 
   private Configuration conf;
-  private FileSystem fs;
 
   private int[] docnos;
   private int[] offsets;
@@ -45,8 +44,6 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
   @Override
   public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
-    this.fs = fs;
-
     LOG.info("Loading forward index: " + index);
     docnoMapping.loadMapping(mapping, fs);
 
@@ -100,7 +97,8 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
     try {
 
-      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
+      SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+          SequenceFile.Reader.file(new Path(file)));
 
       IntWritable key = new IntWritable();
       WikipediaPage value = new WikipediaPage();
@@ -159,7 +157,8 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
 
 
     try {
-      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
+      SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+          SequenceFile.Reader.file(new Path(file)));
       IntWritable key = new IntWritable();
 
       reader.seek(offsets[idx]);

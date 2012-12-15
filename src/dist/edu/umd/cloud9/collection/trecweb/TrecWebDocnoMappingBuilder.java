@@ -121,7 +121,7 @@ public class TrecWebDocnoMappingBuilder extends Configured implements Tool, Docn
     // Note: Gov2 and Wt10g raw collections are organized into sub-directories.
     Path collectionPath = new Path(options.collection);
     for (FileStatus status : fs.listStatus(collectionPath, filter)) {
-      if ( status.isDir()) {
+      if ( status.isDirectory()) {
         for (FileStatus s : fs.listStatus(status.getPath(), filter)) {
           FileInputFormat.addInputPath(job, s.getPath());
         }

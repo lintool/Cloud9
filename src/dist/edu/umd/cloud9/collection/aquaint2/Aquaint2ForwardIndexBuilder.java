@@ -35,14 +35,14 @@ import edu.umd.cloud9.collection.DocnoMapping;
  * Tool for building a document forward index for AQUAINT2 collections. Sameple
  * Invocation:
  * </p>
- * 
+ *
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.aquaint2.BuildAquaint2ForwardIndex \
  *  /umd-lin/shared/collections/aquaint2/aquaint24-5_noCRFR.xml /tmp/findex/ \
  *  /umd-lin/shared/collections/aquaint24-5_noCRFR.findex.dat \
  *  /umd-lin/shared/indexes/aquaint2/docno-mapping.dat
  * </pre>
- * 
+ *
  * @author Jimmy Lin
  * 
  */
