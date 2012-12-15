@@ -12,6 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
@@ -205,4 +206,11 @@ public class CountClueWarcRecords extends Configured implements Tool {
         " with args " + Arrays.toString(args));
 		ToolRunner.run(new CountClueWarcRecords(), args);
 	}
+
+    public static void main(Configuration conf, String[] args) throws Exception {
+    LOG.info("Running " + CountClueWarcRecords.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(conf, new CountClueWarcRecords(), args);
+	}
+
 }

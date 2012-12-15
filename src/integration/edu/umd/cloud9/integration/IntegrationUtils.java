@@ -6,10 +6,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 
 public class IntegrationUtils {
   public static final String D_JT = "-Dmapred.job.tracker=bespin00.umiacs.umd.edu:8021";
-  public static final String D_NN = "-Dfs.default.name=hdfs://bespin00.umiacs.umd.edu:8020";
+  public static final String D_NN = "-Dfs.defaultFS=hdfs://bespinrm.umiacs.umd.edu:8020";
 
   public static final String D_JT_LOCAL = "-D mapred.job.tracker=local";
   public static final String D_NN_LOCAL = "-D fs.default.name=file:///";
@@ -28,8 +29,14 @@ public class IntegrationUtils {
 
   public static Configuration getBespinConfiguration() {
     Configuration conf = new Configuration();
-    conf.set("mapred.job.tracker", "bespin00.umiacs.umd.edu:8021");
-    conf.set("fs.default.name", "hdfs://bespin00.umiacs.umd.edu:8020");
+
+    conf.addResource(new Path("/etc/hadoop/conf/core-site.xml"));
+    conf.addResource(new Path("/etc/hadoop/conf/hdfs-site.xml"));
+    conf.addResource(new Path("/etc/hadoop/conf/mapred-site.xml"));
+    conf.addResource(new Path("/etc/hadoop/conf/yarn-site.xml"));
+
+    conf.reloadConfiguration();
+
     return conf;
   }
 }

@@ -3,6 +3,8 @@ package edu.umd.cloud9.integration.collection.clue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.*;
+import java.io.*;
 import java.util.List;
 import java.util.Random;
 
@@ -34,7 +36,7 @@ public class IntegrationTest {
 
   private static final String mappingFile = tmpPrefix + "-mapping.dat";
 
-  @Test
+    //  @Test
   public void testDocnoMapping() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
@@ -44,12 +46,10 @@ public class IntegrationTest {
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
     jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
-    ClueWarcDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    ClueWarcDocnoMappingBuilder.main(conf, new String[] { libjars,
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile });
 
@@ -73,18 +73,43 @@ public class IntegrationTest {
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
     jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
+  
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
-    CountClueWarcRecords.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    /*
+    CountClueWarcRecords.main(conf, new String[] { libjars,
         "-repacked",
         "-path=" + collectionPath,
         "-docnoMapping=" + mappingFile });
+    */
+
+String cmd = "hadoop jar dist/cloud9-1.3.6.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords " +
+    "-libjars=/fs/clip-hadoop/jimmylin/Cloud9/dist/cloud9-1.3.6.jar,/fs/clip-hadoop/jimmylin/Cloud9/lib/guava-13.0.1.jar " +
+   "-repacked -path=/shared/collections/ClueWeb09/collection.compressed.block/en.01 " +
+    "-docnoMapping=/shared/collections/ClueWeb09/docno-mapping.dat ";
+
+    Runtime rt = Runtime.getRuntime();
+    System.out.println("Execing " + cmd);
+    Process proc = rt.exec(cmd);
+    // any error message?
+            StreamGobbler errorGobbler = new 
+                StreamGobbler(proc.getErrorStream(), "ERROR");            
+            
+            // any output?
+            StreamGobbler outputGobbler = new 
+                StreamGobbler(proc.getInputStream(), "OUTPUT");
+                
+            // kick them off
+            errorGobbler.start();
+            outputGobbler.start();
+                                    
+            // any error???
+            int exitVal = proc.waitFor();
+            System.out.println("ExitValue: " + exitVal);
+
   }
   
-  @Test
+    //@Test
   public void testForwardIndex() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
@@ -94,13 +119,11 @@ public class IntegrationTest {
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
     jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
 
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
     String index = tmpPrefix + "-findex.dat";
-    ClueWarcForwardIndexBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    ClueWarcForwardIndexBuilder.main(conf, new String[] { libjars,
         "-collection=" + collectionPath,
         "-index=" + index });
 
@@ -118,4 +141,31 @@ public class IntegrationTest {
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(IntegrationTest.class);
   }
+}
+
+class StreamGobbler extends Thread
+{
+    InputStream is;
+    String type;
+    
+    StreamGobbler(InputStream is, String type)
+    {
+        this.is = is;
+        this.type = type;
+    }
+    
+    public void run()
+    {
+        try
+	    {
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
+		String line=null;
+		while ( (line = br.readLine()) != null)
+		    System.out.println(type + ">" + line);    
+            } catch (IOException ioe)
+	    {
+                ioe.printStackTrace();  
+	    }
+    }
 }

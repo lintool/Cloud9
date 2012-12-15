@@ -11,6 +11,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -219,5 +220,11 @@ public class ClueWarcForwardIndexBuilder extends Configured implements Tool {
     LOG.info("Running " + ClueWarcForwardIndexBuilder.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
     ToolRunner.run(new ClueWarcForwardIndexBuilder(), args);
+  }
+
+  public static void main(Configuration conf, String[] args) throws Exception {
+    LOG.info("Running " + ClueWarcForwardIndexBuilder.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(conf, new ClueWarcForwardIndexBuilder(), args);
   }
 }
