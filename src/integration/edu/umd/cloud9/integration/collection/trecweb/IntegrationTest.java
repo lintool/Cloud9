@@ -3,7 +3,6 @@ package edu.umd.cloud9.integration.collection.trecweb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Random;
 
 import junit.framework.JUnit4TestAdapter;
@@ -14,12 +13,9 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.trecweb.Gov2DocnoMapping;
-import edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection;
-import edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder;
 import edu.umd.cloud9.collection.trecweb.TrecWebDocumentInputFormat;
 import edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
@@ -28,10 +24,9 @@ public class IntegrationTest {
   private static final Random random = new Random();
 
   private static final Path wt10gPath = new Path("/shared/collections/wt10g/collection.raw");
-  private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw");
+  private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw/gov2-corpus");
 
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() +
-      "-" + random.nextInt(10000);
+  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   // wt10g, repacked.
   @Test
@@ -41,23 +36,25 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(wt10gPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String repackedCollection = tmpPrefix + "-wt10g-repacked";
     String wt10gMappingFile = tmpPrefix + "-wt10g-mapping-repacked.dat";
-    RepackTrecWebCollection.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
-        "-collection=" + wt10gPath, "-output=" + repackedCollection, "-compressionType=block" });
 
-    TrecWebDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-collection=" + wt10gPath,
+        "-output=" + repackedCollection,
+        "-compressionType=block" };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     Wt10gDocnoMapping mapping = new Wt10gDocnoMapping();
     mapping.loadMapping(new Path(wt10gMappingFile), fs);
@@ -77,23 +74,23 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(gov2Path));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String repackedCollection = tmpPrefix + "-gov2-repacked";
     String gov2MappingFile = tmpPrefix + "-gov2-mapping-repacked.dat";
-    RepackTrecWebCollection.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
-        "-collection=" + gov2Path, "-output=" + repackedCollection, "-compressionType=block" });
 
-    TrecWebDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-collection=" + gov2Path, "-output=" + repackedCollection, "-compressionType=block" };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     Gov2DocnoMapping mapping = new Gov2DocnoMapping();
     mapping.loadMapping(new Path(gov2MappingFile), fs);
@@ -113,19 +110,16 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(wt10gPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String wt10gMappingFile = tmpPrefix + "-wt10g-mapping.dat";
-    TrecWebDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + wt10gPath,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     Wt10gDocnoMapping mapping = new Wt10gDocnoMapping();
     mapping.loadMapping(new Path(wt10gMappingFile), fs);
@@ -145,19 +139,16 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(gov2Path));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String gov2MappingFile = tmpPrefix + "-gov2-mapping.dat";
-    TrecWebDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + gov2Path,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     Gov2DocnoMapping mapping = new Gov2DocnoMapping();
     mapping.loadMapping(new Path(gov2MappingFile), fs);

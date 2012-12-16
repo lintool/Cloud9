@@ -19,7 +19,6 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
   private static DecimalFormat FORMAT5 = new DecimalFormat("00000");
 
   private Configuration conf;
-  private FileSystem fs;
 
   private int[] docnos;
   private int[] offsets;
@@ -34,7 +33,6 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
   @Override
   public void loadIndex(Path index, Path mapping, FileSystem fs) throws IOException {
     this.conf = fs.getConf();
-    this.fs = fs;
 
     LOG.info("Loading forward index: " + index);
     docnoMapping.loadMapping(mapping, fs);
@@ -90,7 +88,8 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
     LOG.info("fetching docno " + docno + ": seeking to " + offsets[idx] + " at " + file);
 
     try {
-      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
+      SequenceFile.Reader reader =
+          new SequenceFile.Reader(conf, SequenceFile.Reader.file(new Path(file)));
 
       IntWritable key = new IntWritable();
       ClueWarcRecord value = new ClueWarcRecord();
@@ -149,7 +148,8 @@ public class ClueWarcForwardIndex implements DocumentForwardIndex<ClueWarcRecord
     String file = collectionPath + "/part-" + FORMAT5.format(fileno[idx]);
 
     try {
-      SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(file), conf);
+      SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+          SequenceFile.Reader.file(new Path(file)));
       IntWritable key = new IntWritable();
 
       reader.seek(offsets[idx]);

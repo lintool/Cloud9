@@ -79,7 +79,6 @@ public class VerifyGov2Webgraph {
     List<String> jars = Lists.newArrayList();
     jars.add(IntegrationUtils.getJar("dist", "cloud9"));
     jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09"));
     jars.add(IntegrationUtils.getJar("lib", "dsiutils"));
     jars.add(IntegrationUtils.getJar("lib", "fastutil"));
     jars.add(IntegrationUtils.getJar("lib", "sux4j"));
@@ -89,13 +88,17 @@ public class VerifyGov2Webgraph {
     jars.add(IntegrationUtils.getJar("lib", "htmlparser"));
     jars.add(IntegrationUtils.getJar("lib", "pcj"));
 
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.webgraph.driver.TrecDriver.class.getCanonicalName(),
+        String.format("-libjars=%s", Joiner.on(",").join(jars)),
+        "-input", collectionPath,
+        "-output", collectionOutput,
+        "-collection", "gov2",
+        "-docno", docnoMapping,
+        "-caw",
+        "-normalizer", edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer.class.getCanonicalName()};
 
-    TrecDriver.main(new String[] {libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
-        "-input", collectionPath, "-output", collectionOutput,
-        "-collection", "gov2", "-docno", docnoMapping,
-        "-caw", "-normalizer", "edu.umd.cloud9.webgraph.normalizer.AnchorTextBasicNormalizer"});
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
 
   @Test

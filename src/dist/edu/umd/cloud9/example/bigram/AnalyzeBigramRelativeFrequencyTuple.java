@@ -20,9 +20,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.apache.pig.data.Tuple;
 
 import edu.umd.cloud9.io.SequenceFileUtils;

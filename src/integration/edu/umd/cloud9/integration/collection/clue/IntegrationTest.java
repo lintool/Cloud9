@@ -3,7 +3,6 @@ package edu.umd.cloud9.integration.collection.clue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Random;
 
 import junit.framework.JUnit4TestAdapter;
@@ -14,23 +13,19 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
-import edu.umd.cloud9.collection.clue.ClueWarcDocnoMappingBuilder;
 import edu.umd.cloud9.collection.clue.ClueWarcForwardIndex;
-import edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder;
-import edu.umd.cloud9.collection.clue.CountClueWarcRecords;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
 public class IntegrationTest {
   private static final Random random = new Random();
 
-  private static final Path collectionPath =
-      new Path("/shared/collections/ClueWeb09/collection.compressed.block/en.01");
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() +
-      "-" + random.nextInt(10000);
+  private static final Path collectionPath = new Path(
+      "/shared/collections/ClueWeb09/collection.compressed.block/en.01");
+  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() + "-"
+      + random.nextInt(10000);
 
   private static final String mappingFile = tmpPrefix + "-mapping.dat";
 
@@ -41,17 +36,13 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
-    ClueWarcDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.clue.ClueWarcDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     ClueWarcDocnoMapping mapping = new ClueWarcDocnoMapping();
     mapping.loadMapping(new Path(mappingFile), fs);
@@ -70,20 +61,16 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
-    CountClueWarcRecords.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"), 
+        edu.umd.cloud9.collection.clue.CountClueWarcRecords.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-repacked",
         "-path=" + collectionPath,
-        "-docnoMapping=" + mappingFile });
+        "-docnoMapping=" + mappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
-  
+
   @Test
   public void testForwardIndex() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
@@ -91,18 +78,15 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String index = tmpPrefix + "-findex.dat";
-    ClueWarcForwardIndexBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"), 
+        edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-collection=" + collectionPath,
-        "-index=" + index });
+        "-index=" + index };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     ClueWarcForwardIndex findex = new ClueWarcForwardIndex();
     findex.loadIndex(new Path(index), new Path(mappingFile), fs);
@@ -114,7 +98,7 @@ public class IntegrationTest {
     assertEquals(1, findex.getFirstDocno());
     assertEquals(50220423, findex.getLastDocno());
   }
-  
+
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(IntegrationTest.class);
   }

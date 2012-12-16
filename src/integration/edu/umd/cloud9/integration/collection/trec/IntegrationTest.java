@@ -3,7 +3,6 @@ package edu.umd.cloud9.integration.collection.trec;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Random;
 
 import junit.framework.JUnit4TestAdapter;
@@ -14,14 +13,10 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.collection.trec.CountTrecDocuments;
 import edu.umd.cloud9.collection.trec.TrecDocnoMapping;
-import edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder;
 import edu.umd.cloud9.collection.trec.TrecForwardIndex;
-import edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
 public class IntegrationTest {
@@ -40,17 +35,13 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
-    TrecDocnoMappingBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
-        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile });
+        "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     TrecDocnoMapping mapping = new TrecDocnoMapping();
     mapping.loadMapping(new Path(mappingFile), fs);
@@ -69,19 +60,16 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String output = tmpPrefix + "-cnt";
-    CountTrecDocuments.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trec.CountTrecDocuments.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-collection=" + collectionPath,
         "-output=" + output,
-        "-docnoMapping=" + mappingFile });
+        "-docnoMapping=" + mappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
 
   @Test
@@ -91,19 +79,15 @@ public class IntegrationTest {
 
     assertTrue(fs.exists(collectionPath));
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-13"));
-    jars.add(IntegrationUtils.getJar("lib", "guava-r09-jarjar"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
     String index = tmpPrefix + "-findex.dat";
-    TrecForwardIndexBuilder.main(new String[] { libjars,
-        IntegrationUtils.D_JT, IntegrationUtils.D_NN,
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+        edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder.class.getCanonicalName(),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
         "-collection=" + collectionPath,
         "-index=" + index,
-        "-docnoMapping=" + mappingFile });
+        "-docnoMapping=" + mappingFile };
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     TrecForwardIndex findex = new TrecForwardIndex();
     findex.loadIndex(new Path(index), new Path(mappingFile), fs);

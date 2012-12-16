@@ -116,12 +116,12 @@ public class XMLInputFormat extends TextInputFormat {
       FileSystem fs = file.getFileSystem(conf);
 
       if (codec != null) {
-        LOG.info("Reading compressed file...");
+        LOG.info("Reading compressed file " + file + "...");
         fsin = new DataInputStream(codec.createInputStream(fs.open(file)));
 
         end = Long.MAX_VALUE;
       } else {
-        LOG.info("Reading uncompressed file...");
+        LOG.info("Reading uncompressed file " + file + "...");
         FSDataInputStream fileIn = fs.open(file);
 
         fileIn.seek(start);

@@ -70,6 +70,6 @@ public class ClueWarcDocnoMappingBuilder extends Configured implements Tool, Doc
   public static void main(String[] args) throws Exception {
     LOG.info("Running " + ClueWarcDocnoMappingBuilder.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
-    ToolRunner.run(new Configuration(), new ClueWarcDocnoMappingBuilder(), args);
+    ToolRunner.run(new ClueWarcDocnoMappingBuilder(), args);
   }
 }
