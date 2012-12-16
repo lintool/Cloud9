@@ -24,10 +24,9 @@ public class IntegrationTest {
   private static final Random random = new Random();
 
   private static final Path wt10gPath = new Path("/shared/collections/wt10g/collection.raw");
-  private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw");
+  private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw/gov2-corpus");
 
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() +
-      "-" + random.nextInt(10000);
+  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   // wt10g, repacked.
   @Test
