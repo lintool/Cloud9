@@ -104,7 +104,8 @@ public class TrecDocnoMappingBuilder extends Configured implements Tool, DocnoMa
     LOG.info(" - input path: " + options.collection);
     LOG.info(" - output file: " + options.docnoMapping);
 
-    Job job = new Job(getConf(), TrecDocnoMappingBuilder.class.getSimpleName());
+    Job job = new Job(getConf(),
+        TrecDocnoMappingBuilder.class.getSimpleName() + ":" + options.collection);
     FileSystem fs = FileSystem.get(job.getConfiguration());
 
     job.setJarByClass(TrecDocnoMappingBuilder.class);

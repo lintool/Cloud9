@@ -138,7 +138,8 @@ public class CountMedlineCitations extends Configured implements Tool {
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    Job job = new Job(getConf(), CountMedlineCitations.class.getSimpleName());
+    Job job = new Job(getConf(),
+        CountMedlineCitations.class.getSimpleName() + ":" + inputPath);
     job.setJarByClass(CountMedlineCitations.class);
 
     job.setNumReduceTasks(0);

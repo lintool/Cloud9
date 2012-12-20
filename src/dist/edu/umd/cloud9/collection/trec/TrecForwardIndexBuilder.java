@@ -154,7 +154,8 @@ public class TrecForwardIndexBuilder extends Configured implements Tool {
     String tmpDir = "tmp-" + TrecForwardIndexBuilder.class.getSimpleName() + "-"
         + random.nextInt(10000);
 
-    Job job = new Job(getConf(), TrecForwardIndexBuilder.class.getSimpleName());
+    Job job = new Job(getConf(),
+        TrecForwardIndexBuilder.class.getSimpleName() + ":" + collectionPath);
     job.setJarByClass(TrecForwardIndexBuilder.class);
     FileSystem fs = FileSystem.get(getConf());
 

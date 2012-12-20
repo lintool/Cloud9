@@ -113,7 +113,8 @@ public class RepackTrecWebCollection extends Configured implements Tool {
     // This is the default block size.
     int blocksize = 1000000;
 
-    Job job = new Job(getConf(), RepackTrecWebCollection.class.getSimpleName());
+    Job job = new Job(getConf(),
+        RepackTrecWebCollection.class.getSimpleName() + ":" + collection);
     FileSystem fs = FileSystem.get(job.getConfiguration());
 
     job.setJarByClass(RepackTrecWebCollection.class);

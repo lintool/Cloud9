@@ -101,7 +101,8 @@ public class MedlineDocnoMappingBuilder extends Configured implements Tool, Docn
     LOG.info(" - input path: " + options.collection);
     LOG.info(" - output file: " + options.docnoMapping);
 
-    Job job = new Job(getConf(), MedlineDocnoMappingBuilder.class.getSimpleName());
+    Job job = new Job(getConf(),
+        MedlineDocnoMappingBuilder.class.getSimpleName() + ":" + options.collection);
     FileSystem fs = FileSystem.get(job.getConfiguration());
 
     job.setJarByClass(MedlineDocnoMappingBuilder.class);
