@@ -35,14 +35,9 @@ import com.google.common.collect.Lists;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
  * Object that maps between MEDLINE docids (PMIDs) to docnos (sequentially-numbered ints).
- * </p>
- *
- * <p>
- * The <code>main</code> of this class provides a simple program for accessing docno mappings.
+ * The {@code main} of this class provides a simple program for accessing docno mappings.
  * Command-line arguments are as follows:
- * </p>
  *
  * <ul>
  * <li>list, getDocno, getDocid: the command&mdash;list all mappings; get docno from docid; or, get
@@ -80,7 +75,7 @@ public class MedlineDocnoMapping implements DocnoMapping {
 
   /**
    * Creates a mappings file from the contents of a flat text file containing docid to docno
-   * mappings. This method is used by {@link NumberMedlineCitations} internally.
+   * mappings. This method is used by {@link MedlineDocnoMappingBuilder} internally.
    *
    * @param input flat text file containing docid to docno mappings
    * @param output output mappings file
@@ -159,7 +154,7 @@ public class MedlineDocnoMapping implements DocnoMapping {
 
   @Override
   public Builder getBuilder() {
-    throw new UnsupportedOperationException();
+    return new MedlineDocnoMappingBuilder();
   }
 
   /**

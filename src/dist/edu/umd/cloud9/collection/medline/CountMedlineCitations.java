@@ -18,7 +18,15 @@ package edu.umd.cloud9.collection.medline;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -27,6 +35,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -38,36 +47,13 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
- * Simple demo program that counts all the documents in a collection of MEDLINE citations. This
- * provides a skeleton for MapReduce programs to process the collection. The program takes three
- * command-line arguments:
- * </p>
- *
- * <ul>
- * <li>[input] path to the document collection
- * <li>[output-dir] path to the output directory
- * <li>[mappings-file] path to the docno mappings file
- * </ul>
- *
- * <p>
- * Here's a sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.trec.DemoCountTrecDocuments2 \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/trec/trec4-5_noCRFR.xml \
- *   /user/jimmylin/count-tmp \
- *   /user/jimmylin/docno-mapping.dat
- * </pre></blockquote>
+ * Simple demo program that counts all the documents in the TREC collection. Run without any
+ * arguments for help. The guava jar must be included using {@code -libjar}.
  *
  * @author Jimmy Lin
  */
-public class DemoCountMedlineCitations extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(DemoCountMedlineCitations.class);
+public class CountMedlineCitations extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(CountMedlineCitations.class);
   private static enum Count { DOCS };
 
   private static class MyMapper extends Mapper<LongWritable, MedlineCitation, Text, IntWritable> {
@@ -110,35 +96,50 @@ public class DemoCountMedlineCitations extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public DemoCountMedlineCitations() {
-  }
+  public CountMedlineCitations() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input] [output-dir] [mappings-file]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  public static final String COLLECTION_OPTION = "collection";
+  public static final String OUTPUT_OPTION = "output";
+  public static final String MAPPING_OPTION = "docnoMapping";
 
-  /**
-   * Runs this tool.
-   */
+  @SuppressWarnings("static-access")
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+    Options options = new Options();
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) collection path").create(COLLECTION_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(required) DocnoMapping data").create(MAPPING_OPTION));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    String mappingFile = args[2];
+    if (!cmdline.hasOption(COLLECTION_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ||
+        !cmdline.hasOption(MAPPING_OPTION)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-    LOG.info("Tool: " + DemoCountMedlineCitations.class.getCanonicalName());
+    String inputPath = cmdline.getOptionValue(COLLECTION_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
+
+    LOG.info("Tool: " + CountMedlineCitations.class.getSimpleName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
 
-    Job job = new Job(getConf(), DemoCountMedlineCitations.class.getSimpleName());
-    job.setJarByClass(DemoCountMedlineCitations.class);
+    Job job = new Job(getConf(), CountMedlineCitations.class.getSimpleName());
+    job.setJarByClass(CountMedlineCitations.class);
 
     job.setNumReduceTasks(0);
 
@@ -165,13 +166,19 @@ public class DemoCountMedlineCitations extends Configured implements Tool {
 
     job.waitForCompletion(true);
 
-    return 0;
+    Counters counters = job.getCounters();
+    int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
+    LOG.info("Read " + numDocs + " docs.");
+
+    return numDocs;
   }
 
   /**
    * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new Configuration(), new DemoCountMedlineCitations(), args);
+    LOG.info("Running " + CountMedlineCitations.class.getCanonicalName() +
+        " with args " + Arrays.toString(args));
+    ToolRunner.run(new CountMedlineCitations(), args);
   }
 }
