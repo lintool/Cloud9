@@ -384,9 +384,6 @@ public class Gamma {
 
   /**
    * Approximate digamma of x.
-   * 
-   * @param x
-   * @return
    */
   public static double digamma(double x) {
     double r = 0.0;
@@ -412,9 +409,6 @@ public class Gamma {
 
   /**
    * Approximate the trigamma of x.
-   * 
-   * @param x
-   * @return
    */
   public static double trigamma(double x) {
     double p;
@@ -448,7 +442,6 @@ public class Gamma {
   /**
    * @deprecated
    * @param x
-   * @return
    */
   public static double logGamma(double x) {
     double z = 1 / (x * x);

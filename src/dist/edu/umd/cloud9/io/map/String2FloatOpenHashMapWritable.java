@@ -107,7 +107,7 @@ public class String2FloatOpenHashMapWritable extends Object2FloatOpenHashMap<Str
   /**
    * Creates object from serialized representation.
    *
-   * @param in source of serialized representation
+   * @param bytes source of serialized representation
    * @return newly-created object
    * @throws IOException
    */

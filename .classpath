@@ -5,137 +5,61 @@
 	<classpathentry kind="src" path="src/integration"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/bliki-core-3.0.16.jar"/>
-	<classpathentry kind="lib" path="lib/collections-generic-4.01.jar"/>
-	<classpathentry kind="lib" path="lib/colt-1.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-compress-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-el-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/concurrent-1.3.4.jar"/>
-	<classpathentry kind="lib" path="lib/core-3.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/htmlparser-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/jasper-compiler-5.5.23.jar"/>
-	<classpathentry kind="lib" path="lib/jasper-runtime-5.5.23.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
-	<classpathentry kind="lib" path="lib/jsp-api-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.8.2.jar"/>
-	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
-	<classpathentry kind="lib" path="lib/oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/pcj-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/xmlenc-0.52.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
-	<classpathentry kind="lib" path="lib/bliki-core-3.0.16-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/bliki-core-3.0.16-sources.jar"/>
-	<classpathentry kind="lib" path="lib/collections-generic-4.01-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/collections-generic-4.01-sources.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6-sources.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/dsiutils-1.0.12.jar"/>
-	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
-	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jung-api-2.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.8.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.8.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jwnl-1.3.3.jar"/>
-	<classpathentry kind="lib" path="lib/maxent-3.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/mockito-all-1.8.5-sources.jar"/>
-	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating-sources.jar"/>
-	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating.jar"/>
-	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/sux4j-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/tools-1.5.0-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/tools-1.5.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/tools-1.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/guava-13.0.1-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/guava-13.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/guava-13.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jsr305-1.3.9.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/asm-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/avro-1.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/hsqldb-1.8.0.10.jar"/>
-	<classpathentry kind="lib" path="lib/jets3t-0.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/jsp-2.1-6.1.14.jar"/>
-	<classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
-	<classpathentry kind="lib" path="lib/kfs-0.3.jar"/>
-	<classpathentry kind="lib" path="lib/paranamer-ant-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/paranamer-generator-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/pig-0.10.0-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/pig-0.10.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/pig-0.10.0.jar"/>
-	<classpathentry kind="lib" path="lib/qdox-1.10.1.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/ant-1.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/ant-launcher-1.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/avro-1.7.1.cloudera.2.jar"/>
+	<classpathentry kind="lib" path="lib/bliki-core-3.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-2.2.1-v20090111.jar"/>
+	<classpathentry kind="lib" path="lib/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="lib/colt-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-core-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-daemon-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-digester-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-el-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-net-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/concurrent-1.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/core-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/dsiutils-1.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/fastutil-5.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/guava-13.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/guice-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/guice-servlet-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-annotations-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-auth-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-common-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-common-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-common-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-2.0.0-mr1-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-hdfs-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-hdfs-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-hdfs-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-core-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-core-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-core-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-streaming-2.0.0-mr1-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-streaming-2.0.0-mr1-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-api-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-api-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-api-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-common-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-common-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-common-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-common-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-common-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-common-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-nodemanager-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-nodemanager-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-nodemanager-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-resourcemanager-2.0.0-cdh4.1.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-yarn-server-resourcemanager-2.0.0-cdh4.1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-resourcemanager-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-web-proxy-2.0.0-cdh4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hsqldb-1.8.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/htmlparser-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.8.8.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-jaxrs-1.8.8.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.8.8.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-xc-1.8.8.jar"/>
+	<classpathentry kind="lib" path="lib/jasper-compiler-5.5.23.jar"/>
+	<classpathentry kind="lib" path="lib/jasper-runtime-5.5.23.jar"/>
 	<classpathentry kind="lib" path="lib/javaee-api-5.0-2.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject-1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-api-2.2.2.jar"/>
@@ -146,18 +70,49 @@
 	<classpathentry kind="lib" path="lib/jersey-json-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-server-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-test-framework-grizzly2-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/jets3t-0.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/jettison-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.26.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.26.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.42.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.17-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.17-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-2.1-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-api-2.1-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-api-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-1.3.9.jar"/>
+	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/jwnl-1.3.3.jar"/>
+	<classpathentry kind="lib" path="lib/kfs-0.3.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/mail-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/maxent-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
+	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.2.4.Final.jar"/>
+	<classpathentry kind="lib" path="lib/oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/paranamer-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/paranamer-ant-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/paranamer-generator-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/pcj-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/pig-0.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-2.4.0a.jar"/>
+	<classpathentry kind="lib" path="lib/qdox-1.10.1.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/snappy-java-1.0.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/sux4j-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/tools-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/ant-launcher-1.8.1.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

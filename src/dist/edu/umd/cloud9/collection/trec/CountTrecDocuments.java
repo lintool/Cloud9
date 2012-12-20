@@ -132,7 +132,7 @@ public class CountTrecDocuments extends Configured implements Tool {
     String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
     String mappingFile = cmdline.getOptionValue(MAPPING_OPTION);
 
-    LOG.info("Tool: " + CountTrecDocuments.class.getCanonicalName());
+    LOG.info("Tool: " + CountTrecDocuments.class.getSimpleName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output dir: " + outputPath);
     LOG.info(" - docno mapping file: " + mappingFile);
@@ -169,7 +169,7 @@ public class CountTrecDocuments extends Configured implements Tool {
     int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
     LOG.info("Read " + numDocs + " docs.");
 
-    return 0;
+    return numDocs;
   }
 
   /**
@@ -178,6 +178,6 @@ public class CountTrecDocuments extends Configured implements Tool {
   public static void main(String[] args) throws Exception {
     LOG.info("Running " + CountTrecDocuments.class.getCanonicalName() +
         " with args " + Arrays.toString(args));
-    ToolRunner.run(new Configuration(), new CountTrecDocuments(), args);
+    ToolRunner.run(new CountTrecDocuments(), args);
   }
 }

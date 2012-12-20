@@ -98,14 +98,14 @@ public class TrecDocnoMappingBuilder extends Configured implements Tool, DocnoMa
     }
 
     // Temp directory.
-    String tmpDir = "tmp-" + TrecDocnoMappingBuilder.class.getSimpleName() +
-        "-" + random.nextInt(10000);
+    String tmpDir = "tmp-" + TrecDocnoMappingBuilder.class.getSimpleName() + "-" + random.nextInt(10000);
 
     LOG.info("Tool name: " + TrecDocnoMappingBuilder.class.getCanonicalName());
     LOG.info(" - input path: " + options.collection);
     LOG.info(" - output file: " + options.docnoMapping);
 
-    Job job = new Job(getConf(), TrecDocnoMappingBuilder.class.getSimpleName());
+    Job job = new Job(getConf(),
+        TrecDocnoMappingBuilder.class.getSimpleName() + ":" + options.collection);
     FileSystem fs = FileSystem.get(job.getConfiguration());
 
     job.setJarByClass(TrecDocnoMappingBuilder.class);

@@ -6,49 +6,45 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-api" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-common" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-common" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-nodemanager" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-resourcemanager" rev="2.0.0-cdh4.1.2"/>
-    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.0.0-cdh4.1.2"/>
+    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-api" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-common" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-common" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-nodemanager" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-resourcemanager" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.0.0-cdh4.1.2"/>
+    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-mr1-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-mr1-cdh4.1.2" />
+    <dependency org="org.apache.pig" name="pig" rev="0.10.0" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" conf="*->*,!sources,!javadoc"/>
 
-    <!--dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2-cdh3u3" />
-    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="0.20.2-cdh3u3" /-->
+    <dependency org="com.google.guava" name="guava" rev="13.0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="com.google.code.gson" name="gson" rev="2.2.2" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="org.apache.pig" name="pig" rev="0.10.0" />
-    <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" />
+    <dependency org="commons-cli" name="commons-cli" rev="1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="commons-lang" name="commons-lang" rev="2.6" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="com.google.guava" name="guava" rev="13.0.1" />
-    <dependency org="com.google.code.gson" name="gson" rev="2.2.2" />
+    <dependency org="" name="sux4j" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="" name="dsiutils" rev="1.0.12" conf="*->*,!sources,!javadoc"/>
+    <dependency org="fastutil" name="fastutil" rev="5.1.5" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="commons-cli" name="commons-cli" rev="1.2" />
-    <dependency org="commons-collections" name="commons-collections" rev="3.2.1" />
-    <dependency org="commons-lang" name="commons-lang" rev="2.6" />
-
-    <dependency org="" name="sux4j" rev="2.0.1" />
-    <dependency org="" name="dsiutils" rev="1.0.12" />
-    <dependency org="fastutil" name="fastutil" rev="5.1.5" />
-
-    <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.16">
+    <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.16" conf="*->*,!sources,!javadoc">
       <exclude org="commons-httpclient" module="commons-httpclient"/>
     </dependency>
-    <dependency org="junit" name="junit" rev="4.8.2" />
-    <dependency org="log4j" name="log4j" rev="1.2.16" />
-    <dependency org="net.sourceforge.collections" name="collections-generic" rev="4.01" />
-    <dependency org="net.sf.jung" name="jung-api" rev="2.0.1" />
-    <dependency org="net.sf.jung" name="jung-algorithms" rev="2.0.1" />
-    <dependency org="net.sf.jung" name="jung-graph-impl" rev="2.0.1" />
-    <dependency org="opennlp" name="tools" rev="1.5.0"/>    
-    <dependency org="org.mockito" name="mockito-all" rev="1.8.5" />
-    <dependency org="spy" name="memcached" rev="2.2" />
-    <dependency org="spy" name="spy" rev="2.4" />
-    <dependency org="org.htmlparser" name="htmlparser" rev="1.6" />
-    <dependency org="pcj" name="pcj" rev="1.2" />
+    <dependency org="junit" name="junit" rev="4.8.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="log4j" name="log4j" rev="1.2.16" conf="*->*,!sources,!javadoc"/>
+    <dependency org="net.sourceforge.collections" name="collections-generic" rev="4.01" conf="*->*,!sources,!javadoc"/>
+    <dependency org="net.sf.jung" name="jung-api" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="net.sf.jung" name="jung-algorithms" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="net.sf.jung" name="jung-graph-impl" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="opennlp" name="tools" rev="1.5.0" conf="*->*,!sources,!javadoc"/>    
+    <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="*->*,!sources,!javadoc"/>
+    <dependency org="spy" name="memcached" rev="2.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="spy" name="spy" rev="2.4" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.htmlparser" name="htmlparser" rev="1.6" conf="*->*,!sources,!javadoc"/>
+    <dependency org="pcj" name="pcj" rev="1.2" conf="*->*,!sources,!javadoc"/>
   </dependencies>
 </ivy-module>

@@ -38,30 +38,8 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
- * <p>
- * Program that builds the mapping from MEDLINE docids (PMIDs) to docnos (sequentially-numbered
- * ints). The program takes four command-line arguments:
- * </p>
- *
- * <ul>
- * <li>[input] path to the document collection</li>
- * <li>[output-dir] path to temporary MapReduce output directory</li>
- * <li>[output-file] path to location of mappings file</li>
- * </ul>
- *
- * <p>
- * Here's a sample invocation:
- * </p>
- *
- * <blockquote><pre>
- * setenv HADOOP_CLASSPATH "/foo/cloud9-x.y.z.jar:/foo/guava-r09.jar"
- *
- * hadoop jar cloud9-x.y.z.jar edu.umd.cloud9.collection.medline.NumberMedlineCitations2 \
- *   -libjars=guava-r09.jar \
- *   /shared/collections/medline04 \
- *   /user/jimmylin/docid-tmp \
- *   /user/jimmylin/docno-mapping.dat
- * </pre></blockquote>
+ * Tool that builds the mapping from MEDLINE docids (PMIDs) to docnos (sequentially-numbered ints).
+ * Run without any arguments for help. The guava jar must be included using {@code -libjar}.
  *
  * @author Jimmy Lin
  */
@@ -117,14 +95,14 @@ public class MedlineDocnoMappingBuilder extends Configured implements Tool, Docn
     }
 
     // Temp directory.
-    String tmpDir = "tmp-" + MedlineDocnoMappingBuilder.class.getSimpleName() +
-        "-" + random.nextInt(10000);
+    String tmpDir = "tmp-" + MedlineDocnoMappingBuilder.class.getSimpleName() + "-" + random.nextInt(10000);
 
     LOG.info("Tool: " + MedlineDocnoMappingBuilder.class.getCanonicalName());
     LOG.info(" - input path: " + options.collection);
     LOG.info(" - output file: " + options.docnoMapping);
 
-    Job job = new Job(getConf(), MedlineDocnoMappingBuilder.class.getSimpleName());
+    Job job = new Job(getConf(),
+        MedlineDocnoMappingBuilder.class.getSimpleName() + ":" + options.collection);
     FileSystem fs = FileSystem.get(job.getConfiguration());
 
     job.setJarByClass(MedlineDocnoMappingBuilder.class);

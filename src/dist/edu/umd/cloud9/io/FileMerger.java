@@ -70,9 +70,6 @@ public class FileMerger extends Configured implements Tool {
 
   /**
    * Generate a random string of given length.
-   * 
-   * @param length
-   * @return
    */
   public static String generateRandomString(int length) {
     return new BigInteger(length * 4, RANDOM_GENERATOR).toString(32);
@@ -80,23 +77,14 @@ public class FileMerger extends Configured implements Tool {
 
   /**
    * Generate a random string of default length.
-   * 
-   * @return
    */
   public static String generateRandomString() {
     return generateRandomString(DEFAULT_RANDOM_STRING_LENGTH);
   }
 
   /**
-   * This method merges all files (in {@link TextFormat}) specified by the glob expression
+   * This method merges all files specified by the glob expression
    * <code>inputFiles<code>
-   * 
-   * @param inputFiles
-   * @param outputFile
-   * @param numberOfMappers
-   * @param deleteSource
-   * @return
-   * @throws IOException
    */
   public static Path mergeTextFiles(Configuration configuration, String inputFiles,
       String outputFile, int numberOfMappers, boolean deleteSource) throws IOException {

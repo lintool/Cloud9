@@ -31,9 +31,9 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.JsonWritable;
 
 /**
- * Demo that packs the sample collection into a {@code SequenceFile} of {@link JSONObjectWritable}.
+ * Demo that packs the sample collection into a {@code SequenceFile} of {@link JsonWritable}s.
  * The key in each record is a {@link LongWritable} indicating the record count (sequential
- * numbering). The value in each record is a {@link JSONObjectWritable}, where the raw text is
+ * numbering). The value in each record is a {@link JsonWritable}, where the raw text is
  * stored under the field name "text". Designed to work with {@link DemoWordCountJson}.
  *
  * @author Jimmy Lin
