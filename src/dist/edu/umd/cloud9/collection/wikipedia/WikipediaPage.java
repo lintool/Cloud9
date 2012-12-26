@@ -357,7 +357,7 @@ public class WikipediaPage extends Indexable {
     page.textStart = s.indexOf("<text xml:space=\"preserve\">");
     page.textEnd = s.indexOf("</text>", page.textStart);
 
-    page.isDisambig = s.indexOf("{{disambig", page.textStart) != -1 || s.indexOf("{{Disambig", page.textStart) != -1;
+    page.isDisambig = s.indexOf("{{disambig}}", page.textStart) != -1 || s.indexOf("{{Disambig}}", page.textStart) != -1 || s.indexOf("wgCategories\":[\"All article disambiguation pages", page.textStart) != -1;
     page.isRedirect = s.substring(page.textStart + 27, page.textStart + 36).compareTo("#REDIRECT") == 0 ||
     s.substring(page.textStart + 27, page.textStart + 36).compareTo("#redirect") == 0;
     page.isStub = s.indexOf("stub}}", page.textStart) != -1 || s.indexOf("Wikipedia:Stub") != -1;
