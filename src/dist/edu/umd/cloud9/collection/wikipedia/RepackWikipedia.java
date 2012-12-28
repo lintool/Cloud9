@@ -188,7 +188,7 @@ public class RepackWikipedia extends Configured implements Tool {
       if ("record".equals(compressionType)) {
         SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.RECORD);
       } else {
-        SequenceFileOutputFormat.setOutputCompressionType(conf,	SequenceFile.CompressionType.BLOCK);
+        SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.BLOCK);
         conf.setInt("io.seqfile.compress.blocksize", blocksize);
       }
     }
