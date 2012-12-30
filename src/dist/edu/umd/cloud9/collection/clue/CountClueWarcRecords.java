@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.clue;
 
 import java.io.IOException;
@@ -14,11 +30,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -26,6 +44,7 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -39,27 +58,23 @@ import org.apache.log4j.Logger;
  * </p>
  *
  * <pre>
- * setenv HADOOP_CLASSPATH guava.jar
- * 
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
- *   -libjars guava-r09.jar -original \
- *   -path /shared/collections/ClueWeb09/collection.raw/ -segment 1 \
- *   -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat
+ * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
+ *  -libjars lib/guava-X.X.X.jar \
+ *  -original -path /shared/collections/ClueWeb09/collection.raw/ -segment 1 \
+ *  -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat -countOutput records.txt
  *
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
- *   -repacked -path /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
- *   -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat
+ * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
+ *  -libjars lib/guava-X.X.X.jar \
+ *  -repacked -path /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
+ *  -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat -countOutput records.txt
  * </pre>
  *
  * @author Jimmy Lin
- *
  */
 public class CountClueWarcRecords extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(CountClueWarcRecords.class);
 
-  private static enum Records {
-    TOTAL, PAGES
-  };
+  private static enum Records { TOTAL, PAGES };
 
   private static class MyMapper extends MapReduceBase implements
       Mapper<Writable, ClueWarcRecord, Writable, Text> {
@@ -95,6 +110,7 @@ public class CountClueWarcRecords extends Configured implements Tool {
   public static final String PATH_OPTION = "path";
   public static final String MAPPING_OPTION = "docnoMapping";
   public static final String SEGMENT_OPTION = "segment";
+  public static final String COUNT_OPTION = "countOutput";
 
   /**
    * Runs this tool.
@@ -104,13 +120,15 @@ public class CountClueWarcRecords extends Configured implements Tool {
     Options options = new Options();
     options.addOption(new Option(ORIGINAL_OPTION, "use original ClueWeb09 distribution"));
     options.addOption(new Option(REPACKED_OPTION, "use repacked SequenceFiles"));
+
     options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("path: base path for 'original', actual path for 'repacked'")
-        .create(PATH_OPTION));
+        .withDescription("path: base path for 'original', actual path for 'repacked'").create(PATH_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("DocnoMapping data path").create(MAPPING_OPTION));
     options.addOption(OptionBuilder.withArgName("num").hasArg()
         .withDescription("segment number (required if 'original')").create(SEGMENT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output file to write the number of records").create(COUNT_OPTION));
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -192,7 +210,18 @@ public class CountClueWarcRecords extends Configured implements Tool {
     conf.setOutputFormat(NullOutputFormat.class);
     conf.setMapperClass(MyMapper.class);
 
-    JobClient.runJob(conf);
+    RunningJob job = JobClient.runJob(conf);
+    Counters counters = job.getCounters();
+    int numDocs = (int) counters.findCounter(Records.PAGES).getCounter();
+
+    LOG.info("Read " + numDocs + " docs.");
+
+    if (cmdline.hasOption(COUNT_OPTION)) {
+      String f = cmdline.getOptionValue(COUNT_OPTION);
+      FSDataOutputStream out = fs.create(new Path(f));
+      out.write(new Integer(numDocs).toString().getBytes());
+      out.close();
+    }
 
     return 0;
   }
