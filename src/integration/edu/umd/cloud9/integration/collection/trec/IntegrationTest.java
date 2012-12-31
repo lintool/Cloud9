@@ -10,6 +10,8 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.LineReader;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
@@ -37,7 +39,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
 
@@ -61,15 +63,24 @@ public class IntegrationTest {
     assertTrue(fs.exists(collectionPath));
 
     String output = tmpPrefix + "-cnt";
+    String records = tmpPrefix + "-records.txt";
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trec.CountTrecDocuments.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPath,
         "-output=" + output,
-        "-docnoMapping=" + mappingFile };
+        "-docnoMapping=" + mappingFile,
+        "-countOutput=" + records};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    LineReader reader = new LineReader(fs.open(new Path(records)));
+    Text str = new Text();
+    reader.readLine(str);
+    reader.close();
+
+    assertEquals(472525, Integer.parseInt(str.toString()));
   }
 
   @Test
@@ -82,7 +93,7 @@ public class IntegrationTest {
     String index = tmpPrefix + "-findex.dat";
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPath,
         "-index=" + index,
         "-docnoMapping=" + mappingFile };

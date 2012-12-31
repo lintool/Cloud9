@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -39,16 +39,13 @@ import org.apache.log4j.Logger;
 public class BigramCount extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BigramCount.class);
 
-  // Mapper: emits (token, 1) for every bigram occurrence.
   protected static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-
-    // Reuse objects to save overhead of object creation.
-    private static final IntWritable one = new IntWritable(1);
-    private static final Text bigram = new Text();
+    private static final IntWritable ONE = new IntWritable(1);
+    private static final Text BIGRAM = new Text();
 
     @Override
-    public void map(LongWritable key, Text value, Context context) throws IOException,
-        InterruptedException {
+    public void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
       String line = value.toString();
 
       String prev = null;
@@ -58,36 +55,31 @@ public class BigramCount extends Configured implements Tool {
 
         // Emit only if we have an actual bigram.
         if (prev != null) {
-          bigram.set(prev + " " + cur);
-          context.write(bigram, one);
+          BIGRAM.set(prev + " " + cur);
+          context.write(BIGRAM, ONE);
         }
         prev = cur;
       }
     }
   }
 
-  // Reducer: sums up all the counts.
   protected static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-
-    // Reuse objects
-    private final static IntWritable sumWritable = new IntWritable();
+    private final static IntWritable SUM = new IntWritable();
 
     @Override
     public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException,
         InterruptedException {
-      // sum up values
       int sum = 0;
       Iterator<IntWritable> iter = values.iterator();
       while (iter.hasNext()) {
         sum += iter.next().get();
       }
-      sumWritable.set(sum);
-      context.write(key, sumWritable);
+      SUM.set(sum);
+      context.write(key, SUM);
     }
   }
 
-  private BigramCount() {
-  }
+  private BigramCount() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [num-reducers]");
@@ -108,12 +100,13 @@ public class BigramCount extends Configured implements Tool {
     String outputPath = args[1];
     int reduceTasks = Integer.parseInt(args[2]);
 
-    LOG.info("Tool name: BigramCount");
+    LOG.info("Tool name: " + BigramCount.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), "BigramCount");
+    Job job = Job.getInstance(getConf());
+    job.setJobName(BigramCount.class.getSimpleName());
     job.setJarByClass(BigramCount.class);
 
     job.setNumReduceTasks(reduceTasks);
@@ -131,7 +124,7 @@ public class BigramCount extends Configured implements Tool {
     job.setCombinerClass(MyReducer.class);
     job.setReducerClass(MyReducer.class);
 
-    // Delete the output directory if it exists already
+    // Delete the output directory if it exists already.
     Path outputDir = new Path(outputPath);
     FileSystem.get(getConf()).delete(outputDir, true);
 
@@ -144,10 +137,9 @@ public class BigramCount extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(new BigramCount(), args);
-    System.exit(res);
+    ToolRunner.run(new BigramCount(), args);
   }
 }

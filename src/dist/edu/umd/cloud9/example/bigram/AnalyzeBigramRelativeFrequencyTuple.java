@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -38,8 +38,8 @@ public class AnalyzeBigramRelativeFrequencyTuple {
 
     System.out.println("input path: " + args[0]);
 
-    List<PairOfWritables<Tuple, FloatWritable>> pairs = SequenceFileUtils.readDirectory(new Path(
-        args[0]));
+    List<PairOfWritables<Tuple, FloatWritable>> pairs =
+        SequenceFileUtils.readDirectory(new Path(args[0]));
 
     List<PairOfWritables<Tuple, FloatWritable>> list1 = Lists.newArrayList();
     List<PairOfWritables<Tuple, FloatWritable>> list2 = Lists.newArrayList();

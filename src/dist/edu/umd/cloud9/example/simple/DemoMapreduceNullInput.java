@@ -49,9 +49,10 @@ public class DemoMapreduceNullInput {
   /**
    * Runs the demo.
    */
-  public static void main(String[] args) throws IOException, InterruptedException,
-      ClassNotFoundException {
-    Job job = new Job(new Configuration(), "DemoMapreduceNullInput");
+  public static void main(String[] args)
+      throws IOException, InterruptedException, ClassNotFoundException {
+    Job job = Job.getInstance(new Configuration());
+    job.setJobName(DemoMapreduceNullInput.class.getSimpleName());
     job.setJarByClass(DemoMapreduceNullInput.class);
 
     job.setNumReduceTasks(0);

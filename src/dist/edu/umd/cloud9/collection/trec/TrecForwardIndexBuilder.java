@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -52,7 +52,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
 /**
  * Tool for building a document forward index for TREC collections. Run without any arguments
  * for help. The guava jar must be included using {@code -libjar} for this tool to run.
- * Sample invocation
+ * Sample invocation:
  *
  * <pre>
  * hadoop jar cloud9.jar edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder \

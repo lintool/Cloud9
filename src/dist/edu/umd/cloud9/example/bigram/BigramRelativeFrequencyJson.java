@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -60,15 +60,13 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
     }
   }
 
-  // Mapper: emits (token, 1) for every bigram occurrence.
   protected static class MyMapper extends Mapper<LongWritable, Text, MyTuple, FloatWritable> {
-    // Reuse objects to save overhead of object creation.
-    private static final FloatWritable one = new FloatWritable(1);
-    private static final MyTuple bigram = new MyTuple();
+    private static final FloatWritable ONE = new FloatWritable(1);
+    private static final MyTuple BIGRAM = new MyTuple();
 
     @Override
-    public void map(LongWritable key, Text value, Context context) throws IOException,
-        InterruptedException {
+    public void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
       String line = value.toString();
 
       String prev = null;
@@ -76,7 +74,7 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
       while (itr.hasMoreTokens()) {
         String cur = itr.nextToken();
 
-        // Wmit only if we have an actual bigram.
+        // Emit only if we have an actual bigram.
         if (prev != null) {
 
           // Simple way to truncate tokens that are too long.
@@ -88,13 +86,13 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
             prev = prev.substring(0, 100);
           }
 
-          bigram.getJsonObject().addProperty("Left", prev);
-          bigram.getJsonObject().addProperty("Right", cur);
-          context.write(bigram, one);
+          BIGRAM.getJsonObject().addProperty("Left", prev);
+          BIGRAM.getJsonObject().addProperty("Right", cur);
+          context.write(BIGRAM, ONE);
 
-          bigram.getJsonObject().addProperty("Left", prev);
-          bigram.getJsonObject().addProperty("Right", "*");
-          context.write(bigram, one);
+          BIGRAM.getJsonObject().addProperty("Left", prev);
+          BIGRAM.getJsonObject().addProperty("Right", "*");
+          context.write(BIGRAM, ONE);
         }
         prev = cur;
       }
@@ -102,7 +100,7 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
   }
 
   protected static class MyCombiner extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
-    private final static FloatWritable sumWritable = new FloatWritable();
+    private final static FloatWritable SUM = new FloatWritable();
 
     @Override
     public void reduce(MyTuple key, Iterable<FloatWritable> values, Context context)
@@ -112,13 +110,13 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
       while (iter.hasNext()) {
         sum += iter.next().get();
       }
-      sumWritable.set(sum);
-      context.write(key, sumWritable);
+      SUM.set(sum);
+      context.write(key, SUM);
     }
   }
 
   protected static class MyReducer extends Reducer<MyTuple, FloatWritable, MyTuple, FloatWritable> {
-    private static final FloatWritable value = new FloatWritable();
+    private static final FloatWritable VALUE = new FloatWritable();
     private float marginal = 0.0f;
 
     @Override
@@ -131,12 +129,12 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
       }
 
       if (key.getJsonObject().get("Right").getAsString().equals("*")) {
-        value.set(sum);
-        context.write(key, value);
+        VALUE.set(sum);
+        context.write(key, VALUE);
         marginal = sum;
       } else {
-        value.set(sum / marginal);
-        context.write(key, value);
+        VALUE.set(sum / marginal);
+        context.write(key, VALUE);
       }
     }
   }
@@ -171,12 +169,13 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
     String outputPath = args[1];
     int reduceTasks = Integer.parseInt(args[2]);
 
-    LOG.info("Tool name: BigramRelativeFrequencyJSON");
+    LOG.info("Tool name: " + BigramRelativeFrequencyJson.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), "BigramRelativeFrequencyJSON");
+    Job job = Job.getInstance(getConf());
+    job.setJobName(BigramRelativeFrequencyJson.class.getSimpleName());
     job.setJarByClass(BigramRelativeFrequencyJson.class);
 
     job.setNumReduceTasks(reduceTasks);
@@ -195,7 +194,7 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
     job.setPartitionerClass(MyPartitioner.class);
 
-    // Delete the output directory if it exists already
+    // Delete the output directory if it exists already.
     Path outputDir = new Path(outputPath);
     FileSystem.get(getConf()).delete(outputDir, true);
 

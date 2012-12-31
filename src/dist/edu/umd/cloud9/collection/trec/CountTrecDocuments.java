@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -30,6 +30,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -48,7 +49,14 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
  * Simple demo program that counts all the documents in the TREC collection. Run without any
- * arguments for help. The guava jar must be included using {@code -libjar}.
+ * arguments for help. Sample invocation:
+ *
+ * <pre>
+ * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.trec.CountTrecDocuments \
+ *  -libjars lib/guava-X.X.X.jar \
+ *  -collection /shared/collections/trec/trec4-5_noCRFR.xml -output tmp \
+ *  -docnoMapping trec-docno-mapping.dat -countOutput records.txt
+ * </pre>
  *
  * @author Jimmy Lin
  */
@@ -97,6 +105,7 @@ public class CountTrecDocuments extends Configured implements Tool {
   public static final String COLLECTION_OPTION = "collection";
   public static final String OUTPUT_OPTION = "output";
   public static final String MAPPING_OPTION = "docnoMapping";
+  public static final String COUNT_OPTION = "countOutput";
 
   /**
    * Runs this tool.
@@ -110,6 +119,8 @@ public class CountTrecDocuments extends Configured implements Tool {
         .withDescription("(required) output path").create(OUTPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("(required) DocnoMapping data").create(MAPPING_OPTION));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("(optional) output file to write the number of records").create(COUNT_OPTION));
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -169,6 +180,14 @@ public class CountTrecDocuments extends Configured implements Tool {
     int numDocs = (int) counters.findCounter(Count.DOCS).getValue();
     LOG.info("Read " + numDocs + " docs.");
 
+    if (cmdline.hasOption(COUNT_OPTION)) {
+      String f = cmdline.getOptionValue(COUNT_OPTION);
+      FileSystem fs = FileSystem.get(getConf());
+      FSDataOutputStream out = fs.create(new Path(f));
+      out.write(new Integer(numDocs).toString().getBytes());
+      out.close();
+    }
+  
     return numDocs;
   }
 
