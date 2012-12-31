@@ -114,7 +114,8 @@ public class DemoWordCountTuple2 extends Configured implements Tool {
     LOG.info(" - number of reducers: " + numReduceTasks);
 
     Configuration conf = getConf();
-    Job job = new Job(conf, DemoWordCountTuple2.class.getSimpleName());
+    Job job = Job.getInstance(conf);
+    job.setJobName(DemoWordCountTuple2.class.getSimpleName());
     job.setJarByClass(DemoWordCountTuple2.class);
     job.setNumReduceTasks(numReduceTasks);
 

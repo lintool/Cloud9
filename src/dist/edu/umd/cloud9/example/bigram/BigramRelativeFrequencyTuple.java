@@ -163,7 +163,8 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), BigramRelativeFrequencyTuple.class.getSimpleName());
+    Job job = Job.getInstance(getConf());
+    job.setJobName(BigramRelativeFrequencyTuple.class.getSimpleName());
     job.setJarByClass(BigramRelativeFrequencyTuple.class);
 
     job.setNumReduceTasks(reduceTasks);

@@ -174,7 +174,8 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), BigramRelativeFrequencyJson.class.getSimpleName());
+    Job job = Job.getInstance(getConf());
+    job.setJobName(BigramRelativeFrequencyJson.class.getSimpleName());
     job.setJarByClass(BigramRelativeFrequencyJson.class);
 
     job.setNumReduceTasks(reduceTasks);

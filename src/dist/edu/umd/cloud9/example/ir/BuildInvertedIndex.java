@@ -127,7 +127,8 @@ public class BuildInvertedIndex extends Configured implements Tool {
     LOG.info(" - num mappers: " + mapTasks);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), BuildInvertedIndex.class.getSimpleName());
+    Job job = Job.getInstance(getConf());
+    job.setJobName(BuildInvertedIndex.class.getSimpleName());
     job.setJarByClass(BuildInvertedIndex.class);
 
     job.setNumReduceTasks(reduceTasks);

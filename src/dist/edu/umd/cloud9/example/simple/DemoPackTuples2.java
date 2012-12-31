@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
@@ -62,9 +61,10 @@ public class DemoPackTuples2 {
     LOG.info("output: " + outfile);
 
     Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
-    SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-        LongWritable.class, BinSedesTuple.class);
+    SequenceFile.Writer writer = SequenceFile.createWriter(conf,
+        SequenceFile.Writer.file(new Path(outfile)),
+        SequenceFile.Writer.keyClass(LongWritable.class),
+        SequenceFile.Writer.valueClass(BinSedesTuple.class));
 
     // Read in raw text records, line separated.
     BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
