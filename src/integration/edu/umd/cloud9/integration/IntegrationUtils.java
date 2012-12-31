@@ -13,6 +13,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 public class IntegrationUtils {
+  public static final String LOCAL_ARGS = 
+      "-D fs.defaultFS=file:/// " +
+      "-D mapreduce.framework.name=local " +
+      "-D mapreduce.jobtracker.address=local " +
+      "-D mapreduce.cluster.local.dir=/tmp/mapred/local " +
+      "-D mapreduce.cluster.temp.dir=/tmp/mapred/temp " +
+      "-D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging " +
+      "-D mapreduce.jobtracker.system.dir=/tmp/mapred/system";
+
   public static final String D_JT = "-Dmapred.job.tracker=bespin00.umiacs.umd.edu:8021";
   public static final String D_NN = "-Dfs.defaultFS=hdfs://bespinrm.umiacs.umd.edu:8020";
 

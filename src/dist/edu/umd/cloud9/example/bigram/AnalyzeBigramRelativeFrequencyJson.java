@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -37,13 +37,11 @@ public class AnalyzeBigramRelativeFrequencyJson {
 
     System.out.println("input path: " + args[0]);
 
-    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> pairs = SequenceFileUtils
-        .readDirectory(new Path(args[0]));
+    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> pairs = 
+        SequenceFileUtils.readDirectory(new Path(args[0]));
 
-    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list1 = Lists
-        .newArrayList();
-    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list2 = Lists
-        .newArrayList();
+    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list1 = Lists.newArrayList();
+    List<PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable>> list2 = Lists.newArrayList();
 
     for (PairOfWritables<BigramRelativeFrequencyJson.MyTuple, FloatWritable> p : pairs) {
       BigramRelativeFrequencyJson.MyTuple bigram = p.getLeftElement();

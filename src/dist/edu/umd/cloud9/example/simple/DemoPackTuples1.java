@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
@@ -62,9 +61,10 @@ public class DemoPackTuples1 {
     LOG.info("output: " + outfile);
 
     Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
-    SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, new Path(outfile),
-        LongWritable.class, BinSedesTuple.class);
+    SequenceFile.Writer writer = SequenceFile.createWriter(conf,
+        SequenceFile.Writer.file(new Path(outfile)),
+        SequenceFile.Writer.keyClass(LongWritable.class),
+        SequenceFile.Writer.valueClass(BinSedesTuple.class));
 
     BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
