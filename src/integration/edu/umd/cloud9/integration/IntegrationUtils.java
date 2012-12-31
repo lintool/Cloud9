@@ -14,9 +14,9 @@ import org.apache.hadoop.fs.Path;
 
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
+      "-D fs.defaultFS=file:/// " +
       "-D mapreduce.framework.name=local " +
       "-D mapreduce.jobtracker.address=local " +
-      "-D fs.default.name=file:/// " +
       "-D mapreduce.cluster.local.dir=/tmp/mapred/local " +
       "-D mapreduce.cluster.temp.dir=/tmp/mapred/temp " +
       "-D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging " +

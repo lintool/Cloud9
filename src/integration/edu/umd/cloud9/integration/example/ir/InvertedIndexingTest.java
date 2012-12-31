@@ -38,7 +38,7 @@ public class InvertedIndexingTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.ir.BuildInvertedIndex.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
+        IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         collectionPath.toString(), tmpPrefix, "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
@@ -49,7 +49,6 @@ public class InvertedIndexingTest {
     PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value =
         new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
 
-    System.out.println("Looking up postings for the term \"starcross'd\"");
     key.set("gold");
 
     reader.get(key, value);

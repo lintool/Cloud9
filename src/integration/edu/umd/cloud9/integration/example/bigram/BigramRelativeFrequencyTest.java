@@ -34,13 +34,13 @@ public class BigramRelativeFrequencyTest {
   @Test
   public void testBigramRelativeFrequencyBase() throws Exception {
     Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.getLocal(conf);
 
     assertTrue(fs.exists(collectionPath));
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequency.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
+        IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         collectionPath.toString(), tmpPrefix + "-base", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
@@ -75,13 +75,13 @@ public class BigramRelativeFrequencyTest {
   @Test
   public void testBigramRelativeFrequencyJson() throws Exception {
     Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.getLocal(conf);
 
     assertTrue(fs.exists(collectionPath));
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
+        IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         collectionPath.toString(), tmpPrefix + "-json", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
@@ -116,13 +116,13 @@ public class BigramRelativeFrequencyTest {
   @Test
   public void testBigramRelativeFrequencyTuple() throws Exception {
     Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.getLocal(conf);
 
     assertTrue(fs.exists(collectionPath));
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
+        IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         collectionPath.toString(), tmpPrefix + "-tuple", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
