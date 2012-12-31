@@ -242,7 +242,7 @@
 
 		<property name="java_command" value="${java} -Xmx2048m -classpath &quot;${run.path.id}&quot;" />
 
-		<condition property="script_prefix" value="#!/bin/sh${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
+		<condition property="script_prefix" value="#!/bin/sh${line.separator}export HADOOP_CLASSPATH=&quot;${run.path.id}:$HADOOP_CLASSPATH&quot;${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
 			<equals arg1="${platform}" arg2="unix" />
 		</condition>
 		<condition property="script_prefix" value="">

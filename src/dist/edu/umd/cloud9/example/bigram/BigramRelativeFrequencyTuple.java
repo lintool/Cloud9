@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -45,14 +45,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyTuple.class);
   private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
-  // Mapper: emits (token, 1) for every bigram occurrence.
   protected static class MyMapper extends Mapper<LongWritable, Text, Tuple, FloatWritable> {
-    // Reuse objects to save overhead of object creation.
-    private static final FloatWritable one = new FloatWritable(1);
+    private static final FloatWritable ONE = new FloatWritable(1);
 
     @Override
-    public void map(LongWritable key, Text value, Context context) throws IOException,
-        InterruptedException {
+    public void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
       String line = value.toString();
 
       String prev = null;
@@ -75,12 +73,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
           Tuple tuple1 = TUPLE_FACTORY.newTuple();
           tuple1.append(prev);
           tuple1.append(cur);
-          context.write(tuple1, one);
+          context.write(tuple1, ONE);
 
           Tuple tuple2 = TUPLE_FACTORY.newTuple();
           tuple2.append(prev);
           tuple2.append("*");
-          context.write(tuple2, one);
+          context.write(tuple2, ONE);
         }
         prev = cur;
       }
@@ -88,7 +86,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
   }
 
   protected static class MyCombiner extends Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
-    private final static FloatWritable sumWritable = new FloatWritable();
+    private final static FloatWritable SUM = new FloatWritable();
 
     @Override
     public void reduce(Tuple key, Iterable<FloatWritable> values, Context context)
@@ -98,13 +96,13 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
       while (iter.hasNext()) {
         sum += iter.next().get();
       }
-      sumWritable.set(sum);
-      context.write(key, sumWritable);
+      SUM.set(sum);
+      context.write(key, SUM);
     }
   }
 
   protected static class MyReducer extends Reducer<Tuple, FloatWritable, Tuple, FloatWritable> {
-    private static final FloatWritable value = new FloatWritable();
+    private static final FloatWritable VALUE = new FloatWritable();
     private float marginal = 0.0f;
 
     @Override
@@ -117,12 +115,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
       }
 
       if (key.get(1).equals("*")) {
-        value.set(sum);
-        context.write(key, value);
+        VALUE.set(sum);
+        context.write(key, VALUE);
         marginal = sum;
       } else {
-        value.set(sum / marginal);
-        context.write(key, value);
+        VALUE.set(sum / marginal);
+        context.write(key, VALUE);
       }
     }
   }
@@ -139,8 +137,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     }
   }
 
-  private BigramRelativeFrequencyTuple() {
-  }
+  private BigramRelativeFrequencyTuple() {}
 
   private static int printUsage() {
     System.out.println("usage: [input-path] [output-path] [num-reducers]");
@@ -161,12 +158,12 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     String outputPath = args[1];
     int reduceTasks = Integer.parseInt(args[2]);
 
-    LOG.info("Tool name: BigramRelativeFrequencyTuple");
+    LOG.info("Tool name: " + BigramRelativeFrequencyTuple.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - num reducers: " + reduceTasks);
 
-    Job job = new Job(getConf(), "BigramRelativeFrequencyTuple");
+    Job job = new Job(getConf(), BigramRelativeFrequencyTuple.class.getSimpleName());
     job.setJarByClass(BigramRelativeFrequencyTuple.class);
 
     job.setNumReduceTasks(reduceTasks);
@@ -185,7 +182,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
     job.setReducerClass(MyReducer.class);
     job.setPartitionerClass(MyPartitioner.class);
 
-    // Delete the output directory if it exists already
+    // Delete the output directory if it exists already.
     Path outputDir = new Path(outputPath);
     FileSystem.get(getConf()).delete(outputDir, true);
 
@@ -198,7 +195,7 @@ public class BigramRelativeFrequencyTuple extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
     ToolRunner.run(new BigramRelativeFrequencyTuple(), args);
