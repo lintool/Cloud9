@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.ir;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configured;
@@ -25,17 +26,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.lib.IdentityReducer;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -43,123 +39,127 @@ import org.apache.log4j.Logger;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
 import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
+import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
 import edu.umd.cloud9.util.pair.PairOfObjectInt;
 
 public class BuildInvertedIndex extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(BuildInvertedIndex.class);
 
-	private static final Logger sLogger = Logger.getLogger(BuildInvertedIndex.class);
+  private static class MyMapper extends Mapper<LongWritable, Text, Text, PairOfInts> {
+    private static final Text WORD = new Text();
+    private static final Object2IntFrequencyDistribution<String> COUNTS =
+        new Object2IntFrequencyDistributionEntry<String>();
 
-	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, PairOfInts> {
-		private static final Text word = new Text();
-		private static final Object2IntFrequencyDistribution<String> termCounts = new Object2IntFrequencyDistributionEntry<String>();
+    @Override
+    public void map(LongWritable docno, Text doc, Context context)
+        throws IOException, InterruptedException {
+      String text = doc.toString();
+      COUNTS.clear();
 
-		public void map(LongWritable docno, Text doc, 
-				OutputCollector<Text, PairOfInts> output, Reporter reporter) throws IOException {
-			String text = doc.toString();
-			termCounts.clear();
+      String[] terms = text.split("\\s+");
 
-			String[] terms = text.split("\\s+");
+      // First build a histogram of the terms.
+      for (String term : terms) {
+        if (term == null || term.length() == 0) {
+          continue;
+        }
 
-			// First build a histogram of the terms.
-			for (String term : terms) {
-				if (term == null || term.length() == 0) {
-					continue;
-				}
+        COUNTS.increment(term);
+      }
 
-				termCounts.increment(term);
-			}
+      // emit postings
+      for (PairOfObjectInt<String> e : COUNTS) {
+        WORD.set(e.getLeftElement());
+        context.write(WORD, new PairOfInts((int) docno.get(), e.getRightElement()));
+      }
+    }
+  }
 
-			// emit postings
-			for (PairOfObjectInt<String> e : termCounts) {
-				word.set(e.getLeftElement());
-				output.collect(word, new PairOfInts((int) docno.get(), e.getRightElement()));
-			}
-		}
-	}
+  private static class MyReducer extends
+      Reducer<Text, PairOfInts, Text, PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>> {
+    private final static IntWritable DF = new IntWritable();
 
-	private static class MyReducer extends MapReduceBase implements
-			Reducer<Text, PairOfInts, Text, PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>> {
-		private final static IntWritable dfIntWritable = new IntWritable();
+    @Override
+    public void reduce(Text key, Iterable<PairOfInts> values, Context context)
+        throws IOException, InterruptedException {
+      Iterator<PairOfInts> iter = values.iterator();
+      ArrayListWritable<PairOfInts> postings = new ArrayListWritable<PairOfInts>();
 
-		public void reduce(Text key, Iterator<PairOfInts> values,
-				OutputCollector<Text, PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>> output, Reporter reporter)	throws IOException {
-			ArrayListWritable<PairOfInts> postings = new ArrayListWritable<PairOfInts>();
+      int df = 0;
+      while (iter.hasNext()) {
+        postings.add(iter.next().clone());
+        df++;
+      }
 
-			int df = 0;
-			while (values.hasNext()) {
-				postings.add(values.next().clone());
-				df++;
-			}
+      Collections.sort(postings);
+      DF.set(df);
+      context.write(key,
+          new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>(DF, postings));
+    }
+  }
 
-			dfIntWritable.set(df);
-			output.collect(key, new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>(dfIntWritable, postings));
-		}
-	}
+  private BuildInvertedIndex() {}
 
-	private BuildInvertedIndex() {}
+  private static int printUsage() {
+    System.out.println("usage: [input-path] [output-path] [num-mappers]");
+    ToolRunner.printGenericCommandUsage(System.out);
+    return -1;
+  }
 
-	private static int printUsage() {
-		System.out.println("usage: [input-path] [output-path] [num-mappers]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  /**
+   * Runs this tool.
+   */
+  public int run(String[] args) throws Exception {
+    if (args.length != 3) {
+      printUsage();
+      return -1;
+    }
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+    String inputPath = args[0];
+    String outputPath = args[1];
+    int mapTasks = Integer.parseInt(args[2]);
+    int reduceTasks = 1;
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int mapTasks = Integer.parseInt(args[2]);
-		int reduceTasks = 1;
+    LOG.info("Tool name: " + BuildInvertedIndex.class.getSimpleName());
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - num mappers: " + mapTasks);
+    LOG.info(" - num reducers: " + reduceTasks);
 
-		sLogger.info("Tool name: BuildInvertedIndex");
-		sLogger.info(" - input path: " + inputPath);
-		sLogger.info(" - output path: " + outputPath);
-		sLogger.info(" - num mappers: " + mapTasks);
-		sLogger.info(" - num reducers: " + reduceTasks);
+    Job job = new Job(getConf(), BuildInvertedIndex.class.getSimpleName());
+    job.setJarByClass(BuildInvertedIndex.class);
 
-		JobConf conf = new JobConf(getConf(), BuildInvertedIndex.class);
-		conf.setJobName("BuildInvertIndex");
+    job.setNumReduceTasks(reduceTasks);
 
-		conf.setNumMapTasks(mapTasks);
-		conf.setNumReduceTasks(reduceTasks);
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(PairOfInts.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(PairOfWritables.class);
+    job.setOutputFormatClass(MapFileOutputFormat.class);
 
-		conf.setMapOutputKeyClass(Text.class);
-		conf.setMapOutputValueClass(PairOfInts.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(PairOfWritables.class);
-		conf.setOutputFormat(MapFileOutputFormat.class);
+    job.setMapperClass(MyMapper.class);
+    job.setReducerClass(MyReducer.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setCombinerClass(IdentityReducer.class);
-		conf.setReducerClass(MyReducer.class);
+    // Delete the output directory if it exists already.
+    Path outputDir = new Path(outputPath);
+    FileSystem.get(getConf()).delete(outputDir, true);
 
-		// Delete the output directory if it exists already
-		Path outputDir = new Path(outputPath);
-		FileSystem.get(conf).delete(outputDir, true);
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
+        + " seconds");
 
-		JobClient.runJob(conf);
+    return 0;
+  }
 
-		return 0;
-	}
-
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BuildInvertedIndex(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new BuildInvertedIndex(), args);
+  }
 }

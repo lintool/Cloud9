@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -36,125 +36,122 @@ import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class BooleanRetrieval {
+  private final MapFile.Reader index;
+  private final FSDataInputStream collection;
+  private final Stack<Set<Integer>> stack;
 
-	MapFile.Reader index;
-	FSDataInputStream collection;
-	Stack<Set<Integer>> stack;
+  public BooleanRetrieval(String indexPath, String collectionPath, FileSystem fs) throws IOException {
+    index = new MapFile.Reader(new Path(indexPath + "/part-r-00000"), fs.getConf());
+    collection = fs.open(new Path(collectionPath));
+    stack = new Stack<Set<Integer>>();
+  }
 
-	public BooleanRetrieval(String indexPath, String collectionPath, FileSystem fs)	throws IOException {
-		index = new MapFile.Reader(fs, indexPath + "/part-00000", fs.getConf());
+  public void runQuery(String q) throws IOException {
+    String[] terms = q.split("\\s+");
 
-		collection = fs.open(new Path(collectionPath));
-		stack = new Stack<Set<Integer>>();
-	}
+    for (String t : terms) {
+      if (t.equals("AND")) {
+        performAND();
+      } else if (t.equals("OR")) {
+        performOR();
+      } else {
+        pushTerm(t);
+      }
+    }
 
-	public void runQuery(String q) throws IOException {
-		String[] terms = q.split("\\s+");
+    Set<Integer> set = stack.pop();
 
-		for (String t : terms) {
+    for (Integer i : set) {
+      String line = fetchLine(i);
+      System.out.println(i + "\t" + line);
+    }
+  }
 
-			if (t.equals("AND")) {
-				performAND();
-			} else if (t.equals("OR")) {
-				performOR();
-			} else {
-				pushTerm(t);
-			}
-		}
+  public void pushTerm(String term) throws IOException {
+    stack.push(fetchDocumentSet(term));
+  }
 
-		Set<Integer> set = stack.pop();
+  public void performAND() {
+    Set<Integer> s1 = stack.pop();
+    Set<Integer> s2 = stack.pop();
 
-		for (Integer i : set) {
-			String line = fetchLine(i);
-			System.out.println(i + "\t" + line);
-		}
-	}
+    Set<Integer> sn = new TreeSet<Integer>();
 
-	public void pushTerm(String term) throws IOException {
-		stack.push(fetchDocumentSet(term));
-	}
+    for (int n : s1) {
+      if (s2.contains(n)) {
+        sn.add(n);
+      }
+    }
 
-	public void performAND() {
-		Set<Integer> s1 = stack.pop();
-		Set<Integer> s2 = stack.pop();
+    stack.push(sn);
+  }
 
-		Set<Integer> sn = new TreeSet<Integer>();
+  public void performOR() {
+    Set<Integer> s1 = stack.pop();
+    Set<Integer> s2 = stack.pop();
 
-		for (int n : s1) {
-			if (s2.contains(n)) {
-				sn.add(n);
-			}
-		}
+    Set<Integer> sn = new TreeSet<Integer>();
 
-		stack.push(sn);
-	}
+    for (int n : s1) {
+      sn.add(n);
+    }
 
-	public void performOR() {
-		Set<Integer> s1 = stack.pop();
-		Set<Integer> s2 = stack.pop();
+    for (int n : s2) {
+      sn.add(n);
+    }
 
-		Set<Integer> sn = new TreeSet<Integer>();
+    stack.push(sn);
+  }
 
-		for (int n : s1) {
-			sn.add(n);
-		}
+  public Set<Integer> fetchDocumentSet(String term) throws IOException {
+    Set<Integer> set = new TreeSet<Integer>();
 
-		for (int n : s2) {
-			sn.add(n);
-		}
+    for (PairOfInts pair : fetchPostings(term)) {
+      set.add(pair.getLeftElement());
+    }
 
-		stack.push(sn);
-	}
+    return set;
+  }
 
-	public Set<Integer> fetchDocumentSet(String term) throws IOException {
-		Set<Integer> set = new TreeSet<Integer>();
+  public ArrayListWritable<PairOfInts> fetchPostings(String term) throws IOException {
+    Text key = new Text();
+    PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value =
+        new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
 
-		for (PairOfInts pair : fetchPostings(term)) {
-			set.add(pair.getLeftElement());
-		}
+    key.set(term);
+    index.get(key, value);
 
-		return set;
-	}
+    return value.getRightElement();
+  }
 
-	public ArrayListWritable<PairOfInts> fetchPostings(String term) throws IOException {
-		Text key = new Text();
-		PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value = new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
+  public String fetchLine(long offset) throws IOException {
+    collection.seek(offset);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(collection));
 
-		key.set(term);
-		index.get(key, value);
+    return reader.readLine();
+  }
 
-		return value.getRightElement();
-	}
+  public static void main(String[] args) throws IOException {
+    if (args.length != 2) {
+      System.out.println("usage: [index-path] [collection-path]");
+      System.exit(-1);
+    }
 
-	public String fetchLine(long offset) throws IOException {
-		collection.seek(offset);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(collection));
+    String indexPath = args[0];
+    String collectionPath = args[1];
 
-		return reader.readLine();
-	}
+    FileSystem fs = FileSystem.get(new Configuration());
 
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.out.println("usage: [index-path] [collection-path]");
-			System.exit(-1);
-		}
+    BooleanRetrieval s = new BooleanRetrieval(indexPath, collectionPath, fs);
 
-		String indexPath = args[0];
-		String collectionPath = args[1];
+    String[] queries = { "outrageous fortune AND", "white rose AND", "means deceit AND",
+        "white red OR rose AND pluck AND", "unhappy outrageous OR good your AND OR fortune AND" };
 
-		FileSystem fs = FileSystem.get(new Configuration());
+    for (String q : queries) {
+      System.out.println("Query: " + q);
 
-		BooleanRetrieval s = new BooleanRetrieval(indexPath, collectionPath, fs);
-
-		String[] queries = { "outrageous fortune AND", "white rose AND", "means deceit AND",
-				"white red OR rose AND pluck AND",
-				"unhappy outrageous OR good your AND OR fortune AND" };
-
-		for (String q : queries) {
-			System.out.println("Query: " + q);
-
-			s.runQuery(q);
-			System.out.println("");
-		}
-	}
+      s.runQuery(q);
+      System.out.println("");
+    }
+  }
 }

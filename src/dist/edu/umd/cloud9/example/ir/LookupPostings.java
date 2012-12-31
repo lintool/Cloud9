@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -32,80 +32,80 @@ import org.apache.hadoop.io.Writable;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.fd.Int2IntFrequencyDistributionEntry;
 import edu.umd.cloud9.util.fd.Int2IntFrequencyDistribution;
+import edu.umd.cloud9.util.fd.Int2IntFrequencyDistributionEntry;
 
 public class LookupPostings {
 
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.out.println("usage: [index-path] [collection-path]");
-			System.exit(-1);
-		}
+  public static void main(String[] args) throws IOException {
+    if (args.length != 2) {
+      System.out.println("usage: [index-path] [collection-path]");
+      System.exit(-1);
+    }
 
-		String indexPath = args[0];
-		String collectionPath = args[1];
+    String indexPath = args[0];
+    String collectionPath = args[1];
 
-		Configuration config = new Configuration();
-		FileSystem fs = FileSystem.get(config);
-		MapFile.Reader reader = new MapFile.Reader(fs, indexPath + "/part-00000", config);
+    Configuration config = new Configuration();
+    FileSystem fs = FileSystem.get(config);
+    MapFile.Reader reader = new MapFile.Reader(new Path(indexPath + "/part-r-00000"), config);
 
-		FSDataInputStream collection = fs.open(new Path(collectionPath));
-		BufferedReader d = new BufferedReader(new InputStreamReader(collection));
+    FSDataInputStream collection = fs.open(new Path(collectionPath));
+    BufferedReader d = new BufferedReader(new InputStreamReader(collection));
 
-		Text key = new Text();
-		PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value = new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
+    Text key = new Text();
+    PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value = new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
 
-		System.out.println("Looking up postings for the term \"starcross'd\"");
-		key.set("starcross'd");
+    System.out.println("Looking up postings for the term \"starcross'd\"");
+    key.set("starcross'd");
 
-		reader.get(key, value);
+    reader.get(key, value);
 
-		ArrayListWritable<PairOfInts> postings = value.getRightElement();
-		for (PairOfInts pair : postings) {
-			System.out.println(pair);
-			collection.seek(pair.getLeftElement());
-			System.out.println(d.readLine());
-		}
+    ArrayListWritable<PairOfInts> postings = value.getRightElement();
+    for (PairOfInts pair : postings) {
+      System.out.println(pair);
+      collection.seek(pair.getLeftElement());
+      System.out.println(d.readLine());
+    }
 
-		key.set("gold");
-		reader.get(key, value);
-		System.out.println("Complete postings list for 'gold': " + value);
+    key.set("gold");
+    reader.get(key, value);
+    System.out.println("Complete postings list for 'gold': " + value);
 
-		Int2IntFrequencyDistribution goldHist = new Int2IntFrequencyDistributionEntry();
-		postings = value.getRightElement();
-		for (PairOfInts pair : postings) {
-			goldHist.increment(pair.getRightElement());
-		}
+    Int2IntFrequencyDistribution goldHist = new Int2IntFrequencyDistributionEntry();
+    postings = value.getRightElement();
+    for (PairOfInts pair : postings) {
+      goldHist.increment(pair.getRightElement());
+    }
 
-		System.out.println("histogram of tf values for gold");
-		for ( PairOfInts pair : goldHist ) {
-			System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
-		}
+    System.out.println("histogram of tf values for gold");
+    for (PairOfInts pair : goldHist) {
+      System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
+    }
 
-		key.set("silver");
-		reader.get(key, value);
-		System.out.println("Complete postings list for 'silver': " + value);
+    key.set("silver");
+    reader.get(key, value);
+    System.out.println("Complete postings list for 'silver': " + value);
 
-		Int2IntFrequencyDistribution silverHist = new Int2IntFrequencyDistributionEntry();
-		postings = value.getRightElement();
-		for (PairOfInts pair : postings) {
-			silverHist.increment(pair.getRightElement());
-		}
+    Int2IntFrequencyDistribution silverHist = new Int2IntFrequencyDistributionEntry();
+    postings = value.getRightElement();
+    for (PairOfInts pair : postings) {
+      silverHist.increment(pair.getRightElement());
+    }
 
-		System.out.println("histogram of tf values for silver");
-		for ( PairOfInts pair : silverHist ) {
-			System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
-		}
+    System.out.println("histogram of tf values for silver");
+    for (PairOfInts pair : silverHist) {
+      System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
+    }
 
-		key.set("bronze");
-		Writable w = reader.get(key, value);
+    key.set("bronze");
+    Writable w = reader.get(key, value);
 
-		if (w == null) {
-			System.out.println("the term bronze does not appear in the collection");
-		}
+    if (w == null) {
+      System.out.println("the term bronze does not appear in the collection");
+    }
 
-		collection.close();
-		reader.close();
-	}
+    collection.close();
+    reader.close();
+  }
 }

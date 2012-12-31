@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -152,4 +154,7 @@ public class BigramRelativeFrequencyTest {
     reader.close();
   }
 
+  public static junit.framework.Test suite() {
+    return new JUnit4TestAdapter(BigramRelativeFrequencyTest.class);
+  }
 }
