@@ -4,6 +4,7 @@
 ivy/ivy.jar
 etc/junit.*
 etc/run.*
+etc/run-integration.*
 data/bible+shakes.nopunc
 data/bible+shakes.nopunc.json.packed
 data/bible+shakes.nopunc.tuple1.packed

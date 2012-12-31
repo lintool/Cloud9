@@ -19,7 +19,8 @@
   </path>
   <path id="run.path.id">
     <path refid="lib.path.id" />
-    <path location="${build.dir}" />
+    <fileset dir="${dist.dir}" />
+    <!-- path location="${build.dir}" /-->
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
@@ -256,6 +257,9 @@
 		<echo file="./etc/run.${suffix}" message="${script_prefix}" />
 		<echo file="./etc/run.${suffix}" message="${java_command} " append="true" />
 		<echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
+
+		<echo file="./etc/run-integration.${suffix}" message="${script_prefix}" />
+		<echo file="./etc/run-integration.${suffix}" message="${line.separator}ant clean${line.separator}ant${line.separator}ant -lib etc/mail.jar integration${line.separator}" append="true" />
 
 	</target>
 
