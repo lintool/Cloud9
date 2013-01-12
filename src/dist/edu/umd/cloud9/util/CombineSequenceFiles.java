@@ -42,7 +42,6 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 	
 	private static int printUsage() {
 		System.out.println("usage: [input] [output-dir] [number-of-mappers] [number-of-reducers] [key-class-name] [value-class-name] [seqeuence|text]");
-//		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
 	
@@ -71,9 +70,11 @@ public class CombineSequenceFiles  extends Configured implements Tool{
 		JobConf job = new JobConf(CombineSequenceFiles.class);
 		job.setJobName("CombineSequenceFiles");
 			
-		FileSystem.get(job).delete(new Path(outputPath), true);
+		FileSystem fs = FileSystem.get(job);
+		fs.delete(new Path(outputPath), true);
+		fs.delete(new Path(inputPath + "/_SUCCESS"), true);
 		
-		FileStatus[] stat = FileSystem.get(job).listStatus(new Path(inputPath));
+		FileStatus[] stat = fs.listStatus(new Path(inputPath));
 		for (int i = 0; i < stat.length; ++i) {
 			FileInputFormat.addInputPath(job, stat[i].getPath());
 			LOG.info("Added: "+stat[i].getPath());
