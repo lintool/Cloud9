@@ -235,8 +235,7 @@ public class CorpusVocabNormalizerAndNumberizer {
 			conf.setInputFormat(XMLInput.class);
 			FileOutputFormat.setOutputPath(conf, output);
 			conf.setOutputFormat(SequenceFileOutputFormat.class);
-			conf.setJar("/chomes/fture/jars/ivory.jar");
-			conf.set("mapred.child.java.opts", "-Xmx2048m");			
+			conf.setJarByClass(CorpusVocabNormalizerAndNumberizer.class);
 			System.out.println("Running job "+conf.getJobName());
 			System.out.println("Input: " + inputPaths);
 			System.out.println("Output: "+output);
