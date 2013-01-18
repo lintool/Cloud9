@@ -47,6 +47,7 @@ import org.apache.log4j.Logger;
  * text file (article title and content, separated by a tap).
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class DumpWikipediaToPlainText extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(DumpWikipediaToPlainText.class);
@@ -87,7 +88,8 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
-
+  private static final String LANGUAGE_OPTION = "wiki_language";
+  
   @SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
     Options options = new Options();
@@ -95,7 +97,9 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
         .withDescription("XML dump file").create(INPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("output path").create(OUTPUT_OPTION));
-
+    options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
+        .withDescription("two-letter language code").create(LANGUAGE_OPTION));
+    
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
     try {
@@ -111,6 +115,15 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
       ToolRunner.printGenericCommandUsage(System.out);
       return -1;
     }
+    
+    String language = null;
+    if (cmdline.hasOption(LANGUAGE_OPTION)) {
+      language = cmdline.getOptionValue(LANGUAGE_OPTION);
+      if(language.length()!=2){
+        System.err.println("Error: \"" + language + "\" unknown language!");
+        return -1;
+      }
+    }
 
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
 		String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
@@ -118,10 +131,11 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 		LOG.info("Tool name: " + this.getClass().getName());
 		LOG.info(" - XML dump file: " + inputPath);
 		LOG.info(" - output path: " + outputPath);
-
+		LOG.info(" - language: " + language);
+		
 		JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s]",
-        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath));
+    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s, %s: %s]",
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, LANGUAGE_OPTION, language));
 
 		conf.setNumMapTasks(10);
 		conf.setNumReduceTasks(0);
@@ -129,6 +143,10 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
 		FileInputFormat.setInputPaths(conf, new Path(inputPath));
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
+		if(language != null){
+      conf.set("wiki.language", language);
+    }
+		
 		conf.setInputFormat(WikipediaPageInputFormat.class);
 		conf.setOutputFormat(TextOutputFormat.class);
 

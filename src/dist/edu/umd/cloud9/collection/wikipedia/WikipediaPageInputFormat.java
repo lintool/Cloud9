@@ -27,11 +27,13 @@ import org.apache.hadoop.mapred.Reporter;
 import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormatOld;
 import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
+import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
 
 /**
  * Hadoop {@code InputFormat} for processing Wikipedia pages from the XML dumps.
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWritable, WikipediaPage> {
 	/**
@@ -49,14 +51,16 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWr
 		private XMLRecordReader reader;
 		private Text text = new Text();
 		private LongWritable offset = new LongWritable();
-
+		private String language;
+		
 		/**
 		 * Creates a {@code WikipediaPageRecordReader}.
 		 */
 		public WikipediaPageRecordReader(FileSplit split, JobConf conf) throws IOException {
 			conf.set(XMLInputFormatOld.START_TAG_KEY, WikipediaPage.XML_START_TAG);
 			conf.set(XMLInputFormatOld.END_TAG_KEY, WikipediaPage.XML_END_TAG);
-
+			
+			language = conf.get("wiki.language");
 			reader = new XMLRecordReader(split, conf);
 		}
 
@@ -82,7 +86,7 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWr
 		 * Creates an object for the value.
 		 */
 		public WikipediaPage createValue() {
-			return new WikipediaPage();
+			return WikipediaPageFactory.createWikipediaPage(language);
 		}
 
 		/**

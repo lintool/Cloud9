@@ -51,6 +51,7 @@ import org.apache.log4j.Logger;
  * ints (docnos).
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
@@ -66,11 +67,9 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     private final static IntWritable valOut = new IntWritable(1);
 
     private boolean keepAll;
-    private String language;
     
     public void configure(JobConf job) {
       keepAll = job.getBoolean(KEEP_ALL_OPTION, false);
-      language = job.get(LANG_OPTION);
     }
 
     public void map(LongWritable key, WikipediaPage p,
@@ -88,7 +87,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
         reporter.incrCounter(PageTypes.REDIRECT, 1);
       } else if (p.isEmpty()) {
         reporter.incrCounter(PageTypes.EMPTY, 1);
-      } else if (p.isDisambiguation(language)) {
+      } else if (p.isDisambiguation()) {
         if (Math.random()<0.1) {
           LOG.info("Disambig:" + p.getTitle());
         }
@@ -132,7 +131,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final String OUTPUT_PATH_OPTION = "output_path";
   private static final String OUTPUT_FILE_OPTION = "output_file";
   private static final String KEEP_ALL_OPTION = "keep_all";
-  private static final String LANG_OPTION = "lang";
+  private static final String LANGUAGE_OPTION = "wiki_language";
 
   @SuppressWarnings("static-access")
   @Override
@@ -144,8 +143,8 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
         .hasArg().withDescription("tmp output directory").create(OUTPUT_PATH_OPTION));
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("output file").create(OUTPUT_FILE_OPTION));
-    options.addOption(OptionBuilder.withArgName("en|de|es|tr|ar|cs|zh")
-        .hasArg().withDescription("two-letter language code").create(LANG_OPTION));
+    options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
+        .withDescription("two-letter language code").create(LANGUAGE_OPTION));
     options.addOption(KEEP_ALL_OPTION, false, "keep all pages");
 
     CommandLine cmdline;
@@ -165,11 +164,20 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
       return -1;
     }
 
+    String language = null;
+    if (cmdline.hasOption(LANGUAGE_OPTION)) {
+      language = cmdline.getOptionValue(LANGUAGE_OPTION);
+      if(language.length()!=2){
+        System.err.println("Error: \"" + language + "\" unknown language!");
+        return -1;
+      }
+    }
+    
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
     String outputPath = cmdline.getOptionValue(OUTPUT_PATH_OPTION);
     String outputFile = cmdline.getOptionValue(OUTPUT_FILE_OPTION);
     boolean keepAll = cmdline.hasOption(KEEP_ALL_OPTION);
-    String language = cmdline.hasOption(LANG_OPTION) ? cmdline.getOptionValue(LANG_OPTION) : "en";    // default language English
+    
 
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - input: " + inputPath);
@@ -179,11 +187,13 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     LOG.info(" - language: " + language);
 
     JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
-    conf.setJobName(String.format("BuildWikipediaDocnoMapping[%s: %s, %s: %s]", INPUT_OPTION,
-        inputPath, OUTPUT_FILE_OPTION, outputFile));
+    conf.setJobName(String.format("BuildWikipediaDocnoMapping[%s: %s, %s: %s, %s: %s]", INPUT_OPTION,
+        inputPath, OUTPUT_FILE_OPTION, outputFile, LANGUAGE_OPTION, language));
 
     conf.setBoolean(KEEP_ALL_OPTION, keepAll);
-    conf.set(LANG_OPTION, language);
+    if(language != null){
+      conf.set("wiki.language", language);
+    }
     conf.setNumReduceTasks(1);
 
     FileInputFormat.setInputPaths(conf, new Path(inputPath));

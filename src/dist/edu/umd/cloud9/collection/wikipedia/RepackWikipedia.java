@@ -42,10 +42,13 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
+
 /**
  * Tool for repacking Wikipedia XML dumps into <code>SequenceFiles</code>.
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class RepackWikipedia extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(RepackWikipedia.class);
@@ -57,7 +60,6 @@ public class RepackWikipedia extends Configured implements Tool {
 
     private static final IntWritable docno = new IntWritable();
     private static final WikipediaDocnoMapping docnoMapping = new WikipediaDocnoMapping();
-    String language;
 
     public void configure(JobConf job) {
       try {
@@ -73,7 +75,6 @@ public class RepackWikipedia extends Configured implements Tool {
       } catch (Exception e) {
         throw new RuntimeException("Error loading docno mapping data file!");
       }
-      language = job.get("wiki.language");
     }
 
     public void map(LongWritable key, WikipediaPage doc,
@@ -85,9 +86,7 @@ public class RepackWikipedia extends Configured implements Tool {
         int n = docnoMapping.getDocno(id);
         if (n >= 0) {
           docno.set(n);
-          if(language != null){
-            doc.setLanguage(language);
-          }
+          
           output.collect(docno, doc);
         }
       }
@@ -113,7 +112,7 @@ public class RepackWikipedia extends Configured implements Tool {
         .withDescription("mapping file").create(MAPPING_FILE_OPTION));
     options.addOption(OptionBuilder.withArgName("block|record|none").hasArg()
         .withDescription("compression type").create(COMPRESSION_TYPE_OPTION));
-    options.addOption(OptionBuilder.withArgName("en|fr|de|zh").hasArg()
+    options.addOption(OptionBuilder.withArgName("en|sv|de").hasArg()
         .withDescription("two-letter language code").create(LANGUAGE_OPTION));
 
     CommandLine cmdline;
@@ -200,7 +199,7 @@ public class RepackWikipedia extends Configured implements Tool {
     conf.setInputFormat(WikipediaPageInputFormat.class);
     conf.setOutputFormat(SequenceFileOutputFormat.class);
     conf.setOutputKeyClass(IntWritable.class);
-    conf.setOutputValueClass(WikipediaPage.class);
+    conf.setOutputValueClass(WikipediaPageFactory.getWikipediaPageClass(language));
 
     conf.setMapperClass(MyMapper.class);
 
