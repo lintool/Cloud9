@@ -42,78 +42,74 @@ import org.apache.hadoop.mapred.Reporter;
  * @author Jimmy Lin
  */
 public class TextDocumentInputFormat extends FileInputFormat<LongWritable, TextDocument>
-		implements JobConfigurable {
+implements JobConfigurable {
 
-	private CompressionCodecFactory compressionCodecs = null;
+  private CompressionCodecFactory compressionCodecs = null;
 
-	public void configure(JobConf conf) {
-		compressionCodecs = new CompressionCodecFactory(conf);
-	}
+  public void configure(JobConf conf) {
+    compressionCodecs = new CompressionCodecFactory(conf);
+  }
 
-	protected boolean isSplitable(FileSystem fs, Path file) {
-		return compressionCodecs.getCodec(file) == null;
-	}
+  protected boolean isSplitable(FileSystem fs, Path file) {
+    return compressionCodecs.getCodec(file) == null;
+  }
 
-	public RecordReader<LongWritable, TextDocument> getRecordReader(
-												InputSplit genericSplit, JobConf job,
-												Reporter reporter)
-			throws IOException {
+  public RecordReader<LongWritable, TextDocument> getRecordReader(
+      InputSplit genericSplit, JobConf job,
+      Reporter reporter)
+      throws IOException {
 
-		reporter.setStatus(genericSplit.toString());
-		return new TextDocumentLineRecordReader(job, (FileSplit) genericSplit);
-	}
+    reporter.setStatus(genericSplit.toString());
+    return new TextDocumentLineRecordReader(job, (FileSplit) genericSplit);
+  }
 
-	public static class TextDocumentLineRecordReader implements
-			RecordReader<LongWritable, TextDocument> {
+  public static class TextDocumentLineRecordReader implements
+  RecordReader<LongWritable, TextDocument> {
 
-		private LineRecordReader mRecordReader;
-		private Text mText;
+    private LineRecordReader mRecordReader;
+    private Text mText;
 
-		public TextDocumentLineRecordReader(Configuration job,
-					FileSplit split) throws IOException {
-			mRecordReader = new LineRecordReader(job, split);
-			mText = new Text();
-		}
+    public TextDocumentLineRecordReader(Configuration job,
+        FileSplit split) throws IOException {
+      mRecordReader = new LineRecordReader(job, split);
+      mText = new Text();
+    }
 
-		public LongWritable createKey() {
-			return new LongWritable();
-		}
+    public LongWritable createKey() {
+      return new LongWritable();
+    }
 
-		public TextDocument createValue() {
-			return new TextDocument();
-		}
+    public TextDocument createValue() {
+      return new TextDocument();
+    }
 
-		public synchronized long getPos() throws IOException {
-			return mRecordReader.getPos();
-		}
+    public synchronized long getPos() throws IOException {
+      return mRecordReader.getPos();
+    }
 
-		public synchronized void close() throws IOException {
-			mRecordReader.getPos();
-		}
+    public synchronized void close() throws IOException {
+      mRecordReader.getPos();
+    }
 
-		public float getProgress() {
-		    try{
-			return mRecordReader.getProgress();
-		    } catch (IOException e) {
-			return 0.0f;
-		    }
-		}
+    public float getProgress() {
+      return mRecordReader.getProgress();
+    }
 
-		public synchronized boolean next(LongWritable key, TextDocument value) {
-			boolean b;
-			try {
-				b = mRecordReader.next(key, mText);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
+    public synchronized boolean next(LongWritable key, TextDocument value) {
+      boolean b;
+      try {
+        b = mRecordReader.next(key, mText);
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
 
-			if (b == true) {
-				TextDocument.readDocument(value, mText.toString());
-			}
+      if (b == true) {
+        TextDocument.readDocument(value, mText.toString());
+      }
 
-			return b;
-		}
+      return b;
+    }
 
-	}
+  }
 }
