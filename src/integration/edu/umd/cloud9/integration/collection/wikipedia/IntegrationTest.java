@@ -21,6 +21,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.trecweb.Gov2DocnoMapping;
 import edu.umd.cloud9.collection.trecweb.TrecWebDocumentInputFormat;
 import edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping;
+import edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
@@ -33,7 +34,7 @@ public class IntegrationTest {
   public void testWikiDocnoMapping(String language, String input, String docid1, String docid2, int numDisamb) throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
-
+    
     assertTrue(fs.exists(new Path(input)));
 
     String mappingFile = tmpPrefix + "-" + language + "wiki-mapping.dat";
@@ -55,10 +56,10 @@ public class IntegrationTest {
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping.class.getCanonicalName(),
         libjars,
-        "-input" + "=" + input,
-        "-output_path" + "=" + mappingFile + ".tmp",
-        "-output_file" + "=" + mappingFile,
-        "-lang=" + language
+        "-" + BuildWikipediaDocnoMapping.INPUT_OPTION + "=" + input,
+        "-" + BuildWikipediaDocnoMapping.OUTPUT_PATH_OPTION + "=" + mappingFile + ".tmp",
+        "-" + BuildWikipediaDocnoMapping.OUTPUT_FILE_OPTION + "=" + mappingFile,
+        "-" + BuildWikipediaDocnoMapping.LANG_OPTION + "=" + language
     };
 
     int numDisambiguationPages = IntegrationUtils.execWiki(Joiner.on(" ").join(args));

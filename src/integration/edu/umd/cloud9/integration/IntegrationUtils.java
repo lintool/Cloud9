@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
+import edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping;
+
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
       "-D fs.defaultFS=file:/// " +
@@ -128,6 +130,7 @@ public class IntegrationUtils {
       super(is, type);
     }
 
+    // depends on PageType names and handling in BuildWikipediaDocnoMapping
     public void run() {
       try {
         InputStreamReader isr = new InputStreamReader(is);
