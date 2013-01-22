@@ -42,10 +42,8 @@
 	<classpathentry kind="lib" path="lib/hadoop-annotations-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-auth-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-common-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-core-2.0.0-mr1-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-hdfs-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-core-2.0.0-cdh4.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/hadoop-streaming-2.0.0-mr1-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-api-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-common-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-common-2.0.0-cdh4.1.2.jar"/>
@@ -114,5 +112,9 @@
 	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/ant-launcher-1.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-common-2.0.0-cdh4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-jobclient-2.0.0-cdh4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-mapreduce-client-shuffle-2.0.0-cdh4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-streaming-2.0.0-cdh4.1.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

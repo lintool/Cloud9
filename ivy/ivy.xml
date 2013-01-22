@@ -14,8 +14,7 @@
     <dependency org="org.apache.hadoop" name="hadoop-yarn-server-resourcemanager" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
-
-    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-mr1-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-cdh4.1.2" conf="*->*,!sources,!javadoc"/>
 
     <dependency org="org.apache.pig" name="pig" rev="0.10.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" conf="*->*,!sources,!javadoc"/>

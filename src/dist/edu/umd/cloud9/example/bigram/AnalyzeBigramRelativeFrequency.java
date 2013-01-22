@@ -1,6 +1,6 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
- * 
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
@@ -16,13 +16,14 @@
 
 package edu.umd.cloud9.example.bigram;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
+
+import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfStrings;
@@ -37,11 +38,11 @@ public class AnalyzeBigramRelativeFrequency {
 
     System.out.println("input path: " + args[0]);
 
-    List<PairOfWritables<PairOfStrings, FloatWritable>> pairs = SequenceFileUtils
-        .readDirectory(new Path(args[0]));
+    List<PairOfWritables<PairOfStrings, FloatWritable>> pairs =
+        SequenceFileUtils.readDirectory(new Path(args[0]));
 
-    List<PairOfWritables<PairOfStrings, FloatWritable>> list1 = new ArrayList<PairOfWritables<PairOfStrings, FloatWritable>>();
-    List<PairOfWritables<PairOfStrings, FloatWritable>> list2 = new ArrayList<PairOfWritables<PairOfStrings, FloatWritable>>();
+    List<PairOfWritables<PairOfStrings, FloatWritable>> list1 = Lists.newArrayList();
+    List<PairOfWritables<PairOfStrings, FloatWritable>> list2 = Lists.newArrayList();
 
     for (PairOfWritables<PairOfStrings, FloatWritable> p : pairs) {
       PairOfStrings bigram = p.getLeftElement();

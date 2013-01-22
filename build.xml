@@ -11,7 +11,7 @@
   <property name="test.junit.dir" location="${test.dir}/junit" />
   <property name="integration.dir" location="${test.dir}/integration" />
 
-  <property name="version" value="1.4.2"/>
+  <property name="version" value="1.4.4"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -19,7 +19,8 @@
   </path>
   <path id="run.path.id">
     <path refid="lib.path.id" />
-    <path location="${build.dir}" />
+    <fileset dir="${dist.dir}" />
+    <!-- path location="${build.dir}" /-->
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
@@ -242,7 +243,7 @@
 
 		<property name="java_command" value="${java} -Xmx2048m -classpath &quot;${run.path.id}&quot;" />
 
-		<condition property="script_prefix" value="#!/bin/sh${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
+		<condition property="script_prefix" value="#!/bin/sh${line.separator}export HADOOP_CLASSPATH=&quot;${run.path.id}:$HADOOP_CLASSPATH&quot;${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
 			<equals arg1="${platform}" arg2="unix" />
 		</condition>
 		<condition property="script_prefix" value="">
@@ -256,6 +257,9 @@
 		<echo file="./etc/run.${suffix}" message="${script_prefix}" />
 		<echo file="./etc/run.${suffix}" message="${java_command} " append="true" />
 		<echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
+
+		<echo file="./etc/run-integration.${suffix}" message="${script_prefix}" />
+		<echo file="./etc/run-integration.${suffix}" message="${line.separator}ant clean${line.separator}ant${line.separator}ant -lib etc/mail.jar integration${line.separator}" append="true" />
 
 	</target>
 

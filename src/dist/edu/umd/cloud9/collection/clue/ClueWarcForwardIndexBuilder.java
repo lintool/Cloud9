@@ -1,3 +1,19 @@
+/*
+ * Cloud9: A Hadoop toolkit for working with big data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package edu.umd.cloud9.collection.clue;
 
 import java.io.IOException;
@@ -43,9 +59,9 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
  * </p>
  *
  * <pre>
- * hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder \
- *   -collection /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
- *   -index findex.en.01.dat
+ * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder \
+ *  -collection /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
+ *  -index findex.en.01.dat
  * </pre>
  *
  * @author Jimmy Lin
@@ -53,9 +69,7 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 public class ClueWarcForwardIndexBuilder extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(ClueWarcForwardIndexBuilder.class);
 
-  private static enum Blocks {
-    Total
-  };
+  private static enum Blocks { Total };
 
   private static class MyMapRunner implements
       MapRunnable<IntWritable, ClueWarcRecord, IntWritable, Text> {

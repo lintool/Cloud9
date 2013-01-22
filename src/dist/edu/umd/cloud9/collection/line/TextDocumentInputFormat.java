@@ -92,7 +92,11 @@ public class TextDocumentInputFormat extends FileInputFormat<LongWritable, TextD
 		}
 
 		public float getProgress() {
+		    try{
 			return mRecordReader.getProgress();
+		    } catch (IOException e) {
+			return 0.0f;
+		    }
 		}
 
 		public synchronized boolean next(LongWritable key, TextDocument value) {

@@ -114,7 +114,8 @@ public class DemoWordCount extends Configured implements Tool {
     LOG.info(" - number of reducers: " + reduceTasks);
 
     Configuration conf = getConf();
-    Job job = new Job(conf, DemoWordCount.class.getSimpleName());
+    Job job = Job.getInstance(conf);
+    job.setJobName(DemoWordCount.class.getSimpleName());
     job.setJarByClass(DemoWordCount.class);
 
     job.setNumReduceTasks(reduceTasks);
