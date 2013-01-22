@@ -56,7 +56,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
 
   private static enum PageTypes {
-    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE, OTHER, A, B, C, D
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE, OTHER
   };
 
   private static class MyMapper extends MapReduceBase implements
@@ -128,11 +128,11 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     }
   }
 
-  private static final String INPUT_OPTION = "input";
-  private static final String OUTPUT_PATH_OPTION = "output_path";
-  private static final String OUTPUT_FILE_OPTION = "output_file";
-  private static final String KEEP_ALL_OPTION = "keep_all";
-  private static final String LANG_OPTION = "lang";
+  public static final String INPUT_OPTION = "input";
+  public static final String OUTPUT_PATH_OPTION = "output_path";
+  public static final String OUTPUT_FILE_OPTION = "output_file";
+  public static final String KEEP_ALL_OPTION = "keep_all";
+  public static final String LANG_OPTION = "lang";
 
   @SuppressWarnings("static-access")
   @Override
