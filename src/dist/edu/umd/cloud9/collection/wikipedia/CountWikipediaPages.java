@@ -50,6 +50,7 @@ import org.apache.log4j.Logger;
  * path to the Wikipedia XML dump file with the {@code -input} flag.
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class CountWikipediaPages extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(CountWikipediaPages.class);
@@ -85,14 +86,17 @@ public class CountWikipediaPages extends Configured implements Tool {
   }
 
   private static final String INPUT_OPTION = "input";
-
+  private static final String LANGUAGE_OPTION = "wiki_language";
+  
   @SuppressWarnings("static-access")
   @Override
   public int run(String[] args) throws Exception {
     Options options = new Options();
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
-
+    options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
+        .withDescription("two-letter language code").create(LANGUAGE_OPTION));
+    
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
     try {
@@ -108,20 +112,34 @@ public class CountWikipediaPages extends Configured implements Tool {
       ToolRunner.printGenericCommandUsage(System.out);
       return -1;
     }
+    
+    String language = null;
+    if (cmdline.hasOption(LANGUAGE_OPTION)) {
+      language = cmdline.getOptionValue(LANGUAGE_OPTION);
+      if(language.length()!=2){
+        System.err.println("Error: \"" + language + "\" unknown language!");
+        return -1;
+      }
+    }
 
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
 
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - XML dump file: " + inputPath);
-
+    LOG.info(" - language: " + language);
+    
     JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("DemoCountWikipediaPages[%s: %s]", INPUT_OPTION, inputPath));
+    conf.setJobName(String.format("CountWikipediaPages[%s: %s, %s: %s]", INPUT_OPTION, inputPath, LANGUAGE_OPTION, language));
 
     conf.setNumMapTasks(10);
     conf.setNumReduceTasks(0);
 
     FileInputFormat.setInputPaths(conf, new Path(inputPath));
 
+    if(language != null){
+      conf.set("wiki.language", language);
+    }
+    
     conf.setInputFormat(WikipediaPageInputFormat.class);
     conf.setOutputFormat(NullOutputFormat.class);
 

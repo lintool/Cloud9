@@ -15,11 +15,13 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.collection.DocumentForwardIndex;
+import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
 
 /**
  * Forward index for Wikipedia collections.
  *
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage> {
   private static final Logger LOG = Logger.getLogger(WikipediaPage.class);
@@ -101,7 +103,7 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
           SequenceFile.Reader.file(new Path(file)));
 
       IntWritable key = new IntWritable();
-      WikipediaPage value = new WikipediaPage();
+      WikipediaPage value = WikipediaPageFactory.createWikipediaPage(conf.get("wiki.language"));
 
       reader.seek(offsets[idx]);
 
