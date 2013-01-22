@@ -12,7 +12,7 @@
   <artifactId>cloud9</artifactId>
   <packaging>jar</packaging>
   <name>Cloud9</name>
-  <version>1.4.4</version>
+  <version>1.4.5</version>
   <description>University of Maryland's Hadoop Library</description>
   <url>http://cloud9lib.org</url>
   <licenses>

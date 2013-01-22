@@ -11,7 +11,7 @@
   <property name="test.junit.dir" location="${test.dir}/junit" />
   <property name="integration.dir" location="${test.dir}/integration" />
 
-  <property name="version" value="1.4.4"/>
+  <property name="version" value="1.4.5"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
