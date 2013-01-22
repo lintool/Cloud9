@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Working with the ClueWeb09 Collection</h2>
+</div>
+
+<p>The <a
+href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=ClueWeb09%20Wiki">ClueWeb09
+collection</a> consists of one billion web pages (5 TB compressed, 25
+TB uncompressed), in ten languages, crawled in January and February
+2009.  Its creation, supported by U.S. National Science Foundation
+(NSF), was led by <a href="http://www.cs.cmu.edu/~callan/">Jamie
+Callan</a> of the <a href="http://www.lti.cs.cmu.edu/">Language
+Technologies Institute</a> at <a
+href="http://www.cmu.edu/index.shtml">Carnegie Mellon University</a>
+to support research on information retrieval and related human
+language technologies.  The entire collection is available <a
+href="http://boston.lti.cs.cmu.edu/Data/clueweb09/">for research
+purposes</a>.  This guide provides instructions on processing the
+English portion of the Clue Web collection using Hadoop with
+Cloud<sup><small>9</small></sup>, building on <a
+href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Working+with+WARC+Files">code</a>
+developed by Mark Hoy at CMU.  For now, this page deal exclusively
+with the English portion of the collection.</p>
+
+<p>Topics that this page covers:</p>
+
+<ul>
+
+  <li><a href="#counting">Counting the records</a></li>
+
+  <li><a href="#repacking">Repacking the records</a></li>
+
+  <li><a href="#docnos">Sequentially-numbered docnos</a></li>
+
+  <li><a href="#malformed">Malformed records</a></li>
+
+</ul>
+
+<p>See <a href="http://boston.lti.cs.cmu.edu/clueweb09/wiki/tiki-index.php?page=Dataset+Information">the
+"official" dataset information page</a> for the definitive description
+of the collection.  Some content on this page simply mirrors
+information on that page for convenience.</p>
+
+<p>In total, there are 503,903,810 pages in the English portion of the
+ClueWeb09 collection (2.08 TB compressed, 13.4 TB uncompressed).  The
+English data is distributed in ten parts (called segments), each
+corresponding to a directory.  Here are the page counts for each
+segment:</p>
+
+<table class="table table-striped">
+<tr><td>ClueWeb09_English_1</td> <td>50,220,423 pages</td></tr>
+<tr><td>ClueWeb09_English_2</td> <td>51,577,077 pages</td></tr>
+<tr><td>ClueWeb09_English_3</td> <td>50,547,493 pages</td></tr>
+<tr><td>ClueWeb09_English_4</td> <td>52,311,060 pages</td></tr>
+<tr><td>ClueWeb09_English_5</td> <td>50,756,858 pages</td></tr>
+<tr><td>ClueWeb09_English_6</td> <td>50,559,093 pages</td></tr>
+<tr><td>ClueWeb09_English_7</td> <td>52,472,358 pages</td></tr>
+<tr><td>ClueWeb09_English_8</td> <td>49,545,346 pages</td></tr>
+<tr><td>ClueWeb09_English_9</td> <td>50,738,874 pages</td></tr>
+<tr><td>ClueWeb09_English_10</td><td>45,175,228 pages</td></tr>
+</table>
+
+<p>Each segment contains a number of sub-directories, each of which
+contains a number of compressed WARC files.  There is no official name
+for these sub-directories, so to be precise I'll call them sections.
+They are numbered from <code>en0000</code> all the way
+through <code>en0133</code>.  For example, <code>en0000</code>
+to <code>en0011</code> belong to segment 1.  That is, the first
+segment contains the following sub-directories:</p>
+
+<pre>
+ClueWeb09_English_1/en0000
+ClueWeb09_English_1/en0001
+...
+ClueWeb09_English_1/en0011
+</pre>
+
+<p>In addition, the first segment contains three special
+sections, <code>enwp00</code>, <code>enwp01</code>, <code>enwp02</code>,
+<code>enwp03</code>.  These sections hold a version of English
+Wikipedia.  Also, sections <code>en0083</code>, <code>en0084</code>,
+and <code>en0097</code> do not exist (or are empty, depending on the
+distribution).</p>
+
+<h3>Counting the Records</h3>
+
+<p>Once you've gotten your hands on the collection, the first thing
+you might want to do is run some sanity checks.  The simplest sanity
+check is to rea through all the records and count them.  This
+functionality is provided by
+a <a href="../api/edu/umd/cloud9/collection/clue/DemoCountClueWarcRecords.html">demo
+program</a> in Cloud<sup><small>9</small></sup>.  Here's the
+command-line invocation:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.clue.DemoCountClueWarcRecords \
+original /shared/ClueWeb09/collection.raw 1 /shared/ClueWeb09/docno-mapping.dat
+</pre>
+
+<p>The first command-line argument indicates whether your counting
+records in the original distribution ("original") or repacked
+SequenceFiles ("repacked"); for the second condition, see details
+below.  The second argument is the base path of your ClueWeb09
+distribution.  The third command-line argument is the segment number
+(1 through 10).  The final argument is the location of the docno
+mapping (see details below). If you run the demo program on all ten
+segments, you should get the following results:</p>
+
+<table class="table table-striped">
+<tr><td style="text-align:right" class="myheader"><b>segment</b></td>
+    <td style="text-align:right" class="myheader"><b># files</b></td>
+    <td style="text-align:right" class="myheader"><b>bytes off disk</b></td>
+    <td style="text-align:right" class="myheader"><b># of records</b></td>
+    <td style="text-align:right" class="myheader"><b># of pages</b></td>
+    <td style="text-align:right" class="myheader"><b>total size</b></td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">1</td>
+<td class="mycell" style="text-align:right">1492</td>
+<td class="mycell" style="text-align:right">246,838,508,311</td>
+<td class="mycell" style="text-align:right">50,221,915</td>
+<td class="mycell" style="text-align:right">50,220,423</td>
+<td class="mycell" style="text-align:right">1,527,155,667,036</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">2</td>
+<td class="mycell" style="text-align:right">1416</td>
+<td class="mycell" style="text-align:right">224,505,694,289</td>
+<td class="mycell" style="text-align:right">51,578,493</td>
+<td class="mycell" style="text-align:right">51,577,077</td>
+<td class="mycell" style="text-align:right">1,435,415,062,235</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">3</td>
+<td class="mycell" style="text-align:right">1375</td>
+<td class="mycell" style="text-align:right">217,428,760,570</td>
+<td class="mycell" style="text-align:right">50,548,868</td>
+<td class="mycell" style="text-align:right">50,547,493</td>
+<td class="mycell" style="text-align:right">1,392,234,129,944</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">4</td>
+<td class="mycell" style="text-align:right">1363</td>
+<td class="mycell" style="text-align:right">213,615,715,952</td>
+<td class="mycell" style="text-align:right">52,312,423</td>
+<td class="mycell" style="text-align:right">52,311,060</td>
+<td class="mycell" style="text-align:right">1,379,063,022,766</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">5</td>
+<td class="mycell" style="text-align:right">1322</td>
+<td class="mycell" style="text-align:right">205,092,621,204</td>
+<td class="mycell" style="text-align:right">50,758,180</td>
+<td class="mycell" style="text-align:right">50,756,858</td>
+<td class="mycell" style="text-align:right">1,333,142,147,191</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">6</td>
+<td class="mycell" style="text-align:right">1302</td>
+<td class="mycell" style="text-align:right">203,616,661,324</td>
+<td class="mycell" style="text-align:right">50,560,395</td>
+<td class="mycell" style="text-align:right">50,559,093</td>
+<td class="mycell" style="text-align:right">1,314,228,067,242</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">7</td>
+<td class="mycell" style="text-align:right">1358</td>
+<td class="mycell" style="text-align:right">213,335,482,896</td>
+<td class="mycell" style="text-align:right">52,473,716</td>
+<td class="mycell" style="text-align:right">52,472,358</td>
+<td class="mycell" style="text-align:right">1,366,774,469,429</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">8</td>
+<td class="mycell" style="text-align:right">1295</td>
+<td class="mycell" style="text-align:right">199,607,688,405</td>
+<td class="mycell" style="text-align:right">49,546,641</td>
+<td class="mycell" style="text-align:right">49,545,346</td>
+<td class="mycell" style="text-align:right">1,308,432,844,339</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">9</td>
+<td class="mycell" style="text-align:right">1306</td>
+<td class="mycell" style="text-align:right">204,295,706,812</td>
+<td class="mycell" style="text-align:right">50,740,180</td>
+<td class="mycell" style="text-align:right">50,738,874</td>
+<td class="mycell" style="text-align:right">1,331,922,112,879</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">10</td>
+<td class="mycell" style="text-align:right">988</td>
+<td class="mycell" style="text-align:right">150,042,155,900</td>
+<td class="mycell" style="text-align:right">45,176,216</td>
+<td class="mycell" style="text-align:right">45,175,228</td>
+<td class="mycell" style="text-align:right">983,120,555,934</td>
+</tr>
+
+<tr>
+<td class="mycell" style="text-align:right">all</td>
+<td class="mycell" style="text-align:right">13,217</td>
+<td class="mycell" style="text-align:right">2,078,378,995,663</td>
+<td class="mycell" style="text-align:right">503,917,027</td>
+<td class="mycell" style="text-align:right">503,903,810</td>
+<td class="mycell" style="text-align:right">13,371,488,078,995</td>
+</tr>
+
+</table>
+
+<p>Description of the columns:</p>
+
+<ul>
+
+  <li><b>segment</b>: the segment in question.</li>
+
+  <li><b># files</b>: number files (compressed WARC files) in the
+  segment.</li>
+
+  <li><b>bytes off disk</b>: compressed size of the compressed WARC
+  files.</li>
+
+  <li><b># of records</b>: number of WARC records.</li>
+
+  <li><b># of pages</b>: number of actual HTML pages.</li>
+
+  <li><b>total size</b>: uncompressed size of all records.</li>
+
+</ul>
+
+<p>As a note, each compressed WARC file has a header followed by
+the actual HTML pages, so number of records should be equal to number
+of files plus number of pages.</p>
+
+<h3>Repacking the Records</h3>
+
+<p>In some ways, the original WARC files are awkward to work with.
+There is, for example, no simple way to quickly access an individual
+record that lies in the middle of a gzipped file.  A good solution is
+to repack the collection into block-compressed SequenceFiles.  This is
+described in a separate page on <a href="clue-access.html">providing
+random access to the WARC records</a>.</p>
+
+<h3>Sequentially-Numbered Docnos</h3>
+
+<p>Many information retrieval and other text processing tasks require
+that all documents in the collection be sequentially numbered, from 1
+... <i>n</i>.  Typically, you'll want to start with document 1 as
+opposed to 0 because it is not possible to represent 0 with many
+standard compression schemes used in information retrieval (i.e.,
+Golomb codes).  For clarity, I call these sequentially-numbered
+document ids <b>docnos</b>, whereas I call the original
+ids <b>docids</b>. (This is a bit
+confusing as in previous TREC collections alphanumeric document ids
+are tagged as DOCNOs.)</p>
+
+<p>The format of a docid (WARC-TREC-ID) in the collection is
+<code>clueweb09-enXXXX-YY-ZZZZZ</code>.  Due to this regular format,
+it is very easy to algorithmically map between docnos and docids.  In
+Cloud<sup><small>9</small></sup>, the
+<a href="../api/edu/umd/cloud9/collection/clue/ClueWarcDocnoMapping.html">ClueWarcDocnoMapping</a>
+class in the edu.umd.cloud9.collection.clue package provides an API
+for you.</p>
+
+<p>Even if you don't want to use the Cloud<sup><small>9</small></sup>
+API, this <a href="clue-en-docno-mapping.txt">mappings data file</a>
+should be useful.  Here are the first few lines:</p>
+
+<pre>
+en0000,0,35582,1
+en0000,1,28413,35583
+en0000,2,36053,63996
+en0000,3,36260,100049
+en0000,4,34786,136309
+en0000,5,33015,171095
+...
+</pre>
+
+<p>It's a CSV data file, where the first column represents
+the <code>enXXXX</code> portion of the docid, the second column
+represents the <code>YY</code> portion, and the third column lists the
+number of pages with the <code>enXXXX-YY</code> prefix.
+Since <code>ZZZZZ</code> starts at zero, the last docid is the third
+column minus one.  The fourth column tracks the cumulative count in
+the number of documents.  With this information, mapping between
+docnos and docids is a simple matter of arithmetic.</p>
+
+<h3>Malformed Records</h3>
+
+<p>There are a number of malformed WARC records in the English portion
+of the collection (there may be malformed records in the other
+languages also, but I haven't analyzed them yet).  The most prevalent
+problem is an extra newline in the WARC header.  There are a few cases
+of other malformed headers also.  See
+this <a href="clue-en-malformed-warc.txt">list of docids</a>: each
+docid refers to a WARC record that immediately precedes a malformed
+WARC record.  For example, the first docid in the list
+is <code>clueweb09-en0001-41-14941</code>, which means
+that <code>clueweb09-en0001-41-14942</code> is malformed.</p>
+
+<p>Of all the malformed WARC records referenced in the file above, all
+except for the following are malformed in having an extra newline in
+the WARC header.  The following docids are malformed in other ways
+(all cases of garbled URL):</p>
+
+<pre>
+clueweb09-en0044-01-04501
+clueweb09-en0059-46-06368
+clueweb09-en0117-48-12547
+clueweb09-en0112-59-06118
+clueweb09-en0126-33-37391
+clueweb09-en0126-88-10049
+</pre>
+
+<p>This errata is provided primarily for reference.  The API in
+Cloud<sup><small>9</small></sup> transparently handles these malformed
+WARC records (thanks to code originally written by Mark Hoy from
+CMU).</p>
+
+  </div>
+
+
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
+
+  </body>
+</html>
+

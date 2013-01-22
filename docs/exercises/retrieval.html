@@ -1,69 +1,82 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Boolean Retrieval</title>
-<style type="text/css" media="screen">@import url( ../style.css );</style>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body>
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-<div id="wrap">
-<div id="container" class="one-column" >
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-<!-- header START -->
+  </head>
 
-<div id="header">
-<div id="caption">
-<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
-<div id="tagline">A MapReduce Library for Hadoop</div>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Boolean Retrieval Exercise</h2>
 </div>
 
-<div class="fixed"></div>
-
-</div>
-
-<!-- header END -->
-
-<!-- navigation START -->
-
-<div id="navigation">
-
-<script type="text/javascript" src="menu.js">
-</script>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- navigation END -->
-
-
-
-<!-- content START -->
-
-<div id="content">
-
-
-
-	<!-- main START -->
-
-	<div id="main">
-
-
-<!--- START MAIN CONTENT HERE -->
-
-<h2>Exercises &#187; Boolean Retrieval</h2>
-
-<div class="post">
-<div class="content">
+<table style="margin-top: 15px; margin-bottom:
+15px"><tr><td valign="top"><span class="label
+label-warning">Warning</span></td>
+<td style="padding-left: 10px">This exercise builds on the
+the <a href="./indexing.html">inverted indexing exercise</a>, which
+must be completed before this.</td></tr></table>
 
 <p>Write a Boolean retrieval engine that uses the index created in the
 <a href="indexing.html">inverted indexing</a> exercise.  Your
 retrieval engine should be able to handle complex Boolean queries of
 the following form:</p>
 
-<pre>
+<pre class="code">
 ( slings AND arrows ) OR ( mortal AND coil )
 ( et AND tu AND brute )
 </pre>
@@ -88,7 +101,7 @@ As a hint, reverse polish notation actually yields the simplest
 implementation.</p>
 
 <p>As with previous exercises, use the sample input included in
-Cloud<sup><small>9</small></sup>, <a
+Cloud<sup>9</sup>, <a
 href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
 works of Shakespeare</a>.  As a bare minimum, your Boolean retrieval
 engine must be able to:</p>
@@ -106,14 +119,14 @@ engine must be able to:</p>
 <p>For example, in response to the query "outrageous AND fortune",
 your retrieval engine should return something like:</p>
 
-<pre>
+<pre class="code">
 4442172  the slings and arrows of outrageous fortune
 </pre>
 
 <p>To give another example, in response to the query "white AND rose",
 your retrieval engine should return something like:</p>
 
-<pre>
+<pre class="code">
 7841087  from off this brier pluck a white rose with me
 7841354  i pluck this white rose with plantagenet
 7841879  giving my verdict on the white rose side
@@ -129,33 +142,28 @@ your retrieval engine should return something like:</p>
 <p>Once you have the Boolean search engine working, try out these
 sample queries:</p>
 
-<pre>
+<pre class="code">
 means AND deceit
 (white OR red ) AND rose AND pluck
 (unhappy OR outrageous OR (good AND your)) AND fortune
 </pre>
 
-</div></div>
+<h3>Practical Tips</h3>
 
-<div class="post">
-<h2>Practical Tips</h2>
-<div class="content">
-
-<p>This exercise is meant to be completed outside of Hadoop.  Build
-your inverted index in Hadoop, as per the <a
-href="indexing.html">inverted indexing</a> exercise.  If you
-set the number of reducers to one, all the postings will be written to
-a single file.  This will make the index easier to manipulate.
+<p>This exercise is meant to be completed outside of Hadoop. Build
+your inverted index in Hadoop, as per
+the <a href="indexing.html">inverted indexing</a> exercise. If you set
+the number of reducers to one, all the postings will be written to a
+single file. This will make the index easier to manipulate.
 Obviously, this isn't a scalable solution, but it will suffice for
-this exercise.  Retrieve your index from HDFS with the <code>hadoop fs
--get</code> command.  Implement your Boolean retrieval engine to
+this exercise. Retrieve your index from HDFS with the <code>hadoop fs
+-get</code> command. Implement your Boolean retrieval engine to
 manipulate the inverted index stored on your local machine.</p>
 
-</div></div>
+<p>As another hint, <code>MapFileOutputFormat</code> might come in
+handy.</p>
 
-<div class="post">
-<h2>Extensions</h2>
-<div class="content">
+<h3>Extensions</h3>
 
 <p>Some optional features you might want to consider implementing
 are:</p>
@@ -174,60 +182,44 @@ are:</p>
 
 </ul>
 
-</div></div>
-
-<div class="post">
-<h2>Solutions</h2>
-<div class="content">
+<h3>Solutions</h3>
 
 <p>When you're ready, the solutions to this
-exercise <a href="retrieval-solutions.html">are located here</a>.</p>
+exercise are located <a href="retrieval-solutions.html">here</a>.</p>
 
-</div></div>
 
-<p style="padding-top: 25px">&#171; <a href="index.html">Back to exercises</a></p>
-<!--- END MAIN CONTENT HERE -->
-
-	</div>
-
-	<!-- main END -->
+  </div>
 
 
 
-		<div class="fixed"></div>
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
 
-</div>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
 
-<!-- content END -->
-
-<!-- footer START -->
-
-<div id="footer">
-<div id="copyright">
-Last updated:
-<script type="text/javascript">
-<!--//
-document.write(document.lastModified);
-//-->
-</script>
-</div>
-
-<div id="themeinfo">
-Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
-
-</div>
-
-<!-- footer END -->
-
-
-
-</div>
-
-<!-- container END -->
-
-</div>
-
-<!-- wrap END -->
-
-</body>
+  </body>
 </html>

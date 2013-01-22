@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../index.html">Home</a>
+              </li>
+              <li class="active">
+                <a href="./contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="./api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Word Count Tutorial</h2>
+</div>
+
+<p>Cloud<sup>9</sup> is designed to work with Hadoop YARN and has been
+tested against Cloudera CDH 4.1.2 (on both Mac and Linux). It should
+work with other Hadoop distributions or on other platforms with only
+minor modifications; however, switching to a non-YARN version of
+Hadoop will requiring recompiling the jars. In this tutorial, we'll
+take you through running word count on a toy collection. First, we'll
+use Hadoop local mode (also called standalone mode). Running in local
+model, as the name suggests, does not require setting up a cluster,
+but of course, you won't get the benefits of distributed processing
+either. Next, we'll run word count on the single node virtual Hadoop
+cluster provided by Cloudera.</p>
+
+<table><tr><td valign="top"><span class="label label-warning">Warning</span></td>
+<td style="padding-left: 10px">Note that local mode doesn't work
+properly under Windows, even with cygwin, so Windows users following
+this guide should start with "Running Cloud<sup>9</sup> on a Single Node Virtual
+Cluster"</td></tr></table>
+
+<h3>Download and Install Hadoop</h3>
+
+<p>Download Cloudera CDH
+4.1.2 <a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads">here</a>. The
+easiest way is to download the tarball and unpack on your local
+machine. Make sure
+<code>PATH_TO_HADOOP/bin</code> is on your path. Verify that Hadoop is running
+with the pi example. In a shell, run the following command:</p>
+
+<pre class="code">
+hadoop jar PATH_TO_HADOOP/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.0.0-cdh4.1.2.jar pi \
+  -D mapreduce.framework.name=local -D mapreduce.jobtracker.address=local -D fs.default.name=file:/// \
+  -D mapreduce.cluster.local.dir=/tmp/mapred/local \
+  -D mapreduce.cluster.temp.dir=/tmp/mapred/temp\
+  -D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging \
+  -D mapreduce.jobtracker.system.dir=/tmp/mapred/system \
+  100 100000
+</pre>
+
+<p>Note that the multitude of <code>-D</code> options overrides the
+Hadoop config and forces local mode. It isn't necessary if you just
+downloaded the tarball straight from the site above. This is just in
+case you have Hadoop set up already.</p>
+
+<p>After the above Hadoop local job finishes, you should see the
+computed value of pi... something that's reasonably closer to 3.14.</p>
+
+<h3>Clone the Cloud<sup>9</sup> Repo</h3>
+
+<p>Open up a shell and clone the Cloud<sup>9</sup> github repo:</p>
+
+<pre class="code">
+git clone git://github.com/lintool/Cloud9.git
+</pre>
+
+<p>Go into the <code>Cloud9/</code> directory and build with ant by
+typing <code>ant</code>. The build should complete without error.</p>
+
+<p>Let's now run the word count demo. Ant should have automatically
+created a script for you located at <code>etc/hadoop-local.sh</code>
+for running Hadoop jobs in local mode. It conveniently sets up the
+environment, so you shouldn't have to worry about classpaths, libjars,
+etc. Building the index involves two separated commands:</p>
+
+<pre class="code">
+etc/hadoop-local.sh edu.umd.cloud9.example.simple.DemoWordCount \
+  -input data/bible+shakes.nopunc.gz -output wc
+</pre>
+
+<p>In local model, there is no HDFS, so you can use standard shell
+commands to see the output. For example:</p>
+
+<pre class="code">
+$ head wc/part-r-00000
+&c	70
+&c'	1
+''all	1
+''among	1
+''and	1
+''but	1
+''how	1
+''lo	2
+''look	1
+''my	1
+</pre>
+
+<p>And that's it!</p>
+
+<h3>Running Cloud<sup>9</sup> on a Single Node Virtual Cluster</h3>
+
+<p>The next step is to run Cloud<sup>9</sup> on an actual Hadoop cluster. How to
+set up a Hadoop cluster is beyond the scope of this tutorial, but the
+next best thing is to use Cloudera's virtual machine images, which
+come with pre-configured single-node cluster. The images can be
+downloaded <a href="https://ccp.cloudera.com/display/SUPPORT/Cloudera%27s+Hadoop+Demo+VM+for+CDH4">here</a>.
+</p>
+
+<p>The latest available version is CDH 4.1.1: use the VirtualBox image,
+since VirtualBox is freely available across all major
+platforms. Download the image and unpack the tarball. VirtualBox
+itself can be
+download <a href="https://www.virtualbox.org/wiki/Downloads">here</a>.</p>
+
+<p>Install VirtualBox and open up the application. To install the
+Cloudera Hadoop image, click "New" on the tool bar. For "Name and
+operating system", put in the following information:</p>
+
+<ul>
+<li>Name: Cloudera CDH 4.1.1</li>
+<li>Type: Linux</li>
+<li>Version: Linux 2.6 (64 bit)</li>
+</ul>
+
+<p>Next, for "Memory size", put in as much as you can spare, with a
+minimum of 3GB. Next, "Hard drive", select "Use an existing virtual
+hard drive file" and select the VM image you downloaded from above. To
+finish, click "Create". Back in the main window, the VM should have
+been added. Select it and click "Start" in the toolbar. That'll boot
+up the image.</p>
+
+<table style="margin-top: 15px; margin-bottom: 15px;">
+<tr><td valign="top"><span class="label label-info">Info</span></td>
+<td style="padding-left: 10px">On Mac, if you get the error "<code>Failed to
+load VMMR0.r0 (VERR_SUPLIB_WORLD_WRITABLE)</code>" when booting up, it's
+complaining because the directory <code>/Application</code> is world
+writable. Apparently, that's bad practice, so change that: <code>chmod
+775</code> should do the trick.
+</td></tr></table>
+
+<p>The VM is missing a few packages that we need, so open up a shell
+and install from the command line:</p>
+
+<pre class="code">
+sudo yum install git 
+sudo yum install ant 
+sudo yum install gcc
+</pre>
+
+<p>Open up a shell and clone the Cloud<sup>9</sup> github repo:</p>
+
+<pre class="code">
+git clone git://github.com/lintool/Cloud9.git
+</pre>
+
+<p>As with before, go into the <code>Cloud9/</code> directory and build
+with ant by typing <code>ant</code>.</p>
+
+<p>After that's done, we need to put the sample data onto HDFS:</p>
+
+<pre class="code">
+hadoop fs -put data/bible+shakes.nopunc.gz
+</pre>
+
+<p>You can verify that the file is there:</p>
+
+<pre class="code">
+hadoop fs -ls
+</pre>
+
+<p>Next, run the word count demo using
+the <code>etc/hadoop-cluster.sh</code> script, as follows:</p>
+
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.example.simple.DemoWordCount \
+  -input bible+shakes.nopunc.gz -output wc -numReducers 5
+</pre>
+
+<p>The script is a wrapper around <code>hadoop</code> that sets up the
+environment, handles libjars, etc. If you're curious, <code>cat</code>
+it and you'll see. Note that the paths here are referencing HDFS
+paths, not local paths.</p>
+
+<p>After the job completes, you should be able to see the output on
+HDFS:</p>
+
+<pre class="code">
+hadoop fs -ls wc
+</pre>
+
+<p>You should see 5 <code>part-r-XXXXX</code> files, since we
+specified five reducers above. Now copy the data from HDFS onto the
+local disk:</P>
+
+<pre class="code">
+hadoop fs -get wc/part-r-* .
+</pre>
+
+<p>From here, you should be able to examine the contents of the file
+using normal shell commands.</p>
+
+<p>And that's it!</p>
+
+  </div>
+
+
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/google-code-prettify/prettify.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="assets/js/bootstrap-affix.js"></script>
+
+  </body>
+</html>
+

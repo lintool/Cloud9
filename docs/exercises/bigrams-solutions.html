@@ -1,101 +1,103 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Exercises &#187; Bigram Counts &#187; Solutions</title>
-<style type="text/css" media="screen">@import url( ../style.css );</style>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body>
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-<div id="wrap">
-<div id="container" class="one-column" >
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-<!-- header START -->
+  </head>
 
-<div id="header">
-<div id="caption">
-<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
-<div id="tagline">A MapReduce Library for Hadoop</div>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Bigram Counts Exercise: Solutions</h2>
 </div>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- header END -->
-
-<!-- navigation START -->
-
-<div id="navigation">
-
-<script type="text/javascript" src="menu.js">
-</script>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- navigation END -->
-
-
-
-<!-- content START -->
-
-<div id="content">
-
-
-
-	<!-- main START -->
-
-	<div id="main">
-
-
-<!--- START MAIN CONTENT HERE -->
-
-<h2>Exercises &#187; Bigram Counts &#187; Solutions</h2>
-
-<div class="post">
-<div class="content">
 
 <p>These are the solutions to the <a href="bigrams.html">bigram
-counting exercise</a> which takes advantage of the <b>order
-inversion</b> design pattern to compute bigram relative frequencies.
-This design pattern is covered in Chapter 3 of Lin and Dyer's book
+counting exercise</a> which takes advantage of the "order inversion"
+design pattern to compute bigram relative frequencies.  This design
+pattern is covered in Chapter 3 of Lin and Dyer's book
 "<a href="http://mapreduce.me/">Data-Intensive Text Processing with
 MapReduce</a>".</p>
 
-</div></div>
-
-
-<div class="post">
-<h2>Part I: Count the bigrams</h2>
-<div class="content">
+<h3>Part I: Count the bigrams</h2>
 
 <p>The solution can be found
 in <code>edu.umd.cloud9.example.bigram.BigramCount</code>.  This
 implementation is quite simple: just like word count, except that
 we're counting bigrams instead of words.  The keys emitted by the
-mapper are (a, b) pairs representing the observed bigrams, while the
-values are their counts.  The reducer simply sums these counts.</p>
+mapper are <code>(a, b)</code> pairs representing the observed
+bigrams, while the values are their counts.  The reducer simply sums
+these counts.</p>
 
 <p>Here's the command-line invocation:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.BigramCount data/bible+shakes.nopunc bigram 5
+<pre class="code">
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramCount data/bible+shakes.nopunc bigram 5
 </pre>
 
-<p>For analyzing the results, run
+<p><b>Answers to the questions:</b> For analyzing the results, run
 <code>edu.umd.cloud9.example.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.AnalyzeBigramCount bigram
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramCount bigram
 </pre>
 
 <p>Note we specify the entire output directory.  You'll see the
 following output:</p>
 
-<pre>
+<pre class="code">
 total number of unique bigrams: 424462
 total number of bigrams: 1578220
 number of bigrams that appear only once: 296139
@@ -118,16 +120,11 @@ i am        2603
 296,139.  The fraction of all bigrams occurrences the top ten bigrams
 account for: 52508/1578220 = 3.33%</p>
 
-</div></div>
-
-
-<div class="post">
-<h2>Part II: From bigram counts to relative frequencies</h2>
-<div class="content">
+<h3>Part II: From bigram counts to relative frequencies</h2>
 
 <p>The solution can be found
 in <code>edu.umd.cloud9.example.bigram.BigramRelativeFrequency</code>.
-This program takes advantage of the <b>order inversion</b> design
+This program takes advantage of the "order inversion" design
 pattern, which is covered in Chapter 3 of Lin and Dyer's book
 "<a href="http://mapreduce.me/">Data-Intensive Text Processing with
 MapReduce</a>".  Here's how it works, very briefly: in addition to
@@ -141,22 +138,22 @@ left element to the same reducer.</p>
 
 <p>Here's the command-line invocation:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.BigramRelativeFrequency data/bible+shakes.nopunc bigram 5
+<pre class="code">
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency data/bible+shakes.nopunc bigram 5
 </pre>
 
 <p>For analyzing the results, run
 <code>edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency</code>.
 Sample invocation:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency bigram
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency bigram
 </pre>
 
-<p>What are the five most frequent words following the word "light"?
+<p><b>Question 1:</b> What are the five most frequent words following the word "light"?
 What is the frequency of observing each word?</p>
 
-<pre>
+<pre class="code">
 (light, *)	454.0
 (light, and)	0.12555066
 (light, of)	0.116740085
@@ -170,9 +167,9 @@ What is the frequency of observing each word?</p>
 (light, the)	0.019823788
 </pre>
 
-<p>Same question, except for the word "contain".</p>
+<p><b>Question 2:</b> Same question, except for the word "contain".</p>
 
-<pre>
+<pre class="code">
 (contain, *)            19.0
 (contain, a)            0.15789473
 (contain, the)          0.15789473
@@ -193,55 +190,45 @@ F(W<sub><small>n</small></sub>|W<sub><small>n-1</small></sub>)&mdash;in
 theory, every word can follow every other word (including itself).
 What fraction of these values are non-zero?</p>
 
+<p><b>Question 3:</b></p>
+
 <p style="padding-left: 30px">
 424462 / 41788<sup><small>2</small></sup> = 0.0002430724
 </p>
 
-</div></div>
 
-<p style="padding-top: 25px">&#171; <a href="index.html">Back to exercises</a></p>
-<!--- END MAIN CONTENT HERE -->
-
-	</div>
-
-	<!-- main END -->
+  </div>
 
 
 
-		<div class="fixed"></div>
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
 
-</div>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
 
-<!-- content END -->
-
-<!-- footer START -->
-
-<div id="footer">
-<div id="copyright">
-Last updated:
-<script type="text/javascript">
-<!--//
-document.write(document.lastModified);
-//-->
-</script>
-</div>
-
-<div id="themeinfo">
-Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
-
-</div>
-
-<!-- footer END -->
-
-
-
-</div>
-
-<!-- container END -->
-
-</div>
-
-<!-- wrap END -->
-
-</body>
+  </body>
 </html>
