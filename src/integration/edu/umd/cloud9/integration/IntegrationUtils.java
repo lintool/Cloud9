@@ -14,13 +14,13 @@ import org.apache.hadoop.fs.Path;
 
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
-      "-D fs.defaultFS=file:/// " +
-      "-D mapreduce.framework.name=local " +
-      "-D mapreduce.jobtracker.address=local " +
-      "-D mapreduce.cluster.local.dir=/tmp/mapred/local " +
-      "-D mapreduce.cluster.temp.dir=/tmp/mapred/temp " +
-      "-D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging " +
-      "-D mapreduce.jobtracker.system.dir=/tmp/mapred/system";
+    "-D fs.defaultFS=file:/// " +
+    "-D mapreduce.framework.name=local " +
+    "-D mapreduce.jobtracker.address=local " +
+    "-D mapreduce.cluster.local.dir=/tmp/mapred/local " +
+    "-D mapreduce.cluster.temp.dir=/tmp/mapred/temp " +
+    "-D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging " +
+    "-D mapreduce.jobtracker.system.dir=/tmp/mapred/system";
 
   public static final String D_JT = "-Dmapred.job.tracker=bespin00.umiacs.umd.edu:8021";
   public static final String D_NN = "-Dfs.defaultFS=hdfs://bespinrm.umiacs.umd.edu:8020";
@@ -70,10 +70,34 @@ public class IntegrationUtils {
     errorGobbler.start();
     outputGobbler.start();
 
+
     // any error???
     int exitVal = proc.waitFor();
     System.out.println("ExitValue: " + exitVal);
     return exitVal;
+  }
+
+  public static int execWiki(String cmd) throws IOException, InterruptedException {
+    System.out.println("Executing command: " + cmd);
+
+    Runtime rt = Runtime.getRuntime();
+    Process proc = rt.exec(cmd);
+
+    // any error message?
+    WikiGobbler errorGobbler = new WikiGobbler(proc.getErrorStream(), "STDERR");
+
+    // any output?
+    StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "STDOUT");
+
+    // kick them off
+    errorGobbler.start();
+    outputGobbler.start();
+
+    // any error???
+    int exitVal = proc.waitFor();
+    System.out.println("ExitValue: " + exitVal);
+
+    return errorGobbler.disambCount;
   }
 
   private static class StreamGobbler extends Thread {
@@ -97,4 +121,30 @@ public class IntegrationUtils {
       }
     }
   }
+
+  private static class WikiGobbler extends StreamGobbler {
+    int disambCount;
+    
+    WikiGobbler(InputStream is, String type) {
+      super(is, type);
+    }
+
+    public void run() {
+      try {
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          System.out.println(type + ">" + line);
+          if (line.contains("DISAMBIGUATION=")) {
+            String[] arr = line.trim().split("DISAMBIGUATION=");
+            disambCount = Integer.parseInt(arr[1]);
+          }
+        }
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      }
+    }
+  }
+
 }
