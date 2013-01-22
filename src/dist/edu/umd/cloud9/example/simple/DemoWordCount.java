@@ -20,6 +20,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,6 +42,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+
+import cern.colt.Arrays;
 
 /**
  * Simple word count demo.
@@ -52,8 +61,8 @@ public class DemoWordCount extends Configured implements Tool {
     private final static Text WORD = new Text();
 
     @Override
-    public void map(LongWritable key, Text value, Context context) throws IOException,
-        InterruptedException {
+    public void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
       String line = ((Text) value).toString();
       StringTokenizer itr = new StringTokenizer(line);
       while (itr.hasMoreTokens()) {
@@ -70,8 +79,8 @@ public class DemoWordCount extends Configured implements Tool {
     private final static IntWritable SUM = new IntWritable();
 
     @Override
-    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException,
-        InterruptedException {
+    public void reduce(Text key, Iterable<IntWritable> values, Context context)
+        throws IOException, InterruptedException {
       // Sum up values.
       Iterator<IntWritable> iter = values.iterator();
       int sum = 0;
@@ -86,27 +95,49 @@ public class DemoWordCount extends Configured implements Tool {
   /**
    * Creates an instance of this tool.
    */
-  public DemoWordCount() {
-  }
+  public DemoWordCount() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input-path] [output-path] [num-reducers]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  private static final String INPUT = "input";
+  private static final String OUTPUT = "output";
+  private static final String NUM_REDUCERS = "numReducers";
 
   /**
    * Runs this tool.
    */
+  @SuppressWarnings({ "static-access" })
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of reducers").create(NUM_REDUCERS));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    int reduceTasks = Integer.parseInt(args[2]);
+    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(OUTPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT);
+    String outputPath = cmdline.getOptionValue(OUTPUT);
+    int reduceTasks = cmdline.hasOption(NUM_REDUCERS) ?
+        Integer.parseInt(cmdline.getOptionValue(NUM_REDUCERS)) : 1;
 
     LOG.info("Tool: " + DemoWordCount.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);

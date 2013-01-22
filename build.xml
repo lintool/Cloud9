@@ -20,7 +20,10 @@
   <path id="run.path.id">
     <path refid="lib.path.id" />
     <fileset dir="${dist.dir}" />
-    <!-- path location="${build.dir}" /-->
+  </path>
+  <path id="libjars.path.id">
+    <fileset dir="${dist.dir}/" includes="cloud9*.jar"/>
+    <fileset dir="${lib.dir}/" includes="guava*.jar"/>
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
@@ -212,56 +215,35 @@
 
   <target name="scripts" depends="jar">
     <pathconvert property="run.path.id" refid="run.path.id" targetos="${platform}" />
+    <pathconvert property="lib.path.id" refid="lib.path.id" targetos="${platform}" />
+    <pathconvert property="libjars.path.id" refid="libjars.path.id" targetos="${platform}" pathsep="," />
 
-    <condition property="suffix" value="sh">
-      <equals arg1="${platform}" arg2="unix" />
-    </condition>
-    <condition property="suffix" value="bat">
-      <equals arg1="${platform}" arg2="windows" />
-    </condition>
+    <property name="suffix" value="sh" />
+    <property name="param_prefix" value="$" />
+    <property name="cp_sep" value=":" />
+    <property name="java_command" value="java -Xmx4g -classpath &quot;${run.path.id}&quot;" />
+    <property name="script_prefix" value="#!/bin/sh${line.separator}export HADOOP_CLASSPATH=&quot;${run.path.id}:$HADOOP_CLASSPATH&quot;${line.separator}" />
 
-		<condition property="param_prefix" value="$">
-			<equals arg1="${platform}" arg2="unix" />
-		</condition>
-		<condition property="param_prefix" value="%">
-			<equals arg1="${platform}" arg2="windows" />
-		</condition>
+    <echo file="./etc/junit.${suffix}" message="${script_prefix}" />
+    <echo file="./etc/junit.${suffix}" message="${java_command} org.junit.runner.JUnitCore " append="true" />
+    <echo file="./etc/junit.${suffix}" message="${param_prefix}1" append="true" />
 
-		<condition property="java" value="java">
-			<equals arg1="${platform}" arg2="unix" />
-		</condition>
-		<condition property="java" value="java">
-			<equals arg1="${platform}" arg2="windows" />
-		</condition>
+    <echo file="./etc/run.${suffix}" message="${script_prefix}" />
+    <echo file="./etc/run.${suffix}" message="${java_command} " append="true" />
+    <echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
 
-		<condition property="cp_sep" value=":">
-			<equals arg1="${platform}" arg2="unix" />
-		</condition>
-		<condition property="cp_sep" value=";">
-			<equals arg1="${platform}" arg2="windows" />
-		</condition>
+    <echo file="./etc/run-integration.${suffix}" message="${script_prefix}" />
+    <echo file="./etc/run-integration.${suffix}" message="${line.separator}ant clean${line.separator}ant${line.separator}ant -lib etc/mail.jar integration${line.separator}" append="true" />
 
-		<property name="java_command" value="${java} -Xmx2048m -classpath &quot;${run.path.id}&quot;" />
+    <echo file="./etc/hadoop-local.${suffix}" message="${script_prefix}" />
+    <echo file="./etc/hadoop-local.${suffix}" message="hadoop jar ${basedir}/${dist.dir}/${artifactId}-${version}.jar ${param_prefix}1 -D mapreduce.framework.name=local -D mapreduce.jobtracker.address=local -D fs.default.name=file:/// -D mapreduce.cluster.local.dir=/tmp/mapred/local -D mapreduce.cluster.temp.dir=/tmp/mapred/temp -D mapreduce.jobtracker.staging.root.dir=/tmp/mapred/staging -D mapreduce.jobtracker.system.dir=/tmp/mapred/system ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9 ${param_prefix}{10} ${param_prefix}{11} ${param_prefix}{12} ${param_prefix}{13} ${param_prefix}{14} ${param_prefix}{15} ${param_prefix}{16} ${param_prefix}{17} ${param_prefix}{18} ${param_prefix}{19} ${param_prefix}{20}${line.separator}" append="true" />
 
-		<condition property="script_prefix" value="#!/bin/sh${line.separator}export HADOOP_CLASSPATH=&quot;${run.path.id}:$HADOOP_CLASSPATH&quot;${line.separator}if test -s ~/.bashrc${line.separator}then${line.separator}source ~/.bashrc${line.separator}fi${line.separator}">
-			<equals arg1="${platform}" arg2="unix" />
-		</condition>
-		<condition property="script_prefix" value="">
-			<equals arg1="${platform}" arg2="windows" />
-		</condition>
+    <echo file="./etc/hadoop-cluster.${suffix}" message="${script_prefix}" />
+    <echo file="./etc/hadoop-cluster.${suffix}" message="hadoop jar ${basedir}/${dist.dir}/${artifactId}-${version}.jar ${param_prefix}1 -libjars ${libjars.path.id} ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9 ${param_prefix}{10} ${param_prefix}{11} ${param_prefix}{12} ${param_prefix}{13} ${param_prefix}{14} ${param_prefix}{15} ${param_prefix}{16} ${param_prefix}{17} ${param_prefix}{18} ${param_prefix}{19} ${param_prefix}{20}${line.separator}" append="true" />
 
-		<echo file="./etc/junit.${suffix}" message="${script_prefix}" />
-		<echo file="./etc/junit.${suffix}" message="${java_command} org.junit.runner.JUnitCore " append="true" />
-		<echo file="./etc/junit.${suffix}" message="${param_prefix}1" append="true" />
+     <chmod dir="./etc/" perm="ugo+rx" includes="**/*.sh"/>
 
-		<echo file="./etc/run.${suffix}" message="${script_prefix}" />
-		<echo file="./etc/run.${suffix}" message="${java_command} " append="true" />
-		<echo file="./etc/run.${suffix}" message="${param_prefix}1 ${param_prefix}2 ${param_prefix}3 ${param_prefix}4 ${param_prefix}5 ${param_prefix}6 ${param_prefix}7 ${param_prefix}8 ${param_prefix}9" append="true" />
-
-		<echo file="./etc/run-integration.${suffix}" message="${script_prefix}" />
-		<echo file="./etc/run-integration.${suffix}" message="${line.separator}ant clean${line.separator}ant${line.separator}ant -lib etc/mail.jar integration${line.separator}" append="true" />
-
-	</target>
+  </target>
 
   <target name="gen-pom" depends="install-ivy">
     <ivy:makepom ivyfile="ivy/ivy.xml" pomfile="cloud9.pom" />
