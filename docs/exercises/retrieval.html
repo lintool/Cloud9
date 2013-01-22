@@ -64,6 +64,13 @@
 <h2>Boolean Retrieval Exercise</h2>
 </div>
 
+<table style="margin-top: 15px; margin-bottom:
+15px"><tr><td valign="top"><span class="label
+label-warning">Warning</span></td>
+<td style="padding-left: 10px">This exercise builds on the
+the <a href="./indexing.html">inverted indexing exercise</a>, which
+must be completed before this.</td></tr></table>
+
 <p>Write a Boolean retrieval engine that uses the index created in the
 <a href="indexing.html">inverted indexing</a> exercise.  Your
 retrieval engine should be able to handle complex Boolean queries of
@@ -94,7 +101,7 @@ As a hint, reverse polish notation actually yields the simplest
 implementation.</p>
 
 <p>As with previous exercises, use the sample input included in
-Cloud<sup><small>9</small></sup>, <a
+Cloud<sup>9</sup>, <a
 href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
 works of Shakespeare</a>.  As a bare minimum, your Boolean retrieval
 engine must be able to:</p>
@@ -143,15 +150,18 @@ means AND deceit
 
 <h3>Practical Tips</h3>
 
-<p>This exercise is meant to be completed outside of Hadoop.  Build
-your inverted index in Hadoop, as per the <a
-href="indexing.html">inverted indexing</a> exercise.  If you
-set the number of reducers to one, all the postings will be written to
-a single file.  This will make the index easier to manipulate.
+<p>This exercise is meant to be completed outside of Hadoop. Build
+your inverted index in Hadoop, as per
+the <a href="indexing.html">inverted indexing</a> exercise. If you set
+the number of reducers to one, all the postings will be written to a
+single file. This will make the index easier to manipulate.
 Obviously, this isn't a scalable solution, but it will suffice for
-this exercise.  Retrieve your index from HDFS with the <code>hadoop fs
--get</code> command.  Implement your Boolean retrieval engine to
+this exercise. Retrieve your index from HDFS with the <code>hadoop fs
+-get</code> command. Implement your Boolean retrieval engine to
 manipulate the inverted index stored on your local machine.</p>
+
+<p>As another hint, <code>MapFileOutputFormat</code> might come in
+handy.</p>
 
 <h3>Extensions</h3>
 
@@ -175,8 +185,7 @@ are:</p>
 <h3>Solutions</h3>
 
 <p>When you're ready, the solutions to this
-exercise <a href="retrieval-solutions.html">are located here</a>.</p>
-
+exercise are located <a href="retrieval-solutions.html">here</a>.</p>
 
 
   </div>

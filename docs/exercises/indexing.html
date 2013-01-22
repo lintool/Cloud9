@@ -64,6 +64,13 @@
 <h2>Inverted Indexing Exercise</h2>
 </div>
 
+<table style="margin-top: 15px; margin-bottom:
+15px"><tr><td valign="top"><span class="label
+label-warning">Warning</span></td>
+<td style="padding-left: 10px">It is strongly recommended that you
+first complete the <a href="../word-count.html">word count
+tutorial</a> before trying this exercise.</td></tr></table>
+
 <p>In this exercise, you'll be creating an <i>inverted index</i>.  An
 inverted index is a data structure common to nearly all information
 retrieval systems.  Let us consider the following famous lines from
@@ -140,11 +147,11 @@ for the actual implementation (e.g., each posting does not literally
 need to be a tuple denoted by parentheses).</p>
 
 <p>Run the inverted indexer on the sample input included in
-Cloud<sup><small>9</small></sup>, <a
+Cloud<sup>9</sup>, <a
 href="../../data/bible+shakes.nopunc.gz">the Bible and the complete
 works of Shakespeare</a>.  As with the above case, treat each line as
 if it were an individual "document".  When you map over a plain text
-file using TextInputFormat in Hadoop, the key passed to the mapper
+file using <code>TextInputFormat</code> in Hadoop, the key passed to the mapper
 contains the byte offset of the line from the beginning of the file,
 while the value contains the text of the line.  Use this offset value
 as the unique docno.  As part of this exercise you'll also need to
@@ -189,52 +196,51 @@ string format might look something like this:</p>
 
 <p>The downside is that when manipulating postings, you'll have to do
 a lot of string-based operations (e.g., splits).  This approach will
-work, but it's pretty ugly.</p>
-
-<p>The second approach is to write your own
+work, but it's pretty ugly. The second approach is to write your own
 custom <code>Writable</code>. The third is to
-reuse <code>Writable</code>s that are in
-Cloud<sup><small>9</small></sup>. You'll want to look in the
+reuse <code>Writable</code>s that are in Cloud<sup>9</sup>. You'll
+want to look in the
 <code>edu.umd.cloud9.io</code> package if you decide to go this
 route.</p>
 
 <p>If you decide to adopt the second or third option, this exercise is
 a good opportunity to learn about different output formats.  An
-OutputFormat (see Hadoop API) describes how output key-value pairs are
-written to HDFS.  By default, Hadoop uses TextOutputFormat, which
-writes out the key-value pairs in human-readable text format.  This is
-good for you, but can be annoying if you want to further manipulate
-the output programmatically&mdash;since you'll have the read in the
-text file and parse the key-value pairs back into Java objects (even
-if you have your own custom Writables).  As an alternative, you might
-want to consider SequenceFileOutputFormat.  You can specify that
-format with a method in JobConf:</p>
+<code>OutputFormat</code> (see Hadoop API) describes how output
+key-value pairs are written to HDFS. By default, Hadoop
+uses <code>TextOutputFormat</code>, which writes out the key-value
+pairs in human-readable text format. This is good for you, but can be
+annoying if you want to further manipulate the output
+programmatically&mdash;since you'll have the read in the text file and
+parse the key-value pairs back into Java objects (even if you have
+your own custom <code>Writable</code>s).</p>
 
-<pre class="code">
-conf.setOutputFormat(SequenceFileOutputFormat.class);
-</pre>
-
-<p>If you do this, the output of your MapReduce job will be stored in
-one or more SequenceFiles.  The advantage of SequenceFiles is that
-they store key-value pairs in a machine-readable format, i.e., as
-serialized byte representations of the Java objects (not human
-readable, but can be programmatically manipulated quite easily).  The
-SequenceFile API provides methods for reading key-value
+<p>As an alternative, you might want to
+consider <code>SequenceFileOutputFormat</code>. You can specify that
+format with the <code>setOutputFormatClass</code> method
+in <code>Job</code> class. If you do this, the output of your
+MapReduce job will be stored in one or
+more <code>SequenceFile</code>s. The advantage
+of <code>SequenceFile</code>s is that they store key-value pairs in a
+machine-readable format, i.e., as serialized byte representations of
+the Java objects (not human readable, but can be programmatically
+manipulated quite easily). The
+<code>SequenceFile</code> API provides methods for reading key-value
 pairs&mdash;saving you the effort of having to manually parse plain
-text files.  Of course, SequenceFiles aren't very useful if you are
-using Text objects as output values.</p>
+text files. Of course, <code>SequenceFile</code>s aren't very useful
+if you are using <code>Text</code> objects as output values.</p>
 
 <p>Along the same lines, you might also want to take a look at
-MapFileOutputFormat, which writes the output key-value pairs to... as
-you've guessed, MapFiles!  These files have the additional advantage
-of supporting random access to the keys.  You should learn to use
-SequenceFiles, but MapFiles are likely more useful for this
-exercise.  Once again, see the API for details.</p>
+<code>MapFileOutputFormat</code>, which writes the output key-value
+pairs to... as you've guessed, <code>MapFile</code>s! These files have
+the additional advantage of supporting random access to the keys.  You
+should learn to use
+<code>SequenceFile</code>s, but <code>MapFile</code>s are likely more useful for this
+exercise. Once again, see the API for details.</p>
 
 <h3>Solutions</h3>
 
-<p>When you're ready, the solutions to this
-exercise <a href="indexing-solutions.html">are located here</a>.</p>
+<p>When you're ready, the solutions to this exercise are
+located <a href="indexing-solutions.html">here</a>.</p>
 
 
   </div>

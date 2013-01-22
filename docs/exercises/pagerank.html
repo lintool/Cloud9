@@ -64,8 +64,15 @@
 <h2>PageRank Exercise</h2>
 </div>
 
-<p>In this exercise, you are going to implement PageRank in MapReduce.
-Here are three separate graphs to work with:</p>
+<table style="margin-top: 15px; margin-bottom:
+15px"><tr><td valign="top"><span class="label
+label-warning">Warning</span></td>
+<td style="padding-left: 10px">It is strongly recommended that you
+first complete the <a href="../word-count.html">word count
+tutorial</a> before trying this exercise.</td></tr></table>
+
+<p>In this exercise, you are going to implement PageRank in
+MapReduce. Here are three separate graphs to work with:</p>
 
 <ul>
 
@@ -96,16 +103,10 @@ two command-line arguments: the first is a file containing the graph
 (one of the ones above), and the second is the random jump factor (a
 typical setting is 0.15).</p>
 
-<p>If you run the program on the small network, with a random jump
-factor of 0.15, these will be your command-line arguments from within
-Eclipse:</p>
-
-<pre class="code">docs/exercises/sample-small.txt 0.15</pre>
-
-<p>You can also launch the program from a shell.  Go to the base
-project directory and type <code>ant</code> to build the necessary
-jar.  You should then be able to run the following command (which uses
-an automatically-generated launch script that properly constructs the
+<p>You can launch the program from a shell.  Go to the base project
+directory and type <code>ant</code> to build the necessary jar.  You
+should then be able to run the following command (which uses an
+automatically-generated launch script that properly constructs the
 correct classpath):</p>
 
 <pre class="code">etc/run.sh edu.umd.cloud9.example.pagerank.SequentialPageRank \
@@ -185,8 +186,8 @@ links.</p>
 
 <h3>Solutions</h3>
 
-<p>When you're ready, the solutions to this
-exercise <a href="pagerank-solutions.html">are located here</a>.</p>
+<p>When you're ready, the solutions to this exercise are
+located <a href="pagerank-solutions.html">here</a>.</p>
 
 
   </div>

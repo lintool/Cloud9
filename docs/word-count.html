@@ -226,7 +226,7 @@ the <code>etc/hadoop-cluster.sh</code> script, as follows:</p>
 
 <pre class="code">
 etc/hadoop-cluster.sh edu.umd.cloud9.example.simple.DemoWordCount \
-  -input data/bible+shakes.nopunc.gz -output wc -numReducers 5
+  -input bible+shakes.nopunc.gz -output wc -numReducers 5
 </pre>
 
 <p>The script is a wrapper around <code>hadoop</code> that sets up the
@@ -241,10 +241,12 @@ HDFS:</p>
 hadoop fs -ls wc
 </pre>
 
-<p>Now copy the data from HDFS onto the local disk:</P>
+<p>You should see 5 <code>part-r-XXXXX</code> files, since we
+specified five reducers above. Now copy the data from HDFS onto the
+local disk:</P>
 
 <pre class="code">
-hadoop fs -get wc/part-r-00000 .
+hadoop fs -get wc/part-r-* .
 </pre>
 
 <p>From here, you should be able to examine the contents of the file
