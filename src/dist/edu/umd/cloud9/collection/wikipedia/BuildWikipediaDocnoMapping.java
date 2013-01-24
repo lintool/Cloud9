@@ -88,9 +88,6 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
       } else if (p.isEmpty()) {
         reporter.incrCounter(PageTypes.EMPTY, 1);
       } else if (p.isDisambiguation()) {
-        if (Math.random()<0.1) {
-          LOG.info("Disambig:" + p.getTitle());
-        }
         reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
       } else if (p.isArticle()) {
         // heuristic: potentially template or stub article
@@ -127,11 +124,11 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     }
   }
 
-  private static final String INPUT_OPTION = "input";
-  private static final String OUTPUT_PATH_OPTION = "output_path";
-  private static final String OUTPUT_FILE_OPTION = "output_file";
-  private static final String KEEP_ALL_OPTION = "keep_all";
-  private static final String LANGUAGE_OPTION = "wiki_language";
+  public static final String INPUT_OPTION = "input";
+  public static final String OUTPUT_PATH_OPTION = "output_path";
+  public static final String OUTPUT_FILE_OPTION = "output_file";
+  public static final String KEEP_ALL_OPTION = "keep_all";
+  public static final String LANGUAGE_OPTION = "wiki_language";
 
   @SuppressWarnings("static-access")
   @Override

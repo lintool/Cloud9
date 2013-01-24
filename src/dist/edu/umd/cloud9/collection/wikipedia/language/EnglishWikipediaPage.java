@@ -16,6 +16,9 @@
 
 package edu.umd.cloud9.collection.wikipedia.language;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
@@ -23,18 +26,18 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
  * An English page from Wikipedia.
  * 
  * @author Peter Exner
+ * @author Ferhan Ture
  */
 public class EnglishWikipediaPage extends WikipediaPage {
   /**
    * Language dependent identifiers of disambiguation, redirection, and stub pages.
    */
-  private static final String IDENTIFIER_DISAMBIGUATION_UPPERCASE = "{{Disambig";
-  private static final String IDENTIFIER_DISAMBIGUATION_LOWERCASE = "{{disambig";
   private static final String IDENTIFIER_REDIRECTION_UPPERCASE = "#REDIRECT";
   private static final String IDENTIFIER_REDIRECTION_LOWERCASE = "#redirect";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
-  
+  private static final Pattern disambPattern = Pattern.compile("\\{\\{disambig\\w*\\}\\}", Pattern.CASE_INSENSITIVE);
+
   /**
    * Creates an empty <code>EnglishWikipediaPage</code> object.
    */
@@ -64,8 +67,8 @@ public class EnglishWikipediaPage extends WikipediaPage {
     this.textEnd = s.indexOf(XML_END_TAG_TEXT, this.textStart);
 
     // determine if article is a disambiguation, redirection, and/or stub page.
-    this.isDisambig = s.indexOf(IDENTIFIER_DISAMBIGUATION_LOWERCASE, this.textStart) != -1 || 
-                      s.indexOf(IDENTIFIER_DISAMBIGUATION_UPPERCASE, this.textStart) != -1;
+    Matcher matcher = disambPattern.matcher(page);
+    this.isDisambig = matcher.find();
     this.isRedirect = s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE) == 0 ||
                       s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE) == 0;
     this.isStub = s.indexOf(IDENTIFIER_STUB_TEMPLATE, this.textStart) != -1 || 

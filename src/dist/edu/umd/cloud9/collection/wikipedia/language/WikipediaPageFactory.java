@@ -16,14 +16,13 @@
 
 package edu.umd.cloud9.collection.wikipedia.language;
 
-import java.util.regex.Pattern;
-
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
 /**
  * Hadoop {@code WikipediaPageFactory} for creating language dependent WikipediaPage Objects.
  *
  * @author Peter Exner
+ * @author Ferhan Ture
  */
 public class WikipediaPageFactory {
   
@@ -41,6 +40,16 @@ public class WikipediaPageFactory {
       return new SwedishWikipediaPage();
     } else if(language.equalsIgnoreCase("de")) {
       return new GermanWikipediaPage();
+    } else if(language.equalsIgnoreCase("cs")) {
+      return new CzechWikipediaPage();
+    } else if(language.equalsIgnoreCase("es")) {
+      return new SpanishWikipediaPage();
+    } else if(language.equalsIgnoreCase("ar")) {
+      return new ArabicWikipediaPage();
+    } else if(language.equalsIgnoreCase("tr")) {
+      return new TurkishWikipediaPage();
+    } else if(language.equalsIgnoreCase("zh")) {
+      return new ChineseWikipediaPage();
     } else {
       return new EnglishWikipediaPage();
     }

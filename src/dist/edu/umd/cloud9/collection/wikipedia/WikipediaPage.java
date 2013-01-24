@@ -22,14 +22,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
-
 import edu.umd.cloud9.collection.Indexable;
 
 /**
@@ -99,17 +95,7 @@ public abstract class WikipediaPage extends Indexable {
   protected boolean isStub;
   protected boolean isArticle;
   private String language;
-//  private String categories;
-  private static final Map<String, Pattern> disambPattern = new HashMap<String, Pattern>();
-  static {
-    disambPattern.put("de", Pattern.compile("\\{\\{begriffskl\u00E4rung\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("cs", Pattern.compile("\\{\\{rozcestn\u00EDk\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("en", Pattern.compile("\\{\\{disambig\\w*\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("es", Pattern.compile("\\{\\{desambiguaci\u00F3n\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("zh", Pattern.compile("\\{\\{disambig.+Cat=.+\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("ar", Pattern.compile("\\{\\{\u062A\u0648\u0636\u064A\u062D\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("tr", Pattern.compile("\\{\\{anlam ayr\u0131m\u0131\\}\\}", Pattern.CASE_INSENSITIVE));
-  }
+
   private WikiModel wikiModel;
   private PlainTextConverter textConverter;
 
@@ -249,23 +235,6 @@ public abstract class WikipediaPage extends Indexable {
    */
   public boolean isDisambiguation() {
     return isDisambig;
-  }
-  
-  /**
-   * Checks to see if this page is a disambiguation page. A
-   * <code>WikipediaPage</code> is either an article, a disambiguation page,
-   * a redirect page, or an empty page.
-   * @param lang
-   *    language of the Wikipedia page
-   * @return <code>true</code> if this page is a disambiguation page
-   */
-  @Deprecated
-  public boolean isDisambiguation(String lang) {
-    if (!disambPattern.containsKey(lang)) {
-      lang = "en";    // default to English
-    }
-    Matcher matcher = disambPattern.get(lang).matcher(page);
-    return matcher.find();
   }
 
   /**

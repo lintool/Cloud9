@@ -23,28 +23,24 @@ import org.apache.commons.lang.StringEscapeUtils;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
 /**
- * An German page from Wikipedia.
+ * An Arabic page from Wikipedia.
  * 
- * @author Peter Exner
  * @author Ferhan Ture
  */
-public class GermanWikipediaPage extends WikipediaPage {
+public class ArabicWikipediaPage extends WikipediaPage {
   /**
    * Language dependent identifiers of disambiguation, redirection, and stub pages.
    */
   private static final String IDENTIFIER_REDIRECTION_UPPERCASE = "#REDIRECT";
   private static final String IDENTIFIER_REDIRECTION_LOWERCASE = "#redirect";
-  private static final String IDENTIFIER_REDIRECTION_UPPERCASE_DE = "#WEITERLEITUNG";
-  private static final String IDENTIFIER_REDIRECTION_LOWERCASE_DE = "#weiterleitung";
-  private static final String IDENTIFIER_REDIRECTION_CAPITALIZED_DE = "#Weiterleitung";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
-  private static final Pattern disambPattern = Pattern.compile("\\{\\{begriffskl\u00E4rung\\}\\}", Pattern.CASE_INSENSITIVE);
-
+  private static final Pattern disambPattern = Pattern.compile("\\{\\{\u062A\u0648\u0636\u064A\u062D\\}\\}", Pattern.CASE_INSENSITIVE);
+  
   /**
-   * Creates an empty <code>GermanWikipediaPage</code> object.
+   * Creates an empty <code>ArabicWikipediaPage</code> object.
    */
-  public GermanWikipediaPage() {
+  public ArabicWikipediaPage() {
     super();
   }
 
@@ -73,10 +69,7 @@ public class GermanWikipediaPage extends WikipediaPage {
     Matcher matcher = disambPattern.matcher(page);
     this.isDisambig = matcher.find();
     this.isRedirect = s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE) == 0 ||
-                      s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE) == 0 ||
-                      s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE_DE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE_DE) == 0 ||
-                      s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE_DE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE_DE) == 0 ||
-                      s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_CAPITALIZED_DE.length()).compareTo(IDENTIFIER_REDIRECTION_CAPITALIZED_DE) == 0;
+                      s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE) == 0;
     this.isStub = s.indexOf(IDENTIFIER_STUB_TEMPLATE, this.textStart) != -1 || 
                   s.indexOf(IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE) != -1;
   }
