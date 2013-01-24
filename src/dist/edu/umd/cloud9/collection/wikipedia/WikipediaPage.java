@@ -22,22 +22,19 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
-
 import edu.umd.cloud9.collection.Indexable;
 
 /**
  * A page from Wikipedia.
  * 
  * @author Jimmy Lin
+ * @author Peter Exner
  */
-public class WikipediaPage extends Indexable {
+public abstract class WikipediaPage extends Indexable {
   /**
    * Start delimiter of the page, which is &lt;<code>page</code>&gt;.
    */
@@ -48,25 +45,57 @@ public class WikipediaPage extends Indexable {
    */
   public static final String XML_END_TAG = "</page>";
 
-  private String page;
-  private String title;
-  private String mId;
-  private int textStart;
-  private int textEnd;
-  private boolean isRedirect;
-  private boolean isStub;
+  /**
+   * Start delimiter of the title, which is &lt;<code>title</code>&gt;.
+   */
+  protected static final String XML_START_TAG_TITLE = "<title>";
+
+  /**
+   * End delimiter of the title, which is &lt;<code>/title</code>&gt;.
+   */
+  protected static final String XML_END_TAG_TITLE = "</title>";
+
+  /**
+   * Start delimiter of the namespace, which is &lt;<code>ns</code>&gt;.
+   */
+  protected static final String XML_START_TAG_NAMESPACE = "<ns>";
+
+  /**
+   * End delimiter of the namespace, which is &lt;<code>/ns</code>&gt;.
+   */
+  protected static final String XML_END_TAG_NAMESPACE = "</ns>";
+  
+  /**
+   * Start delimiter of the id, which is &lt;<code>id</code>&gt;.
+   */
+  protected static final String XML_START_TAG_ID = "<id>";
+
+  /**
+   * End delimiter of the id, which is &lt;<code>/id</code>&gt;.
+   */
+  protected static final String XML_END_TAG_ID = "</id>";
+
+  /**
+   * Start delimiter of the text, which is &lt;<code>text xml:space=\"preserve\"</code>&gt;.
+   */
+  protected static final String XML_START_TAG_TEXT = "<text xml:space=\"preserve\">";
+
+  /**
+   * End delimiter of the text, which is &lt;<code>/text</code>&gt;.
+   */
+  protected static final String XML_END_TAG_TEXT = "</text>";
+  
+  protected String page;
+  protected String title;
+  protected String mId;
+  protected int textStart;
+  protected int textEnd;
+  protected boolean isRedirect;
+  protected boolean isDisambig;
+  protected boolean isStub;
+  protected boolean isArticle;
   private String language;
-//  private String categories;
-  private static final Map<String, Pattern> disambPattern = new HashMap<String, Pattern>();
-  static {
-    disambPattern.put("de", Pattern.compile("\\{\\{begriffskl\u00E4rung\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("cs", Pattern.compile("\\{\\{rozcestn\u00EDk\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("en", Pattern.compile("\\{\\{disambig\\w*\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("es", Pattern.compile("\\{\\{desambiguaci\u00F3n\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("zh", Pattern.compile("\\{\\{disambig.+Cat=.+\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("ar", Pattern.compile("\\{\\{\u062A\u0648\u0636\u064A\u062D\\}\\}", Pattern.CASE_INSENSITIVE));
-    disambPattern.put("tr", Pattern.compile("\\{\\{anlam ayr\u0131m\u0131\\}\\}", Pattern.CASE_INSENSITIVE));
-  }
+
   private WikiModel wikiModel;
   private PlainTextConverter textConverter;
 
@@ -106,6 +135,7 @@ public class WikipediaPage extends Indexable {
     return mId;
   }
 
+  @Deprecated
   public void setLanguage(String language) {
     this.language = language;
   }
@@ -204,23 +234,7 @@ public class WikipediaPage extends Indexable {
    * @return <code>true</code> if this page is a disambiguation page
    */
   public boolean isDisambiguation() {
-    return isDisambiguation("en");
-  }
-  
-  /**
-   * Checks to see if this page is a disambiguation page. A
-   * <code>WikipediaPage</code> is either an article, a disambiguation page,
-   * a redirect page, or an empty page.
-   * @param lang
-   *    language of the Wikipedia page
-   * @return <code>true</code> if this page is a disambiguation page
-   */
-  public boolean isDisambiguation(String lang) {
-    if (!disambPattern.containsKey(lang)) {
-      lang = "en";    // default to English
-    }
-    Matcher matcher = disambPattern.get(lang).matcher(page);
-    return matcher.find();
+    return isDisambig;
   }
 
   /**
@@ -257,16 +271,13 @@ public class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this page is an actual article, and not, for example,
+   * Checks to see if this page lives in the main/article namespace, and not, for example,
    * "File:", "Category:", "Wikipedia:", etc.
    *
    * @return <code>true</code> if this page is an actual article
    */
   public boolean isArticle() {
-    return !(getTitle().startsWith("File:") || getTitle().startsWith("Category:")
-        || getTitle().startsWith("Special:") || getTitle().startsWith("Wikipedia:")
-        || getTitle().startsWith("Wikipedia:") || getTitle().startsWith("Template:")
-        || getTitle().startsWith("Portal:"));
+    return isArticle;
   }
 
 
@@ -370,31 +381,15 @@ public class WikipediaPage extends Indexable {
    */
   public static void readPage(WikipediaPage page, String s) {
     page.page = s;
-
-    // parse out title
-    int start = s.indexOf("<title>");
-    int end = s.indexOf("</title>", start);
-    page.title = StringEscapeUtils.unescapeHtml(s.substring(start + 7, end));
-
-    start = s.indexOf("<id>");
-    end = s.indexOf("</id>");
-    page.mId = s.substring(start + 4, end);
-
-    // parse out actual text of article
-    page.textStart = s.indexOf("<text xml:space=\"preserve\">");
-    page.textEnd = s.indexOf("</text>", page.textStart);
-    
-//    int indexCategories = s.indexOf("wgCategories", page.textStart);
-//    if (indexCategories == -1) {
-//      page.categories = "";
-//    } else {
-//      int categoriesStart = s.indexOf("[", indexCategories);
-//      int categoriesEnd = s.indexOf("]", indexCategories);
-//      page.categories = categoriesStart == -1 ? "" : (categoriesEnd == -1 ? "" : s.substring(categoriesStart + 1, categoriesEnd));
-//    }
-    page.isRedirect = s.substring(page.textStart + 27, page.textStart + 36).compareTo("#REDIRECT") == 0 ||
-    s.substring(page.textStart + 27, page.textStart + 36).compareTo("#redirect") == 0;
-    page.isStub = s.indexOf("stub}}", page.textStart) != -1 || s.indexOf("Wikipedia:Stub") != -1;
+    page.processPage(s);
   }
 
+  /**
+   * Reads a raw XML string into a <code>WikipediaPage</code> object.
+   * Added for backwards compability.
+   * 
+   * @param s
+   *            raw XML string
+   */
+  protected abstract void processPage(String s);
 }
