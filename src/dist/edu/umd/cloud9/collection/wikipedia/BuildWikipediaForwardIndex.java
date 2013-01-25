@@ -47,12 +47,14 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
 import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 
 /**
  * Tool for building a document forward index for Wikipedia.
  * 
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class BuildWikipediaForwardIndex extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(BuildWikipediaForwardIndex.class);
@@ -64,16 +66,18 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		private static final Text valOut = new Text();
 
 		private int fileno;
-
+		private String language;
+		
 		public void configure(JobConf job) {
 			String file = job.get("map.input.file");
 			fileno = Integer.parseInt(file.substring(file.indexOf("part-") + 5));
+			language = job.get("wiki.language");
 		}
 
 		public void run(RecordReader<IntWritable, WikipediaPage> input,
 				OutputCollector<IntWritable, Text> output, Reporter reporter) throws IOException {
 			IntWritable key = new IntWritable();
-			WikipediaPage value = new WikipediaPage();
+			WikipediaPage value = WikipediaPageFactory.createWikipediaPage(language);
 
 			long pos = -1;
 			long prevPos = -1;
@@ -100,7 +104,8 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
   private static final String INDEX_FILE_OPTION = "index_file";
-
+  private static final String LANGUAGE_OPTION = "wiki_language";
+  
   @SuppressWarnings("static-access") @Override
 	public int run(String[] args) throws Exception {
     Options options = new Options();
@@ -110,7 +115,9 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
         .withDescription("tmp output directory").create(OUTPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("index file").create(INDEX_FILE_OPTION));
-
+    options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
+        .withDescription("two-letter language code").create(LANGUAGE_OPTION));
+    
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
     try {
@@ -137,6 +144,15 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
       return -1;
     }
 
+    String language = null;
+    if (cmdline.hasOption(LANGUAGE_OPTION)) {
+      language = cmdline.getOptionValue(LANGUAGE_OPTION);
+      if(language.length()!=2){
+        System.err.println("Error: \"" + language + "\" unknown language!");
+        return -1;
+      }
+    }
+    
 		JobConf conf = new JobConf(getConf(), BuildWikipediaForwardIndex.class);
 		FileSystem fs = FileSystem.get(conf);
 
@@ -145,9 +161,10 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		LOG.info(" - output path: " + outputPath);
 		LOG.info(" - index file: " + indexFile);
 		LOG.info("Note: This tool only works on block-compressed SequenceFiles!");
-
-    conf.setJobName(String.format("BuildWikipediaForwardIndex[%s: %s, %s: %s]",
-        INPUT_OPTION, inputPath, INDEX_FILE_OPTION, indexFile));
+		LOG.info(" - language: " + language);
+		 
+    conf.setJobName(String.format("BuildWikipediaForwardIndex[%s: %s, %s: %s, %s: %s]",
+        INPUT_OPTION, inputPath, INDEX_FILE_OPTION, indexFile, LANGUAGE_OPTION, language));
 
 		conf.setNumReduceTasks(1);
 
@@ -155,6 +172,10 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 		FileOutputFormat.setCompressOutput(conf, false);
 
+		if(language != null){
+      conf.set("wiki.language", language);
+    }
+		
 		conf.setInputFormat(NoSplitSequenceFileInputFormat.class);
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(Text.class);
@@ -168,7 +189,7 @@ public class BuildWikipediaForwardIndex extends Configured implements Tool {
 		RunningJob job = JobClient.runJob(conf);
 
 		Counters counters = job.getCounters();
-		int blocks = (int) counters.findCounter(Blocks.Total).getCounter();
+		int blocks = (int) counters.getCounter(Blocks.Total);
 
 		LOG.info("number of blocks: " + blocks);
 

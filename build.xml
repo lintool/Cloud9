@@ -191,7 +191,7 @@
 
 	</target>
 
-  <target name="javadoc">
+  <target name="javadoc" depends="jar">
     <javadoc destdir="${javadoc.dir}" access="public" use="true" notree="false" nonavbar="false" noindex="false" splitindex="no" author="true" version="true" nodeprecatedlist="false" nodeprecated="false" classpathref="lib.path.id">
       <fileset dir="src/dist">
         <include name="**/*.java" />

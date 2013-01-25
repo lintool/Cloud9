@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
+import edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping;
+
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
       "-D fs.defaultFS=file:/// " +
@@ -76,6 +78,29 @@ public class IntegrationUtils {
     return exitVal;
   }
 
+  public static int execWiki(String cmd) throws IOException, InterruptedException {
+    System.out.println("Executing command: " + cmd);
+
+    Runtime rt = Runtime.getRuntime();
+    Process proc = rt.exec(cmd);
+
+    // any error message?
+    WikiGobbler errorGobbler = new WikiGobbler(proc.getErrorStream(), "STDERR");
+
+    // any output?
+    StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "STDOUT");
+
+    // kick them off
+    errorGobbler.start();
+    outputGobbler.start();
+
+    // any error???
+    int exitVal = proc.waitFor();
+    System.out.println("ExitValue: " + exitVal);
+
+    return errorGobbler.disambCount;
+  }
+
   private static class StreamGobbler extends Thread {
     InputStream is;
     String type;
@@ -97,4 +122,31 @@ public class IntegrationUtils {
       }
     }
   }
+
+  private static class WikiGobbler extends StreamGobbler {
+    int disambCount;
+    
+    WikiGobbler(InputStream is, String type) {
+      super(is, type);
+    }
+
+    // depends on PageType names and handling in BuildWikipediaDocnoMapping
+    public void run() {
+      try {
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          System.out.println(type + ">" + line);
+          if (line.contains("DISAMBIGUATION=")) {
+            String[] arr = line.trim().split("DISAMBIGUATION=");
+            disambCount = Integer.parseInt(arr[1]);
+          }
+        }
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      }
+    }
+  }
+
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/dist"/>
-	<classpathentry kind="src" path="src/attic"/>
 	<classpathentry kind="src" path="src/integration"/>
 	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src/attic"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>

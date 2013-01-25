@@ -23,11 +23,15 @@ import java.io.InputStreamReader;
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 
+import edu.umd.cloud9.collection.wikipedia.language.EnglishWikipediaPage;
+import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
+
 /**
  * Class for working with bz2-compressed Wikipedia article dump files on local
  * disk.
  * 
  * @author Jimmy Lin
+ * @author Peter Exner
  */
 public class WikipediaPagesBz2InputStream {
 	private static int DEFAULT_STRINGBUFFER_CAPACITY = 1024;
@@ -90,13 +94,13 @@ public class WikipediaPagesBz2InputStream {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length != 1) {
-			System.err.println("usage: [file]");
+		if (args.length != 2) {
+			System.err.println("usage: [file] [language]");
 			System.exit(-1);
 		}
 
-		WikipediaPage p = new WikipediaPage();
-
+		WikipediaPage p = WikipediaPageFactory.createWikipediaPage(args[1]);
+		
 		WikipediaPagesBz2InputStream stream = new WikipediaPagesBz2InputStream(args[0]);
 		while (stream.readNext(p)) {
 			System.out.println(p.getContent());
