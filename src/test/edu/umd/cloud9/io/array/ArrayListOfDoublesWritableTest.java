@@ -42,18 +42,19 @@ public class ArrayListOfDoublesWritableTest {
     ArrayListOfDoublesWritable arr = new ArrayListOfDoublesWritable();
     arr.add(0, 1.0).add(1, 3.0).add(2, 5.0).add(3, 7.0);
 
-    FileSystem fs;
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
     Path tmp = new Path("tmp");
 
     try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, tmp, IntWritable.class, ArrayListOfDoublesWritable.class);
+      w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(tmp),
+          SequenceFile.Writer.keyClass(IntWritable.class),
+          SequenceFile.Writer.valueClass(ArrayListOfDoublesWritable.class));
       w.append(new IntWritable(1), arr);
       w.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     }
 
     List<PairOfWritables<IntWritable, ArrayListOfDoublesWritable>> listOfKeysPairs =

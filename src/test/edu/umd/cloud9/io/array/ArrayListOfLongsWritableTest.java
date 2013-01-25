@@ -53,18 +53,19 @@ public class ArrayListOfLongsWritableTest {
     ArrayListOfLongsWritable arr = new ArrayListOfLongsWritable();
     arr.add(0, 1).add(1, 3).add(2, 5).add(3, 7);
 
-    FileSystem fs;
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
     Path tmp = new Path("tmp");
 
     try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, tmp, IntWritable.class, ArrayListOfLongsWritable.class);
+      w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(tmp),
+          SequenceFile.Writer.keyClass(IntWritable.class),
+          SequenceFile.Writer.valueClass(ArrayListOfLongsWritable.class));
       w.append(new IntWritable(1), arr);
       w.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     }
 
     List<PairOfWritables<IntWritable, ArrayListOfLongsWritable>> listOfKeysPairs =

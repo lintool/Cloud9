@@ -18,15 +18,19 @@ package edu.umd.cloud9.io.array;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.List;
+
 import junit.framework.JUnit4TestAdapter;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
+
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
@@ -49,18 +53,19 @@ public class ArrayListOfIntsWritableTest {
     ArrayListOfIntsWritable arr = new ArrayListOfIntsWritable();
     arr.add(0, 1).add(1, 3).add(2, 5).add(3, 7);
 
-    FileSystem fs;
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
     Path tmp = new Path("tmp");
 
     try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, tmp, IntWritable.class, ArrayListOfIntsWritable.class);
+      w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(tmp),
+          SequenceFile.Writer.keyClass(IntWritable.class),
+          SequenceFile.Writer.valueClass(ArrayListOfIntsWritable.class));
       w.append(new IntWritable(1), arr);
       w.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     }
 
     List<PairOfWritables<IntWritable, ArrayListOfIntsWritable>> listOfKeysPairs =
@@ -174,28 +179,24 @@ public class ArrayListOfIntsWritableTest {
 
     a2.add(3);
 
-    FileSystem fs;
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
 
     try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, new Path("test"),
-          ArrayListOfIntsWritable.class, IntWritable.class);  
-      System.out.println(a1.toString());
-      System.out.println(a1.size());
-      System.out.println(a3);
-      System.out.println(a3.size());
+      w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(new Path("tmp")),
+          SequenceFile.Writer.keyClass(ArrayListOfIntsWritable.class),
+          SequenceFile.Writer.valueClass(IntWritable.class));
       w.append(a1, new IntWritable(1));
       w.append(a2, new IntWritable(2));
       w.append(a3, new IntWritable(3));
       w.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     }
 
     try {
-      SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), new Path("test"), conf);
+      SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(new Path("tmp")));
 
       ArrayListOfIntsWritable key = (ArrayListOfIntsWritable) reader.getKeyClass().newInstance();
       IntWritable value = (IntWritable) reader.getValueClass().newInstance();
@@ -208,12 +209,14 @@ public class ArrayListOfIntsWritableTest {
       reader.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     } catch (InstantiationException e) {
       e.printStackTrace();
+      assertTrue(false);
     } catch (IllegalAccessException e) {
+      assertTrue(false);
       e.printStackTrace();
     }
-
   }
 
   public static junit.framework.Test suite() {

@@ -57,18 +57,19 @@ public class ArrayListOfShortsWritableTest {
     ArrayListOfShortsWritable arr = new ArrayListOfShortsWritable();
     arr.add(0, (short) 1).add(1, (short) 3).add(2, (short) 5).add(3, (short) 7);
 
-    FileSystem fs;
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
     Path tmp = new Path("tmp");
 
     try {
-      fs = FileSystem.get(conf);
-      w = SequenceFile.createWriter(fs, conf, tmp, IntWritable.class, ArrayListOfShortsWritable.class);
+      w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(tmp),
+          SequenceFile.Writer.keyClass(IntWritable.class),
+          SequenceFile.Writer.valueClass(ArrayListOfShortsWritable.class));
       w.append(new IntWritable(1), arr);
       w.close();
     } catch (IOException e) {
       e.printStackTrace();
+      assertTrue(false);
     }
 
     List<PairOfWritables<IntWritable, ArrayListOfShortsWritable>> listOfKeysPairs =
@@ -129,8 +130,6 @@ public class ArrayListOfShortsWritableTest {
     assertTrue(c.compareTo(a)<0);
     assertTrue(a.compareTo(c)>0);
     assertTrue(c.compareTo(b)<0);
-
-
   }
 
   @Test
