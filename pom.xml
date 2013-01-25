@@ -132,6 +132,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>commons-daemon</groupId>
+      <artifactId>commons-daemon</artifactId>
+      <version>1.0.9</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>fastutil</groupId>
       <artifactId>fastutil</artifactId>
       <version>5.1.5</version>
