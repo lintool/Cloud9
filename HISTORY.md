@@ -1,3 +1,15 @@
+Version 1.4.7
+=============
+January 27, 2013
+
++ Fixed previously corrupt pom.xml
+
+Version 1.4.6
+=============
+January 25, 2013
+
++ Updates to Wikipedia code
+
 Version 1.4.5
 =============
 January 22, 2013
