@@ -77,7 +77,7 @@ public class BuildInvertedIndex extends Configured implements Tool {
         COUNTS.increment(term);
       }
 
-      // emit postings
+      // Emit postings.
       for (PairOfObjectInt<String> e : COUNTS) {
         WORD.set(e.getLeftElement());
         context.write(WORD, new PairOfInts((int) docno.get(), e.getRightElement()));
@@ -101,7 +101,9 @@ public class BuildInvertedIndex extends Configured implements Tool {
         df++;
       }
 
+      // Sort the postings by docno ascending.
       Collections.sort(postings);
+
       DF.set(df);
       context.write(key,
           new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>(DF, postings));

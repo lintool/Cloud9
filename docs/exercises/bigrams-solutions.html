@@ -84,14 +84,14 @@ these counts.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramCount data/bible+shakes.nopunc bigram 5
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramCount -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
 </pre>
 
 <p><b>Answers to the questions:</b> For analyzing the results, run
 <code>edu.umd.cloud9.example.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramCount bigram
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramCount -input bigram
 </pre>
 
 <p>Note we specify the entire output directory.  You'll see the
@@ -113,7 +113,6 @@ and he      3020
 shall be    3013
 all the     2714
 i have      2666
-i am        2603
 </pre>
 
 <p>So, we see that the number of bigrams that appear only once is
@@ -139,7 +138,7 @@ left element to the same reducer.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency data/bible+shakes.nopunc bigram 5
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
 </pre>
 
 <p>For analyzing the results, run
@@ -147,7 +146,7 @@ etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency data/b
 Sample invocation:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency bigram
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency -input bigram
 </pre>
 
 <p><b>Question 1:</b> What are the five most frequent words following the word "light"?
@@ -164,7 +163,6 @@ What is the frequency of observing each word?</p>
 (light, upon)	0.026431719
 (light, that)	0.02202643
 (light, a)	0.019823788
-(light, the)	0.019823788
 </pre>
 
 <p><b>Question 2:</b> Same question, except for the word "contain".</p>
@@ -180,7 +178,6 @@ What is the frequency of observing each word?</p>
 (contain, let)          0.05263158
 (contain, ourselves)    0.05263158
 (contain, that)         0.05263158
-(contain, their)        0.05263158
 </pre>
 
 <p>If there are a total of <i>N</i> words in your vocabulary, then
@@ -196,6 +193,32 @@ What fraction of these values are non-zero?</p>
 424462 / 41788<sup><small>2</small></sup> = 0.0002430724
 </p>
 
+<h4>Alternative Implementations</h4>
+
+<p>This is a good opportunity to introduce different Hadoop data
+types. Here is an implementation uses <code>JsonWritable</code>:</p>
+
+<pre class="code">
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson -input data/bible+shakes.nopunc.gz -output bigram-json -numReducers 1
+</pre>
+
+<p>And how to look at the results:</p>
+
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyJson -input bigram-json
+</pre>
+
+<p>Here is an implementation uses Pig tuples:</p>
+
+<pre class="code">
+etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple -input data/bible+shakes.nopunc.gz -output bigram-tuple -numReducers 1
+</pre>
+
+<p>And how to look at the results:</p>
+
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyTuple -input bigram-tuple
+</pre>
 
   </div>
 
