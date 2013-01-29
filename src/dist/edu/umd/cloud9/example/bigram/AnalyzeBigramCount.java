@@ -18,25 +18,61 @@ package edu.umd.cloud9.example.bigram;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.ToolRunner;
+
+import cern.colt.Arrays;
+
+import com.google.common.collect.Iterators;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramCount {
+  private static final String INPUT = "input";
+
+  @SuppressWarnings({ "static-access" })
   public static void main(String[] args) {
-    if (args.length != 1) {
-      System.out.println("usage: [input-path]");
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+
+    CommandLine cmdline = null;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       System.exit(-1);
     }
 
-    System.out.println("input path: " + args[0]);
+    if (!cmdline.hasOption(INPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(AnalyzeBigramCount.class.getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      System.exit(-1);
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT);
+    System.out.println("input path: " + inputPath);
     List<PairOfWritables<Text, IntWritable>> bigrams =
-        SequenceFileUtils.readDirectory(new Path(args[0]));
+        SequenceFileUtils.readDirectory(new Path(inputPath));
 
     Collections.sort(bigrams, new Comparator<PairOfWritables<Text, IntWritable>>() {
       public int compare(PairOfWritables<Text, IntWritable> e1,
@@ -65,14 +101,10 @@ public class AnalyzeBigramCount {
 
     System.out.println("\nten most frequent bigrams: ");
 
-    int cnt = 0;
-    for (PairOfWritables<Text, IntWritable> bigram : bigrams) {
+    Iterator<PairOfWritables<Text, IntWritable>> iter = Iterators.limit(bigrams.iterator(), 10);
+    while (iter.hasNext()) {
+      PairOfWritables<Text, IntWritable> bigram = iter.next();
       System.out.println(bigram.getLeftElement() + "\t" + bigram.getRightElement());
-      cnt++;
-
-      if (cnt > 10) {
-        break;
-      }
     }
   }
 }
