@@ -1,3 +1,9 @@
+Version 1.4.8
+=============
+January 31, 2013
+
++ Refactored cooccurrence matrix examples: pairs and stripes
+
 Version 1.4.7
 =============
 January 27, 2013
