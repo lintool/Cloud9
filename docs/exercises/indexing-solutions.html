@@ -71,15 +71,14 @@ class for building the inverted index is
 command-line invocation is as follows:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.ir.BuildInvertedIndex \
-  data/bible+shakes.nopunc index 10
+etc/hadoop-local.sh edu.umd.cloud9.example.ir.BuildInvertedIndex -input data/bible+shakes.nopunc.gz -output index -numReducers 1
 </pre>
 
 <p>Command-line invocation for a simple program that performs the
 analysis asked in the questions:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.ir.LookupPostings index data/bible+shakes.nopunc
+etc/run.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection data/bible+shakes.nopunc
 </pre>
 
 <p>Posting corresponding to the term "starcross'd":</p>
