@@ -20,6 +20,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -38,10 +45,11 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import cern.colt.Arrays;
+
 import edu.umd.cloud9.io.JsonWritable;
 
 public class BigramRelativeFrequencyJson extends Configured implements Tool {
-
   private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyJson.class);
 
   // Define custom intermediate key; must specify sort order.
@@ -147,27 +155,49 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
     }
   }
 
-  private BigramRelativeFrequencyJson() {
-  }
+  private BigramRelativeFrequencyJson() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input-path] [output-path] [num-reducers]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  private static final String INPUT = "input";
+  private static final String OUTPUT = "output";
+  private static final String NUM_REDUCERS = "numReducers";
 
   /**
    * Runs this tool.
    */
+  @SuppressWarnings({ "static-access" })
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      printUsage();
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of reducers").create(NUM_REDUCERS));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
-    int reduceTasks = Integer.parseInt(args[2]);
+    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(OUTPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT);
+    String outputPath = cmdline.getOptionValue(OUTPUT);
+    int reduceTasks = cmdline.hasOption(NUM_REDUCERS) ?
+        Integer.parseInt(cmdline.getOptionValue(NUM_REDUCERS)) : 1;
 
     LOG.info("Tool name: " + BigramRelativeFrequencyJson.class.getSimpleName());
     LOG.info(" - input path: " + inputPath);
@@ -200,8 +230,7 @@ public class BigramRelativeFrequencyJson extends Configured implements Tool {
 
     long startTime = System.currentTimeMillis();
     job.waitForCompletion(true);
-    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0
-        + " seconds");
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0  + " seconds");
 
     return 0;
   }

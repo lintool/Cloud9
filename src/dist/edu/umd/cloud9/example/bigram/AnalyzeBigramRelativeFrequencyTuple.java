@@ -18,28 +18,63 @@ package edu.umd.cloud9.example.bigram;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
+import cern.colt.Arrays;
+
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.pig.data.Tuple;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequencyTuple {
+  private static final String INPUT = "input";
+
+  @SuppressWarnings({ "static-access" })
   public static void main(String[] args) throws Exception {
-    if (args.length != 1) {
-      System.out.println("usage: [input-path]");
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+
+    CommandLine cmdline = null;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       System.exit(-1);
     }
 
-    System.out.println("input path: " + args[0]);
+    if (!cmdline.hasOption(INPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(AnalyzeBigramRelativeFrequencyJson.class.getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      System.exit(-1);
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT);
+    System.out.println("input path: " + inputPath);
 
     List<PairOfWritables<Tuple, FloatWritable>> pairs =
-        SequenceFileUtils.readDirectory(new Path(args[0]));
+        SequenceFileUtils.readDirectory(new Path(inputPath));
 
     List<PairOfWritables<Tuple, FloatWritable>> list1 = Lists.newArrayList();
     List<PairOfWritables<Tuple, FloatWritable>> list2 = Lists.newArrayList();
@@ -68,15 +103,11 @@ public class AnalyzeBigramRelativeFrequencyTuple {
       }
     });
 
-    int i = 0;
-    for (PairOfWritables<Tuple, FloatWritable> p : list1) {
+    Iterator<PairOfWritables<Tuple, FloatWritable>> iter1 = Iterators.limit(list1.iterator(), 10);
+    while (iter1.hasNext()) {
+      PairOfWritables<Tuple, FloatWritable> p = iter1.next();
       Tuple bigram = p.getLeftElement();
       System.out.println(bigram + "\t" + p.getRightElement());
-      i++;
-
-      if (i > 10) {
-        break;
-      }
     }
 
     Collections.sort(list2, new Comparator<PairOfWritables<Tuple, FloatWritable>>() {
@@ -91,15 +122,11 @@ public class AnalyzeBigramRelativeFrequencyTuple {
       }
     });
 
-    i = 0;
-    for (PairOfWritables<Tuple, FloatWritable> p : list2) {
+    Iterator<PairOfWritables<Tuple, FloatWritable>> iter2 = Iterators.limit(list2.iterator(), 10);
+    while (iter2.hasNext()) {
+      PairOfWritables<Tuple, FloatWritable> p = iter2.next();
       Tuple bigram = p.getLeftElement();
       System.out.println(bigram + "\t" + p.getRightElement());
-      i++;
-
-      if (i > 10) {
-        break;
-      }
     }
   }
 }

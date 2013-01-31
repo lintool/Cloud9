@@ -11,7 +11,7 @@
   <property name="test.junit.dir" location="${test.dir}/junit" />
   <property name="integration.dir" location="${test.dir}/integration" />
 
-  <property name="version" value="1.4.7"/>
+  <property name="version" value="1.4.8"/>
 
   <!-- paths used for compilation and run  -->
   <path id="lib.path.id">
@@ -24,6 +24,7 @@
   <path id="libjars.path.id">
     <fileset dir="${dist.dir}/" includes="cloud9*.jar"/>
     <fileset dir="${lib.dir}/" includes="guava*.jar"/>
+    <fileset dir="${lib.dir}/" includes="fastutil*.jar"/>
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
