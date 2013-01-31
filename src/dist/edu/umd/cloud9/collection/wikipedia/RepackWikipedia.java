@@ -17,6 +17,8 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -60,7 +62,7 @@ public class RepackWikipedia extends Configured implements Tool {
 
     private static final IntWritable docno = new IntWritable();
     private static final WikipediaDocnoMapping docnoMapping = new WikipediaDocnoMapping();
-
+    
     public void configure(JobConf job) {
       try {
         Path p = new Path(job.get(DOCNO_MAPPING_FIELD));
