@@ -94,7 +94,7 @@ public abstract class WikipediaPage extends Indexable {
   protected boolean isDisambig;
   protected boolean isStub;
   protected boolean isArticle;
-  private String language;
+  protected String language;
 
   private WikiModel wikiModel;
   private PlainTextConverter textConverter;

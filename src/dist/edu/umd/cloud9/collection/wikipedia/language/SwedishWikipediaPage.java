@@ -37,7 +37,8 @@ public class SwedishWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_REDIRECTION_CAPITALIZED_SV = "#Omdirigering";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
-  
+  private static final String LANGUAGE_CODE = "sv";
+
   /**
    * Creates an empty <code>EnglishWikipediaPage</code> object.
    */
@@ -47,6 +48,8 @@ public class SwedishWikipediaPage extends WikipediaPage {
 
   @Override
   protected void processPage(String s) {
+    this.language = LANGUAGE_CODE;
+    
     // parse out title
     int start = s.indexOf(XML_START_TAG_TITLE);
     int end = s.indexOf(XML_END_TAG_TITLE, start);

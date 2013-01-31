@@ -36,6 +36,7 @@ public class TurkishWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
   private static final Pattern disambPattern = Pattern.compile("\\{\\{anlam ayr\u0131m\u0131\\}\\}", Pattern.CASE_INSENSITIVE);
+  private static final String LANGUAGE_CODE = "tr";
 
   /**
    * Creates an empty <code>TurkishWikipediaPage</code> object.
@@ -46,6 +47,8 @@ public class TurkishWikipediaPage extends WikipediaPage {
 
   @Override
   protected void processPage(String s) {
+    this.language = LANGUAGE_CODE;
+
     // parse out title
     int start = s.indexOf(XML_START_TAG_TITLE);
     int end = s.indexOf(XML_END_TAG_TITLE, start);
