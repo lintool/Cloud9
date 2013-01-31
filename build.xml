@@ -24,6 +24,7 @@
   <path id="libjars.path.id">
     <fileset dir="${dist.dir}/" includes="cloud9*.jar"/>
     <fileset dir="${lib.dir}/" includes="guava*.jar"/>
+    <fileset dir="${lib.dir}/" includes="fastutil*.jar"/>
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
