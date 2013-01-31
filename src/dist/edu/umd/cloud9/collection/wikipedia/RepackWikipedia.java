@@ -82,7 +82,6 @@ public class RepackWikipedia extends Configured implements Tool {
     public void map(LongWritable key, WikipediaPage doc,
         OutputCollector<IntWritable, WikipediaPage> output, Reporter reporter) throws IOException {
       reporter.incrCounter(Records.TOTAL, 1);
-      ArrayList<Integer> xx;
       String id = doc.getDocid();
       if (id != null) {
         // We're going to discard pages that aren't in the docno mapping.
