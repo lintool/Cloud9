@@ -128,8 +128,7 @@ public class BuildWebGraph extends PowerTool {
       }
 
       arrayList.add(new AnchorText(
-          AnchorTextConstants.Type.OUT_DEGREE.val,
-          AnchorTextConstants.EMPTY_STRING, outdegree));
+          AnchorTextConstants.Type.OUT_DEGREE.val, null, outdegree));
       Collections.sort(arrayList);
       output.collect(key, arrayList);
     }

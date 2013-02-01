@@ -155,8 +155,7 @@ public class ClueExtractLinks extends PowerTool {
       }
 
       arrayList.clear();
-      arrayList.add(new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val,
-          AnchorTextConstants.EMPTY_STRING, docno));
+      arrayList.add(new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val, null, docno));
       keyWord.set(base);
       output.collect(keyWord, arrayList);
       arrayList.clear();
@@ -253,7 +252,7 @@ public class ClueExtractLinks extends PowerTool {
           keyWord.set(url);
           byte flag = arrayList.get(0).getType();
           arrayList.clear();
-          arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, docno));
+          arrayList.add(new AnchorText(flag, null, docno));
           output.collect(keyWord, arrayList);
         }
       }

@@ -102,7 +102,7 @@ public class BuildReverseWebGraph extends PowerTool {
       }
 
       arrayList.add(new AnchorText(AnchorTextConstants.Type.IN_DEGREE.val,
-                                   AnchorTextConstants.EMPTY_STRING, indegree));
+                                   null, indegree));
       arrayList.add(new AnchorText(AnchorTextConstants.Type.URL_FIELD.val,
                                    key.toString()));
       Collections.sort(arrayList);
