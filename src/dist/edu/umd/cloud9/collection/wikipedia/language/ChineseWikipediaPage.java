@@ -36,6 +36,7 @@ public class ChineseWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
   private static final Pattern disambPattern = Pattern.compile("\\{\\{disambig.+Cat=.+\\}\\}", Pattern.CASE_INSENSITIVE);
+  private static final String LANGUAGE_CODE = "zh";
 
   /**
    * Creates an empty <code>ChineseWikipediaPage</code> object.
@@ -46,6 +47,8 @@ public class ChineseWikipediaPage extends WikipediaPage {
 
   @Override
   protected void processPage(String s) {
+    this.language = LANGUAGE_CODE;
+
     // parse out title
     int start = s.indexOf(XML_START_TAG_TITLE);
     int end = s.indexOf(XML_END_TAG_TITLE, start);
