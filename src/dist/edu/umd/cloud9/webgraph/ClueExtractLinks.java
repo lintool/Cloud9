@@ -252,7 +252,7 @@ public class ClueExtractLinks extends PowerTool {
           keyWord.set(url);
           byte flag = arrayList.get(0).getType();
           arrayList.clear();
-          arrayList.add(new AnchorText(flag, null, docno));
+          arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, docno));
           output.collect(keyWord, arrayList);
         }
       }

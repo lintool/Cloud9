@@ -111,11 +111,11 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
     }
 
     conf.setJobName("TabDelimWebGraph");
-    conf.set("mapred.child.java.opts", "-Xmx4096m");
-    conf.set("mapreduce.map.memory.mb", "4096");
-    conf.set("mapreduce.map.java.opts", "-Xmx4096m");
-    conf.set("mapreduce.reduce.memory.mb", "4096");
-    conf.set("mapreduce.reduce.java.opts", "-Xmx4096m");
+    conf.set("mapred.child.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.map.memory.mb", "2048");
+    conf.set("mapreduce.map.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.reduce.memory.mb", "2048");
+    conf.set("mapreduce.reduce.java.opts", "-Xmx2048m");
     conf.set("mapreduce.task.timeout", "60000000");
 
     conf.setNumMapTasks(1);
