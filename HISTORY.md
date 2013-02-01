@@ -1,3 +1,9 @@
+Version 1.4.9
+=============
+February 1, 2013
+
++ Fixed bugs in Wikipedia classes
+
 Version 1.4.8
 =============
 January 31, 2013
