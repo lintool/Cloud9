@@ -26,7 +26,6 @@ import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
-import edu.umd.cloud9.webgraph.driver.TrecDriver;
 
 public class VerifyClueWeb09EN01Webgraph {
   private static final Random rand = new Random();
@@ -108,8 +107,8 @@ public class VerifyClueWeb09EN01Webgraph {
     IntWritable key = new IntWritable();
     ArrayListWritable<AnchorText> value = new ArrayListWritable<AnchorText>();
 
-    reader = new SequenceFile.Reader(fs,
-        new Path(collectionOutput + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/part-00000"), fs.getConf());
+    reader = new SequenceFile.Reader(fs.getConf(), SequenceFile.Reader.file(
+        new Path(collectionOutput + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/part-00000")));
     reader.next(key, value); //read key 200
     verifyURLs(200, urlMap, value);
     verifyLinks(200, AnchorTextConstants.Type.INTERNAL_OUT_LINK.val, internalLinkMap, value);
@@ -121,8 +120,8 @@ public class VerifyClueWeb09EN01Webgraph {
     verifyLinks(600, AnchorTextConstants.Type.EXTERNAL_OUT_LINK.val, externalLinkMap, value);
     reader.close();
 
-    reader = new SequenceFile.Reader(fs,
-        new Path(collectionOutput + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/part-00010"), fs.getConf());
+    reader = new SequenceFile.Reader(fs.getConf(), SequenceFile.Reader.file(
+        new Path(collectionOutput + "/" + DriverUtil.OUTPUT_WEBGRAPH + "/part-00010")));
     reader.next(key, value); //read key 10
     verifyURLs(10, urlMap, value);
     verifyLinks(10, AnchorTextConstants.Type.INTERNAL_OUT_LINK.val, internalLinkMap, value);
