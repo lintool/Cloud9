@@ -49,7 +49,7 @@ public class VerifyClueWeb09EN01Webgraph {
   private ImmutableMap<Integer, ImmutableSet<Integer>> internalLinkMap = ImmutableMap.of(
     200,
     ImmutableSet.of(207,208,209,210,201,202,203,204,205,206),
-    400,
+    600,
     ImmutableSet.of(520,615,616,619,526,480,481,529,533,487,629,601,
                     585,492,591,641,596,646,506,507,602,603,604,605,
                     559,651,467,468),
