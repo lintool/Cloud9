@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Web Graph</h2>
+</div>
+<p>
+The <code>edu.umd.cloud9.webgraph</code> package provides tools to
+construct the web graph for the ClueWeb09 as well as TREC collections such as Gov2.
+In a web graph, each node represents a document in the collection and directed
+edges indicate a hyperlink from a source document to a target document.
+</p>
+<p>
+In addition to the web graph, we also build the reverse web graph, where
+edges are reversed. That is, the direction of an edge is from a target document
+to a source document. This enables us to have all the source documents
+that point to a target document in one place.
+Each hyperlink is annotated with an anchor text. In the reverse web graph,
+we group the outgoing edges with their anchor text.
+</p>
+
+<h3>Constructing the Web Graph</h3>
+<p>
+In order to construct the web graph and/or the reverse web graph, use the following
+driver for the ClueWeb09 collection:
+</p>
+
+<pre class="code">
+hadoop jar cloud9.jar edu.umd.cloud9.webgraph.driver.ClueWebDriver
+-input &lt;collection-base-path&gt; -output &lt;output-base-path&gt; -docno &lt;docno-mapping-file&gt;
+-begin &lt;frist-segment-number&gt; -end &lt;last-segment-number&gt; -normalizer &lt;normalizer-class&gt;
+[-il] [-caw]
+</pre>
+
+<p>Note that:</p>
+<ul>
+  <li> The input collection must be a set of sequence files.
+  <li> To build the web graph for segment <i>n</i>, set both <b>-begin</b>
+    and <b>-end</b> to <i>n</i>. There are 10 segments in the English
+    portion of the ClueWeb09 collection.
+  <li> <b>-normalizer</b> indicates a normalizer class--a subclass of
+    <code>edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer</code>.
+  <li> If <b>-il</b> is present, it includes internal links--hyperlinks that connect documents within
+    the same domain. If this option is not present, only inter-domain hyperlinks are considered.
+  <li> If <b>-caw</b> is present, it computes a weight for each anchor text using the weighting scheme
+    proposed by <a href="http://dl.acm.org/citation.cfm?id=1571981">Metzler et al.</a>.
+</ul>
+
+<p>For a TREC collection, use the following driver instead</p>
+
+<pre class="code">
+hadoop jar cloud9.jar edu.umd.cloud9.webgraph.driver.TrecDriver
+-input &lt;collection-base-path&gt; -output &lt;output-base-path&gt; -docno &lt;docno-mapping-file&gt;
+-normalizer &lt;normalizer-class&gt; [-il] [-caw]
+[-collection gov2|wt10g|trecweb] [-inputFormat input-format-class -docnoClass docno-mapping-class]
+</pre>
+
+<p>Note that:</p>
+<ul>
+  <li> Use <b>-collection</b> to configure the driver for a set of pre-defined collections.
+  <li> For custom collections, use <b>-inputFormat</b> to determine input format and
+    <b>-docnoClass</b> to provide the <code>edu.umd.cloud9.collection.DocnoMapping</code>
+    implementation for your custom collection.
+  <li> In order to be compatible with the framework,
+    the input document set must be a collection of <code>edu.umd.cloud9.collection.WebDocument</code>
+    instances.
+  <li> Use the raw document collection (and not sequence files) when <b>-collection</b>
+    is specified.
+</ul>
+
+<h3>Generate Text Output</h3>
+
+<p>
+The following driver dumps the web graph into text files, where on each line
+a source document id is followed by a list of tab-delimited target document ids.
+</p>
+
+<pre class="code">
+hadoop jar cloud9.jar edu.umd.cloud9.webgraph.driver.GenerateTabDelimitedWebGraph
+-webgraph &lt;webgraph-base-path&gt; -output &lt;output-base-path&gt;
+</pre>
+
+  </div>
+
+
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
+
+  </body>
+</html>
