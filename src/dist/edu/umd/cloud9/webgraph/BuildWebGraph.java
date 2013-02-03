@@ -44,157 +44,162 @@ import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
 /**
- * 
+ *
  * @author Nima Asadi
  *
  */
 public class BuildWebGraph extends PowerTool {
-	private static final Logger LOG = Logger.getLogger(BuildWebGraph.class);
-	
-	public static class Map extends MapReduceBase implements
-		Mapper<IntWritable, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
-		
-		private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
-		private static final IntWritable keyWord = new IntWritable();
-		
-		private static byte flag;
-		
-		public void map(IntWritable key, ArrayListWritable<AnchorText> anchors,
-				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
-			
-			for(AnchorText data : anchors) {
-				
-				if(data.isURL()) {
-					arrayList.clear();
-					arrayList.add(data.clone());
-					output.collect(key, arrayList);
-				}
-				
-				if(!data.isExternalInLink() && !data.isInternalInLink())
-					continue;
-				
-				//set the flag to "outgoing link"
-				flag = data.isExternalInLink() ? AnchorTextConstants.Type.EXTERNAL_OUT_LINK.val :
-													AnchorTextConstants.Type.INTERNAL_OUT_LINK.val;
-				
-				arrayList.clear();
-				arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, key.get()));
-				for(int source : data) {
-					keyWord.set(source);
-					output.collect(keyWord, arrayList);
-				}
-					
-			}
-			
-		}
-	}
-	
-	public static class Reduce extends MapReduceBase implements 
-	Reducer<IntWritable, ArrayListWritable<AnchorText>, IntWritable, ArrayListWritable<AnchorText>> {
-	
-		private static final ArrayListWritable<AnchorText> arrayList = 
-			new ArrayListWritable<AnchorText>();
-		private static ArrayListWritable<AnchorText> packet;
-		private static boolean pushed;
-		private static int outdegree;
-		
-		public void reduce(IntWritable key, Iterator<ArrayListWritable<AnchorText>> values,
-				OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output, Reporter reporter) throws IOException {
-			
-			arrayList.clear();
-			outdegree = 0;
-			
-			while(values.hasNext()) {
-				packet = values.next();
-				
-				for(AnchorText data : packet) {
-				  
-				  outdegree += data.getSize();
-					
-					pushed = false;
-					
-					for(int i = 0; i < arrayList.size(); i++) {
-						if(arrayList.get(i).equalsIgnoreSources(data)) {
-							arrayList.get(i).addDocumentsFrom(data);
-							pushed = true;
-							break;
-						}
-					}
-					
-					if(!pushed)
-						arrayList.add(data.clone());
-				}
-			}
-			
-			arrayList.add(new AnchorText(AnchorTextConstants.Type.OUT_DEGREE.val, AnchorTextConstants.EMPTY_STRING, outdegree));
-			
-			Collections.sort(arrayList);
-			output.collect(key, arrayList);
-		}
-	}
-	
-	public static final String[] RequiredParameters = {
-		"Cloud9.InputPath",
-		"Cloud9.OutputPath",
-		"Cloud9.Mappers",
-		"Cloud9.Reducers"
-	};
+  private static final Logger LOG = Logger.getLogger(BuildWebGraph.class);
 
-	public String[] getRequiredParameters() {
-		return RequiredParameters;
-	}
+  public static class Map extends MapReduceBase implements
+    Mapper<IntWritable, ArrayListWritable<AnchorText>,
+    IntWritable, ArrayListWritable<AnchorText>> {
 
-	public BuildWebGraph(Configuration conf) {
-		super(conf);
-	}
+    private static final ArrayListWritable<AnchorText>
+      arrayList = new ArrayListWritable<AnchorText>();
+    private static final IntWritable keyWord = new IntWritable();
+    private static byte flag;
+
+    public void map(IntWritable key, ArrayListWritable<AnchorText> anchors,
+        OutputCollector<IntWritable, ArrayListWritable<AnchorText>> output,
+        Reporter reporter) throws IOException {
+      for(AnchorText data : anchors) {
+        if(data.isURL()) {
+          arrayList.clear();
+          arrayList.add(data.clone());
+          output.collect(key, arrayList);
+        }
+
+        if(!data.isExternalInLink() && !data.isInternalInLink()) {
+          continue;
+        }
+
+        //set the flag to "outgoing link"
+        flag = data.isExternalInLink() ?
+          AnchorTextConstants.Type.EXTERNAL_OUT_LINK.val :
+          AnchorTextConstants.Type.INTERNAL_OUT_LINK.val;
+
+        arrayList.clear();
+        arrayList.add(new AnchorText(flag,
+            AnchorTextConstants.EMPTY_STRING, key.get()));
+        for(int source : data) {
+          keyWord.set(source);
+          output.collect(keyWord, arrayList);
+        }
+      }
+    }
+  }
+
+  public static class Reduce extends MapReduceBase implements
+      Reducer<IntWritable, ArrayListWritable<AnchorText>,
+      IntWritable, ArrayListWritable<AnchorText>> {
+    private static final ArrayListWritable<AnchorText> arrayList =
+      new ArrayListWritable<AnchorText>();
+    private static ArrayListWritable<AnchorText> packet;
+    private static boolean pushed;
+    private static int outdegree;
+
+    public void reduce(IntWritable key,
+        Iterator<ArrayListWritable<AnchorText>> values,
+        OutputCollector<IntWritable,
+        ArrayListWritable<AnchorText>> output,
+        Reporter reporter) throws IOException {
+      arrayList.clear();
+      outdegree = 0;
+
+      while(values.hasNext()) {
+        packet = values.next();
+
+        for(AnchorText data : packet) {
+          outdegree += data.getSize();
+          pushed = false;
+
+          for(int i = 0; i < arrayList.size(); i++) {
+            if(arrayList.get(i).equalsIgnoreSources(data)) {
+              arrayList.get(i).addDocumentsFrom(data);
+              pushed = true;
+              break;
+            }
+          }
+          if(!pushed) {
+            arrayList.add(data.clone());
+          }
+        }
+      }
+
+      arrayList.add(new AnchorText(
+          AnchorTextConstants.Type.OUT_DEGREE.val, null, outdegree));
+      Collections.sort(arrayList);
+      output.collect(key, arrayList);
+    }
+  }
+
+  public static final String[] RequiredParameters = {
+    "Cloud9.InputPath",
+    "Cloud9.OutputPath",
+    "Cloud9.Mappers",
+    "Cloud9.Reducers"
+  };
+
+  public String[] getRequiredParameters() {
+    return RequiredParameters;
+  }
+
+  public BuildWebGraph(Configuration conf) {
+    super(conf);
+  }
 
 
-	public int runTool() throws Exception {
+  public int runTool() throws Exception {
+    JobConf conf = new JobConf(getConf(), BuildWebGraph.class);
+    FileSystem fs = FileSystem.get(conf);
 
-		JobConf conf = new JobConf(getConf(), BuildWebGraph.class);
-		FileSystem fs = FileSystem.get(conf);
-		
-		int numMappers = conf.getInt("Cloud9.Mappers", 1);
-		int numReducers = conf.getInt("Cloud9.Reducers", 200);
+    int numMappers = conf.getInt("Cloud9.Mappers", 1);
+    int numReducers = conf.getInt("Cloud9.Reducers", 200);
 
-		String inputPath = conf.get("Cloud9.InputPath");
-		String outputPath = conf.get("Cloud9.OutputPath");
-		
-		conf.setJobName("ConstructWebGraph");
-		conf.set("mapred.child.java.opts", "-Xmx4096m");
-		conf.setInt("mapred.task.timeout", 60000000);
+    String inputPath = conf.get("Cloud9.InputPath");
+    String outputPath = conf.get("Cloud9.OutputPath");
 
-		conf.setNumMapTasks(numMappers);
-		conf.setNumReduceTasks(numReducers);
+    conf.setJobName("ConstructWebGraph");
+    conf.set("mapred.child.java.opts", "-Xmx2048m");
+    conf.setInt("mapred.task.timeout", 60000000);
+    conf.set("mapreduce.map.memory.mb", "2048");
+    conf.set("mapreduce.map.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.reduce.memory.mb", "2048");
+    conf.set("mapreduce.reduce.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.task.timeout", "60000000");
 
-		conf.setMapperClass(Map.class);
-		conf.setReducerClass(Reduce.class);
+    conf.setNumMapTasks(numMappers);
+    conf.setNumReduceTasks(numReducers);
 
-		conf.setOutputKeyClass(IntWritable.class);
-		conf.setOutputValueClass(ArrayListWritable.class);
-		
-		conf.setMapOutputKeyClass(IntWritable.class);
-		conf.setMapOutputValueClass(ArrayListWritable.class);
+    conf.setMapperClass(Map.class);
+    conf.setReducerClass(Reduce.class);
 
-		conf.setInputFormat(SequenceFileInputFormat.class);
-		conf.setOutputFormat(SequenceFileOutputFormat.class);
+    conf.setOutputKeyClass(IntWritable.class);
+    conf.setOutputValueClass(ArrayListWritable.class);
 
-		SequenceFileOutputFormat.setCompressOutput(conf, true);
-		SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.BLOCK);
+    conf.setMapOutputKeyClass(IntWritable.class);
+    conf.setMapOutputValueClass(ArrayListWritable.class);
 
-		SequenceFileInputFormat.setInputPaths(conf, inputPath);
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    conf.setInputFormat(SequenceFileInputFormat.class);
+    conf.setOutputFormat(SequenceFileOutputFormat.class);
 
-		LOG.info("BuildWebGraph");
-		LOG.info(" - input path: " + inputPath);
-		LOG.info(" - output path: " + outputPath);		
+    SequenceFileOutputFormat.setCompressOutput(conf, true);
+    SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.BLOCK);
 
-		if(!fs.exists(new Path(outputPath))) {
-			JobClient.runJob(conf);
-		} else {
-			LOG.info(outputPath + " already exists! Skipping this step...");
-		}
+    SequenceFileInputFormat.setInputPaths(conf, inputPath);
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
-		return 0;
-	}
+    LOG.info("BuildWebGraph");
+    LOG.info(" - input path: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+
+    if(!fs.exists(new Path(outputPath))) {
+      JobClient.runJob(conf);
+    } else {
+      LOG.info(outputPath + " already exists! Skipping this step...");
+    }
+
+    return 0;
+  }
 }
