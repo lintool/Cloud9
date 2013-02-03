@@ -39,6 +39,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.webgraph.data.AnchorText;
+import edu.umd.cloud9.webgraph.DriverUtil;
 
 
 /**
@@ -86,13 +87,13 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
   }
 
   private static int printUsage() {
-    System.out.println("usage: [WebGraph-base-path] [output-path]");
+    System.out.println("usage: -webgraph [WebGraph-base-path] -output [output-path]");
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;
   }
 
   public int run(String[] args) throws Exception {
-    if(args.length != 2) {
+    if(args.length < 4) {
       printUsage();
       return -1;
     }
@@ -100,8 +101,9 @@ public class GenerateTabDelimitedWebGraph extends Configured implements Tool {
     JobConf conf = new JobConf(getConf(), GenerateTabDelimitedWebGraph.class);
     FileSystem fs = FileSystem.get(conf);
 
-    String inPath = args[0];
-    String outPath = args[1];
+    String inPath = DriverUtil.argValue(args, "-webgraph") + "/" +
+      DriverUtil.OUTPUT_WEBGRAPH;
+    String outPath = DriverUtil.argValue(args, "-output");
 
     Path inputPath = new Path(inPath);
     Path outputPath = new Path(outPath);
