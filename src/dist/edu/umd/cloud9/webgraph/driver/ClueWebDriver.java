@@ -84,15 +84,18 @@ public class ClueWebDriver extends Configured implements Tool {
     System.out.println("[" + DriverUtil.CL_OUTPUT + " output-base]\n\toutput directory");
     System.out.println(DriverUtil.CL_BEGIN_SEGMENT + " begin_segment: First segment to process.");
     System.out.println(DriverUtil.CL_END_SEGMENT + " end_segment: Last segment to process.");
-    System.out
-      .println(DriverUtil.CL_DOCNO_MAPPING + " docno mapping file.");
-    System.out
-      .println(DriverUtil.CL_INCLUDE_INTERNAL_LINKS + "\n\tinclude internal links, without this option we will not include internal links");
-    System.out
-      .println(DriverUtil.CL_COMPUTE_WEIGHTS + "\n\tcompute default anchor weights, without this option we will not compute default anchor weights");
-    System.out
-      .println(DriverUtil.CL_NORMALIZER + " normalizerClass\n\ta normalizer class used to normalize the lines of anchor text," +
-               " must extend edu.umd.cloud9.webgraph.normalize.AnchorTextNormalizer.");
+    System.out.println(DriverUtil.CL_DOCNO_MAPPING +
+                       " docno mapping file.");
+    System.out.println(DriverUtil.CL_INCLUDE_INTERNAL_LINKS +
+                       "\n\tinclude internal links, without this" +
+                       "option we will not include internal links");
+    System.out.println(DriverUtil.CL_COMPUTE_WEIGHTS +
+                       "\n\tcompute default anchor weights, without this " +
+                       "option we will not compute default anchor weights");
+    System.out.println(DriverUtil.CL_NORMALIZER +
+                       " normalizerClass\n\ta normalizer class" +
+                       " used to normalize the lines of anchor text," +
+                       " must extend edu.umd.cloud9.webgraph.normalize.AnchorTextNormalizer.");
     System.out.println();
     ToolRunner.printGenericCommandUsage(System.out);
     return -1;

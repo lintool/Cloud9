@@ -57,9 +57,9 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
 /**
- * 
+ *
  * @author Nima Asadi
- * 
+ *
  */
 public class ClueExtractLinks extends PowerTool {
   private static final Logger LOG = Logger.getLogger(ClueExtractLinks.class);
@@ -68,34 +68,38 @@ public class ClueExtractLinks extends PowerTool {
       Mapper<IntWritable, ClueWarcRecord, Text, ArrayListWritable<AnchorText>> {
 
     public static enum LinkCounter {
-      INPUT_DOCS, // number of input documents
-      OUTPUT_DOCS, // number of output documents
-      INVALID_DOCNO, // number of malformed documents
-      INVALID_URL, // number of malformed URLs
-      TEXT_TOO_LONG, // number of lines of anchor text that are abnormally
-      // long
+      // number of input documents
+      INPUT_DOCS,
+        // number of output documents
+      OUTPUT_DOCS,
+        // number of malformed documents
+      INVALID_DOCNO,
+        // number of malformed URLs
+      INVALID_URL,
+        // number of lines of anchor text that are too long
+      TEXT_TOO_LONG,
+        // number of times the HTML parser fails
       PARSER_FAILED
-      // number of times the HTML parser fails
     };
 
     private static String base; // base URL for current document
     private static String baseHost;
     private static int docno; // docno of current document
 
-    private static final Text keyWord = new Text(); // output key for the
-    // mappers
-    private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
+     // output key for the mappers
+    private static final Text keyWord = new Text();
     // output value for the mappers
+    private static final ArrayListWritable<AnchorText> arrayList =
+      new ArrayListWritable<AnchorText>();
 
-    private static final ClueWarcDocnoMapping docnoMapping = new ClueWarcDocnoMapping();
     // docno mapping file
+    private static final ClueWarcDocnoMapping docnoMapping =
+      new ClueWarcDocnoMapping();
 
     private static final Parser parser = new Parser();
     private static final NodeFilter filter = new NodeClassFilter(LinkTag.class);;
     private static NodeList list;
-
     private static boolean includeInternalLinks;
-
     private static AnchorTextNormalizer normalizer;
 
     public void configure(JobConf job) {
@@ -116,8 +120,8 @@ public class ClueExtractLinks extends PowerTool {
       includeInternalLinks = job.getBoolean("Cloud9.IncludeInternalLinks", false);
 
       try {
-        normalizer = (AnchorTextNormalizer) Class.forName(job.get("Cloud9.AnchorTextNormalizer"))
-            .newInstance();
+        normalizer = (AnchorTextNormalizer)
+          Class.forName(job.get("Cloud9.AnchorTextNormalizer")).newInstance();
       } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("Error initializing AnchorTextNormalizer");
@@ -127,7 +131,6 @@ public class ClueExtractLinks extends PowerTool {
     public void map(IntWritable key, ClueWarcRecord doc,
         OutputCollector<Text, ArrayListWritable<AnchorText>> output, Reporter reporter)
         throws IOException {
-
       reporter.incrCounter(LinkCounter.INPUT_DOCS, 1);
 
       try {
@@ -146,14 +149,13 @@ public class ClueExtractLinks extends PowerTool {
         return;
       }
 
-      if (base == null) {
+      if(base == null) {
         reporter.incrCounter(LinkCounter.INVALID_URL, 1);
         return;
       }
 
       arrayList.clear();
-      arrayList.add(new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val,
-          AnchorTextConstants.EMPTY_STRING, docno));
+      arrayList.add(new AnchorText(AnchorTextConstants.Type.DOCNO_FIELD.val, null, docno));
       keyWord.set(base);
       output.collect(keyWord, arrayList);
       arrayList.clear();
@@ -169,15 +171,14 @@ public class ClueExtractLinks extends PowerTool {
         return;
       }
 
-      if (baseHost == null) {
+      if(baseHost == null) {
         reporter.incrCounter(LinkCounter.INVALID_URL, 1);
         return;
       }
 
       try {
-        parser.setInputHTML(doc.getContent()); // initializing the
-        // parser with new HTML
-        // content
+        // initializing the parser with new content
+        parser.setInputHTML(doc.getContent());
 
         // Setting base URL for the current document
         NodeList nl = parser.parse(null);
@@ -185,7 +186,7 @@ public class ClueExtractLinks extends PowerTool {
         baseTag.setBaseUrl(base);
         nl.add(baseTag);
 
-        // re-initializing the parser with the fixed content
+        // re-initializing the parser with the correct content
         parser.setInputHTML(nl.toHtml());
 
         // listing all LinkTag nodes
@@ -198,16 +199,18 @@ public class ClueExtractLinks extends PowerTool {
         return;
       }
 
-      for (int i = 0; i < list.size(); i++) {
+      for(int i = 0; i < list.size(); i++) {
         LinkTag link = (LinkTag) list.elementAt(i);
         String anchor = link.getLinkText();
         String url = link.extractLink();
 
-        if (url == null)
+        if(url == null) {
           continue;
+        }
 
-        if (url.equals(base)) // discard self links
+        if(url.equals(base)) {// discard self links
           continue;
+        }
 
         String host = null;
         try {
@@ -216,27 +219,28 @@ public class ClueExtractLinks extends PowerTool {
           continue;
         }
 
-        if (host == null)
+        if(host == null) {
           continue;
+        }
 
-        if (anchor == null)
+        if(anchor == null) {
           anchor = "";
+        }
 
         // normalizing the anchor text
         anchor = normalizer.process(anchor);
 
         arrayList.clear();
-        if (baseHost.equals(host)) {
-
-          if (!includeInternalLinks)
+        if(baseHost.equals(host)) {
+          if(!includeInternalLinks) {
             continue;
+          }
 
-          arrayList
-              .add(new AnchorText(AnchorTextConstants.Type.INTERNAL_IN_LINK.val, anchor, docno));
-
+          arrayList.add(new AnchorText(
+              AnchorTextConstants.Type.INTERNAL_IN_LINK.val, anchor, docno));
         } else {
-          arrayList
-              .add(new AnchorText(AnchorTextConstants.Type.EXTERNAL_IN_LINK.val, anchor, docno));
+          arrayList.add(new AnchorText(
+              AnchorTextConstants.Type.EXTERNAL_IN_LINK.val, anchor, docno));
         }
 
         try {
@@ -251,29 +255,25 @@ public class ClueExtractLinks extends PowerTool {
           arrayList.add(new AnchorText(flag, AnchorTextConstants.EMPTY_STRING, docno));
           output.collect(keyWord, arrayList);
         }
-
       }
     }
   }
 
   public static class Reduce extends MapReduceBase implements
       Reducer<Text, ArrayListWritable<AnchorText>, Text, ArrayListWritable<AnchorText>> {
-
-    private static final ArrayListWritable<AnchorText> arrayList = new ArrayListWritable<AnchorText>();
+    private static final ArrayListWritable<AnchorText> arrayList =
+      new ArrayListWritable<AnchorText>();
     private static ArrayListWritable<AnchorText> packet;
     private static boolean pushed;
 
     public void reduce(Text key, Iterator<ArrayListWritable<AnchorText>> values,
         OutputCollector<Text, ArrayListWritable<AnchorText>> output, Reporter reporter)
         throws IOException {
-
       arrayList.clear();
 
       while (values.hasNext()) {
         packet = values.next();
-
         for (AnchorText data : packet) {
-
           pushed = false;
 
           for (int i = 0; i < arrayList.size(); i++) {
@@ -283,19 +283,24 @@ public class ClueExtractLinks extends PowerTool {
               break;
             }
           }
-
-          if (!pushed)
+          if (!pushed) {
             arrayList.add(data.clone());
+          }
         }
       }
-
       output.collect(key, arrayList);
     }
   }
 
-  public static final String[] RequiredParameters = { "Cloud9.InputPath", "Cloud9.OutputPath",
-      "Cloud9.Mappers", "Cloud9.Reducers", "Cloud9.DocnoMappingFile",
-      "Cloud9.IncludeInternalLinks", "Cloud9.AnchorTextNormalizer", };
+  public static final String[] RequiredParameters = {
+    "Cloud9.InputPath",
+    "Cloud9.OutputPath",
+    "Cloud9.Mappers",
+    "Cloud9.Reducers",
+    "Cloud9.DocnoMappingFile",
+    "Cloud9.IncludeInternalLinks",
+    "Cloud9.AnchorTextNormalizer",
+  };
 
   public String[] getRequiredParameters() {
     return RequiredParameters;
@@ -306,7 +311,6 @@ public class ClueExtractLinks extends PowerTool {
   }
 
   public int runTool() throws Exception {
-
     JobConf conf = new JobConf(getConf(), ClueExtractLinks.class);
     FileSystem fs = FileSystem.get(conf);
 
@@ -317,15 +321,21 @@ public class ClueExtractLinks extends PowerTool {
     String outputPath = conf.get("Cloud9.OutputPath");
     String mappingFile = conf.get("Cloud9.DocnoMappingFile");
 
-    if (!fs.exists(new Path(mappingFile)))
+    if(!fs.exists(new Path(mappingFile))) {
       throw new RuntimeException("Error: Docno mapping data file " + mappingFile
           + " doesn't exist!");
+    }
 
     DistributedCache.addCacheFile(new URI(mappingFile), conf);
 
     conf.setJobName("ClueExtractLinks");
     conf.set("mapred.child.java.opts", "-Xmx2048m");
     conf.setInt("mapred.task.timeout", 60000000);
+    conf.set("mapreduce.map.memory.mb", "2048");
+    conf.set("mapreduce.map.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.reduce.memory.mb", "2048");
+    conf.set("mapreduce.reduce.java.opts", "-Xmx2048m");
+    conf.set("mapreduce.task.timeout", "60000000");
 
     conf.setNumMapTasks(numMappers);
     conf.setNumReduceTasks(numReducers);
@@ -333,32 +343,28 @@ public class ClueExtractLinks extends PowerTool {
     conf.setMapperClass(Map.class);
     conf.setCombinerClass(Reduce.class);
     conf.setReducerClass(Reduce.class);
-
     conf.setOutputKeyClass(Text.class);
     conf.setOutputValueClass(ArrayListWritable.class);
-
     conf.setInputFormat(SequenceFileInputFormat.class);
     conf.setOutputFormat(SequenceFileOutputFormat.class);
-
     SequenceFileOutputFormat.setCompressOutput(conf, true);
-    SequenceFileOutputFormat.setOutputCompressionType(conf, SequenceFile.CompressionType.BLOCK);
-
+    SequenceFileOutputFormat.setOutputCompressionType(conf,
+        SequenceFile.CompressionType.BLOCK);
     SequenceFileInputFormat.setInputPaths(conf, inputPath);
-
     FileOutputFormat.setOutputPath(conf, new Path(outputPath));
 
     LOG.info("ClueExtractLinks");
     LOG.info(" - input path: " + inputPath);
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - mapping file: " + mappingFile);
-    LOG.info(" - include internal links? " + conf.getBoolean("Cloud9.IncludeInternalLinks", false));
+    LOG.info(" - include internal links? " +
+             conf.getBoolean("Cloud9.IncludeInternalLinks", false));
 
-    if (!fs.exists(new Path(outputPath))) {
+    if(!fs.exists(new Path(outputPath))) {
       JobClient.runJob(conf);
     } else {
       LOG.info(outputPath + " already exists! Skipping this step...");
     }
-
     return 0;
   }
 }
