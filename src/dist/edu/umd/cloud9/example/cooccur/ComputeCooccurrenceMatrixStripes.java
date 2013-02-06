@@ -41,8 +41,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import cern.colt.Arrays;
-
-import edu.umd.cloud9.io.map.String2IntOpenHashMapWritable;
+import edu.umd.cloud9.io.map.HMapSIW;
 
 /**
  * <p>
@@ -60,9 +59,8 @@ import edu.umd.cloud9.io.map.String2IntOpenHashMapWritable;
 public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
-  private static class MyMapper extends
-      Mapper<LongWritable, Text, Text, String2IntOpenHashMapWritable> {
-    private static final String2IntOpenHashMapWritable MAP = new String2IntOpenHashMapWritable();
+  private static class MyMapper extends Mapper<LongWritable, Text, Text, HMapSIW> {
+    private static final HMapSIW MAP = new HMapSIW();
     private static final Text KEY = new Text();
 
     private int window = 2;
@@ -99,11 +97,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
           if (terms[j].length() == 0)
             continue;
 
-          if (MAP.containsKey(terms[j])) {
-            MAP.increment(terms[j]);
-          } else {
-            MAP.put(terms[j], 1);
-          }
+          MAP.increment(terms[j]);
         }
 
         KEY.set(term);
@@ -112,14 +106,12 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
     }
   }
 
-  private static class MyReducer extends
-      Reducer<Text, String2IntOpenHashMapWritable, Text, String2IntOpenHashMapWritable> {
-
+  private static class MyReducer extends Reducer<Text, HMapSIW, Text, HMapSIW> {
     @Override
-    public void reduce(Text key, Iterable<String2IntOpenHashMapWritable> values, Context context)
+    public void reduce(Text key, Iterable<HMapSIW> values, Context context)
         throws IOException, InterruptedException {
-      Iterator<String2IntOpenHashMapWritable> iter = values.iterator();
-      String2IntOpenHashMapWritable map = new String2IntOpenHashMapWritable();
+      Iterator<HMapSIW> iter = values.iterator();
+      HMapSIW map = new HMapSIW();
 
       while (iter.hasNext()) {
         map.plus(iter.next());
@@ -202,9 +194,9 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     job.setMapOutputKeyClass(Text.class);
-    job.setOutputValueClass(String2IntOpenHashMapWritable.class);
+    job.setOutputValueClass(HMapSIW.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(String2IntOpenHashMapWritable.class);
+    job.setOutputValueClass(HMapSIW.class);
 
     job.setMapperClass(MyMapper.class);
     job.setCombinerClass(MyReducer.class);
