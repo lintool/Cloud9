@@ -1,3 +1,10 @@
+Version 1.4.10
+==============
+February 6, 2013
+
++ Refactored cooccurrence matrix example, stripes implementation
++ Added integration test for webgraph
+
 Version 1.4.9
 =============
 February 1, 2013
