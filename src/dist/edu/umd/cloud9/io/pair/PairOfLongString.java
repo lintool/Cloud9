@@ -23,6 +23,9 @@ import java.io.IOException;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableUtils;
+
 import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
@@ -57,7 +60,8 @@ public class PairOfLongString implements WritableComparable<PairOfLongString> {
    */
   public void readFields(DataInput in) throws IOException {
     leftElement = in.readLong();
-    rightElement = in.readUTF();
+    //rightElement = in.readUTF();
+    rightElement = Text.readString(in);
   }
 
   /**
@@ -67,7 +71,8 @@ public class PairOfLongString implements WritableComparable<PairOfLongString> {
    */
   public void write(DataOutput out) throws IOException {
     out.writeLong(leftElement);
-    out.writeUTF(rightElement);
+    //out.writeUTF(rightElement);
+    Text.writeString(out, rightElement);
   }
 
   /**
@@ -199,10 +204,13 @@ public class PairOfLongString implements WritableComparable<PairOfLongString> {
       long thatLeftValue = readLong(b2, s2);
 
       if (thisLeftValue == thatLeftValue) {
-        String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 8);
-        String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 8);
+        //String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 8);
+        //String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 8);
 
-        return (thisRightValue.compareTo(thatRightValue));
+        //return (thisRightValue.compareTo(thatRightValue));
+        int n1 = WritableUtils.decodeVIntSize(b1[s1+8]);
+        int n2 = WritableUtils.decodeVIntSize(b2[s2+8]);
+        return compareBytes(b1, s1+8+n1, l1-n1-8, b2, s2+n2+8, l2-n2-8);
       }
 
       return thisLeftValue < thatLeftValue ? -1 : 1;

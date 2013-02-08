@@ -23,6 +23,9 @@ import java.io.IOException;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableUtils;
+
 import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
@@ -59,7 +62,8 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readUTF();
+		//leftElement = in.readUTF();
+		leftElement = Text.readString(in);
 		rightElement = in.readLong();
 	}
 
@@ -69,7 +73,8 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(leftElement);
+		//out.writeUTF(leftElement)
+		Text.writeString(out, leftElement);
 		out.writeLong(rightElement);
 	}
 
@@ -194,6 +199,26 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 		 * Optimization hook.
 		 */
 		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+			try {
+				int first_vint_l1 = WritableUtils.decodeVIntSize(b1[s1]);
+				int first_vint_l2 = WritableUtils.decodeVIntSize(b2[s2]);
+				int first_str_l1 = readVInt(b1, s1);
+				int first_str_l2 = readVInt(b2, s2);
+				int cmp = compareBytes(b1, s1+first_vint_l1, first_str_l1, b2, s2+first_vint_l2, first_str_l2);
+				if (cmp != 0) { 
+					return cmp;
+				}
+
+				long thisRightValue = readLong(b1, s1 + first_vint_l1 + first_str_l1);
+				long thatRightValue = readLong(b2, s2 + first_vint_l2 + first_str_l2);
+
+				return (thisRightValue < thatRightValue ? -1
+						: (thisRightValue == thatRightValue ? 0 : 1));
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+
+			/*
 			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
 			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
 
@@ -209,6 +234,7 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 			}
 
 			return thisLeftValue.compareTo(thatLeftValue);
+			*/
 		}
 	}
 
