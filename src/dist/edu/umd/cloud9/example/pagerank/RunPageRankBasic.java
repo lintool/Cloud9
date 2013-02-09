@@ -60,7 +60,7 @@ import edu.umd.cloud9.util.map.MapIF;
  * Main driver program for running the basic (non-Schimmy) implementation of
  * PageRank.
  * </p>
- * 
+ *
  * <p>
  * The starting and ending iterations will correspond to paths
  * <code>/base/path/iterXXXX</code> and <code>/base/path/iterYYYY</code>. As a
@@ -73,7 +73,6 @@ import edu.umd.cloud9.util.map.MapIF;
  * @see RunPageRankSchimmy
  * @author Jimmy Lin
  * @author Michael Schatz
- * 
  */
 public class RunPageRankBasic extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(RunPageRankBasic.class);
@@ -454,7 +453,8 @@ public class RunPageRankBasic extends Configured implements Tool {
   }
 
   // Run each iteration.
-  private void iteratePageRank(int i, int j, String basePath, int numNodes, boolean useCombiner, boolean useInMapperCombiner) throws Exception {
+  private void iteratePageRank(int i, int j, String basePath, int numNodes,
+      boolean useCombiner, boolean useInMapperCombiner) throws Exception {
     // Each iteration consists of two phases (two MapReduce jobs).
 
     // Job 1: distribute PageRank mass along outgoing edges.
@@ -467,7 +467,8 @@ public class RunPageRankBasic extends Configured implements Tool {
     phase2(i, j, missing, basePath, numNodes);
   }
 
-  private float phase1(int i, int j, String basePath, int numNodes, boolean useCombiner, boolean useInMapperCombiner) throws Exception {
+  private float phase1(int i, int j, String basePath, int numNodes,
+      boolean useCombiner, boolean useInMapperCombiner) throws Exception {
     Job job = Job.getInstance(getConf());
     job.setJobName("PageRank:Basic:iteration" + j + ":Phase1");
     job.setJarByClass(RunPageRankBasic.class);

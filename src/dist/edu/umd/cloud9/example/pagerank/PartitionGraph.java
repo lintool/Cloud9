@@ -46,7 +46,6 @@ import edu.umd.cloud9.mapreduce.lib.input.NonSplitableSequenceFileInputFormat;
  *
  * @author Jimmy Lin
  * @author Michael Schatz
- * 
  */
 public class PartitionGraph extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(PartitionGraph.class);
