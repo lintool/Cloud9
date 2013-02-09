@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.cooccur;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,7 +41,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import cern.colt.Arrays;
 import edu.umd.cloud9.io.map.HMapSIW;
 
 /**

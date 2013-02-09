@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.bigram;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -47,8 +48,6 @@ import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.data.BinSedesTuple;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
-
-import cern.colt.Arrays;
 
 public class BigramRelativeFrequencyTuple extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BigramRelativeFrequencyTuple.class);

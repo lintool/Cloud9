@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.ir;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -42,8 +43,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-
-import cern.colt.Arrays;
 
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;

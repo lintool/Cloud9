@@ -19,6 +19,7 @@ package edu.umd.cloud9.example.ir;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -37,7 +38,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.ToolRunner;
 
-import cern.colt.Arrays;
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;

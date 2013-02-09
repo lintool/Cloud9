@@ -16,15 +16,11 @@
 
 package edu.umd.cloud9.example.bigram;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
-import cern.colt.Arrays;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -37,6 +33,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.pig.data.Tuple;
+
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
 import edu.umd.cloud9.io.pair.PairOfWritables;

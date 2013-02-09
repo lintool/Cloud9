@@ -16,6 +16,7 @@
 
 package edu.umd.cloud9.example.bigram;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -31,8 +32,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.ToolRunner;
-
-import cern.colt.Arrays;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
