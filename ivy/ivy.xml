@@ -26,10 +26,13 @@
     <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="*->*,!sources,!javadoc"/>
     <dependency org="commons-lang" name="commons-lang" rev="2.6" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="" name="sux4j" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
-    <dependency org="" name="dsiutils" rev="1.0.12" conf="*->*,!sources,!javadoc"/>
-    <dependency org="fastutil" name="fastutil" rev="5.1.5" conf="*->*,!sources,!javadoc"/>
-
+    <!--dependency org="" name="dsiutils" rev="1.0.12" conf="*->*,!sources,!javadoc"/>
+    <dependency org="fastutil" name="fastutil" rev="5.1.5" conf="*->*,!sources,!javadoc"/-->
+    <dependency org="it.unimi.dsi" name="sux4j" rev="3.0.3" conf="*->*,!sources,!javadoc"/>
+    <dependency org="it.unimi.dsi" name="webgraph" rev="3.0.9" conf="*->*,!sources,!javadoc">
+      <exclude org="it.unimi.dsi" module="sux4j"/>
+    </dependency>
+ 
     <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.16" conf="*->*,!sources,!javadoc">
       <exclude org="commons-httpclient" module="commons-httpclient"/>
     </dependency>
