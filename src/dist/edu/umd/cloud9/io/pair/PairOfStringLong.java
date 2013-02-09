@@ -62,7 +62,6 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		//leftElement = in.readUTF();
 		leftElement = Text.readString(in);
 		rightElement = in.readLong();
 	}
@@ -73,7 +72,6 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		//out.writeUTF(leftElement)
 		Text.writeString(out, leftElement);
 		out.writeLong(rightElement);
 	}
@@ -217,24 +215,6 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 			} catch (IOException e) {
 				throw new IllegalArgumentException(e);
 			}
-
-			/*
-			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
-			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
-
-			if (thisLeftValue.equals(thatLeftValue)) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
-
-				long thisRightValue = readLong(b1, s1 + 2 + s1offset);
-				long thatRightValue = readLong(b2, s2 + 2 + s2offset);
-
-				return (thisRightValue < thatRightValue ? -1
-						: (thisRightValue == thatRightValue ? 0 : 1));
-			}
-
-			return thisLeftValue.compareTo(thatLeftValue);
-			*/
 		}
 	}
 

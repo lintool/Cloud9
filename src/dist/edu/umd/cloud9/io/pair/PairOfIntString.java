@@ -62,7 +62,6 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readInt();
-		//rightElement = in.readUTF();
 		rightElement = Text.readString(in);
 	}
 
@@ -73,7 +72,6 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(leftElement);
-		//out.writeUTF(rightElement);
 		Text.writeString(out, rightElement);
 	}
 
@@ -199,10 +197,6 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 			int thatLeftValue = readInt(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				//String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 4);
-				//String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 4);
-
-				//return thisRightValue.compareTo(thatRightValue);
 				int n1 = WritableUtils.decodeVIntSize(b1[s1+4]);
 				int n2 = WritableUtils.decodeVIntSize(b2[s2+4]);
 				return compareBytes(b1, s1+4+n1, l1-n1-4, b2, s2+n2+4, l2-n2-4);	

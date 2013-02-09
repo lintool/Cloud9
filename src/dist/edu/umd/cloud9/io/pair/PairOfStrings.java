@@ -60,9 +60,7 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		//leftElement = in.readUTF();
 		leftElement = Text.readString(in);
-		//rightElement = in.readUTF();
 		rightElement = Text.readString(in);
 	}
 
@@ -72,9 +70,7 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		//out.writeUTF(leftElement)
 		Text.writeString(out, leftElement);
-		//out.writeUTF(rightElement);
 		Text.writeString(out, rightElement);
 	}
 
@@ -216,23 +212,6 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 			} catch (IOException e) {
 				throw new IllegalArgumentException(e);
 			}
-
-			/*
-			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
-			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
-
-			if (thisLeftValue.equals(thatLeftValue)) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
-
-				String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 2 + s1offset);
-				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 2 + s2offset);
-
-				return thisRightValue.compareTo(thatRightValue);
-			}
-
-			return thisLeftValue.compareTo(thatLeftValue);
-			*/
 		}
 	}
 
