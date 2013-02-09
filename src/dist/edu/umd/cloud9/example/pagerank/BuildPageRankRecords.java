@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -17,7 +17,15 @@
 package edu.umd.cloud9.example.pagerank;
 
 import java.io.IOException;
+import java.util.Arrays;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -107,26 +115,48 @@ public class BuildPageRankRecords extends Configured implements Tool {
 
 	public BuildPageRankRecords() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [inputDir] [outputDir] [numNodes]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String INPUT = "input";
+  private static final String OUTPUT = "output";
+  private static final String NUM_NODES = "numNodes";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
-			printUsage();
-			return -1;
-		}
+  /**
+   * Runs this tool.
+   */
+  @SuppressWarnings({ "static-access" })
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
 
-		String inputPath = args[0];
-		String outputPath = args[1];
-		int n = Integer.parseInt(args[2]);
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of nodes").create(NUM_NODES));
 
-		LOG.info("Tool name: BuildPageRankRecords");
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
+
+    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(OUTPUT) || !cmdline.hasOption(NUM_NODES)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+    String inputPath = cmdline.getOptionValue(INPUT);
+    String outputPath = cmdline.getOptionValue(OUTPUT);
+    int n = Integer.parseInt(cmdline.getOptionValue(NUM_NODES));
+
+		LOG.info("Tool name: " + BuildPageRankRecords.class.getSimpleName());
 		LOG.info(" - inputDir: " + inputPath);
 		LOG.info(" - outputDir: " + outputPath);
 		LOG.info(" - numNodes: " + n);
@@ -135,7 +165,8 @@ public class BuildPageRankRecords extends Configured implements Tool {
     conf.setInt(NODE_CNT_FIELD, n);
     conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
-		Job job = new Job(conf, "BuildPageRankRecords");
+		Job job = Job.getInstance(conf);
+		job.setJobName(BuildPageRankRecords.class.getSimpleName() + ":" + inputPath);
 		job.setJarByClass(BuildPageRankRecords.class);
 
 		job.setNumReduceTasks(0);
@@ -163,11 +194,9 @@ public class BuildPageRankRecords extends Configured implements Tool {
 	}
 
 	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
+	 * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new BuildPageRankRecords(), args);
-		System.exit(res);
+		ToolRunner.run(new BuildPageRankRecords(), args);
 	}
 }

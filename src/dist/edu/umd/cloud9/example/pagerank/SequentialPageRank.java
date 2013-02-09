@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,8 +20,18 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Set;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.util.ToolRunner;
 
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.algorithms.importance.Ranking;
@@ -50,13 +60,39 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 public class SequentialPageRank {
 	private SequentialPageRank() {}
 
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.err.println("usage: SequentialPageRage [graph-adjacency-list] [random-jump-factor]");
-			System.exit(-1);
-		}
-		String infile = args[0];
-		float alpha = Float.parseFloat(args[1]);
+  private static final String INPUT = "input";
+  private static final String JUMP = "jump";
+
+  @SuppressWarnings({ "static-access" })
+  public static void main(String[] args) throws IOException {
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("val").hasArg()
+        .withDescription("random jump factor").create(JUMP));
+
+    CommandLine cmdline = null;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      System.exit(-1);
+    }
+
+    if (!cmdline.hasOption(INPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(SequentialPageRank.class.getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      System.exit(-1);
+    }
+
+    String infile = cmdline.getOptionValue(INPUT);
+    float alpha = cmdline.hasOption(JUMP) ? Float.parseFloat(cmdline.getOptionValue(JUMP)) : 0.15f;
 
 		int edgeCnt = 0;
 		DirectedSparseGraph<String, Integer> graph = new DirectedSparseGraph<String, Integer>();

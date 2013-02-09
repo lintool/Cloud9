@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -19,8 +19,17 @@ package edu.umd.cloud9.example.pagerank;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -49,18 +58,8 @@ import edu.umd.cloud9.util.map.MapIF;
 /**
  * <p>
  * Main driver program for running the basic (non-Schimmy) implementation of
- * PageRank. Command-line arguments are as follows:
+ * PageRank.
  * </p>
- * 
- * <ul>
- * <li>[basePath]: the base path</li>
- * <li>[numNodes]: number of nodes in the graph</li>
- * <li>[start]: starting iteration</li>
- * <li>[end]: ending iteration</li>
- * <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
- * <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
- * <li>[useRange?]: 1 for range partitioning, 0 for not</li>
- * </ul>
  * 
  * <p>
  * The starting and ending iterations will correspond to paths
@@ -70,7 +69,7 @@ import edu.umd.cloud9.util.map.MapIF;
  * <code>/base/path/iter0000</code>; final results will be stored at
  * <code>/base/path/iter0010</code>.
  * </p>
- * 
+ *
  * @see RunPageRankSchimmy
  * @author Jimmy Lin
  * @author Michael Schatz
@@ -379,41 +378,72 @@ public class RunPageRankBasic extends Configured implements Tool {
 		System.exit(res);
 	}
 
-	public RunPageRankBasic() {
-	}
+	public RunPageRankBasic() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [basePath] [numNodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String BASE = "base";
+  private static final String NUM_NODES = "numNodes";
+  private static final String START = "start";
+  private static final String END = "end";
+  private static final String COMBINER = "useCombiner";
+  private static final String INMAPPER_COMBINER = "useInMapperCombiner";
+  private static final String RANGE = "range";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
+  /**
+   * Runs this tool.
+   */
+  @SuppressWarnings({ "static-access" })
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
 
-		if (args.length != 7) {
-			printUsage();
-			return -1;
-		}
+    options.addOption(new Option(COMBINER, "use combiner"));
+    options.addOption(new Option(INMAPPER_COMBINER, "user in-mapper combiner"));
+    options.addOption(new Option(RANGE, "use range partitioner"));
 
-		String basePath = args[0];
-		int n = Integer.parseInt(args[1]);
-		int s = Integer.parseInt(args[2]);
-		int e = Integer.parseInt(args[3]);
-		boolean useCombiner = Integer.parseInt(args[4]) != 0;
-		boolean useInmapCombiner = Integer.parseInt(args[5]) != 0;
-		boolean useRange = Integer.parseInt(args[6]) != 0;
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("base path").create(BASE));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("start iteration").create(START));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("end iteration").create(END));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of nodes").create(NUM_NODES));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
+
+    if (!cmdline.hasOption(BASE) || !cmdline.hasOption(START) ||
+        !cmdline.hasOption(END) || !cmdline.hasOption(NUM_NODES)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
+
+		String basePath = cmdline.getOptionValue(BASE);
+		int n = Integer.parseInt(cmdline.getOptionValue(NUM_NODES));
+		int s = Integer.parseInt(cmdline.getOptionValue(START));
+		int e = Integer.parseInt(cmdline.getOptionValue(END));
+		boolean useCombiner = cmdline.hasOption(COMBINER);
+		boolean useInmapCombiner = cmdline.hasOption(INMAPPER_COMBINER);
+		boolean useRange = cmdline.hasOption(RANGE);
 
     LOG.info("Tool name: RunPageRank");
-    LOG.info(" - basePath: " + basePath);
-    LOG.info(" - numNodes: " + n);
+    LOG.info(" - base path: " + basePath);
+    LOG.info(" - num nodes: " + n);
     LOG.info(" - start iteration: " + s);
     LOG.info(" - end iteration: " + e);
-    LOG.info(" - useCombiner?: " + useCombiner);
-    LOG.info(" - useInMapCombiner?: " + useInmapCombiner);
-    LOG.info(" - useRange?: " + useRange);
+    LOG.info(" - use combiner: " + useCombiner);
+    LOG.info(" - use in-mapper combiner: " + useInmapCombiner);
+    LOG.info(" - user range partitioner: " + useRange);
 
     // Iterate PageRank.
     for (int i = s; i < e; i++) {
@@ -438,7 +468,8 @@ public class RunPageRankBasic extends Configured implements Tool {
   }
 
   private float phase1(int i, int j, String basePath, int numNodes, boolean useCombiner, boolean useInMapperCombiner) throws Exception {
-    Job job = new Job(getConf(), "PageRank:Basic:iteration" + j + ":Phase1");
+    Job job = Job.getInstance(getConf());
+    job.setJobName("PageRank:Basic:iteration" + j + ":Phase1");
     job.setJarByClass(RunPageRankBasic.class);
 
     String in = basePath + "/iter" + formatter.format(i);
@@ -466,7 +497,7 @@ public class RunPageRankBasic extends Configured implements Tool {
     job.getConfiguration().setInt("NodeCount", numNodes);
     job.getConfiguration().setBoolean("mapred.map.tasks.speculative.execution", false);
     job.getConfiguration().setBoolean("mapred.reduce.tasks.speculative.execution", false);
-    job.getConfiguration().set("mapred.child.java.opts", "-Xmx2048m");
+    //job.getConfiguration().set("mapred.child.java.opts", "-Xmx2048m");
     job.getConfiguration().set("PageRankMassPath", outm);
 
     job.setNumReduceTasks(numReduceTasks);
@@ -508,7 +539,8 @@ public class RunPageRankBasic extends Configured implements Tool {
   }
 
   private void phase2(int i, int j, float missing, String basePath, int numNodes) throws Exception {
-    Job job = new Job(getConf(), "PageRank:Basic:iteration" + j + ":Phase2");
+    Job job = Job.getInstance(getConf());
+    job.setJobName("PageRank:Basic:iteration" + j + ":Phase2");
     job.setJarByClass(RunPageRankBasic.class);
 
     LOG.info("missing PageRank mass: " + missing);
