@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -93,31 +93,15 @@ public class PairOfStringsTest {
 		pair5.write(pair5_dataOut);
 		byte[] bytes5 = pair5_bytesOut.toByteArray();
 
-		PairOfStrings.Comparator pairOfStringComparator = new PairOfStrings.Comparator();
-		assertTrue(pairOfStringComparator.compare(
-				bytes1, 0, bytes1.length, bytes2, 0, bytes2.length
-			) == 0);
-		assertFalse(pair1.equals(pair3));
+    PairOfStrings.Comparator pairOfStringComparator = new PairOfStrings.Comparator();
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes2, 0, bytes2.length) == 0);
+    assertFalse(pair1.equals(pair3));
 
-		assertTrue(pairOfStringComparator.compare(
-			bytes1, 0, bytes1.length, bytes3, 0, bytes3.length
-			) > 0);
-
-		assertTrue(pairOfStringComparator.compare(
-			bytes1, 0, bytes1.length, bytes4, 0, bytes4.length
-			) > 0);
-
-		assertTrue(pairOfStringComparator.compare(
-			bytes1, 0, bytes1.length, bytes5, 0, bytes5.length
-			) < 0);
-
-		assertTrue(pairOfStringComparator.compare(
-			bytes3, 0, bytes3.length, bytes4, 0, bytes4.length
-			) < 0);
-
-		assertTrue(pairOfStringComparator.compare(
-			bytes4, 0, bytes4.length, bytes5, 0, bytes5.length
-			) < 0);
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes3, 0, bytes3.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes4, 0, bytes4.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes5, 0, bytes5.length) < 0);
+    assertTrue(pairOfStringComparator.compare(bytes3, 0, bytes3.length, bytes4, 0, bytes4.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes4, 0, bytes4.length, bytes5, 0, bytes5.length) < 0);
 	}
 
 	@Test

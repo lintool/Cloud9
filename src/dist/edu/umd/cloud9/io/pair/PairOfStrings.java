@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,13 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableUtils;
-
-import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
  * WritableComparable representing a pair of Strings. The elements in the pair
@@ -189,31 +186,31 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 			super(PairOfStrings.class);
 		}
 
-		/**
-		 * Optimization hook.
-		 */
-		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-			try {
-				int first_vint_l1 = WritableUtils.decodeVIntSize(b1[s1]);
-				int first_vint_l2 = WritableUtils.decodeVIntSize(b2[s2]);
-				int first_str_l1 = readVInt(b1, s1);
-				int first_str_l2 = readVInt(b2, s2);
-				int cmp = compareBytes(b1, s1+first_vint_l1, first_str_l1, b2, s2+first_vint_l2, first_str_l2);
-				if (cmp != 0) { 
-					return cmp;
-				}
+    /**
+     * Optimization hook.
+     */
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+      try {
+        int firstVIntL1 = WritableUtils.decodeVIntSize(b1[s1]);
+        int firstVIntL2 = WritableUtils.decodeVIntSize(b2[s2]);
+        int firstStrL1 = readVInt(b1, s1);
+        int firstStrL2 = readVInt(b2, s2);
+        int cmp = compareBytes(b1, s1 + firstVIntL1, firstStrL1, b2, s2 + firstVIntL2, firstStrL2);
+        if (cmp != 0) {
+          return cmp;
+        }
 
-				int second_vint_l1 = WritableUtils.decodeVIntSize(b1[s1 + first_vint_l1 + first_str_l1]);
-				int second_vint_l2 = WritableUtils.decodeVIntSize(b2[s2 + first_vint_l2 + first_str_l2]);
-				int second_str_l1 = readVInt(b1, s1 + first_vint_l1 + first_str_l1);
-				int second_str_l2 = readVInt(b2, s2 + first_vint_l2 + first_str_l2);
-				return compareBytes(b1, s1 + first_vint_l1 + first_str_l1 + second_vint_l1, second_str_l1, 
-									b2, s2 + first_vint_l2 + first_str_l2 + second_vint_l2, second_str_l2);
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
-	}
+        int secondVIntL1 = WritableUtils.decodeVIntSize(b1[s1 + firstVIntL1 + firstStrL1]);
+        int secondVIntL2 = WritableUtils.decodeVIntSize(b2[s2 + firstVIntL2 + firstStrL2]);
+        int secondStrL1 = readVInt(b1, s1 + firstVIntL1 + firstStrL1);
+        int secondStrL2 = readVInt(b2, s2 + firstVIntL2 + firstStrL2);
+        return compareBytes(b1, s1 + firstVIntL1 + firstStrL1 + secondVIntL1, secondStrL1, b2,
+            s2 + firstVIntL2 + firstStrL2 + secondVIntL2, secondStrL2);
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
+  }
 
 	static { // register this comparator
 		WritableComparator.define(PairOfStrings.class, new Comparator());

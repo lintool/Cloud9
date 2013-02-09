@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,13 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableUtils;
-
-import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
  * WritableComparable representing a pair consisting of an int and a String.
