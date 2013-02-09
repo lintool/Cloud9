@@ -23,6 +23,9 @@ import java.io.IOException;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableUtils;
+
 import edu.umd.cloud9.io.WritableComparatorUtils;
 
 /**
@@ -57,8 +60,8 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readUTF();
-		rightElement = in.readUTF();
+		leftElement = Text.readString(in);
+		rightElement = Text.readString(in);
 	}
 
 	/**
@@ -67,8 +70,8 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(leftElement);
-		out.writeUTF(rightElement);
+		Text.writeString(out, leftElement);
+		Text.writeString(out, rightElement);
 	}
 
 	/**
@@ -190,20 +193,25 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 		 * Optimization hook.
 		 */
 		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
-			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
+			try {
+				int first_vint_l1 = WritableUtils.decodeVIntSize(b1[s1]);
+				int first_vint_l2 = WritableUtils.decodeVIntSize(b2[s2]);
+				int first_str_l1 = readVInt(b1, s1);
+				int first_str_l2 = readVInt(b2, s2);
+				int cmp = compareBytes(b1, s1+first_vint_l1, first_str_l1, b2, s2+first_vint_l2, first_str_l2);
+				if (cmp != 0) { 
+					return cmp;
+				}
 
-			if (thisLeftValue.equals(thatLeftValue)) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
-
-				String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 2 + s1offset);
-				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 2 + s2offset);
-
-				return thisRightValue.compareTo(thatRightValue);
+				int second_vint_l1 = WritableUtils.decodeVIntSize(b1[s1 + first_vint_l1 + first_str_l1]);
+				int second_vint_l2 = WritableUtils.decodeVIntSize(b2[s2 + first_vint_l2 + first_str_l2]);
+				int second_str_l1 = readVInt(b1, s1 + first_vint_l1 + first_str_l1);
+				int second_str_l2 = readVInt(b2, s2 + first_vint_l2 + first_str_l2);
+				return compareBytes(b1, s1 + first_vint_l1 + first_str_l1 + second_vint_l1, second_str_l1, 
+									b2, s2 + first_vint_l2 + first_str_l2 + second_vint_l2, second_str_l2);
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
 			}
-
-			return thisLeftValue.compareTo(thatLeftValue);
 		}
 	}
 
