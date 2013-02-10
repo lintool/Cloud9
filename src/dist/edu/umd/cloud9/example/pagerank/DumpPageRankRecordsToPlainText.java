@@ -16,6 +16,15 @@
 
 package edu.umd.cloud9.example.pagerank;
 
+import java.util.Arrays;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,32 +44,52 @@ public class DumpPageRankRecordsToPlainText extends Configured implements Tool {
 
   public DumpPageRankRecordsToPlainText() {}
 
-  private static int printUsage() {
-    System.out.println("usage: [input] [output]");
-    ToolRunner.printGenericCommandUsage(System.out);
-    return -1;
-  }
+  private static final String INPUT = "input";
+  private static final String OUTPUT = "output";
 
   /**
    * Runs this tool.
    */
+  @SuppressWarnings({ "static-access" })
   public int run(String[] args) throws Exception {
-    if (args.length != 2) {
-      printUsage();
+    Options options = new Options();
+
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("output path").create(OUTPUT));
+
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
+
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
       return -1;
     }
 
-    String inputPath = args[0];
-    String outputPath = args[1];
+    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(OUTPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-    LOG.info("Tool name: " + this.getClass().getName());
+    String inputPath = cmdline.getOptionValue(INPUT);
+    String outputPath = cmdline.getOptionValue(OUTPUT);
+
+    LOG.info("Tool name: " + DumpPageRankRecordsToPlainText.class.getSimpleName());
     LOG.info(" - input: " + inputPath);
     LOG.info(" - output: " + outputPath);
 
     Configuration conf = new Configuration();
     conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
-    Job job = new Job(conf, "DumpPageRankRecordsToPlainText");
+    Job job = Job.getInstance(conf);
+    job.setJobName(DumpPageRankRecordsToPlainText.class.getSimpleName());
     job.setJarByClass(FindMaxPageRankNodes.class);
 
     job.setNumReduceTasks(0);
@@ -74,7 +103,7 @@ public class DumpPageRankRecordsToPlainText extends Configured implements Tool {
     job.setMapOutputKeyClass(IntWritable.class);
     job.setMapOutputValueClass(PageRankNode.class);
 
-    // delete the output directory if it exists already
+    // Delete the output directory if it exists already.
     FileSystem.get(conf).delete(new Path(outputPath), true);
 
     job.waitForCompletion(true);
@@ -83,11 +112,9 @@ public class DumpPageRankRecordsToPlainText extends Configured implements Tool {
   }
 
   /**
-   * Dispatches command-line arguments to the tool via the
-   * <code>ToolRunner</code>.
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(new DumpPageRankRecordsToPlainText(), args);
-    System.exit(res);
+    ToolRunner.run(new DumpPageRankRecordsToPlainText(), args);
   }
 }

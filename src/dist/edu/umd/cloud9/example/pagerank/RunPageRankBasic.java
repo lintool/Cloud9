@@ -95,9 +95,8 @@ public class RunPageRankBasic extends Configured implements Tool {
     private static final PageRankNode intermediateStructure = new PageRankNode();
 
     @Override
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context)
+        throws IOException, InterruptedException {
       // Pass along node structure.
       intermediateStructure.setNodeId(node.getNodeId());
       intermediateStructure.setType(PageRankNode.Type.Structure);
@@ -137,7 +136,6 @@ public class RunPageRankBasic extends Configured implements Tool {
   // Mapper with in-mapper combiner optimization.
   private static class MapWithInMapperCombiningClass extends
       Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-
     // For buffering PageRank mass contributes keyed by destination node.
     private static final HMapIF map = new HMapIF();
 
@@ -145,9 +143,8 @@ public class RunPageRankBasic extends Configured implements Tool {
     private static final PageRankNode intermediateStructure = new PageRankNode();
 
     @Override
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context)
+        throws IOException, InterruptedException {
       // Pass along node structure.
       intermediateStructure.setNodeId(node.getNodeId());
       intermediateStructure.setType(PageRankNode.Type.Structure);
@@ -189,8 +186,7 @@ public class RunPageRankBasic extends Configured implements Tool {
     }
 
     @Override
-    public void cleanup(Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode>.Context context)
-        throws IOException, InterruptedException {
+    public void cleanup(Context context) throws IOException, InterruptedException {
       // Now emit the messages all at once.
       IntWritable k = new IntWritable();
       PageRankNode mass = new PageRankNode();
@@ -210,13 +206,11 @@ public class RunPageRankBasic extends Configured implements Tool {
   // Combiner: sums partial PageRank contributions and passes node structure along.
   private static class CombineClass extends
       Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-
     private static final PageRankNode intermediateMass = new PageRankNode();
 
     @Override
     public void reduce(IntWritable nid, Iterable<PageRankNode> values, Context context)
         throws IOException, InterruptedException {
-
       int massMessages = 0;
 
       // Remember, PageRank mass is stored as a log prob.
@@ -246,7 +240,6 @@ public class RunPageRankBasic extends Configured implements Tool {
   // Reduce: sums incoming PageRank contributions, rewrite graph structure.
   private static class ReduceClass extends
       Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-
     // For keeping track of PageRank mass encountered, so we can compute missing PageRank mass lost
     // through dangling nodes.
     private float totalMass = Float.NEGATIVE_INFINITY;
@@ -254,7 +247,6 @@ public class RunPageRankBasic extends Configured implements Tool {
     @Override
     public void reduce(IntWritable nid, Iterable<PageRankNode> iterable, Context context)
         throws IOException, InterruptedException {
-
       Iterator<PageRankNode> values = iterable.iterator();
 
       // Create the node structure that we're going to assemble back together from shuffled pieces.
@@ -311,10 +303,7 @@ public class RunPageRankBasic extends Configured implements Tool {
     }
 
     @Override
-    public void cleanup(
-        Reducer<IntWritable, PageRankNode, IntWritable, PageRankNode>.Context context)
-        throws IOException {
-
+    public void cleanup(Context context) throws IOException {
       Configuration conf = context.getConfiguration();
       String taskId = conf.get("mapred.task.id");
       String path = conf.get("PageRankMassPath");
@@ -334,13 +323,11 @@ public class RunPageRankBasic extends Configured implements Tool {
   // of the random jump factor.
   private static class MapPageRankMassDistributionClass extends
       Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-
     private float missingMass = 0.0f;
     private int nodeCnt = 0;
 
     @Override
-    public void setup(Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode>.Context context)
-        throws IOException {
+    public void setup(Context context) throws IOException {
       Configuration conf = context.getConfiguration();
 
       missingMass = conf.getFloat("MissingMass", 0.0f);
@@ -348,9 +335,8 @@ public class RunPageRankBasic extends Configured implements Tool {
     }
 
     @Override
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context)
+        throws IOException, InterruptedException {
       float p = node.getPageRank();
 
       float jump = (float) (Math.log(ALPHA) - Math.log(nodeCnt));
@@ -369,12 +355,10 @@ public class RunPageRankBasic extends Configured implements Tool {
   private static NumberFormat formatter = new DecimalFormat("0000");
 
 	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
+	 * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Configuration(), new RunPageRankBasic(), args);
-		System.exit(res);
+		ToolRunner.run(new RunPageRankBasic(), args);
 	}
 
 	public RunPageRankBasic() {}
@@ -526,7 +510,9 @@ public class RunPageRankBasic extends Configured implements Tool {
     FileSystem.get(getConf()).delete(new Path(out), true);
     FileSystem.get(getConf()).delete(new Path(outm), true);
 
+    long startTime = System.currentTimeMillis();
     job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
     float mass = Float.NEGATIVE_INFINITY;
     FileSystem fs = FileSystem.get(getConf());
@@ -577,7 +563,9 @@ public class RunPageRankBasic extends Configured implements Tool {
 
     FileSystem.get(getConf()).delete(new Path(out), true);
 
+    long startTime = System.currentTimeMillis();
     job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
   }
 
   // Adds two log probs.
