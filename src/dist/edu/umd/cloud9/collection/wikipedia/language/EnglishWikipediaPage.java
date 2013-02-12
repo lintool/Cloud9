@@ -58,7 +58,8 @@ public class EnglishWikipediaPage extends WikipediaPage {
     // determine if article belongs to the article namespace
     start = s.indexOf(XML_START_TAG_NAMESPACE);
     end = s.indexOf(XML_END_TAG_NAMESPACE);
-    this.isArticle = s.substring(start + 4, end).trim().equals("0");
+    this.isArticle = start == -1 ? true : s.substring(start + 4, end).trim().equals("0");
+    // add check because namespace tag not present in older dumps
     
     // parse out the document id
     start = s.indexOf(XML_START_TAG_ID);

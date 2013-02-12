@@ -57,8 +57,7 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
  * @author Jimmy Lin
  */
 public class SequentialPageRank {
-  private SequentialPageRank() {
-  }
+  private SequentialPageRank() {}
 
   private static final String INPUT = "input";
   private static final String JUMP = "jump";
