@@ -1,62 +1,68 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop</title>
-<style type="text/css" media="screen">@import url( ../style.css );</style>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body>
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-<div id="wrap">
-<div id="container" class="one-column" >
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-<!-- header START -->
+  </head>
 
-<div id="header">
-<div id="caption">
-<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
-<div id="tagline">A MapReduce Library for Hadoop</div>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Reference Implementations: Order Inversion</h2>
 </div>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- header END -->
-
-<!-- navigation START -->
-
-<div id="navigation">
-
-<script type="text/javascript" src="menu.js">
-</script>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- navigation END -->
-
-
-
-<!-- content START -->
-
-<div id="content">
-
-
-
-	<!-- main START -->
-
-	<div id="main">
-
-
-<!--- START MAIN CONTENT HERE -->
-
-<h2>Design Patterns &amp; Algorithms &#187; Order Inversion</h2>
-
-<div class="post">
-<div class="content">
 
 <p>The order inversion design pattern is covered in Chapter 3, where
 the example is computing bigram relative frequencies.  A reference
@@ -65,7 +71,7 @@ the <a href="../exercises/bigrams.html">bigram counting
 exercise</a>.</p>
 
 <p>Here's how it works, very briefly: in addition to each bigram
-count, the mapper emits an special key (word, *) which contributes to
+count, the mapper emits an special key <code>(word, *)</code> which contributes to
 the marginal count of the word.  We define the sort order so that this
 special key always comes before the bigram counts, so that by
 preserving state across multiple reduce method calls,we can compute
@@ -73,51 +79,38 @@ the relative frequency directly by simple division.  We also need to
 define a custom partitioner to send all keys with the same left
 element to the same reducer.</p>
 
-</div></div>
-
-<!--- END MAIN CONTENT HERE -->
-
-	</div>
-
-	<!-- main END -->
+  </div>
 
 
 
-		<div class="fixed"></div>
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
 
-</div>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
 
-<!-- content END -->
-
-<!-- footer START -->
-
-<div id="footer">
-<div id="copyright">
-Last updated:
-<script type="text/javascript">
-<!--//
-document.write(document.lastModified);
-//-->
-</script>
-</div>
-
-<div id="themeinfo">
-Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
-
-</div>
-
-<!-- footer END -->
-
-
-
-</div>
-
-<!-- container END -->
-
-</div>
-
-<!-- wrap END -->
-
-</body>
+  </body>
 </html>
-
