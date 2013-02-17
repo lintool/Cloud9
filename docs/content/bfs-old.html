@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
+</head>
+
+<body>
+
+<div id="wrap">
+<div id="container" class="one-column" >
+
+<!-- header START -->
+
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+
+<script type="text/javascript" src="menu.js">
+</script>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Design Patterns &amp; Algorithms &#187; Parallel Breadth-First Search</h2>
+
+<div class="post">
+<div class="content">
+
+<p>This page describes the Cloud<sup><small>9</small></sup> reference
+implementation of parallel breadth-first search, as described in
+Chapter 5 of <a href="http://mapreduce.me">Data-Intensive Text
+Processing with MapReduce</a>.  Note that the book does not describe
+more recently developed design patterns for graph algorithms;
+see <a href="pagerank.html">this page</a> for more information.</p>
+
+<p>We have a very simple text format for specifying the graph
+structure.  A graph with <i>n</i> nodes is represented in a text file
+with <i>n</i> arbitrarily-ordered lines.  Each line begins with a
+nodeid (numeric identifier for the node), followed by its adjacency
+list, which specifies neighbors reachable via outgoing edges. The
+adjacency list is tab separated.  Note that if a node does not contain
+an outgoing edges, you still need a line in the file to represent it.
+Here's a simple example (tab replaced with spaces for presentation
+reasons):</p>
+
+<pre>
+1    3    4
+2    1
+3
+4    2    3
+</pre>
+
+<p>This represents a graph with four nodes: nodeid 1 points to 3 and
+4; nodeid 2 points to 1, nodeid 3 is a dangling node (no neighbors);
+and nodeid 4 points to nodes 2 and 3.</p>
+
+<p>Here, we'll be running parallel breadth-first search on Wikipedia.
+Refer to this page on <a href="wikipedia.html">working with
+Wikipedia</a>.  It contains instructions for packing Wikipedia pages
+from the raw XML distribution into block-compressed SequenceFiles for
+convenient access. Briefly, here are the steps:</p>
+
+<p>First, build a docno mapping, making sure that you include all
+pages with the
+<code>-keep_all</code> option:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output_path tmp \
+  -output_file Wikipedia/docno-en-all-20110405.dat -keep_all
+</pre>
+
+<p>Next, repack the collection into block-compressed
+SequenceFiles:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.block/en-all-20110405 \
+  -mapping_file Wikipedia/docno-en-all-20110405.dat -compression_type block
+</pre>
+
+<p>Once you've done that, extract the link graph:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
+  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
+  -input Wikipedia/compressed.block/en-all-20110405 \
+  -edges_output Wikipedia/en-20110405-edges -adjacency_list_output Wikipedia/en-20110405-adjacency \
+  -num_partitions 10
+</pre>
+
+<!--
+docid 332 = Animalia (book)
+
+outgoing edges to:
+ 58533     Alliteration
+ 13783276  Children's Book Council of Australia
+ 267370    Alligator
+ 670       Alphabet
+ 48338     Butterfly
+ 2845778   Colouring book
+ 52847     Children's literature
+ 14149608  Animalia (TV series)
+ 2511084   Graeme Base
+
+docid 12 = Anarchism
+
+Distances from:
+ Anarcho-capitalism           {1023 1 {1767823,  ...
+ Anarchist                    {2051 1 {12} }
+ Anti-globalisation movement  {2464 1 {2463} }
+
+-->
+
+<p>After extracting the link structure, we take the plain-text
+representation and pack it into appropriate Hadoop data structures. At
+the same time, we specify the source of the breadth-first search::</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.EncodeBFSGraph \
+ -libjars guava-r09.jar \
+ -input Wikipedia/en-20110405-adjacency -output Wikipedia/bfs/iter0000 -src 12
+</pre>
+
+<p>We'll start from nodeid
+12, <a href="http://en.wikipedia.org/wiki/Anarchism">Anarchism</a>,
+which is the first full article in the dataset. The number of nodes in
+the link graph is stored in a counter and can be read either from the
+command line or from the jobtracker.  We see that this dump of
+Wikipedia contains 11,120,945 nodes (pages) and 102,713,863 edges.</p>
+
+<p>This handy program can be used to find all reachable nodes and
+print them in plain text:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
+ -input Wikipedia/bfs/iter0000 -output Wikipedia/bfs-reachable/iter0000
+</pre>
+
+<p>As a sanity check, we see that only the source node is
+reachable.</p>
+
+<p>Now let's run one iteration of parallel breadth-first search:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.IterateBFS \
+ -libjars guava-r09.jar \
+ -input Wikipedia/bfs/iter0000 -output Wikipedia/bfs/iter0001 -num_partitions 10
+</pre>
+
+<p>The final argument is the number of partitions (ten in our case).
+We can pull out and examine the reachable nodes:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
+ -input Wikipedia/bfs/iter0001 -output Wikipedia/bfs-reachable/iter0001
+</pre>
+
+<p>Running more iterations, we'll get the following results:</p>
+
+<table>
+<tr><td class="myheader"><b>Iteration</b></td><td class="myheader"><b>Reachable nodes</b></td><td class="myheader"><b>Map out records</b></td></tr>
+
+<tr><td class="mycell" style="text-align:right"> 0</td><td class="mycell" style="text-align:right">        1</td><td class="mycell" style="text-align:right">-</td></tr>
+<tr><td class="mycell" style="text-align:right"> 1</td><td class="mycell" style="text-align:right">      450</td><td class="mycell" style="text-align:right">11,121,395</td></tr>
+<tr><td class="mycell" style="text-align:right"> 2</td><td class="mycell" style="text-align:right">   30,294</td><td class="mycell" style="text-align:right">11,165,680</td></tr>
+<tr><td class="mycell" style="text-align:right"> 3</td><td class="mycell" style="text-align:right">  710,630</td><td class="mycell" style="text-align:right">12,554,117</td></tr>
+<tr><td class="mycell" style="text-align:right"> 4</td><td class="mycell" style="text-align:right">3,110,012</td><td class="mycell" style="text-align:right">20,719,498</td></tr>
+<tr><td class="mycell" style="text-align:right"> 5</td><td class="mycell" style="text-align:right">4,570,005</td><td class="mycell" style="text-align:right">30,100,708</td></tr>
+<tr><td class="mycell" style="text-align:right"> 6</td><td class="mycell" style="text-align:right">4,944,834</td><td class="mycell" style="text-align:right">33,473,621</td></tr>
+<tr><td class="mycell" style="text-align:right"> 7</td><td class="mycell" style="text-align:right">5,007,042</td><td class="mycell" style="text-align:right">34,203,283</td></tr>
+<tr><td class="mycell" style="text-align:right"> 8</td><td class="mycell" style="text-align:right">5,021,245</td><td class="mycell" style="text-align:right">34,338,610</td></tr>
+<tr><td class="mycell" style="text-align:right"> 9</td><td class="mycell" style="text-align:right">5,023,561</td><td class="mycell" style="text-align:right">34,365,974</td></tr>
+
+<tr><td class="mycell" style="text-align:right">10</td><td class="mycell" style="text-align:right">5,024,255</td><td class="mycell" style="text-align:right">34,371,951</td></tr>
+<tr><td class="mycell" style="text-align:right">11</td><td class="mycell" style="text-align:right">5,024,575</td><td class="mycell" style="text-align:right">34,374,052</td></tr>
+<tr><td class="mycell" style="text-align:right">12</td><td class="mycell" style="text-align:right">5,024,770</td><td class="mycell" style="text-align:right">34,375,175</td></tr>
+<tr><td class="mycell" style="text-align:right">13</td><td class="mycell" style="text-align:right">5,024,848</td><td class="mycell" style="text-align:right">34,375,746</td></tr>
+<tr><td class="mycell" style="text-align:right">14</td><td class="mycell" style="text-align:right">5,024,907</td><td class="mycell" style="text-align:right">34,376,080</td></tr>
+<tr><td class="mycell" style="text-align:right">15</td><td class="mycell" style="text-align:right">5,024,949</td><td class="mycell" style="text-align:right">34,376,360</td></tr>
+<tr><td class="mycell" style="text-align:right">16</td><td class="mycell" style="text-align:right">5,024,991</td><td class="mycell" style="text-align:right">34,376,581</td></tr>
+<tr><td class="mycell" style="text-align:right">17</td><td class="mycell" style="text-align:right">5,025,027</td><td class="mycell" style="text-align:right">34,376,794</td></tr>
+<tr><td class="mycell" style="text-align:right">18</td><td class="mycell" style="text-align:right">5,025,049</td><td class="mycell" style="text-align:right">34,376,919</td></tr>
+<tr><td class="mycell" style="text-align:right">19</td><td class="mycell" style="text-align:right">5,025,067</td><td class="mycell" style="text-align:right">34,377,022</td></tr>
+
+<tr><td class="mycell" style="text-align:right">20</td><td class="mycell" style="text-align:right">5,025,080</td><td class="mycell" style="text-align:right">34,377,115</td></tr>
+<tr><td class="mycell" style="text-align:right">21</td><td class="mycell" style="text-align:right">5,025,091</td><td class="mycell" style="text-align:right">34,377,177</td></tr>
+<tr><td class="mycell" style="text-align:right">22</td><td class="mycell" style="text-align:right">5,025,102</td><td class="mycell" style="text-align:right">34,377,225</td></tr>
+<tr><td class="mycell" style="text-align:right">23</td><td class="mycell" style="text-align:right">5,025,112</td><td class="mycell" style="text-align:right">34,377,269</td></tr>
+<tr><td class="mycell" style="text-align:right">24</td><td class="mycell" style="text-align:right">5,025,121</td><td class="mycell" style="text-align:right">34,377,315</td></tr>
+<tr><td class="mycell" style="text-align:right">25</td><td class="mycell" style="text-align:right">5,025,132</td><td class="mycell" style="text-align:right">34,377,359</td></tr>
+
+</table>
+
+<p>A few observations: only about half of Wikipedia pages are
+reachable, but the vast majority of reachable pages are only a few
+hops away.  But why are there pages so far away?  (The algorithm still
+had not converged at iteration 25, but I gave up trying.)  To
+investigate, we can use a handy tool to extract pages that are at a
+specific distance (e.g., 25 hops away):</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.bfs.FindNodeAtDistance \
+ -input Wikipedia/bfs/iter0025 -output Wikipedia/bfs-d/iter0025 -distance 25
+</pre>
+
+<p>As it turns out, there are really long chains of articles in
+Wikipedia.  Here's an example:</p>
+
+<ul>
+<li>
+<a href="http://en.wikipedia.org/wiki/Lenart_Praunsperger">Lenart Praunsperger</a> ::
+<a href="http://en.wikipedia.org/wiki/Jakob_Stettenfelder">Jakob Stettenfelder</a> ::
+<a href="http://en.wikipedia.org/wiki/Janez_Lindauer">Janez Lindauer</a> ::
+<a href="http://en.wikipedia.org/wiki/Volk_Meditsch">Volk Meditsch</a> ::
+<a href="http://en.wikipedia.org/wiki/Matevz_Frang">Matevz Frang</a> ::
+<a href="http://en.wikipedia.org/wiki/Jurij_Tazel">Jurij Tazel</a> ::
+<a href="http://en.wikipedia.org/wiki/Anton_Lantheri">Anton Lantheri</a> :: ...
+</li>
+</ul>
+
+<p>What?! Digging around a bit, we find
+that <a href="http://en.wikipedia.org/wiki/Lenart_Praunsperger">Lenart
+Praunsperger</a> was the mayor
+of <a href="http://en.wikipedia.org/wiki/Ljubljana">Ljubljana</a>
+(Solvenia) in 1506.  His short bio page links to a page for each of
+his successors, each of whom have a short bio page.</p>
+
+<p>Another example:</p>
+
+
+<ul>
+ <li><a href="http://en.wikipedia.org/wiki/List_of_Peers_1060-1069">List of peers 1060–1069</a> ::
+     <a href="http://en.wikipedia.org/wiki/List_of_Peers_1070-1079">List of peers 1070–1079</a> ::
+     <a href="http://en.wikipedia.org/wiki/List_of_Peers_1080-1089">List of peers 1080–1089</a> ::
+     <a href="http://en.wikipedia.org/wiki/List_of_Peers_1090-1099">List of peers 1090–1099</a> :: ...</li>
+</ul>
+
+<p>This goes on until the early 13th century...  So, no, there isn't a
+bug in the code.  Wikipedia is simply idiosyncratic.</p>
+
+
+</div></div>
+
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
+
+</div>
+
+<!-- content END -->
+
+<!-- footer START -->
+
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--//
+document.write(document.lastModified);
+//-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
+

@@ -1,3 +1,12 @@
+Version 1.4.11
+==============
+February 17, 2013
+
++ More efficient comparators in Writable pairs
++ Refactored PageRank implementations, added proper arg parsing
++ Revamped documentation on reference implementations
++ Fixed broken integration tests
+
 Version 1.4.10
 ==============
 February 6, 2013

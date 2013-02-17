@@ -1,0 +1,175 @@
+
+
+
+
+------------
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Cloud9: A MapReduce Library for Hadoop</title>
+<style type="text/css" media="screen">@import url( ../style.css );</style>
+</head>
+
+<body>
+
+<div id="wrap">
+<div id="container" class="one-column" >
+
+<!-- header START -->
+
+<div id="header">
+<div id="caption">
+<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
+<div id="tagline">A MapReduce Library for Hadoop</div>
+</div>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- header END -->
+
+<!-- navigation START -->
+
+<div id="navigation">
+
+<script type="text/javascript" src="menu.js">
+</script>
+
+<div class="fixed"></div>
+
+</div>
+
+<!-- navigation END -->
+
+
+
+<!-- content START -->
+
+<div id="content">
+
+
+
+	<!-- main START -->
+
+	<div id="main">
+
+
+<!--- START MAIN CONTENT HERE -->
+
+<h2>Design Patterns &amp; Algorithms &#187; Pairs and Stripes</h2>
+
+<div class="post">
+<div class="content">
+
+<p>"Pairs" and "stripes" are two design patterns introduced in Chapter
+3 for computing the word co-occurrence matrix of a large text
+collection.  With pairs, each co-occurring word pair is stored
+separately; with stripes, all words co-occurring with a conditioning
+word are stored together in an associative array.</p>
+
+<p>These two design patterns are illustrated by the following
+Cloud<sup><small>9</small></sup> classes:</p>
+
+<ul>
+
+  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixPairs.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs</a></code></li>
+  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixStripes.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes</a></code></li>
+
+</ul>
+
+<p>Here's an invocation of the pairs algorithm on the sample
+dataset:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs \
+  data/bible+shakes.nopunc cooccur 2 5
+</pre>
+
+<p>Let's find what words co-occur with the word "ant":</p>
+
+<pre>
+$ hadoop fs -cat cooccur/part-* | grep "(ant, "
+(ant, an)       1
+(ant, and)      1
+(ant, teach)    1
+(ant, to)       3
+(ant, thou)     1
+(ant, sluggard) 1
+(ant, the)      2
+</pre>
+
+<p>Are the results correct?  Let's go back to the original text
+collection to find out:</p>
+
+<pre>
+$ grep " ant " bible+shakes.nopunc
+go to the ant thou sluggard consider her ways and be wise
+fool we'll set thee to school to an ant to teach thee
+</pre>
+
+<p>Seems right!  And here's an invocation of the stripes algorithm on
+the same dataset:</p>
+
+<pre>
+hadoop jar cloud9.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes \
+  data/bible+shakes.nopunc cooccur 2 5
+</pre>
+
+<p>And indeed, we get the same results:</p>
+
+<pre>
+$ hadoop fs -cat cooccur/part-*  | grep "^ant"$'\t'
+ant     {thou=1, and=1, an=1, to=3, sluggard=1, the=2, teach=1}
+</pre>
+
+</div></div>
+
+
+<!--- END MAIN CONTENT HERE -->
+
+	</div>
+
+	<!-- main END -->
+
+
+
+		<div class="fixed"></div>
+
+</div>
+
+<!-- content END -->
+
+<!-- footer START -->
+
+<div id="footer">
+<div id="copyright">
+Last updated:
+<script type="text/javascript">
+<!--//
+document.write(document.lastModified);
+//-->
+</script>
+</div>
+
+<div id="themeinfo">
+Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
+
+</div>
+
+<!-- footer END -->
+
+
+
+</div>
+
+<!-- container END -->
+
+</div>
+
+<!-- wrap END -->
+
+</body>
+</html>
+
