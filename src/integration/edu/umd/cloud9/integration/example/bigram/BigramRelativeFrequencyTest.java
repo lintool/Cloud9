@@ -41,7 +41,9 @@ public class BigramRelativeFrequencyTest {
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequency.class.getCanonicalName(),
         IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
-        collectionPath.toString(), tmpPrefix + "-base", "1"};
+        "-input", collectionPath.toString(),
+        "-output", tmpPrefix + "-base",
+        "-numReducers", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
@@ -82,7 +84,9 @@ public class BigramRelativeFrequencyTest {
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson.class.getCanonicalName(),
         IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
-        collectionPath.toString(), tmpPrefix + "-json", "1"};
+        "-input", collectionPath.toString(),
+        "-output", tmpPrefix + "-json",
+        "-numReducers", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
@@ -123,7 +127,9 @@ public class BigramRelativeFrequencyTest {
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple.class.getCanonicalName(),
         IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
-        collectionPath.toString(), tmpPrefix + "-tuple", "1"};
+        "-input", collectionPath.toString(),
+        "-output", tmpPrefix + "-tuple",
+        "-numReducers", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
