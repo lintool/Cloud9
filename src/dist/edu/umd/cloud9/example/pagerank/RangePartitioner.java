@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -23,25 +23,24 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
- * Ranger partitioner. In the context of graph algorithms, ensures that
- * consecutive node ids are blocked together.
- * 
+ * Ranger partitioner. In the context of graph algorithms, ensures that consecutive node ids are
+ * blocked together.
+ *
  * @author Jimmy Lin
  * @author Michael Schatz
- *
  */
 public class RangePartitioner extends Partitioner<IntWritable, Writable> implements Configurable {
-	private int nodeCnt = 0;
-	private Configuration conf;
+  private int nodeCnt = 0;
+  private Configuration conf;
 
-	public RangePartitioner() {}
+  public RangePartitioner() {}
 
-	@Override
-	public int getPartition(IntWritable key, Writable value, int numReduceTasks) {
-		return (int) (((float) key.get() / (float) nodeCnt) * numReduceTasks) % numReduceTasks;
-	}
+  @Override
+  public int getPartition(IntWritable key, Writable value, int numReduceTasks) {
+    return (int) (((float) key.get() / (float) nodeCnt) * numReduceTasks) % numReduceTasks;
+  }
 
-	@Override
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -52,7 +51,7 @@ public class RangePartitioner extends Partitioner<IntWritable, Writable> impleme
     configure();
   }
 
-	private void configure() {
-		nodeCnt = conf.getInt("NodeCount", 0);
-	}
+  private void configure() {
+    nodeCnt = conf.getInt("NodeCount", 0);
+  }
 }

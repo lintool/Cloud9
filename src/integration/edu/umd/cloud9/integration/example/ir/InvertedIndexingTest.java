@@ -39,7 +39,9 @@ public class InvertedIndexingTest {
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.example.ir.BuildInvertedIndex.class.getCanonicalName(),
         IntegrationUtils.LOCAL_ARGS, "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
-        collectionPath.toString(), tmpPrefix, "1"};
+        "-input", collectionPath.toString(),
+        "-output", tmpPrefix,
+        "-numReducers", "1"};
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 

@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -19,9 +19,17 @@ package edu.umd.cloud9.example.pagerank;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -48,6 +56,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.mapreduce.lib.input.NonSplitableSequenceFileInputFormat;
@@ -57,18 +66,7 @@ import edu.umd.cloud9.util.map.MapIF;
 /**
  * <p>
  * Main driver program for running the Schimmy implementation of PageRank.
- * Command-line arguments are as follows:
  * </p>
- *
- * <ul>
- * <li>[basePath]: the base path</li>
- * <li>[numNodes]: number of nodes in the graph</li>
- * <li>[start]: starting iteration</li>
- * <li>[end]: ending iteration</li>
- * <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
- * <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
- * <li>[useRange?]: 1 for range partitioning, 0 for not</li>
- * </ul>
  *
  * <p>
  * The starting and ending iterations will correspond to paths
@@ -84,7 +82,7 @@ import edu.umd.cloud9.util.map.MapIF;
  * @author Michael Schatz
  */
 public class RunPageRankSchimmy extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(RunPageRankSchimmy.class);
+  private static final Logger LOG = Logger.getLogger(RunPageRankSchimmy.class);
 
   private static enum PageRank {
     nodes, edges, massMessages, massMessagesSaved, massMessagesReceived, missingStructure
@@ -101,9 +99,8 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     private static final FloatWritable intermediateMass = new FloatWritable();
 
     @Override
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context)
+        throws IOException, InterruptedException {
       int massMessages = 0;
 
       // Distribute PageRank mass to neighbors (along outgoing edges).
@@ -132,13 +129,11 @@ public class RunPageRankSchimmy extends Configured implements Tool {
   // Mapper with in-mapper combiner optimization.
   private static class MapWithInMapperCombiningClass extends
       Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable> {
-
     // For buffering PageRank mass contributes keyed by destination node.
     private static HMapIF map = new HMapIF();
 
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context) 
+        throws IOException, InterruptedException {
       int massMessages = 0;
       int massMessagesSaved = 0;
 
@@ -190,7 +185,6 @@ public class RunPageRankSchimmy extends Configured implements Tool {
   // Combiner: sums partial PageRank contributions.
   private static class CombineClass extends
       Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
-
     private static final FloatWritable intermediateMass = new FloatWritable();
 
     @Override
@@ -219,7 +213,6 @@ public class RunPageRankSchimmy extends Configured implements Tool {
   // Reduce: sums incoming PageRank contributions, rewrite graph structure.
   private static class ReduceClass extends
       Reducer<IntWritable, FloatWritable, IntWritable, PageRankNode> {
-
     private float totalMass = Float.NEGATIVE_INFINITY;
 
     private SequenceFile.Reader reader;
@@ -230,8 +223,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     private boolean hdfsAhead = false;
 
     @Override
-    public void setup(Reducer<IntWritable, FloatWritable, IntWritable, PageRankNode>.Context context)
-        throws IOException {
+    public void setup(Context context) throws IOException {
       // We're going to open up the file on HDFS that has corresponding node structures. To do this,
       // we get the task id and map it to the corresponding part.
       Configuration conf = context.getConfiguration();
@@ -243,7 +235,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
       String mapping = conf.get("PartitionMapping");
       Preconditions.checkNotNull(mapping);
 
-      Map<Integer, String> map = new HashMap<Integer, String>();
+      Map<Integer, String> map = Maps.newHashMap();
       for (String s : mapping.split(";")) {
         String[] arr = s.split("=");
 
@@ -262,8 +254,7 @@ public class RunPageRankSchimmy extends Configured implements Tool {
 
       // Try and open the node structures...
       try {
-        FileSystem fs = FileSystem.get(conf);
-        reader = new SequenceFile.Reader(fs, new Path(f), conf);
+        reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(new Path(f)));
       } catch (IOException e) {
         throw new RuntimeException("Couldn't open " + f + " for partno: " + partno + " within: "
             + taskId);
@@ -273,7 +264,6 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     @Override
     public void reduce(IntWritable nid, Iterable<FloatWritable> values, Context context)
         throws IOException, InterruptedException {
-
       // The basic algorithm is a merge sort between node structures on HDFS and intermediate
       // key-value pairs coming into this reducer (where the keys are the node ids). Both are
       // sorted, and the reducer is "pushed" intermediate key-value pairs, so the algorithm boils
@@ -352,10 +342,8 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     }
 
     @Override
-    public void cleanup(
-        Reducer<IntWritable, FloatWritable, IntWritable, PageRankNode>.Context context)
+    public void cleanup(Context context)
         throws IOException, InterruptedException {
-
       Configuration conf = context.getConfiguration();
       String taskId = conf.get("mapred.task.id");
       String path = conf.get("PageRankMassPath");
@@ -390,7 +378,6 @@ public class RunPageRankSchimmy extends Configured implements Tool {
   // of the random jump factor.
   private static class MapPageRankMassDistributionClass extends
       Mapper<IntWritable, PageRankNode, IntWritable, PageRankNode> {
-
     private float missingMass = 0.0f;
     private int nodeCnt = 0;
 
@@ -404,9 +391,8 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     }
 
     @Override
-    public void map(IntWritable nid, PageRankNode node, Context context) throws IOException,
-        InterruptedException {
-
+    public void map(IntWritable nid, PageRankNode node, Context context) 
+        throws IOException, InterruptedException {
       float p = node.getPageRank();
 
       float jump = (float) (Math.log(ALPHA) - Math.log(nodeCnt));
@@ -420,256 +406,294 @@ public class RunPageRankSchimmy extends Configured implements Tool {
     }
   }
 
-	private static float ALPHA = 0.15f;    // Random jump factor.
-	private static final NumberFormat FORMAT = new DecimalFormat("0000");
+  private static float ALPHA = 0.15f;    // Random jump factor.
+  private static final NumberFormat FORMAT = new DecimalFormat("0000");
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new RunPageRankSchimmy(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new RunPageRankSchimmy(), args);
+  }
 
-	public RunPageRankSchimmy() {
-	}
+  public RunPageRankSchimmy() {}
 
-	private static int printUsage() {
-		System.out.println("usage: [basePath] [numNodes] [start] [end] [useCombiner?] [useInMapCombiner?] [useRange?]");
-		ToolRunner.printGenericCommandUsage(System.out);
-		return -1;
-	}
+  private static final String BASE = "base";
+  private static final String NUM_NODES = "numNodes";
+  private static final String START = "start";
+  private static final String END = "end";
+  private static final String COMBINER = "useCombiner";
+  private static final String INMAPPER_COMBINER = "useInMapperCombiner";
+  private static final String RANGE = "range";
 
-	/**
-	 * Runs this tool.
-	 */
-	public int run(String[] args) throws Exception {
-		if (args.length != 7) {
-			System.err.println("Invalid number of args: " + args.length);
-			printUsage();
-			return -1;
-		}
+  /**
+   * Runs this tool.
+   */
+  @SuppressWarnings({ "static-access" })
+  public int run(String[] args) throws Exception {
+    Options options = new Options();
 
-		String basePath = args[0];
-		int n = Integer.parseInt(args[1]);
-		int s = Integer.parseInt(args[2]);
-		int e = Integer.parseInt(args[3]);
-		boolean useCombiner = Integer.parseInt(args[4]) != 0;
-		boolean useInmapCombiner = Integer.parseInt(args[5]) != 0;
-		boolean useRange = Integer.parseInt(args[6]) != 0;
+    options.addOption(new Option(COMBINER, "use combiner"));
+    options.addOption(new Option(INMAPPER_COMBINER, "user in-mapper combiner"));
+    options.addOption(new Option(RANGE, "use range partitioner"));
 
-		LOG.info("Tool name: RunPageRank");
-		LOG.info(" - basePath: " + basePath);
-		LOG.info(" - numNodes: " + n);
-		LOG.info(" - start iteration: " + s);
-		LOG.info(" - end iteration: " + e);
-		LOG.info(" - useCombiner?: " + useCombiner);
-		LOG.info(" - useInMapCombiner?: " + useInmapCombiner);
-		LOG.info(" - useRange?: " + useRange);
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("base path").create(BASE));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("start iteration").create(START));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("end iteration").create(END));
+    options.addOption(OptionBuilder.withArgName("num").hasArg()
+        .withDescription("number of nodes").create(NUM_NODES));
 
-		// iterate PageRank
-		for (int i = s; i < e; i++) {
-			iteratePageRank(basePath, i, i + 1, n, useCombiner, useInmapCombiner, useRange);
-		}
+    CommandLine cmdline;
+    CommandLineParser parser = new GnuParser();
 
-		return 0;
-	}
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      return -1;
+    }
 
-	// Run each iteration.
-	private void iteratePageRank(String path, int i, int j, int n, boolean useCombiner,
-			boolean useInmapCombiner, boolean useRange) throws Exception {
-		// Each iteration consists of two phases (two MapReduce jobs).
+    if (!cmdline.hasOption(BASE) || !cmdline.hasOption(START) ||
+        !cmdline.hasOption(END) || !cmdline.hasOption(NUM_NODES)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(this.getClass().getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      return -1;
+    }
 
-		// Job1: distribute PageRank mass along outgoing edges.
-		float mass = phase1(path, i, j, n, useCombiner, useInmapCombiner, useRange);
+    String basePath = cmdline.getOptionValue(BASE);
+    int n = Integer.parseInt(cmdline.getOptionValue(NUM_NODES));
+    int s = Integer.parseInt(cmdline.getOptionValue(START));
+    int e = Integer.parseInt(cmdline.getOptionValue(END));
+    boolean useCombiner = cmdline.hasOption(COMBINER);
+    boolean useInmapCombiner = cmdline.hasOption(INMAPPER_COMBINER);
+    boolean useRange = cmdline.hasOption(RANGE);
 
-		// Find out how much PageRank mass got lost at the dangling nodes.
-		float missing = 1.0f - (float) StrictMath.exp(mass);
-		if ( missing < 0.0f ) {
-			missing = 0.0f;
-		}
+    LOG.info("Tool name: RunPageRank");
+    LOG.info(" - base path: " + basePath);
+    LOG.info(" - num nodes: " + n);
+    LOG.info(" - start iteration: " + s);
+    LOG.info(" - end iteration: " + e);
+    LOG.info(" - use combiner: " + useCombiner);
+    LOG.info(" - use in-mapper combiner: " + useInmapCombiner);
+    LOG.info(" - user range partitioner: " + useRange);
 
-		// Job2: distribute missing mass, take care of random jump factor.
-		phase2(path, i, j, n, missing);
-	}
+    // iterate PageRank
+    for (int i = s; i < e; i++) {
+      iteratePageRank(basePath, i, i + 1, n, useCombiner, useInmapCombiner, useRange);
+    }
 
-	private float phase1(String path, int i, int j, int n, boolean useCombiner,
-			boolean useInmapCombiner, boolean useRange) throws Exception {
-		Configuration conf = getConf();
+    return 0;
+  }
 
-		String in = path + "/iter" + FORMAT.format(i);
-		String out = path + "/iter" + FORMAT.format(j) + "t";
-		String outm = out + "-mass";
+  // Run each iteration.
+  private void iteratePageRank(String path, int i, int j, int n, boolean useCombiner,
+      boolean useInmapCombiner, boolean useRange) throws Exception {
+    // Each iteration consists of two phases (two MapReduce jobs).
 
-		FileSystem fs = FileSystem.get(conf);
-		
-		// We need to actually count the number of part files to get the number
-		// of partitions (because the directory might contain _log).
-		int numPartitions = 0;
-		for (FileStatus s : FileSystem.get(conf).listStatus(new Path(in))) {
-			if (s.getPath().getName().contains("part-"))
-				numPartitions++;
-		}
-		
-		conf.setInt("NodeCount", n);
+    // Job1: distribute PageRank mass along outgoing edges.
+    float mass = phase1(path, i, j, n, useCombiner, useInmapCombiner, useRange);
 
-		Partitioner<IntWritable, Writable> p = null;
+    // Find out how much PageRank mass got lost at the dangling nodes.
+    float missing = 1.0f - (float) StrictMath.exp(mass);
+    if ( missing < 0.0f ) {
+      missing = 0.0f;
+    }
 
-		if (useRange) {
-			p = new RangePartitioner();
-			((Configurable) p).setConf(conf);
-		} else {
-			p = new HashPartitioner<IntWritable, Writable>();
-		}
+    // Job2: distribute missing mass, take care of random jump factor.
+    phase2(path, i, j, n, missing);
+  }
 
-		// This is really annoying: the mapping between the partition numbers on
-		// disk (i.e., part-XXXX) and what partition the file contains (i.e.,
-		// key.hash % #reducer) is arbitrary... so this means that we need to
-		// open up each partition, peek inside to find out.
-		IntWritable key = new IntWritable();
-		PageRankNode value = new PageRankNode();
-		FileStatus[] status = fs.listStatus(new Path(in));
+  private float phase1(String path, int i, int j, int n, boolean useCombiner,
+      boolean useInmapCombiner, boolean useRange) throws Exception {
+    Configuration conf = getConf();
 
-		StringBuilder sb = new StringBuilder();
+    String in = path + "/iter" + FORMAT.format(i);
+    String out = path + "/iter" + FORMAT.format(j) + "t";
+    String outm = out + "-mass";
 
-		for (FileStatus f : status) {
-			if (f.getPath().getName().contains("_logs"))
-				continue;
+    FileSystem fs = FileSystem.get(conf);
+    
+    // We need to actually count the number of part files to get the number
+    // of partitions (because the directory might contain _log).
+    int numPartitions = 0;
+    for (FileStatus s : FileSystem.get(conf).listStatus(new Path(in))) {
+      if (s.getPath().getName().contains("part-")) {
+        numPartitions++;
+      }
+    }
+    
+    conf.setInt("NodeCount", n);
 
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs, f.getPath(), conf);
+    Partitioner<IntWritable, Writable> p = null;
 
-			reader.next(key, value);
-			int np = p.getPartition(key, value, numPartitions);
-			reader.close();
+    if (useRange) {
+      p = new RangePartitioner();
+      ((Configurable) p).setConf(conf);
+    } else {
+      p = new HashPartitioner<IntWritable, Writable>();
+    }
 
-			LOG.info(f.getPath() + "\t" + np);
-			sb.append(np + "=" + f.getPath() + ";");
-		}
+    // This is really annoying: the mapping between the partition numbers on
+    // disk (i.e., part-XXXX) and what partition the file contains (i.e.,
+    // key.hash % #reducer) is arbitrary... so this means that we need to
+    // open up each partition, peek inside to find out.
+    IntWritable key = new IntWritable();
+    PageRankNode value = new PageRankNode();
+    FileStatus[] status = fs.listStatus(new Path(in));
 
-		LOG.info(sb.toString().trim());
+    StringBuilder sb = new StringBuilder();
 
-		LOG.info("PageRankSchimmy: iteration " + j + ": Phase1");
-		LOG.info(" - input: " + in);
-		LOG.info(" - output: " + out);
-		LOG.info(" - nodeCnt: " + n);
-		LOG.info(" - useCombiner: " + useCombiner);
-		LOG.info(" - useInmapCombiner: " + useInmapCombiner);
-		LOG.info(" - numPartitions: " + numPartitions);
-		LOG.info(" - useRange: " + useRange);
-		LOG.info("computed number of partitions: " + numPartitions);
+    for (FileStatus f : status) {
+      if (!f.getPath().getName().contains("part-")) {
+        continue;
+      }
 
-		int numReduceTasks = numPartitions;
+      SequenceFile.Reader reader =
+          new SequenceFile.Reader(conf, SequenceFile.Reader.file(f.getPath()));
 
-		conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
-		conf.set("mapred.child.java.opts", "-Xmx2048m");
+      reader.next(key, value);
+      int np = p.getPartition(key, value, numPartitions);
+      reader.close();
 
-		conf.set("PageRankMassPath", outm);
-		conf.set("BasePath", in);
-		conf.set("PartitionMapping", sb.toString().trim());
+      LOG.info(f.getPath() + "\t" + np);
+      sb.append(np + "=" + f.getPath() + ";");
+    }
+
+    LOG.info(sb.toString().trim());
+
+    LOG.info("PageRankSchimmy: iteration " + j + ": Phase1");
+    LOG.info(" - input: " + in);
+    LOG.info(" - output: " + out);
+    LOG.info(" - nodeCnt: " + n);
+    LOG.info(" - useCombiner: " + useCombiner);
+    LOG.info(" - useInmapCombiner: " + useInmapCombiner);
+    LOG.info(" - numPartitions: " + numPartitions);
+    LOG.info(" - useRange: " + useRange);
+    LOG.info("computed number of partitions: " + numPartitions);
+
+    int numReduceTasks = numPartitions;
+
+    conf.setInt("mapred.min.split.size", 1024 * 1024 * 1024);
+    //conf.set("mapred.child.java.opts", "-Xmx2048m");
+
+    conf.set("PageRankMassPath", outm);
+    conf.set("BasePath", in);
+    conf.set("PartitionMapping", sb.toString().trim());
 
     conf.setBoolean("mapred.map.tasks.speculative.execution", false);
     conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
 
-		Job job = new Job(conf, "PageRankSchimmy:iteration" + j + ":Phase1");
-		job.setJarByClass(RunPageRankSchimmy.class);
+    Job job = Job.getInstance(conf);
+    job.setJobName("PageRankSchimmy:iteration" + j + ":Phase1");
+    job.setJarByClass(RunPageRankSchimmy.class);
 
     job.setNumReduceTasks(numReduceTasks);
 
-		FileInputFormat.setInputPaths(job, new Path(in));
-		FileOutputFormat.setOutputPath(job, new Path(out));
+    FileInputFormat.setInputPaths(job, new Path(in));
+    FileOutputFormat.setOutputPath(job, new Path(out));
 
-		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(FloatWritable.class);
+    job.setMapOutputKeyClass(IntWritable.class);
+    job.setMapOutputValueClass(FloatWritable.class);
 
-		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(PageRankNode.class);
+    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputValueClass(PageRankNode.class);
 
-		if (useInmapCombiner) {
-			job.setMapperClass(MapWithInMapperCombiningClass.class);
-		} else {
-			job.setMapperClass(MapClass.class);
-		}
+    if (useInmapCombiner) {
+      job.setMapperClass(MapWithInMapperCombiningClass.class);
+    } else {
+      job.setMapperClass(MapClass.class);
+    }
 
-		if (useCombiner) {
-			job.setCombinerClass(CombineClass.class);
-		}
+    if (useCombiner) {
+      job.setCombinerClass(CombineClass.class);
+    }
 
-		if (useRange) {
-			job.setPartitionerClass(RangePartitioner.class);
-		}
+    if (useRange) {
+      job.setPartitionerClass(RangePartitioner.class);
+    }
 
-		job.setReducerClass(ReduceClass.class);
+    job.setReducerClass(ReduceClass.class);
 
-		FileSystem.get(conf).delete(new Path(out), true);
-		FileSystem.get(conf).delete(new Path(outm), true);
+    FileSystem.get(conf).delete(new Path(out), true);
+    FileSystem.get(conf).delete(new Path(outm), true);
 
-		job.waitForCompletion(true);
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 
-		float mass = Float.NEGATIVE_INFINITY;
-		for (FileStatus f : fs.listStatus(new Path(outm))) {
-			FSDataInputStream fin = fs.open(f.getPath());
-			mass = sumLogProbs(mass, fin.readFloat());
-			fin.close();
-		}
+    float mass = Float.NEGATIVE_INFINITY;
+    for (FileStatus f : fs.listStatus(new Path(outm))) {
+      FSDataInputStream fin = fs.open(f.getPath());
+      mass = sumLogProbs(mass, fin.readFloat());
+      fin.close();
+    }
 
-		return mass;
-	}
+    return mass;
+  }
 
-	private void phase2(String path, int i, int j, int n, float missing) throws Exception {
-	  Configuration conf = getConf();
+  private void phase2(String path, int i, int j, int n, float missing) throws Exception {
+    Configuration conf = getConf();
 
-		LOG.info("missing PageRank mass: " + missing);
-		LOG.info("number of nodes: " + n);
+    LOG.info("missing PageRank mass: " + missing);
+    LOG.info("number of nodes: " + n);
 
-		String in = path + "/iter" + FORMAT.format(j) + "t";
-		String out = path + "/iter" + FORMAT.format(j);
+    String in = path + "/iter" + FORMAT.format(j) + "t";
+    String out = path + "/iter" + FORMAT.format(j);
 
-		LOG.info("PageRankSchimmy: iteration " + j + ": Phase2");
-		LOG.info(" - input: " + in);
-		LOG.info(" - output: " + out);
+    LOG.info("PageRankSchimmy: iteration " + j + ": Phase2");
+    LOG.info(" - input: " + in);
+    LOG.info(" - output: " + out);
 
-		Job job = new Job(conf, "PageRankSchimmy:iteration" + j + ":Phase2");
-		job.setJarByClass(RunPageRankSchimmy.class);
-		job.setNumReduceTasks(0);
+    Job job = Job.getInstance(conf);
+    job.setJobName("PageRankSchimmy:iteration" + j + ":Phase2");
+    job.setJarByClass(RunPageRankSchimmy.class);
+    job.setNumReduceTasks(0);
 
-		FileInputFormat.setInputPaths(job, new Path(in));
-		FileOutputFormat.setOutputPath(job, new Path(out));
+    FileInputFormat.setInputPaths(job, new Path(in));
+    FileOutputFormat.setOutputPath(job, new Path(out));
 
-		job.setInputFormatClass(NonSplitableSequenceFileInputFormat.class);
-		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    job.setInputFormatClass(NonSplitableSequenceFileInputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(PageRankNode.class);
+    job.setMapOutputKeyClass(IntWritable.class);
+    job.setMapOutputValueClass(PageRankNode.class);
 
-		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(PageRankNode.class);
+    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputValueClass(PageRankNode.class);
 
-		job.setMapperClass(MapPageRankMassDistributionClass.class);
+    job.setMapperClass(MapPageRankMassDistributionClass.class);
 
-		conf.setFloat("MissingMass", (float) missing);
-		conf.setInt("NodeCount", n);
+    conf.setFloat("MissingMass", (float) missing);
+    conf.setInt("NodeCount", n);
 
-		FileSystem.get(conf).delete(new Path(out), true);
+    FileSystem.get(conf).delete(new Path(out), true);
 
-		job.waitForCompletion(true);
-	}
+    long startTime = System.currentTimeMillis();
+    job.waitForCompletion(true);
+    System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
+  }
 
-	// adds two log probs
-	private static float sumLogProbs(float a, float b) {
-		if (a == Float.NEGATIVE_INFINITY)
-			return b;
+  // Adds two log probs.
+  private static float sumLogProbs(float a, float b) {
+    if (a == Float.NEGATIVE_INFINITY)
+      return b;
 
-		if (b == Float.NEGATIVE_INFINITY)
-			return a;
+    if (b == Float.NEGATIVE_INFINITY)
+      return a;
 
-		if (a < b) {
-			return (float) (b + StrictMath.log1p(StrictMath.exp(a - b)));
-		}
+    if (a < b) {
+      return (float) (b + StrictMath.log1p(StrictMath.exp(a - b)));
+    }
 
-		return (float) (a + StrictMath.log1p(StrictMath.exp(b - a)));
-	}
+    return (float) (a + StrictMath.log1p(StrictMath.exp(b - a)));
+  }
 }

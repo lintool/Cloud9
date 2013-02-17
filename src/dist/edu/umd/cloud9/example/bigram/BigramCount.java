@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.bigram;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -42,8 +43,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
-
-import cern.colt.Arrays;
 
 public class BigramCount extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BigramCount.class);

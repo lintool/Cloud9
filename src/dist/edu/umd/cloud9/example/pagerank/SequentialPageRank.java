@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,8 +20,18 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Set;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.util.ToolRunner;
 
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.algorithms.importance.Ranking;
@@ -31,75 +41,100 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 /**
  * <p>
  * Program that computes PageRank for a graph using the <a
- * href="http://jung.sourceforge.net/">JUNG</a> package (2.0 alpha1). Program
- * takes two command-line arguments: the first is a file containing the graph
- * data, and the second is the random jump factor (a typical setting is 0.15).
+ * href="http://jung.sourceforge.net/">JUNG</a> package (2.0 alpha1). Program takes two command-line
+ * arguments: the first is a file containing the graph data, and the second is the random jump
+ * factor (a typical setting is 0.15).
  * </p>
  *
  * <p>
- * The graph should be represented as an adjacency list. Each line should have
- * at least one token; tokens should be tab delimited. The first token
- * represents the unique id of the source node; subsequent tokens represent its
- * link targets (i.e., outlinks from the source node). For completeness, there
- * should be a line representing all nodes, even nodes without outlinks (those
+ * The graph should be represented as an adjacency list. Each line should have at least one token;
+ * tokens should be tab delimited. The first token represents the unique id of the source node;
+ * subsequent tokens represent its link targets (i.e., outlinks from the source node). For
+ * completeness, there should be a line representing all nodes, even nodes without outlinks (those
  * lines will simply contain one token, the source node id).
  * </p>
  *
  * @author Jimmy Lin
  */
 public class SequentialPageRank {
-	private SequentialPageRank() {}
+  private SequentialPageRank() {}
 
-	public static void main(String[] args) throws IOException {
-		if (args.length != 2) {
-			System.err.println("usage: SequentialPageRage [graph-adjacency-list] [random-jump-factor]");
-			System.exit(-1);
-		}
-		String infile = args[0];
-		float alpha = Float.parseFloat(args[1]);
+  private static final String INPUT = "input";
+  private static final String JUMP = "jump";
 
-		int edgeCnt = 0;
-		DirectedSparseGraph<String, Integer> graph = new DirectedSparseGraph<String, Integer>();
+  @SuppressWarnings({ "static-access" })
+  public static void main(String[] args) throws IOException {
+    Options options = new Options();
 
-		BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
+    options.addOption(OptionBuilder.withArgName("path").hasArg()
+        .withDescription("input path").create(INPUT));
+    options.addOption(OptionBuilder.withArgName("val").hasArg()
+        .withDescription("random jump factor").create(JUMP));
 
-		String line;
-		while ((line = data.readLine()) != null) {
-			line.trim();
-			String[] arr = line.split("\\t");
+    CommandLine cmdline = null;
+    CommandLineParser parser = new GnuParser();
 
-			for (int i = 1; i < arr.length; i++) {
-				graph.addEdge(new Integer(edgeCnt++), arr[0], arr[i]);
-			}
-		}
+    try {
+      cmdline = parser.parse(options, args);
+    } catch (ParseException exp) {
+      System.err.println("Error parsing command line: " + exp.getMessage());
+      System.exit(-1);
+    }
 
-		data.close();
+    if (!cmdline.hasOption(INPUT)) {
+      System.out.println("args: " + Arrays.toString(args));
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.setWidth(120);
+      formatter.printHelp(SequentialPageRank.class.getName(), options);
+      ToolRunner.printGenericCommandUsage(System.out);
+      System.exit(-1);
+    }
 
-		WeakComponentClusterer<String, Integer> clusterer = new WeakComponentClusterer<String, Integer>();
+    String infile = cmdline.getOptionValue(INPUT);
+    float alpha = cmdline.hasOption(JUMP) ? Float.parseFloat(cmdline.getOptionValue(JUMP)) : 0.15f;
 
-		Set<Set<String>> components = clusterer.transform(graph);
-		int numComponents = components.size();
-		System.out.println("Number of components: " + numComponents);
-		System.out.println("Number of edges: " + graph.getEdgeCount());
-		System.out.println("Number of nodes: " + graph.getVertexCount());
-		System.out.println("Random jump factor: " + alpha);
+    int edgeCnt = 0;
+    DirectedSparseGraph<String, Integer> graph = new DirectedSparseGraph<String, Integer>();
 
-		// Compute PageRank.
-		PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph, alpha);
-		ranker.evaluate();
+    BufferedReader data = new BufferedReader(new InputStreamReader(new FileInputStream(infile)));
 
-		// Use priority queue to sort vertices by PageRank values.
-		PriorityQueue<Ranking<String>> q = new PriorityQueue<Ranking<String>>();
-		int i = 0;
-		for (String pmid : graph.getVertices()) {
-			q.add(new Ranking<String>(i++, ranker.getVertexScore(pmid), pmid));
-		}
+    String line;
+    while ((line = data.readLine()) != null) {
+      line.trim();
+      String[] arr = line.split("\\t");
 
-		// Print PageRank values.
-		System.out.println("\nPageRank of nodes, in descending order:");
-		Ranking<String> r = null;
-		while ((r = q.poll()) != null) {
-			System.out.println(r.rankScore + "\t" + r.getRanked());
-		}
-	}
+      for (int i = 1; i < arr.length; i++) {
+        graph.addEdge(new Integer(edgeCnt++), arr[0], arr[i]);
+      }
+    }
+
+    data.close();
+
+    WeakComponentClusterer<String, Integer> clusterer = new WeakComponentClusterer<String, Integer>();
+
+    Set<Set<String>> components = clusterer.transform(graph);
+    int numComponents = components.size();
+    System.out.println("Number of components: " + numComponents);
+    System.out.println("Number of edges: " + graph.getEdgeCount());
+    System.out.println("Number of nodes: " + graph.getVertexCount());
+    System.out.println("Random jump factor: " + alpha);
+
+    // Compute PageRank.
+    PageRank<String, Integer> ranker = new PageRank<String, Integer>(graph, alpha);
+    ranker.evaluate();
+
+    // Use priority queue to sort vertices by PageRank values.
+    PriorityQueue<Ranking<String>> q = new PriorityQueue<Ranking<String>>();
+    int i = 0;
+    for (String pmid : graph.getVertices()) {
+      q.add(new Ranking<String>(i++, ranker.getVertexScore(pmid), pmid));
+    }
+
+    // Print PageRank values.
+    System.out.println("\nPageRank of nodes, in descending order:");
+    Ranking<String> r = null;
+    while ((r = q.poll()) != null) {
+      System.out.println(r.rankScore + "\t" + r.getRanked());
+    }
+  }
 }

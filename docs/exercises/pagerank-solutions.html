@@ -72,15 +72,14 @@ code can be applied to solve this exercise.  Command-line invocations
 are shown for the "large" graph, but are similar for the other
 graphs.</p>
 
-<!-- Assuming that you've already loaded the adjacency list information
-to HDFS -->
-
-<p>The first step is to take the plain-text graph structure and
-pack it into the appropriate Hadoop data structures:</p>
+<p>Assuming that you've already loaded the adjacency list information
+<code>docs/exercises/sample-large.txt</code> to HDFS, the first step
+is to take the plain-text graph structure and pack it into the
+appropriate Hadoop data structures:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
-   docs/exercises/sample-large.txt sample-large-PageRankRecords 1458
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+  -input sample-large.txt -output sample-large-PageRankRecords -numNodes 1458
 </pre>
 
 <p>Next, let's partition the graph:</p>
@@ -88,23 +87,23 @@ etc/hadoop-local.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
 <pre class="code">
 hadoop fs -mkdir sample-large-PageRank
 
-etc/hadoop-local.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
-   sample-large-PageRankRecords sample-large-PageRank/iter0000 5 0 1458
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
+  -input sample-large-PageRankRecords -output sample-large-PageRank/iter0000 -numPartitions 5 -numNodes 1458
 </pre>
 
 <p>Now we're ready to run PageRank.  Let's run 10 iterations:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-   sample-large-PageRank 1458 0 10 1 0 0
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+  -base sample-large-PageRank -numNodes 1458 -start 0 -end 10 -useCombiner
 </pre>
 
 <p>We're basically done!  Let's use this utility program to fetch the
 top 10 nodes by PageRank:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
-  sample-large-PageRank/iter0010 sample-large-PageRank-top10 10
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+  -input sample-large-PageRank/iter0010 -output sample-large-PageRank-top10 -top 10
 </pre>
 
 <p>The results:</p>

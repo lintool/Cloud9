@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,10 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-
-import edu.umd.cloud9.io.WritableComparatorUtils;
+import org.apache.hadoop.io.WritableUtils;
 
 /**
  * WritableComparable representing a pair consisting of a String and a long.
@@ -59,7 +59,7 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readUTF();
+		leftElement = Text.readString(in);
 		rightElement = in.readLong();
 	}
 
@@ -69,7 +69,7 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(leftElement);
+		Text.writeString(out, leftElement);
 		out.writeLong(rightElement);
 	}
 
@@ -190,26 +190,28 @@ public class PairOfStringLong implements WritableComparable<PairOfStringLong> {
 			super(PairOfStringLong.class);
 		}
 
-		/**
-		 * Optimization hook.
-		 */
-		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
-			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
+    /**
+     * Optimization hook.
+     */
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+      try {
+        int firstVIntL1 = WritableUtils.decodeVIntSize(b1[s1]);
+        int firstVIntL2 = WritableUtils.decodeVIntSize(b2[s2]);
+        int firstStrL1 = readVInt(b1, s1);
+        int firstStrL2 = readVInt(b2, s2);
+        int cmp = compareBytes(b1, s1 + firstVIntL1, firstStrL1, b2, s2 + firstVIntL2, firstStrL2);
+        if (cmp != 0) {
+          return cmp;
+        }
 
-			if (thisLeftValue.equals(thatLeftValue)) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
+        long thisRightValue = readLong(b1, s1 + firstVIntL1 + firstStrL1);
+        long thatRightValue = readLong(b2, s2 + firstVIntL2 + firstStrL2);
 
-				long thisRightValue = readLong(b1, s1 + 2 + s1offset);
-				long thatRightValue = readLong(b2, s2 + 2 + s2offset);
-
-				return (thisRightValue < thatRightValue ? -1
-						: (thisRightValue == thatRightValue ? 0 : 1));
-			}
-
-			return thisLeftValue.compareTo(thatLeftValue);
-		}
+        return (thisRightValue < thatRightValue ? -1 : (thisRightValue == thatRightValue ? 0 : 1));
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
 	}
 
 	static { // register this comparator

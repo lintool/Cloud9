@@ -1,86 +1,92 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop</title>
-<style type="text/css" media="screen">@import url( ../style.css );</style>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body>
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-<div id="wrap">
-<div id="container" class="one-column" >
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-<!-- header START -->
+  </head>
 
-<div id="header">
-<div id="caption">
-<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
-<div id="tagline">A MapReduce Library for Hadoop</div>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
+
+  <div class="container">
+
+<div class="page-header">
+<h2>Reference Implementations: PageRank</h2>
 </div>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- header END -->
-
-<!-- navigation START -->
-
-<div id="navigation">
-
-<script type="text/javascript" src="menu.js">
-</script>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- navigation END -->
-
-
-
-<!-- content START -->
-
-<div id="content">
-
-
-
-	<!-- main START -->
-
-	<div id="main">
-
-
-<!--- START MAIN CONTENT HERE -->
-
-<h2>Design Patterns &amp; Algorithms &#187; PageRank</h2>
-
-<div class="post">
-<div class="content">
 
 <p>This page describes the code used to run experiments in the
 following paper:</p>
 
 <p style="margin-left: 30px">Jimmy Lin and Michael Schatz. <b><a href="Lin_Schatz_MLG2010.pdf">Design Patterns for Efficient Graph Algorithms in MapReduce.</a></b> <i>Proceedings of the 2010 Workshop on Mining and Learning with Graphs Workshop (MLG-2010)</i>, July 2010, Washington, D.C.</p>
 
-<p>There's code in Cloud<sup><small>9</small></sup> that illustrates
+<p>There's code in Cloud<sup>9</sup> that illustrates
 three different design patterns for graph algorithms in MapReduce
 using PageRank: in-mapper combining for faster local aggregation,
 range partitioning to create more opportunities for local aggregation,
 and Schimmy to avoid shuffling the graph structure from iteration to
 iteration.</p>
 
-<p>We have a very simple text format for specifying the graph
-structure.  A graph with <i>n</i> nodes is represented in a text file
-with <i>n</i> arbitrarily-ordered lines.  Each line begins with a
+<p>We use a very simple text format for specifying the graph
+structure. A graph with <i>n</i> nodes is represented in a text file
+with <i>n</i> arbitrarily-ordered lines. Each line begins with a
 nodeid (numeric identifier for the node), followed by its adjacency
 list, which specifies neighbors reachable via outgoing edges. The
-adjacency list is tab separated.  Note that if a node does not contain
+adjacency list is tab separated. Note that if a node does not contain
 an outgoing edges, you still need a line in the file to represent it.
 Here's a simple example (tab replaced with spaces for presentation
 reasons):</p>
 
-<pre>
+<pre class="code">
 1    3    4
 2    1
 3
@@ -91,85 +97,12 @@ reasons):</p>
 4; nodeid 2 points to 1, nodeid 3 is a dangling node (no neighbors);
 and nodeid 4 points to nodes 2 and 3.</p>
 
-<p>Unfortunately, we haven't found a good way to distribute the
-webgraph used in our experiments.  As an alternative, we have provided
-code for extracting the link graph from Wikipedia, which is readily
-accessible by anyone. Refer to this page
-on <a href="wikipedia.html">working with Wikipedia</a>. It contains
-instructions for packing Wikipedia pages from the raw XML distribution
-into block-compressed SequenceFiles for convenient access. Briefly,
-here are the steps:</p>
+<p>The adjacency list representation of the webgraph extracted from
+the first English segment of ClueWeb09 is
+available <a href="https://github.com/lintool/clueweb09en01-webgraph">here</a>. You'll
+want to clone the repo and uncompress the text file.</p>
 
-<p>First, build a docno mapping, making sure that you include all
-pages with the
-<code>-keep_all</code> option:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output_path tmp \
-  -output_file Wikipedia/docno-en-all-20110405.dat -keep_all
-</pre>
-
-<p>Next, repack the collection into block-compressed
-SequenceFiles:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.block/en-all-20110405 \
-  -mapping_file Wikipedia/docno-en-all-20110405.dat -compression_type block
-</pre>
-
-<p>Once you've done that, extract the link graph:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/compressed.block/en-all-20110405 \
-  -edges_output Wikipedia/en-20110405-edges -adjacency_list_output Wikipedia/en-20110405-adjacency \
-  -num_partitions 10
-</pre>
-
-<!-- 
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
-  -libjars guava-r09.jar \
-  Wikipedia/en-20110405-adjacency PageRankRecords 11120945
-
-# Hash partitioning, basic
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
-  -libjars guava-r09.jar \
-  PageRankRecords PageRank.hash.basic/iter0000 10 0 11120945
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-  -libjars guava-r09.jar \
-  PageRank.hash.basic 11120945 0 10 0 1 0
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
-  -libjars guava-r09.jar \
-  PageRank.hash.basic/iter0010 PageRank.hash.basic-iter10top100 100
-
-# Hash partitioning, Schimmy
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
-  -libjars guava-r09.jar \
-  PageRankRecords PageRank.hash.schimmy/iter0000 10 0 11120945
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
-  -libjars guava-r09.jar \
-  PageRank.hash.schimmy 11120945 0 10 0 1 0
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
-  -libjars guava-r09.jar \
-  PageRank.hash.schimmy/iter0010 PageRank.hash.schimmy-iter10top100 100
-
-NOTE: Range partitioning doesn't work on Wikipedi because the nodeids are not consecutively numbered.
-
--->
-
-<p>The rest of this guide, however, assumes you're working with the
-ClueWeb09 link graph (as discussed in the paper).  Here are the
-relevant driver classes for running PageRank:</p>
+<p>Here are the relevant driver classes for running PageRank:</p>
 
 <ul>
 
@@ -183,193 +116,123 @@ relevant driver classes for running PageRank:</p>
 
 </ul>
 
-<p>Below, we present step-by-step instructions for running the various
-experiments.</p>
+<p>Below, we present step-by-step instructions for replicating the
+various experiments presented in the paper. The first step is to
+create PageRank records from the text-based representation
+using <code>edu.umd.cloud9.example.pagerank.BuildPageRankRecords</code>:</p>
 
-<p>First, we take the plain-text graph structure and pack it into the
-appropriate Hadoop data structures. The driver
-program <code>edu.umd.cloud9.example.pagerank.BuildPageRankRecords</code>
-takes three command-line arguments:</p>
-
-<ul>
-
-  <li>[inputDir]: input directory</li>
-  <li>[outputDir]: output directory</li>
-  <li>[numNodes]: number of nodes in the graph</li>
-
-</ul>
-
-<p>Here's a sample command-line
-invocation:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
-   /shared/ClueWeb09/webgraph/en.01 /umd-lin/jimmylin/PageRankRecords 50220423
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+  -input clueweb09en01-webgraph-adjacency.txt -output clueweb09en01-PageRankRecords -numNodes 50220423
 </pre>
 
-<p>Second, we need to partition the graph.  The appropriate driver
-program is <code>edu.umd.cloud9.example.pagerank.PartitionGraph</code>, which takes the
-following command-line arguments:</p>
+<p>Each PageRank record represents a graph vertex: each data structure
+holds the current PageRank value and the vertex's adjacency list.</p>
 
-<ul>
+<h3>Hash Partitioning</h3>
 
-  <li>[inputDir]: input directory</li>
-  <li>[outputDir]: output directory</li>
-  <li>[numPartitions]: number of partitions</li>
-  <li>[useRange?]: 1 to user range partitioning or 0 otherwise</li>
-  <li>[nodeCount]: number of nodes in the graph</li>
+<p>Before we run PageRank, we have to partition the graph. We'll start
+with hash partitioning,
+using <code>edu.umd.cloud9.example.pagerank.PartitionGraph</code>:</p>
 
-</ul>
+<pre class="code">
+hadoop fs -mkdir clueweb09en01-PageRank.hash
 
-<p>So, let's partition the graph both ways:</p>
-
-<pre>
-# hash partition the graph
-hadoop fs -mkdir /umd-lin/jimmylin/PageRank-hash
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
-   /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-hash/iter0000 100 0 50220423
-
-# range partition the graph
-hadoop fs -mkdir /umd-lin/jimmylin/PageRank-range
-
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
-   /umd-lin/jimmylin/PageRankRecords /umd-lin/jimmylin/PageRank-range/iter0000 100 1 50220423
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
+  -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.hash/iter0000 \
+  -numPartitions 64 -numNodes 50220423
 </pre>
 
-<p>We want to specify an output directory of the form
-<code>/base/path/iter0000</code> because that's the convention of the
-PageRank driver program: the output of iteration <i>x</i> is stored in
-a subdirectory named <code>iterXXXX</code>.  In the experiments
-discussed in our paper, we partitioned the graph into 100 parts.</p>
+<p>We can now run the basic version of PageRank,
+using <code>edu.umd.cloud9.example.pagerank.RunPageRankBasic</code>:</p>
 
-<p>Now we're ready to run PageRank.  The two important driver programs
-are:</p>
-
-<ul>
-
-  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankBasic</code> for
-  the basic implementation: shuffles graph structure from iteration to
-  iteration.</li>
-
-  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</code>
-  for the Schimmy implementation: avoids graph structure shuffling.</li>
-
-</ul>
-
-<p>Both driver programs take the same command-line arguments:</p>
-
-<ul>
-
-  <li>[basePath]: the base path</li>
-  <li>[numNodes]: number of nodes in the graph</li>
-  <li>[start]: starting iteration</li>
-  <li>[end]: ending iteration</li>
-  <li>[useCombiner?]: 1 for using combiner, 0 for not</li>
-  <li>[useInMapCombiner?]: 1 for using in-mapper combining, 0 for not</li>
-  <li>[useRange?]: 1 for range partitioning, 0 for not</li>
-
-</ul>
-
-<p>A few notes:</p>
-
-<ul>
-
-<li>The starting and ending iterations will correspond to
-paths <code>/base/path/iterXXXX</code>
-and <code>/base/path/iterYYYY</code>.  As a example, if you specify 0
-and 10 as the starting and ending iterations, the driver program will
-start with the graph structure stored
-at <code>/base/path/iter0000</code>; final results will be stored
-at <code>/base/path/iter0010</code>.</li>
-
-<li>Although the driver program will
-allow you to use both combiners and the in-mapper combining pattern,
-using both actually slows down the algorithm.  So for all practical
-purposes, those bits should be considered exclusive.</li>
-
-</ul>
-
-<p>Here the command-line invocation of what's pretty much considered
-the "best-practices" baseline (prior to our paper):</p>
-
-<pre>
-# hash partitioning, basic implementation, +combiner
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 1 0 0
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+  -base clueweb09en01-PageRank.hash -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
 </pre>
 
-<p>Here are some command-line invocation exercising some of the
-patterns discussed in our paper:</p>
+<p>The <code>-start</code> and <code>-end</code> options specify the
+start and end iterations. The <code>-useCombiner</code> option enables
+combiners, and the <code>-useInMapperCombiner</code> option enables
+the in-mapper combiners (as above).</p>
 
-<pre>
-# hash partitioning, basic implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
+<p>To run the Schimmy implementation,
+use <code>edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</code>:</p>
 
-# hash partitioning, Schimmy implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
-   /umd-lin/jimmylin/PageRank-hash 50220423 0 10 0 1 0
-
-# range partitioning, basic implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-   /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
-
-# range partitioning, Schimmy implementation, +IMC
-hadoop jar cloud9.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
-   /umd-lin/jimmylin/PageRank-range 50220423 0 10 0 1 1
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
+  -base clueweb09en01-PageRank.hash -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
 </pre>
 
-<p>Based on our experiments, the final setting is the fastest, with a
-per-iteration running time that is 69% faster than the
-"best-practices" baseline.</p>
+<p>The options are exactly the same.</p>
 
-</div></div>
+<h3>Range Partitioning</h3>
 
+<p>Let's now switch to range partitioning, also using
+<code>edu.umd.cloud9.example.pagerank.PartitionGraph</code>, but with
+the <code>-range</code> option:</p>
 
-<!--- END MAIN CONTENT HERE -->
+<pre class="code">
+hadoop fs -mkdir clueweb09en01-PageRank.range
 
-	</div>
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
+  -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.range/iter0000 \
+  -numPartitions 192 -numNodes 50220423 -range
+</pre>
 
-	<!-- main END -->
+<p>Note that to mitigate the effects of stragglers, we create more
+partitions.</p>
 
+<p>Run basic PageRank using the same class:</p>
 
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+  -base clueweb09en01-PageRank.range -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
+</pre>
 
-		<div class="fixed"></div>
+<p>The only difference here is that we use the <code>-range</code>
+option. And the Schimmy implementation, also using
+the <code>-range</code> option:</p>
 
-</div>
+<pre class="code">
+nohup etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
+  -base clueweb09en01-PageRank.range -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
+</pre>
 
-<!-- content END -->
+<p>That's it!</p>
 
-<!-- footer START -->
-
-<div id="footer">
-<div id="copyright">
-Last updated:
-<script type="text/javascript">
-<!--//
-document.write(document.lastModified);
-//-->
-</script>
-</div>
-
-<div id="themeinfo">
-Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
-
-</div>
-
-<!-- footer END -->
-
+  </div>
 
 
-</div>
 
-<!-- container END -->
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
 
-</div>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
 
-<!-- wrap END -->
-
-</body>
+  </body>
 </html>
-
