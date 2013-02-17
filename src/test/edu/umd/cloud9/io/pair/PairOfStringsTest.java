@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -59,6 +59,49 @@ public class PairOfStringsTest {
 
 		assertEquals("hi", pair.getLeftElement());
 		assertEquals("there", pair.getRightElement());
+	}
+
+	@Test
+	public void testOptimizedSerialize() throws IOException {
+		PairOfStrings pair1 = new PairOfStrings("hi", "there");
+		ByteArrayOutputStream pair1_bytesOut = new ByteArrayOutputStream();
+		DataOutputStream pair1_dataOut = new DataOutputStream(pair1_bytesOut);
+		pair1.write(pair1_dataOut);
+		byte[] bytes1 = pair1_bytesOut.toByteArray();
+
+		PairOfStrings pair2 = new PairOfStrings("hi", "there");
+		ByteArrayOutputStream pair2_bytesOut = new ByteArrayOutputStream();
+		DataOutputStream pair2_dataOut = new DataOutputStream(pair2_bytesOut);
+		pair2.write(pair2_dataOut);
+		byte[] bytes2 = pair2_bytesOut.toByteArray();
+
+		PairOfStrings pair3 = new PairOfStrings("hi", "howdy");
+		ByteArrayOutputStream pair3_bytesOut = new ByteArrayOutputStream();
+		DataOutputStream pair3_dataOut = new DataOutputStream(pair3_bytesOut);
+		pair3.write(pair3_dataOut);
+		byte[] bytes3 = pair3_bytesOut.toByteArray();
+
+		PairOfStrings pair4 = new PairOfStrings("a", "howdy");
+		ByteArrayOutputStream pair4_bytesOut = new ByteArrayOutputStream();
+		DataOutputStream pair4_dataOut = new DataOutputStream(pair4_bytesOut);
+		pair4.write(pair4_dataOut);
+		byte[] bytes4 = pair4_bytesOut.toByteArray();
+
+		PairOfStrings pair5 = new PairOfStrings("hi", "z");
+		ByteArrayOutputStream pair5_bytesOut = new ByteArrayOutputStream();
+		DataOutputStream pair5_dataOut = new DataOutputStream(pair5_bytesOut);
+		pair5.write(pair5_dataOut);
+		byte[] bytes5 = pair5_bytesOut.toByteArray();
+
+    PairOfStrings.Comparator pairOfStringComparator = new PairOfStrings.Comparator();
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes2, 0, bytes2.length) == 0);
+    assertFalse(pair1.equals(pair3));
+
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes3, 0, bytes3.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes4, 0, bytes4.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes1, 0, bytes1.length, bytes5, 0, bytes5.length) < 0);
+    assertTrue(pairOfStringComparator.compare(bytes3, 0, bytes3.length, bytes4, 0, bytes4.length) > 0);
+    assertTrue(pairOfStringComparator.compare(bytes4, 0, bytes4.length, bytes5, 0, bytes5.length) < 0);
 	}
 
 	@Test

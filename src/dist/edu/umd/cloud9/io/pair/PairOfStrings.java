@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,10 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-
-import edu.umd.cloud9.io.WritableComparatorUtils;
+import org.apache.hadoop.io.WritableUtils;
 
 /**
  * WritableComparable representing a pair of Strings. The elements in the pair
@@ -57,8 +57,8 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param in source for raw byte representation
 	 */
 	public void readFields(DataInput in) throws IOException {
-		leftElement = in.readUTF();
-		rightElement = in.readUTF();
+		leftElement = Text.readString(in);
+		rightElement = Text.readString(in);
 	}
 
 	/**
@@ -67,8 +67,8 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 	 * @param out where to write the raw byte representation
 	 */
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(leftElement);
-		out.writeUTF(rightElement);
+		Text.writeString(out, leftElement);
+		Text.writeString(out, rightElement);
 	}
 
 	/**
@@ -186,26 +186,31 @@ public class PairOfStrings implements WritableComparable<PairOfStrings> {
 			super(PairOfStrings.class);
 		}
 
-		/**
-		 * Optimization hook.
-		 */
-		public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-			String thisLeftValue = WritableComparatorUtils.readUTF(b1, s1);
-			String thatLeftValue = WritableComparatorUtils.readUTF(b2, s2);
+    /**
+     * Optimization hook.
+     */
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+      try {
+        int firstVIntL1 = WritableUtils.decodeVIntSize(b1[s1]);
+        int firstVIntL2 = WritableUtils.decodeVIntSize(b2[s2]);
+        int firstStrL1 = readVInt(b1, s1);
+        int firstStrL2 = readVInt(b2, s2);
+        int cmp = compareBytes(b1, s1 + firstVIntL1, firstStrL1, b2, s2 + firstVIntL2, firstStrL2);
+        if (cmp != 0) {
+          return cmp;
+        }
 
-			if (thisLeftValue.equals(thatLeftValue)) {
-				int s1offset = readUnsignedShort(b1, s1);
-				int s2offset = readUnsignedShort(b2, s2);
-
-				String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 2 + s1offset);
-				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 2 + s2offset);
-
-				return thisRightValue.compareTo(thatRightValue);
-			}
-
-			return thisLeftValue.compareTo(thatLeftValue);
-		}
-	}
+        int secondVIntL1 = WritableUtils.decodeVIntSize(b1[s1 + firstVIntL1 + firstStrL1]);
+        int secondVIntL2 = WritableUtils.decodeVIntSize(b2[s2 + firstVIntL2 + firstStrL2]);
+        int secondStrL1 = readVInt(b1, s1 + firstVIntL1 + firstStrL1);
+        int secondStrL2 = readVInt(b2, s2 + firstVIntL2 + firstStrL2);
+        return compareBytes(b1, s1 + firstVIntL1 + firstStrL1 + secondVIntL1, secondStrL1, b2,
+            s2 + firstVIntL2 + firstStrL2 + secondVIntL2, secondStrL2);
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
+  }
 
 	static { // register this comparator
 		WritableComparator.define(PairOfStrings.class, new Comparator());

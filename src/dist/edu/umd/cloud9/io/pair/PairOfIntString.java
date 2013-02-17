@@ -1,5 +1,5 @@
 /*
- * Cloud9: A MapReduce Library for Hadoop
+ * Cloud9: A Hadoop toolkit for working with big data
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You may
@@ -20,10 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-
-import edu.umd.cloud9.io.WritableComparatorUtils;
+import org.apache.hadoop.io.WritableUtils;
 
 /**
  * WritableComparable representing a pair consisting of an int and a String.
@@ -59,7 +59,7 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	 */
 	public void readFields(DataInput in) throws IOException {
 		leftElement = in.readInt();
-		rightElement = in.readUTF();
+		rightElement = Text.readString(in);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 	 */
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(leftElement);
-		out.writeUTF(rightElement);
+		Text.writeString(out, rightElement);
 	}
 
 	/**
@@ -194,10 +194,9 @@ public class PairOfIntString implements WritableComparable<PairOfIntString> {
 			int thatLeftValue = readInt(b2, s2);
 
 			if (thisLeftValue == thatLeftValue) {
-				String thisRightValue = WritableComparatorUtils.readUTF(b1, s1 + 4);
-				String thatRightValue = WritableComparatorUtils.readUTF(b2, s2 + 4);
-
-				return thisRightValue.compareTo(thatRightValue);
+				int n1 = WritableUtils.decodeVIntSize(b1[s1+4]);
+				int n2 = WritableUtils.decodeVIntSize(b2[s2+4]);
+				return compareBytes(b1, s1+4+n1, l1-n1-4, b2, s2+n2+4, l2-n2-4);	
 			}
 
 			return (thisLeftValue < thatLeftValue ? -1 : (thisLeftValue == thatLeftValue ? 0 : 1));
