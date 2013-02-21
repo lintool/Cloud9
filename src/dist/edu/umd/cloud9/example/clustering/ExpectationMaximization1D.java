@@ -1,13 +1,17 @@
 package edu.umd.cloud9.example.clustering;
 
+import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
+
+import com.google.common.collect.Sets;
 
 public class ExpectationMaximization1D {
 
   /**
    * Maximum number of iterations permitted.
    */
-  private static int MAX_ITERATIONS = 100;
+  private static int MAX_ITERATIONS = 1000;
 
   /**
    * Initializes a mixture model from clusters of points. The parameters estimated corresponds to
@@ -17,7 +21,6 @@ public class ExpectationMaximization1D {
    * @return mixture model
    */
   public static MixtureModel initialize(Vector<PVector>[] clusters) {
-
     // Mixture model
     MixtureModel mm = new MixtureModel(clusters.length);
     mm.EF = new UnivariateGaussian();
@@ -35,14 +38,16 @@ public class ExpectationMaximization1D {
 
       // Mean
       double mean = 0;
-      for (int j = 0; j < clusters[i].size(); j++)
+      for (int j = 0; j < clusters[i].size(); j++) {
         mean += clusters[i].get(j).array[0];
+      }
       mean /= clusters[i].size();
 
       // Variance
       double var = 0;
-      for (int j = 0; j < clusters[i].size(); j++)
+      for (int j = 0; j < clusters[i].size(); j++) {
         var += (clusters[i].get(j).array[0] - mean) * (clusters[i].get(j).array[0] - mean);
+      }
       var /= clusters[i].size();
 
       // Parameters
@@ -56,32 +61,78 @@ public class ExpectationMaximization1D {
     return mm;
   }
 
+  public static MixtureModel initialize(int n) {
+    Random rand = new Random();
+    // Mixture model
+    MixtureModel mm = new MixtureModel(n);
+    mm.EF = new UnivariateGaussian();
+
+    // Loop on the clusters
+    for (int i = 0; i < n; i++) {
+      mm.weight[i] = (float) 1/n;
+      PVector param = new PVector(2);
+      param.array[0] = i*5;
+      param.array[1] = 10;
+      mm.param[i] = param;
+    }
+
+    // Return
+    return mm;
+  }
+
+  public static MixtureModel initialize(PVector[] points, int n) {
+    Random rand = new Random();
+    // Mixture model
+    MixtureModel mm = new MixtureModel(n);
+    mm.EF = new UnivariateGaussian();
+
+    Set<Integer> set = Sets.newHashSet();
+    while ( set.size() < n ) {
+      int r = rand.nextInt(points.length);
+      if (!set.contains(r)) {
+        set.add(r);
+      }
+    }
+
+    Integer[] arr = set.toArray(new Integer[set.size()]);
+    // Loop on the clusters
+    for (int i = 0; i < n; i++) {
+      mm.weight[i] = (float) 1/n;
+      PVector param = new PVector(2);
+      param.array[0] = points[i].array[0];
+      param.array[1] = 0.5;
+      mm.param[i] = param;
+    }
+
+    // Return
+    return mm;
+  }
+
   /**
    * Performs the Expectation-Maximization algorithm. The parameters estimated corresponds to
    * univariate Gaussian distributions.
    *
    * @param points point set
-   * @param f initial mixture model
+   * @param m initial mixture model
    * @return mixture model
    */
-  public static MixtureModel run(PVector[] points, MixtureModel f) {
-
-    MixtureModel fout = f.clone();
+  public static MixtureModel run(PVector[] points, MixtureModel m) {
+    MixtureModel mixtureModel = m.clone();
 
     // Variables
-    int numComponents = fout.size;
+    int numComponents = mixtureModel.size;
     int numPoints = points.length;
     int n, k;
     int iterations = 0;
     double[][] p = new double[numPoints][numComponents];
 
     // Initial log likelihood
-    double logLikelihoodNew = logLikelihood(points, fout);
-    double logLikelihoodThreshold = Math.abs(logLikelihoodNew) * 0.01;
+    double logLikelihoodNew = logLikelihood(points, mixtureModel);
+    double logLikelihoodThreshold = 10e-10; //Math.abs(logLikelihoodNew) * 0.01;
     double logLikelihoodOld;
 
     // Display
-    // System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
+    System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
 
     do {
 
@@ -91,7 +142,7 @@ public class ExpectationMaximization1D {
       for (n = 0; n < numPoints; n++) {
         double sum = 0;
         for (k = 0; k < numComponents; k++) {
-          double tmp = fout.weight[k] * fout.EF.density(points[n], (PVector) fout.param[k]);
+          double tmp = mixtureModel.weight[k] * mixtureModel.EF.density(points[n], (PVector) mixtureModel.param[k]);
           p[n][k] = tmp;
           sum += tmp;
         }
@@ -127,22 +178,21 @@ public class ExpectationMaximization1D {
         PVector param = new PVector(2);
         param.array[0] = mu;
         param.array[1] = sigma;
-        fout.param[k] = param;
-        fout.weight[k] = sum / numPoints;
+        mixtureModel.param[k] = param;
+        mixtureModel.weight[k] = sum / numPoints;
       }
 
       // Update of iterations and log likelihood value
       iterations++;
-      logLikelihoodNew = logLikelihood(points, fout);
+      logLikelihoodNew = logLikelihood(points, mixtureModel);
 
       // Display
-      // System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
-
-    } while (Math.abs(logLikelihoodNew - logLikelihoodOld) > logLikelihoodThreshold
+      System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
+    } while (Math.abs((logLikelihoodNew - logLikelihoodOld)/logLikelihoodOld) > logLikelihoodThreshold
         && iterations < MAX_ITERATIONS);
 
     // Return
-    return fout;
+    return mixtureModel;
   }
 
   /**
@@ -154,8 +204,10 @@ public class ExpectationMaximization1D {
    */
   private static double logLikelihood(PVector[] points, MixtureModel f) {
     double value = 0;
-    for (int i = 0; i < points.length; i++)
+    for (int i = 0; i < points.length; i++) {
+      //System.out.println(f.density(points[i]));
       value += Math.log(f.density(points[i]));
+    }
     return value;
   }
 }
