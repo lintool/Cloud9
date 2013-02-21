@@ -14,7 +14,7 @@ public class KMeans {
 
   /**
    * Performs a k-means on the point set to compute k clusters.
-   * 
+   *
    * @param points point set
    * @param k number of clusters
    * @return clusters
@@ -52,37 +52,14 @@ public class KMeans {
   }
   
   /**
-   * Initializes the k-means by ramdomly picking points in the set.
-   * 
+   * Initializes the k-means by randomly picking points in the set.
+   *
    * @param points point set
    * @param k number of clusters
    * @return clusters
    */
   private static Point[] initialize(Point[] points, int k) {
-//
-//    // Initialize the first centroid
-//    Point[] centroids = new Point[k];
-//    Random rand = new Random();
-//    centroids[0] = (Point) points[rand.nextInt(points.length)].clone();
-//
-//    // Initialize the other centroids
-//    for (int i = 1; i < k; i++) {
-//      boolean cond = false;
-//      Point tmp;
-//      do {
-//        cond = false;
-//        tmp = points[rand.nextInt(points.length)];
-//        for (int j = 0; j < i; j++) {
-//          if (tmp == centroids[j]) {
-//            cond = true;
-//            break;
-//          }
-//        }
-//      } while (cond);
-//      centroids[i] = tmp.clone();
-//    }
-
-    Integer[] arr = ExpectationMaximization1D.sampleNUniquePoints(k, points.length);
+    Integer[] arr = ExpectationMaximization.sampleNUniquePoints(k, points.length);
     Point[] centroids = new Point[k];
     for (int i=0; i<k; i++) {
       centroids[i] = new Point(points[arr[i]].value);
@@ -93,7 +70,7 @@ public class KMeans {
 
   /**
    * Processes the repartition step.
-   * 
+   *
    * @param points point set
    * @param k number of clusters
    * @param centroids centroids of the clusters
@@ -128,7 +105,7 @@ public class KMeans {
 
   /**
    * Processes the centroid step.
-   * 
+   *
    * @param points point set
    * @param k number of clusters
    * @param centroids centroids of the clusters

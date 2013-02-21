@@ -2,95 +2,16 @@ package edu.umd.cloud9.example.clustering;
 
 import java.util.Random;
 import java.util.Set;
-import java.util.Vector;
 
 import com.google.common.collect.Sets;
 
-public class ExpectationMaximization1D {
-
-  /**
-   * Maximum number of iterations permitted.
-   */
+public class ExpectationMaximization {
+  // Maximum number of iterations permitted.
   private static int MAX_ITERATIONS = 30;
 
   /**
-   * Initializes a mixture model from clusters of points. The parameters estimated corresponds to
-   * univariate Gaussian distributions.
-   *
-   * @param clusters clusters of points
-   * @return mixture model
+   * Initializes the mixture model with points that are closet the given means.
    */
-  public static UnivariateGaussianMixtureModel initialize(Vector<PVector>[] clusters) {
-    // Mixture model
-    UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(clusters.length);
-
-    // Amount of points
-    int nb = 0;
-    for (int i = 0; i < clusters.length; i++)
-      nb += clusters[i].size();
-
-    // Loop on the clusters
-    for (int i = 0; i < clusters.length; i++) {
-
-      // Weight
-      mm.weight[i] = ((double) clusters[i].size()) / nb;
-
-      // Mean
-      double mean = 0;
-      for (int j = 0; j < clusters[i].size(); j++) {
-        mean += clusters[i].get(j).array[0];
-      }
-      mean /= clusters[i].size();
-
-      // Variance
-      double var = 0;
-      for (int j = 0; j < clusters[i].size(); j++) {
-        var += (clusters[i].get(j).array[0] - mean) * (clusters[i].get(j).array[0] - mean);
-      }
-      var /= clusters[i].size();
-
-      // Parameters
-      PVector param = new PVector(2);
-      param.array[0] = mean;
-      param.array[1] = var;
-      mm.param[i] = param;
-    }
-
-    // Return
-    return mm;
-  }
-
-  public static UnivariateGaussianMixtureModel initialize(int n) {
-    Random rand = new Random();
-    // Mixture model
-    UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(n);
-
-    // Loop on the clusters
-    for (int i = 0; i < n; i++) {
-      mm.weight[i] = (float) 1/n;
-      PVector param = new PVector(2);
-      param.array[0] = i*5;
-      param.array[1] = 10;
-      mm.param[i] = param;
-    }
-
-    // Return
-    return mm;
-  }
-
-  public static Integer[] sampleNUniquePoints(int n, int length) {
-    Random rand = new Random();
-    Set<Integer> set = Sets.newHashSet();
-    while ( set.size() < n ) {
-      int r = rand.nextInt(length);
-      if (!set.contains(r)) {
-        set.add(r);
-      }
-    }
-
-    return set.toArray(new Integer[set.size()]);
-  }
-
   public static UnivariateGaussianMixtureModel initialize(Point[] points, double[] means) {
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(means.length);
 
@@ -112,34 +33,24 @@ public class ExpectationMaximization1D {
       mm.param[i] = param;
     }
 
-    // Return
     return mm;
   }
 
+  /**
+   * Initializes the mixture model with random points.
+   */
   public static UnivariateGaussianMixtureModel initialize(Point[] points, int n) {
-    Random rand = new Random();
-    // Mixture model
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(n);
 
-    Set<Integer> set = Sets.newHashSet();
-    while ( set.size() < n ) {
-      int r = rand.nextInt(points.length);
-      if (!set.contains(r)) {
-        set.add(r);
-      }
-    }
-
-    Integer[] arr = set.toArray(new Integer[set.size()]);
-    // Loop on the clusters
+    Integer[] arr = sampleNUniquePoints(n, points.length);
     for (int i = 0; i < n; i++) {
       mm.weight[i] = (float) 1/n;
       PVector param = new PVector(2);
-      param.array[0] = points[i].value;
+      param.array[0] = points[arr[i]].value;
       param.array[1] = 1;
       mm.param[i] = param;
     }
 
-    // Return
     return mm;
   }
 
@@ -149,7 +60,7 @@ public class ExpectationMaximization1D {
    *
    * @param points point set
    * @param m initial mixture model
-   * @return mixture model
+   * @return learned mixture model
    */
   public static UnivariateGaussianMixtureModel run(Point[] points, UnivariateGaussianMixtureModel m) {
     UnivariateGaussianMixtureModel mixtureModel = m.clone();
@@ -166,8 +77,7 @@ public class ExpectationMaximization1D {
     double logLikelihoodThreshold = 10e-10; //Math.abs(logLikelihoodNew) * 0.01;
     double logLikelihoodOld;
 
-    // Display
-    System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
+    System.out.printf("Iteration %2d: LL = %12.6f\n", iterations, logLikelihoodNew);
 
     do {
 
@@ -177,7 +87,8 @@ public class ExpectationMaximization1D {
       for (n = 0; n < numPoints; n++) {
         double sum = 0;
         for (k = 0; k < numComponents; k++) {
-          double tmp = mixtureModel.weight[k] * mixtureModel.densityOfGaussian(points[n], (PVector) mixtureModel.param[k]);
+          double tmp = mixtureModel.weight[k] *
+              UnivariateGaussianMixtureModel.densityOfGaussian(points[n], mixtureModel.param[k]);
           p[n][k] = tmp;
           sum += tmp;
         }
@@ -209,7 +120,7 @@ public class ExpectationMaximization1D {
         }
         sigma /= sum;
 
-        // Set new mu and sigma to the PVectorMatrix
+        // Set new mu and sigma
         PVector param = new PVector(2);
         param.array[0] = mu;
         param.array[1] = sigma;
@@ -221,28 +132,38 @@ public class ExpectationMaximization1D {
       iterations++;
       logLikelihoodNew = logLikelihood(points, mixtureModel);
 
-      // Display
-      System.out.printf("%2d : %12.6f\n", iterations, logLikelihoodNew);
+      System.out.printf("Iteration %2d: LL = %12.6f\n", iterations, logLikelihoodNew);
     } while (Math.abs((logLikelihoodNew - logLikelihoodOld)/logLikelihoodOld) > logLikelihoodThreshold
         && iterations < MAX_ITERATIONS);
 
-    // Return
     return mixtureModel;
   }
 
   /**
    * Computes the log likelihood.
    *
-   * @param points set of points.
-   * @param f mixture model.
-   * @return log likelihood.
+   * @param points set of points
+   * @param f mixture model
+   * @return log likelihood
    */
   private static double logLikelihood(Point[] points, UnivariateGaussianMixtureModel f) {
     double value = 0;
     for (int i = 0; i < points.length; i++) {
-      //System.out.println(f.density(points[i]));
       value += Math.log(f.density(points[i]));
     }
     return value;
+  }
+
+  public static final Integer[] sampleNUniquePoints(int n, int length) {
+    Random rand = new Random();
+    Set<Integer> set = Sets.newHashSet();
+    while ( set.size() < n ) {
+      int r = rand.nextInt(length);
+      if (!set.contains(r)) {
+        set.add(r);
+      }
+    }
+
+    return set.toArray(new Integer[set.size()]);
   }
 }

@@ -4,28 +4,10 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * @author Vincent Garcia
- * @author Frank Nielsen
- * @version 1.0
- * 
- * @section License
- * 
- *          See file LICENSE.txt
- * 
- * @section Description
- * 
- *          A statistical distribution is parameterized by a set of values (parameters). The PVector
- *          class implements a parameter object. Parameters are represented as a vector.
+ * Parameter vector.
  */
 public final class PVector {
-  /**
-   * Dimension of the vector.
-   */
-  public int dim;
-
-  /**
-   * Array containing the values of the vector.
-   */
+  private int dim;
   public double[] array;
 
   /**
@@ -38,13 +20,7 @@ public final class PVector {
     this.array = new double[dim];
   }
 
-  /**
-   * Adds (not in place) the current vector \f$ v_1 \f$ to the vector \f$ v_2 \f$.
-   * 
-   * @param v2 vector \f$ v_2 \f$
-   * @return \f$ v_1 + v_2 \f$
-   */
-  public PVector Plus(PVector v2) {
+  public PVector plus(PVector v2) {
     PVector result = new PVector(this.dim);
     PVector q = v2;
     for (int i = 0; i < q.dim; i++)
@@ -52,13 +28,7 @@ public final class PVector {
     return result;
   }
 
-  /**
-   * Subtracts (not in place) the vector \f$ v_2 \f$ to the current vector \f$ v_1 \f$.
-   * 
-   * @param v2 vector \f$ v_2 \f$
-   * @return \f$ v_1 - v_2 \f$
-   */
-  public PVector Minus(PVector v2) {
+  public PVector minus(PVector v2) {
     PVector result = new PVector(this.dim);
     PVector q = v2;
     for (int i = 0; i < q.dim; i++)
@@ -66,13 +36,7 @@ public final class PVector {
     return result;
   }
 
-  /**
-   * Multiplies (not in place) the current vector \f$ v \f$ by a real number \f$ \lambda \f$.
-   * 
-   * @param lambda value \f$ \lambda \f$
-   * @return \f$ \lambda . v\f$
-   */
-  public PVector Times(double lambda) {
+  public PVector times(double lambda) {
     PVector result = new PVector(this.dim);
 
     for (int i = 0; i < dim; i++)
@@ -81,14 +45,7 @@ public final class PVector {
     return result;
   }
 
-  /**
-   * Computes the inner product (real number) between the current vector \f$ v_1 \f$ and the vector
-   * \f$ v_2 \f$.
-   * 
-   * @param v2 vector \f$ v_2 \f$
-   * @return \f$ v_1^\top . v_2 \f$
-   */
-  public double InnerProduct(PVector v2) {
+  public double dot(PVector v2) {
     double result = 0.0d;
     PVector q = v2;
     for (int i = 0; i < q.dim; i++)
@@ -103,7 +60,7 @@ public final class PVector {
    * @param dim dimension of the vector
    * @return random vector
    */
-  public static PVector Random(int dim) {
+  public static PVector sampleRandomVector(int dim) {
     PVector result = new PVector(dim);
     for (int i = 0; i < dim; i++)
       result.array[i] = Math.random();
@@ -117,8 +74,8 @@ public final class PVector {
    * @param dim dimension of the vector
    * @return random vector
    */
-  public static PVector RandomDistribution(int dim) {
-    PVector result = Random(dim);
+  public static PVector sampleRandomDistribution(int dim) {
+    PVector result = sampleRandomVector(dim);
     int i;
     double cumul = 0.0d;
     for (i = 0; i < dim; i++)
@@ -151,11 +108,6 @@ public final class PVector {
     return Math.sqrt(norm);
   }
 
-  /**
-   * Method toString.
-   * 
-   * @return value of the vector as a string
-   */
   public String toString() {
     String output = "( ";
 
@@ -167,7 +119,7 @@ public final class PVector {
 
   /**
    * Creates and returns a copy of the instance.
-   * 
+   *
    * @return a clone of the instance.
    */
   public PVector clone() {
@@ -178,11 +130,10 @@ public final class PVector {
 
   /**
    * Returns vector's dimension.
-   * 
+   *
    * @return vector's dimension.
    */
   public int getDimension() {
     return this.dim;
   }
-
 }

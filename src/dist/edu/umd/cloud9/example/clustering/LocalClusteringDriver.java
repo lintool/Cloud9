@@ -90,15 +90,15 @@ public class LocalClusteringDriver {
       }
 
       System.out.println("Cluster means: " + Arrays.toString(means) + "\n");
-      learnedModel = ExpectationMaximization1D.initialize(points, means);
+      learnedModel = ExpectationMaximization.initialize(points, means);
     } else {
-      learnedModel = ExpectationMaximization1D.initialize(points, numComponents);
+      learnedModel = ExpectationMaximization.initialize(points, numComponents);
     }
 
     System.out.println("** Ready to run EM **\n");
     System.out.println("Initial mixture model:\n" + learnedModel + "\n");
 
-    learnedModel = ExpectationMaximization1D.run(points, learnedModel);
+    learnedModel = ExpectationMaximization.run(points, learnedModel);
     System.out.println("Mixure model estimated using EM: \n" + learnedModel + "\n");
   }
 }
