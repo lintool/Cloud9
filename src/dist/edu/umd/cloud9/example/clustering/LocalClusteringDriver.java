@@ -10,8 +10,8 @@ public class LocalClusteringDriver {
     int m = 10000;
 
     // Initial mixture model
-    MixtureModel mm = new MixtureModel(n);
-    mm.EF = new UnivariateGaussian();
+    UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(n);
+    mm.Gaussian = new UnivariateGaussian();
     for (int i = 0; i < n; i++) {
       PVector param = new PVector(2);
       param.array[0] = 20 * (i + 1);
@@ -27,7 +27,7 @@ public class LocalClusteringDriver {
     //Vector<PVector>[] clusters = KMeans.run(points, n);
 
     // Classical EM
-    MixtureModel mmc;
+    UnivariateGaussianMixtureModel mmc;
     //mmc = ExpectationMaximization1D.initialize(clusters);
     mmc = ExpectationMaximization1D.initialize(points, 3);
     System.out.println(mmc);

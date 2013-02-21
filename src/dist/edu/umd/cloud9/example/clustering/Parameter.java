@@ -18,13 +18,7 @@ import java.io.Serializable;
  *          PVector), a matrix (class PMatrix), or both (class PVectorMatrix). The Parameter class
  *          is an abstract class.
  */
-abstract public class Parameter implements Serializable {
-
-  /**
-   * Constant for serialization.
-   */
-  private static final long serialVersionUID = 1L;
-
+abstract public class Parameter {
   /**
    * Type of the parameters: source parameters, natural parameters, or expectation parameters.
    */

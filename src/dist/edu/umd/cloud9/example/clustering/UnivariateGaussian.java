@@ -29,13 +29,7 @@ import edu.umd.cloud9.example.clustering.Parameter.TYPE;
  *          \theta_1 , \theta_2 ) \in R \times R^-\f$ - Expectation parameters \f$ \mathbf{H} = (
  *          \eta_1 , \eta_2 ) \in R \times R^+\f$
  */
-public final class UnivariateGaussian extends ExponentialFamily<PVector, PVector> {
-
-  /**
-   * Constant for serialization.
-   */
-  private static final long serialVersionUID = 1L;
-
+public final class UnivariateGaussian {
   /**
    * Computes the log normalizer \f$ F( \mathbf{\Theta} ) \f$.
    * 
@@ -172,28 +166,6 @@ public final class UnivariateGaussian extends ExponentialFamily<PVector, PVector
   }
 
   /**
-   * Box-Muller transform/generator.
-   * 
-   * @param mu mean \f$ \mu \f$
-   * @param sigma variance \f$ \sigma \f$
-   * @return \f$ \mu + \sigma \sqrt{ -2 \log ( x ) } \cos (2 \pi x) \f$ where \f$ x \in
-   *         \mathcal{U}(0,1)\f$
-   */
-  public static double Rand(double mu, double sigma) {
-    return mu + sigma * Math.sqrt(-2.0d * Math.log(Math.random()))
-        * Math.cos(2.0d * Math.PI * Math.random());
-  }
-
-  /**
-   * Box-Muller transform/generator
-   * 
-   * @return \f$ \sqrt{ -2 \log ( x ) } \cos (2 \pi x) \f$ where \f$ x \in \mathcal{U}(0,1)\f$
-   */
-  public static double Rand() {
-    return Rand(0, 1);
-  }
-
-  /**
    * Computes the density value \f$ f(x;\mu,\sigma^2) \f$.
    * 
    * @param x point
@@ -202,14 +174,9 @@ public final class UnivariateGaussian extends ExponentialFamily<PVector, PVector
    *         \frac{(x-\mu)^2}{ 2 \sigma^2} \right) \f$
    */
   public double density(PVector x, PVector param) {
-    if (param.type == TYPE.SOURCE_PARAMETER)
-      return Math.exp(-(x.array[0] - param.array[0]) * (x.array[0] - param.array[0])
+    return Math.exp(-(x.array[0] - param.array[0]) * (x.array[0] - param.array[0])
           / (2.0d * param.array[1]))
           / (Math.sqrt(2.0d * Math.PI * param.array[1]));
-    else if (param.type == TYPE.NATURAL_PARAMETER)
-      return super.density(x, param);
-    else
-      return super.density(x, Eta2Theta(param));
   }
 
   /**
@@ -232,21 +199,4 @@ public final class UnivariateGaussian extends ExponentialFamily<PVector, PVector
     v.array[0] = rand.nextGaussian() * Math.sqrt(variance.array[0]);
     return v.Plus(mean);
   }
-
-  /**
-   * Computes the Kullback-Leibler divergence between two univariate Gaussian distributions.
-   * 
-   * @param LP source parameters \f$ \mathbf{\Lambda}_P \f$
-   * @param LQ source parameters \f$ \mathbf{\Lambda}_Q \f$
-   * @return \f$ D_{\mathrm{KL}}(f_P\|f_Q) = \frac{1}{2} \left( 2 \log \frac{\sigma_Q}{\sigma_P} +
-   *         \frac{\sigma_P^2}{\sigma_Q^2} + \frac{(\mu_Q-\mu_P)^2}{\sigma_Q^2} -1\right) \f$
-   */
-  public double KLD(PVector LP, PVector LQ) {
-    double mP = LP.array[0];
-    double vP = LP.array[1];
-    double mQ = LQ.array[0];
-    double vQ = LQ.array[1];
-    return 0.5d * (2 * Math.log(Math.sqrt(vQ / vP)) + vP / vQ + ((mQ - mP) * (mQ - mP)) / vQ - 1);
-  }
-
 }
