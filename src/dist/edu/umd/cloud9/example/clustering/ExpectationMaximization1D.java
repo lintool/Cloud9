@@ -11,7 +11,7 @@ public class ExpectationMaximization1D {
   /**
    * Maximum number of iterations permitted.
    */
-  private static int MAX_ITERATIONS = 100;
+  private static int MAX_ITERATIONS = 30;
 
   /**
    * Initializes a mixture model from clusters of points. The parameters estimated corresponds to
@@ -23,7 +23,6 @@ public class ExpectationMaximization1D {
   public static UnivariateGaussianMixtureModel initialize(Vector<PVector>[] clusters) {
     // Mixture model
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(clusters.length);
-    mm.Gaussian = new UnivariateGaussian();
 
     // Amount of points
     int nb = 0;
@@ -65,7 +64,6 @@ public class ExpectationMaximization1D {
     Random rand = new Random();
     // Mixture model
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(n);
-    mm.Gaussian = new UnivariateGaussian();
 
     // Loop on the clusters
     for (int i = 0; i < n; i++) {
@@ -80,11 +78,48 @@ public class ExpectationMaximization1D {
     return mm;
   }
 
-  public static UnivariateGaussianMixtureModel initialize(PVector[] points, int n) {
+  public static Integer[] sampleNUniquePoints(int n, int length) {
+    Random rand = new Random();
+    Set<Integer> set = Sets.newHashSet();
+    while ( set.size() < n ) {
+      int r = rand.nextInt(length);
+      if (!set.contains(r)) {
+        set.add(r);
+      }
+    }
+
+    return set.toArray(new Integer[set.size()]);
+  }
+
+  public static UnivariateGaussianMixtureModel initialize(Point[] points, double[] means) {
+    UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(means.length);
+
+    for (int i = 0; i < means.length; i++) {
+      mm.weight[i] = (float) 1/means.length;
+      PVector param = new PVector(2);
+
+      Point tmpPoint = null;
+      double minD = Double.MAX_VALUE;
+      for (int j=0; j<points.length; j++) {
+        double d = Math.abs(points[j].value - means[i]);
+        if ( d < minD ) {
+          tmpPoint = points[j];
+          minD = d;
+        }
+      }
+      param.array[0] = tmpPoint.value;
+      param.array[1] = 1;
+      mm.param[i] = param;
+    }
+
+    // Return
+    return mm;
+  }
+
+  public static UnivariateGaussianMixtureModel initialize(Point[] points, int n) {
     Random rand = new Random();
     // Mixture model
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(n);
-    mm.Gaussian = new UnivariateGaussian();
 
     Set<Integer> set = Sets.newHashSet();
     while ( set.size() < n ) {
@@ -99,8 +134,8 @@ public class ExpectationMaximization1D {
     for (int i = 0; i < n; i++) {
       mm.weight[i] = (float) 1/n;
       PVector param = new PVector(2);
-      param.array[0] = points[i].array[0];
-      param.array[1] = 0.5;
+      param.array[0] = points[i].value;
+      param.array[1] = 1;
       mm.param[i] = param;
     }
 
@@ -116,7 +151,7 @@ public class ExpectationMaximization1D {
    * @param m initial mixture model
    * @return mixture model
    */
-  public static UnivariateGaussianMixtureModel run(PVector[] points, UnivariateGaussianMixtureModel m) {
+  public static UnivariateGaussianMixtureModel run(Point[] points, UnivariateGaussianMixtureModel m) {
     UnivariateGaussianMixtureModel mixtureModel = m.clone();
 
     // Variables
@@ -142,7 +177,7 @@ public class ExpectationMaximization1D {
       for (n = 0; n < numPoints; n++) {
         double sum = 0;
         for (k = 0; k < numComponents; k++) {
-          double tmp = mixtureModel.weight[k] * mixtureModel.Gaussian.density(points[n], (PVector) mixtureModel.param[k]);
+          double tmp = mixtureModel.weight[k] * mixtureModel.densityOfGaussian(points[n], (PVector) mixtureModel.param[k]);
           p[n][k] = tmp;
           sum += tmp;
         }
@@ -163,13 +198,13 @@ public class ExpectationMaximization1D {
         for (n = 0; n < numPoints; n++) {
           double w = p[n][k];
           sum += w;
-          mu += points[n].array[0] * w;
+          mu += points[n].value * w;
         }
         mu /= sum;
 
         // Computation of new sigma
         for (n = 0; n < numPoints; n++) {
-          double diff = points[n].array[0] - mu;
+          double diff = points[n].value - mu;
           sigma += p[n][k] * diff * diff;
         }
         sigma /= sum;
@@ -202,7 +237,7 @@ public class ExpectationMaximization1D {
    * @param f mixture model.
    * @return log likelihood.
    */
-  private static double logLikelihood(PVector[] points, UnivariateGaussianMixtureModel f) {
+  private static double logLikelihood(Point[] points, UnivariateGaussianMixtureModel f) {
     double value = 0;
     for (int i = 0; i < points.length; i++) {
       //System.out.println(f.density(points[i]));

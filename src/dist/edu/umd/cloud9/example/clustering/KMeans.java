@@ -1,8 +1,12 @@
 package edu.umd.cloud9.example.clustering;
 
 import java.util.Arrays;
-import java.util.Random;
-import java.util.Vector;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class KMeans {
 
@@ -15,11 +19,11 @@ public class KMeans {
    * @param k number of clusters
    * @return clusters
    */
-  public static Vector<PVector>[] run(PVector[] points, int k) {
-
-    PVector[] centroids = initialize(points, k);
+  public static List<Point>[] run(Point[] points, int k) {
+    Point[] centroids = initialize(points, k);
     int[] repartition = new int[points.length];
-    Vector<PVector>[] clusters = new Vector[k];
+    @SuppressWarnings("unchecked")
+    List<Point>[] clusters = (List<Point>[]) new List[k];
 
     int it = 0;
     int[] tmp = new int[points.length];
@@ -34,6 +38,19 @@ public class KMeans {
     return clusters;
   }
 
+  public static void dumpClusters(List<Point>[] clusters){
+    for (List<Point> cluster : clusters) {
+      System.out.println(Lists.transform(cluster, new Function<Point, Double>() {
+
+        @Override @Nullable
+        public Double apply(@Nullable Point point) {
+          return point.value;
+        }
+        
+      }).toString());
+    }
+  }
+  
   /**
    * Initializes the k-means by ramdomly picking points in the set.
    * 
@@ -41,30 +58,35 @@ public class KMeans {
    * @param k number of clusters
    * @return clusters
    */
-  private static PVector[] initialize(PVector[] points, int k) {
+  private static Point[] initialize(Point[] points, int k) {
+//
+//    // Initialize the first centroid
+//    Point[] centroids = new Point[k];
+//    Random rand = new Random();
+//    centroids[0] = (Point) points[rand.nextInt(points.length)].clone();
+//
+//    // Initialize the other centroids
+//    for (int i = 1; i < k; i++) {
+//      boolean cond = false;
+//      Point tmp;
+//      do {
+//        cond = false;
+//        tmp = points[rand.nextInt(points.length)];
+//        for (int j = 0; j < i; j++) {
+//          if (tmp == centroids[j]) {
+//            cond = true;
+//            break;
+//          }
+//        }
+//      } while (cond);
+//      centroids[i] = tmp.clone();
+//    }
 
-    // Initialize the first centroid
-    PVector[] centroids = new PVector[k];
-    Random rand = new Random();
-    centroids[0] = (PVector) points[rand.nextInt(points.length)].clone();
-
-    // Initialize the other centroids
-    for (int i = 1; i < k; i++) {
-      boolean cond = false;
-      PVector tmp;
-      do {
-        cond = false;
-        tmp = points[rand.nextInt(points.length)];
-        for (int j = 0; j < i; j++) {
-          if (PVector.equals(tmp, centroids[j])) {
-            cond = true;
-            break;
-          }
-        }
-      } while (cond);
-      centroids[i] = (PVector) tmp.clone();
+    Integer[] arr = ExpectationMaximization1D.sampleNUniquePoints(k, points.length);
+    Point[] centroids = new Point[k];
+    for (int i=0; i<k; i++) {
+      centroids[i] = new Point(points[arr[i]].value);
     }
-
     // Return
     return centroids;
   }
@@ -78,12 +100,12 @@ public class KMeans {
    * @param repartition repartition array
    * @param clusters clusters
    */
-  private static void repartitionStep(PVector[] points, int k, PVector[] centroids,
-      int[] repartition, Vector<PVector>[] clusters) {
+  private static void repartitionStep(Point[] points, int k, Point[] centroids,
+      int[] repartition, List<Point>[] clusters) {
 
     // Initialization of the clusters
     for (int i = 0; i < k; i++)
-      clusters[i] = new Vector<PVector>();
+      clusters[i] = Lists.newArrayList();
 
     // Compute repartition
     for (int i = 0; i < points.length; i++) {
@@ -92,7 +114,7 @@ public class KMeans {
       double dist = Double.MAX_VALUE;
 
       for (int j = 0; j < k; j++) {
-        double dist_tmp = points[i].Minus(centroids[j]).norm2();
+        double dist_tmp = Math.abs(points[i].value - centroids[j].value);
         if (dist_tmp < dist) {
           dist = dist_tmp;
           index = j;
@@ -112,13 +134,14 @@ public class KMeans {
    * @param centroids centroids of the clusters
    * @param clusters clusters
    */
-  private static void centroidStep(PVector[] points, int k, PVector[] centroids,
-      Vector<PVector>[] clusters) {
+  private static void centroidStep(Point[] points, int k, Point[] centroids,
+      List<Point>[] clusters) {
     for (int i = 0; i < k; i++) {
-      centroids[i] = new PVector(points[0].dim);
-      for (int j = 0; j < clusters[i].size(); j++)
-        centroids[i] = centroids[i].Plus((PVector) clusters[i].get(j));
-      centroids[i] = centroids[i].Times(1.0d / clusters[i].size());
+      centroids[i] = new Point(0);
+      for (int j = 0; j < clusters[i].size(); j++) {
+        centroids[i].value = centroids[i].value + clusters[i].get(j).value;
+      }
+      centroids[i].value = centroids[i].value * (1.0d / clusters[i].size());
     }
   }
 }

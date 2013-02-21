@@ -1,76 +1,33 @@
 package edu.umd.cloud9.example.clustering;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Random;
 
-/**
- * @author Vincent Garcia
- * @author Frank Nielsen
- * @version 1.0
- * 
- * @section License
- * 
- *          See file LICENSE.txt
- * 
- * @section Description
- * 
- *          A mixture model is a powerful framework commonly used to estimate the probability
- *          density function (PDF) of a random variable. Let us consider a mixture model \f$f\f$ of
- *          size \f$n\f$. The probability density function \f$f\f$ evaluated at \f$x \in R^d\f$ is
- *          given by \f[ f(x) = \sum_{i=1}^n \alpha_i f_i(x)\f] where \f$\alpha_i \in [0,1]\f$
- *          denotes the weight of the \f$i^{\textrm{th}}\f$ mixture component \f$f_i\f$ such as
- *          \f$\sum_{i=1}^n \alpha_i=1\f$. The MixtureModel class provides a convenient way to
- *          create and manage mixture of exponential families.
- */
 public class UnivariateGaussianMixtureModel {
-
-  /**
-   * Exponential family of the mixture model.
-   */
-  public UnivariateGaussian Gaussian;
-
-  /**
-   * Number of components in the mixture model.
-   */
   public int size;
-
-  /**
-   * Array containing the weights of the mixture components.
-   */
   public double[] weight;
-
-  /**
-   * Array containing the parameters of the mixture components.
-   */
   public PVector[] param;
 
   /**
    * Class constructor.
-   * 
-   * @param n number of components in the mixture models.
+   *
+   * @param n number of components in the mixture model
    */
   public UnivariateGaussianMixtureModel(int n) {
-    this.Gaussian = null;
     this.size = n;
     this.weight = new double[n];
     this.param = new PVector[n];
   }
 
   /**
-   * Computes the density value \f$ f(x) \f$ of a mixture model.
-   * 
+   * Computes the density value of this mixture value.
+   *
    * @param x a point
-   * @return value of the density \f$ f(x) \f$
+   * @return density value of this mixture value
    */
-  public double density(PVector x) {
+  public double density(Point x) {
     double cumul = 0.0d;
     for (int i = 0; i < this.size; i++)
-      cumul += this.weight[i] * this.Gaussian.density(x, this.param[i]);
+      cumul += this.weight[i] * densityOfGaussian(x, this.param[i]);
     return cumul;
   }
 
@@ -109,7 +66,6 @@ public class UnivariateGaussianMixtureModel {
    */
   public UnivariateGaussianMixtureModel clone() {
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(this.size);
-    mm.Gaussian = this.Gaussian;
     mm.weight = this.weight.clone();
     for (int i = 0; i < this.size; i++)
       mm.param[i] = (PVector) this.param[i].clone();
@@ -131,10 +87,10 @@ public class UnivariateGaussianMixtureModel {
    * @param m number of points to draw
    * @return a point
    */
-  public PVector[] drawRandomPoints(int m) {
+  public Point[] drawRandomPoints(int m) {
 
     // Array of points
-    PVector[] points = new PVector[m];
+    Point[] points = new Point[m];
 
     // Cumulative array
     int n = this.size;
@@ -157,8 +113,37 @@ public class UnivariateGaussianMixtureModel {
         idx++;
 
       // Draw and return the point from the idx-th model
-      points[i] = (PVector) this.Gaussian.drawRandomPoint(this.param[idx]);
+      points[i] = drawRandomPointFromGaussian(this.param[idx]);
     }
     return points;
+  }
+
+  /**
+   * Computes the density value \f$ f(x;\mu,\sigma^2) \f$.
+   * 
+   * @param x point
+   * @param param parameters (source, natural, or expectation)
+   * @return \f$ f(x;\mu,\sigma^2) = \frac{1}{ \sqrt{2\pi \sigma^2} } \exp \left( -
+   *         \frac{(x-\mu)^2}{ 2 \sigma^2} \right) \f$
+   */
+  public static double densityOfGaussian(Point x, PVector param) {
+    return Math.exp(-(x.value - param.array[0]) * (x.value - param.array[0])
+          / (2.0d * param.array[1]))
+          / (Math.sqrt(2.0d * Math.PI * param.array[1]));
+  }
+
+  /**
+   * Draws a point from the considered distribution.
+   * 
+   * @param L source parameters \f$ \mathbf{\Lambda} = ( \mu , \sigma^2 )\f$
+   * @return a point
+   */
+  public static Point drawRandomPointFromGaussian(PVector L) {
+    double mean = L.array[0];
+    double variance = L.array[1];
+
+    // Draw the point
+    Random rand = new Random();
+    return new Point(mean + rand.nextGaussian() * Math.sqrt(variance));
   }
 }

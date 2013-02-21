@@ -17,13 +17,7 @@ import java.util.Locale;
  *          A statistical distribution is parameterized by a set of values (parameters). The PVector
  *          class implements a parameter object. Parameters are represented as a vector.
  */
-public final class PVector extends Parameter {
-
-  /**
-   * Constant for serialization.
-   */
-  private static final long serialVersionUID = 1L;
-
+public final class PVector {
   /**
    * Dimension of the vector.
    */
@@ -50,9 +44,9 @@ public final class PVector extends Parameter {
    * @param v2 vector \f$ v_2 \f$
    * @return \f$ v_1 + v_2 \f$
    */
-  public PVector Plus(Parameter v2) {
+  public PVector Plus(PVector v2) {
     PVector result = new PVector(this.dim);
-    PVector q = (PVector) v2;
+    PVector q = v2;
     for (int i = 0; i < q.dim; i++)
       result.array[i] = this.array[i] + q.array[i];
     return result;
@@ -64,9 +58,9 @@ public final class PVector extends Parameter {
    * @param v2 vector \f$ v_2 \f$
    * @return \f$ v_1 - v_2 \f$
    */
-  public PVector Minus(Parameter v2) {
+  public PVector Minus(PVector v2) {
     PVector result = new PVector(this.dim);
-    PVector q = (PVector) v2;
+    PVector q = v2;
     for (int i = 0; i < q.dim; i++)
       result.array[i] = this.array[i] - q.array[i];
     return result;
@@ -94,9 +88,9 @@ public final class PVector extends Parameter {
    * @param v2 vector \f$ v_2 \f$
    * @return \f$ v_1^\top . v_2 \f$
    */
-  public double InnerProduct(Parameter v2) {
+  public double InnerProduct(PVector v2) {
     double result = 0.0d;
-    PVector q = (PVector) v2;
+    PVector q = v2;
     for (int i = 0; i < q.dim; i++)
       result += this.array[i] * q.array[i];
     return result;
@@ -176,9 +170,8 @@ public final class PVector extends Parameter {
    * 
    * @return a clone of the instance.
    */
-  public Parameter clone() {
+  public PVector clone() {
     PVector param = new PVector(this.dim);
-    param.type = this.type;
     param.array = this.array.clone();
     return param;
   }
