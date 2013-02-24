@@ -32,30 +32,34 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
-public class BooleanRetrieval {
-  private final MapFile.Reader index;
-  private final FSDataInputStream collection;
-  private final Stack<Set<Integer>> stack;
+public class BooleanRetrieval extends Configured implements Tool {
+  private MapFile.Reader index;
+  private FSDataInputStream collection;
+  private Stack<Set<Integer>> stack;
 
-  public BooleanRetrieval(String indexPath, String collectionPath, FileSystem fs) throws IOException {
+  private BooleanRetrieval() {}
+
+  private void initialize(String indexPath, String collectionPath, FileSystem fs) throws IOException {
     index = new MapFile.Reader(new Path(indexPath + "/part-r-00000"), fs.getConf());
     collection = fs.open(new Path(collectionPath));
     stack = new Stack<Set<Integer>>();
   }
 
-  public void runQuery(String q) throws IOException {
+  private void runQuery(String q) throws IOException {
     String[] terms = q.split("\\s+");
 
     for (String t : terms) {
@@ -76,11 +80,11 @@ public class BooleanRetrieval {
     }
   }
 
-  public void pushTerm(String term) throws IOException {
+  private void pushTerm(String term) throws IOException {
     stack.push(fetchDocumentSet(term));
   }
 
-  public void performAND() {
+  private void performAND() {
     Set<Integer> s1 = stack.pop();
     Set<Integer> s2 = stack.pop();
 
@@ -95,7 +99,7 @@ public class BooleanRetrieval {
     stack.push(sn);
   }
 
-  public void performOR() {
+  private void performOR() {
     Set<Integer> s1 = stack.pop();
     Set<Integer> s2 = stack.pop();
 
@@ -112,7 +116,7 @@ public class BooleanRetrieval {
     stack.push(sn);
   }
 
-  public Set<Integer> fetchDocumentSet(String term) throws IOException {
+  private Set<Integer> fetchDocumentSet(String term) throws IOException {
     Set<Integer> set = new TreeSet<Integer>();
 
     for (PairOfInts pair : fetchPostings(term)) {
@@ -122,7 +126,7 @@ public class BooleanRetrieval {
     return set;
   }
 
-  public ArrayListWritable<PairOfInts> fetchPostings(String term) throws IOException {
+  private ArrayListWritable<PairOfInts> fetchPostings(String term) throws IOException {
     Text key = new Text();
     PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value =
         new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
@@ -133,7 +137,7 @@ public class BooleanRetrieval {
     return value.getRightElement();
   }
 
-  public String fetchLine(long offset) throws IOException {
+  private String fetchLine(long offset) throws IOException {
     collection.seek(offset);
     BufferedReader reader = new BufferedReader(new InputStreamReader(collection));
 
@@ -143,8 +147,11 @@ public class BooleanRetrieval {
   private static final String INDEX = "index";
   private static final String COLLECTION = "collection";
 
+  /**
+   * Runs this tool.
+   */
   @SuppressWarnings({ "static-access" })
-  public static void main(String[] args) throws IOException {
+  public int run(String[] args) throws Exception {
     Options options = new Options();
 
     options.addOption(OptionBuilder.withArgName("path").hasArg()
@@ -181,7 +188,7 @@ public class BooleanRetrieval {
 
     FileSystem fs = FileSystem.get(new Configuration());
 
-    BooleanRetrieval s = new BooleanRetrieval(indexPath, collectionPath, fs);
+    initialize(indexPath, collectionPath, fs);
 
     String[] queries = { "outrageous fortune AND", "white rose AND", "means deceit AND",
         "white red OR rose AND pluck AND", "unhappy outrageous OR good your AND OR fortune AND" };
@@ -189,8 +196,17 @@ public class BooleanRetrieval {
     for (String q : queries) {
       System.out.println("Query: " + q);
 
-      s.runQuery(q);
+      runQuery(q);
       System.out.println("");
     }
+
+    return 1;
+  }
+
+  /**
+   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
+   */
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new BooleanRetrieval(), args);
   }
 }

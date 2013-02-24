@@ -65,23 +65,50 @@
 </div>
 
 <p>This page presents solutions for
-the <a href="indexing.html">inverted indexing exercise</a>.  The main
+the <a href="indexing.html">inverted indexing exercise</a>.</p>
+
+<p>Let's start by putting the collection into HDFS:</p>
+
+<pre class="code">
+hadoop fs -put data/bible+shakes.nopunc
+</pre>
+
+<p>Note that we've uncompressed the collection first. The reason for
+this is that in order to fetch a random document, we need to seek to
+arbitrary positions in the file, which is not possible with gzip. (In
+case you're wondering, with block compression schemes such as lzo this
+is possible, but requires creating a block-level index ahead of
+time. This is beyond the scope of this exercise.)</p>
+
+<p>The main
 class for building the inverted index is
 <code>edu.umd.cloud9.example.ir.BuildInvertedIndex</code> and a sample
 command-line invocation is as follows:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.ir.BuildInvertedIndex -input data/bible+shakes.nopunc.gz -output index -numReducers 1
+etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.BuildInvertedIndex -input bible+shakes.nopunc -output index -numReducers 1
 </pre>
 
 <p>Command-line invocation for a simple program that performs the
 analysis asked in the questions:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection data/bible+shakes.nopunc
+etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection bible+shakes.nopunc
 </pre>
 
-<p>Posting corresponding to the term "starcross'd":</p>
+<p>Although <code>LookupPostings</code> is not a MapReduce program, we
+use <code>etc/hadoop-cluster.sh</code> as the launcher script so that
+HDFS configurations are properly set up. In this case, we read
+data <i>directly</i> from HDFS.</p>
+
+<p>Alternatively, you can copy the index data out of HDFS onto local
+drive, and use the <code>etc/run.sh</code> launch script:</p>
+
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection bible+shakes.nopunc
+</pre>
+
+<p>Now, onto the answers. Posting corresponding to the term "starcross'd":</p>
 
 <pre class="code">
 (5047738, 1)
