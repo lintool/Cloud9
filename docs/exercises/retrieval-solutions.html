@@ -66,12 +66,21 @@
 
 <p>This page presents solutions for
 the <a href="retrieval.html">Boolean retrieval exercise</a>.  The main
-class for building the inverted index is
-<code>edu.umd.cloud9.example.ir.BooleanRetrieval</code> and a sample
+class for performing retrieval is
+<code>edu.umd.cloud9.example.ir.BooleanRetrieval</code>. Assuming the
+inverted index has already been constructed and resides on HDFS, the
 command-line invocation is as follows:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.ir.BooleanRetrieval -index index -collection data/bible+shakes.nopunc
+etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.BooleanRetrieval -index index -collection bible+shakes.nopunc
+</pre>
+
+<p>In this case, we're reading indexes directly from
+HDFS. Alternative, you can copy the indexes local and use
+the <code>etc/run.sh</code> launch script:</p>
+
+<pre class="code">
+etc/run.sh edu.umd.cloud9.example.ir.BooleanRetrieval -index index -collection bible+shakes.nopunc
 </pre>
 
 <p>Here are the results for the test queries:</p>
