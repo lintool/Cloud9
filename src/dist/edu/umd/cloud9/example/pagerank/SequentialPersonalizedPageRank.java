@@ -62,7 +62,7 @@ public class SequentialPersonalizedPageRank {
 
   private static final String INPUT = "input";
   private static final String JUMP = "jump";
-  private static final String ROOT = "root";
+  private static final String SOURCE = "source";
 
   @SuppressWarnings({ "static-access" })
   public static void main(String[] args) throws IOException {
@@ -73,7 +73,7 @@ public class SequentialPersonalizedPageRank {
     options.addOption(OptionBuilder.withArgName("val").hasArg()
         .withDescription("random jump factor").create(JUMP));
     options.addOption(OptionBuilder.withArgName("node").hasArg()
-        .withDescription("root node (i.e., destination of the random jump)").create(ROOT));
+        .withDescription("source node (i.e., destination of the random jump)").create(SOURCE));
 
     CommandLine cmdline = null;
     CommandLineParser parser = new GnuParser();
@@ -85,17 +85,17 @@ public class SequentialPersonalizedPageRank {
       System.exit(-1);
     }
 
-    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(ROOT)) {
+    if (!cmdline.hasOption(INPUT) || !cmdline.hasOption(SOURCE)) {
       System.out.println("args: " + Arrays.toString(args));
       HelpFormatter formatter = new HelpFormatter();
       formatter.setWidth(120);
-      formatter.printHelp(SequentialPageRank.class.getName(), options);
+      formatter.printHelp(SequentialPersonalizedPageRank.class.getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
       System.exit(-1);
     }
 
     String infile = cmdline.getOptionValue(INPUT);
-    final String root = cmdline.getOptionValue(ROOT);
+    final String source = cmdline.getOptionValue(SOURCE);
     float alpha = cmdline.hasOption(JUMP) ? Float.parseFloat(cmdline.getOptionValue(JUMP)) : 0.15f;
 
     int edgeCnt = 0;
@@ -115,8 +115,8 @@ public class SequentialPersonalizedPageRank {
 
     data.close();
 
-    if (!graph.containsVertex(root)) {
-      System.err.println("Error: root node not found in the graph!");
+    if (!graph.containsVertex(source)) {
+      System.err.println("Error: source node not found in the graph!");
       System.exit(-1);
     }
 
@@ -134,7 +134,7 @@ public class SequentialPersonalizedPageRank {
         new Transformer<String, Double>() {
           @Override
           public Double transform(String vertex) {
-            return vertex.equals(root) ? 1.0 : 0;
+            return vertex.equals(source) ? 1.0 : 0;
           }
         }, alpha);
     

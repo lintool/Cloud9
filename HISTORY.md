@@ -1,3 +1,9 @@
+Version 1.4.12
+==============
+February 24, 2013
+
++ Added ability to read index and collection from HDFS in solutions to inverted indexing and boolean retrieval exercises
+
 Version 1.4.11
 ==============
 February 17, 2013

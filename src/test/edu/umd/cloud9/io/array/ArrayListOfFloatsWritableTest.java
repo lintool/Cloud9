@@ -45,6 +45,7 @@ public class ArrayListOfFloatsWritableTest {
     SequenceFile.Writer w;
     Configuration conf = new Configuration();
     Path tmp = new Path("tmp");
+    FileSystem.get(conf).delete(tmp, true);
 
     try {
       w = SequenceFile.createWriter(conf, SequenceFile.Writer.file(tmp),
