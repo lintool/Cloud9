@@ -5,6 +5,7 @@ import java.util.Random;
 public class UnivariateGaussianMixtureModel {
   public int size;
   public double[] weight;
+  public int[] pos;
   public PVector[] param;
 
   /**
@@ -12,10 +13,24 @@ public class UnivariateGaussianMixtureModel {
    *
    * @param n number of components in the mixture model
    */
+  
+
+  public UnivariateGaussianMixtureModel() {
+    this.size = 0;
+  }
+  
+  public void setSize(int n){
+    this.size = n;
+    this.weight = new double[n];
+    this.param = new PVector[n];  
+    this.pos = new int[n];
+  }
+  
   public UnivariateGaussianMixtureModel(int n) {
     this.size = n;
     this.weight = new double[n];
     this.param = new PVector[n];
+    this.pos = new int[n];
   }
 
   /**
@@ -52,7 +67,7 @@ public class UnivariateGaussianMixtureModel {
   public String toString() {
     String output = String.format("Mixture containing %d components\n", size);
     for (int i = 0; i < this.size; i++) {
-      output += String.format("  Component %4d: ", i);
+      output += String.format("  Component %4d: ", pos[i]);
       output += String.format("Weight = %8.6f ", weight[i]);
       output += String.format("Parameters = %s\n", param[i]);
     }
@@ -67,6 +82,7 @@ public class UnivariateGaussianMixtureModel {
   public UnivariateGaussianMixtureModel clone() {
     UnivariateGaussianMixtureModel mm = new UnivariateGaussianMixtureModel(this.size);
     mm.weight = this.weight.clone();
+    mm.pos = this.pos.clone();
     for (int i = 0; i < this.size; i++)
       mm.param[i] = (PVector) this.param[i].clone();
     return mm;

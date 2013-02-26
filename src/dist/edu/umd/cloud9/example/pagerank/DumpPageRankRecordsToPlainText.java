@@ -90,7 +90,7 @@ public class DumpPageRankRecordsToPlainText extends Configured implements Tool {
 
     Job job = Job.getInstance(conf);
     job.setJobName(DumpPageRankRecordsToPlainText.class.getSimpleName());
-    job.setJarByClass(FindMaxPageRankNodes.class);
+    job.setJarByClass(DumpPageRankRecordsToPlainText.class);
 
     job.setNumReduceTasks(0);
 
