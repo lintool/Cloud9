@@ -65,7 +65,7 @@
 </div>
 
 <p>Cloud<sup>9</sup> is designed to work with Hadoop YARN and has been
-tested against Cloudera CDH 4.1.2 (on both Mac and Linux). It should
+tested against Cloudera CDH 4.2.0 (on both Mac and Linux). It should
 work with other Hadoop distributions or on other platforms with only
 minor modifications; however, switching to a non-YARN version of
 Hadoop will requiring recompiling the jars. In this tutorial, we'll
@@ -85,14 +85,14 @@ Cluster"</td></tr></table>
 <h3>Download and Install Hadoop</h3>
 
 <p>Download Cloudera CDH
-4.1.2 <a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads">here</a>. The
+4.2.0 <a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads">here</a>. The
 easiest way is to download the tarball and unpack on your local
 machine. Make sure
 <code>PATH_TO_HADOOP/bin</code> is on your path. Verify that Hadoop is running
 with the pi example. In a shell, run the following command:</p>
 
 <pre class="code">
-hadoop jar PATH_TO_HADOOP/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.0.0-cdh4.1.2.jar pi \
+hadoop jar PATH_TO_HADOOP/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.0.0-cdh4.2.0.jar pi \
   -D mapreduce.framework.name=local -D mapreduce.jobtracker.address=local -D fs.default.name=file:/// \
   -D mapreduce.cluster.local.dir=/tmp/mapred/local \
   -D mapreduce.cluster.temp.dir=/tmp/mapred/temp\
