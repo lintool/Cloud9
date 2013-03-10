@@ -10,6 +10,7 @@ edu.umd.cloud9.collection.wikipedia.language
 edu.umd.cloud9.debug
 edu.umd.cloud9.example.bfs
 edu.umd.cloud9.example.bigram
+edu.umd.cloud9.example.clustering
 edu.umd.cloud9.example.cooccur
 edu.umd.cloud9.example.hits
 edu.umd.cloud9.example.ir

@@ -1,3 +1,10 @@
+Version 1.4.13
+==============
+March 10, 2013
+
++ Added demo for learning Univariate Gaussian Mixture Models
++ Upgraded to CDH 4.2.0
+
 Version 1.4.12
 ==============
 February 24, 2013
