@@ -117,11 +117,6 @@ public class ArrayOfDoublesWritable implements Writable {
 	}
 
 	public String toString() {
-		String s = "[";
-		for (int i = 0; i < size(); i++) {
-			s += get(i) + ",";
-		}
-		s += "]";
-		return s;
+		return Arrays.toString(array);
 	}
 }
