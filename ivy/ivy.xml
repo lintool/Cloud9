@@ -6,15 +6,15 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-api" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-common" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-common" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-nodemanager" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-resourcemanager" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-cdh4.2.0" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-api" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-common" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-common" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-nodemanager" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-yarn-server-resourcemanager" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-streaming" rev="2.0.0-cdh4.2.1" conf="*->*,!sources,!javadoc"/>
 
     <dependency org="org.apache.pig" name="pig" rev="0.10.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" conf="*->*,!sources,!javadoc"/>
