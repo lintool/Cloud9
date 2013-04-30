@@ -43,10 +43,7 @@
     <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.htmlparser" name="htmlparser" rev="1.6" conf="*->*,!sources,!javadoc"/>
     <dependency org="pcj" name="pcj" rev="1.2" conf="*->*,!sources,!javadoc"/>
-
-    <!-- these are in ivy/local-repo -->
-    <dependency org="spy" name="memcached" rev="2.2" conf="*->*,!sources,!javadoc"/>
-    <dependency org="spy" name="spy" rev="2.4" conf="*->*,!sources,!javadoc"/>
+    <dependency org="spy" name="spymemcached" rev="2.8.1" conf="*->*,!sources,!javadoc"/>
 
   </dependencies>
 </ivy-module>
