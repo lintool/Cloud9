@@ -95,7 +95,6 @@
 	<classpathentry kind="lib" path="lib/logback-core-1.0.9.jar"/>
 	<classpathentry kind="lib" path="lib/mail-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/maxent-3.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/memcached-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="lib/mrunit-0.8.0-incubating.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.2.4.Final.jar"/>
@@ -113,10 +112,13 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/snappy-java-1.0.4.1.jar"/>
-	<classpathentry kind="lib" path="lib/spy-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/stax-api-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/sux4j-3.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/tools-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="lib" path="lib/spring-asm-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-3.0.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spymemcached-2.8.1.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
