@@ -36,7 +36,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.medline.MedlineDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
 
@@ -67,7 +67,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.medline.CountMedlineCitations.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPath,
         "-output=" + output,
         "-docnoMapping=" + mappingFile };

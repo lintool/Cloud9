@@ -41,7 +41,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + wt10gPath,
         "-output=" + repackedCollection,
         "-compressionType=block" };
@@ -50,7 +50,7 @@ public class IntegrationTest {
 
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
 
@@ -79,14 +79,14 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + gov2Path, "-output=" + repackedCollection, "-compressionType=block" };
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };
 
@@ -114,7 +114,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + wt10gPath,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
@@ -143,7 +143,7 @@ public class IntegrationTest {
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava-13"),
+        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + gov2Path,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };
