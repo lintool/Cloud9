@@ -26,9 +26,9 @@
     <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="*->*,!sources,!javadoc"/>
     <dependency org="commons-lang" name="commons-lang" rev="2.6" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="" name="sux4j" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
-    <dependency org="" name="dsiutils" rev="1.0.12" conf="*->*,!sources,!javadoc"/>
-    <dependency org="fastutil" name="fastutil" rev="5.1.5" conf="*->*,!sources,!javadoc"/>
+    <dependency org="it.unimi.dsi" name="dsiutils" rev="2.0.15" conf="*->*,!sources,!javadoc"/>
+    <dependency org="it.unimi.dsi" name="sux4j" rev="3.0.8" conf="*->*,!sources,!javadoc"/>
+    <dependency org="it.unimi.dsi" name="fastutil" rev="6.5.4" conf="*->*,!sources,!javadoc"/>
 
     <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.16" conf="*->*,!sources,!javadoc">
       <exclude org="commons-httpclient" module="commons-httpclient"/>
@@ -41,9 +41,12 @@
     <dependency org="net.sf.jung" name="jung-graph-impl" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
     <dependency org="opennlp" name="tools" rev="1.5.0" conf="*->*,!sources,!javadoc"/>    
     <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="*->*,!sources,!javadoc"/>
-    <dependency org="spy" name="memcached" rev="2.2" conf="*->*,!sources,!javadoc"/>
-    <dependency org="spy" name="spy" rev="2.4" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.htmlparser" name="htmlparser" rev="1.6" conf="*->*,!sources,!javadoc"/>
     <dependency org="pcj" name="pcj" rev="1.2" conf="*->*,!sources,!javadoc"/>
+
+    <!-- these are in ivy/local-repo -->
+    <dependency org="spy" name="memcached" rev="2.2" conf="*->*,!sources,!javadoc"/>
+    <dependency org="spy" name="spy" rev="2.4" conf="*->*,!sources,!javadoc"/>
+
   </dependencies>
 </ivy-module>
