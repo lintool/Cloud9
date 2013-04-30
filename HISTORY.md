@@ -1,3 +1,10 @@
+Version 1.4.14
+==============
+April 30, 2013
+
++ Upgraded to CDH 4.2.1
++ Changed dependency to Maven artifacts for dsiutils, sux4j, fastutil, and spymemcached (as opposed to local jars)
+
 Version 1.4.13
 ==============
 March 10, 2013
