@@ -26,6 +26,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -43,55 +44,59 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Tool for taking a Wikipedia XML dump file and spits out articles in a flat
- * text file (article title and content, separated by a tap).
+ * Tool for taking a Wikipedia XML dump file and spits out articles in a flat text file (article
+ * title and content, separated by a tab).
  *
  * @author Jimmy Lin
  * @author Peter Exner
  */
 public class DumpWikipediaToPlainText extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(DumpWikipediaToPlainText.class);
+  private static final Logger LOG = Logger.getLogger(DumpWikipediaToPlainText.class);
 
-	private static enum PageTypes { TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE };
+  private static enum PageTypes {
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, OTHER
+  };
 
-	private static class MyMapper extends MapReduceBase implements Mapper<LongWritable, WikipediaPage, Text, Text> {
-		private static final Text articleName = new Text();
-		private static final Text articleContent = new Text();
+  private static class MyMapper extends MapReduceBase implements
+      Mapper<LongWritable, WikipediaPage, Text, Text> {
+    private static final Text articleName = new Text();
+    private static final Text articleContent = new Text();
 
-		public void map(LongWritable key, WikipediaPage p,
-				OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
-			reporter.incrCounter(PageTypes.TOTAL, 1);
+    public void map(LongWritable key, WikipediaPage p, OutputCollector<Text, Text> output,
+        Reporter reporter) throws IOException {
+      reporter.incrCounter(PageTypes.TOTAL, 1);
 
-			if (p.isRedirect()) {
-				reporter.incrCounter(PageTypes.REDIRECT, 1);
+      if (p.isRedirect()) {
+        reporter.incrCounter(PageTypes.REDIRECT, 1);
 
-			} else if (p.isDisambiguation()) {
-				reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
-			} else if (p.isEmpty()) {
-				reporter.incrCounter(PageTypes.EMPTY, 1);
-			} else if (p.isArticle()) {
-				reporter.incrCounter(PageTypes.ARTICLE, 1);
+      } else if (p.isDisambiguation()) {
+        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+      } else if (p.isEmpty()) {
+        reporter.incrCounter(PageTypes.EMPTY, 1);
+      } else if (p.isArticle()) {
+        reporter.incrCounter(PageTypes.ARTICLE, 1);
 
-				if (p.isStub()) {
-					reporter.incrCounter(PageTypes.STUB, 1);
-				}
+        if (p.isStub()) {
+          reporter.incrCounter(PageTypes.STUB, 1);
+        }
 
-				articleName.set(p.getTitle().replaceAll("[\\r\\n]+", " "));
-				articleContent.set(p.getContent().replaceAll("[\\r\\n]+", " "));
+        articleName.set(p.getTitle().replaceAll("[\\r\\n]+", " "));
+        articleContent.set(p.getContent().replaceAll("[\\r\\n]+", " "));
 
-				output.collect(articleName, articleContent);
-			} else {
-				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
-			}
-		}
-	}
+        output.collect(articleName, articleContent);
+      } else {
+        reporter.incrCounter(PageTypes.OTHER, 1);
+      }
+    }
+  }
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
   private static final String LANGUAGE_OPTION = "wiki_language";
-  
-  @SuppressWarnings("static-access") @Override
-	public int run(String[] args) throws Exception {
+
+  @SuppressWarnings("static-access")
+  @Override
+  public int run(String[] args) throws Exception {
     Options options = new Options();
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("XML dump file").create(INPUT_OPTION));
@@ -99,7 +104,7 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
         .withDescription("output path").create(OUTPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
         .withDescription("two-letter language code").create(LANGUAGE_OPTION));
-    
+
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
     try {
@@ -115,53 +120,57 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
       ToolRunner.printGenericCommandUsage(System.out);
       return -1;
     }
-    
-    String language = null;
+
+    String language = "en"; // Assume "en" by default.
     if (cmdline.hasOption(LANGUAGE_OPTION)) {
       language = cmdline.getOptionValue(LANGUAGE_OPTION);
-      if(language.length()!=2){
+      if (language.length() != 2) {
         System.err.println("Error: \"" + language + "\" unknown language!");
         return -1;
       }
     }
 
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
-		String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
+    String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
 
-		LOG.info("Tool name: " + this.getClass().getName());
-		LOG.info(" - XML dump file: " + inputPath);
-		LOG.info(" - output path: " + outputPath);
-		LOG.info(" - language: " + language);
-		
-		JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s, %s: %s]",
-        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, LANGUAGE_OPTION, language));
+    LOG.info("Tool name: " + this.getClass().getName());
+    LOG.info(" - XML dump file: " + inputPath);
+    LOG.info(" - output path: " + outputPath);
+    LOG.info(" - language: " + language);
 
-		conf.setNumMapTasks(10);
-		conf.setNumReduceTasks(0);
+    JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
+    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s, %s: %s]", INPUT_OPTION,
+        inputPath, OUTPUT_OPTION, outputPath, LANGUAGE_OPTION, language));
 
-		FileInputFormat.setInputPaths(conf, new Path(inputPath));
-		FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    conf.setNumMapTasks(10);
+    conf.setNumReduceTasks(0);
 
-		if(language != null){
+    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+
+    if (language != null) {
       conf.set("wiki.language", language);
     }
-		
-		conf.setInputFormat(WikipediaPageInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
 
-		conf.setMapperClass(MyMapper.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(Text.class);
+    conf.setInputFormat(WikipediaPageInputFormat.class);
+    conf.setOutputFormat(TextOutputFormat.class);
 
-		JobClient.runJob(conf);
+    conf.setMapperClass(MyMapper.class);
+    conf.setOutputKeyClass(Text.class);
+    conf.setOutputValueClass(Text.class);
 
-		return 0;
-	}
+    // Delete the output directory if it exists already.
+    FileSystem.get(conf).delete(new Path(outputPath), true);
 
-	public DumpWikipediaToPlainText() {}
+    JobClient.runJob(conf);
 
-	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new DumpWikipediaToPlainText(), args);
-	}
+    return 0;
+  }
+
+  public DumpWikipediaToPlainText() {
+  }
+
+  public static void main(String[] args) throws Exception {
+    ToolRunner.run(new DumpWikipediaToPlainText(), args);
+  }
 }

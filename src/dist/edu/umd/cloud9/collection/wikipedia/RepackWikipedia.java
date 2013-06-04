@@ -17,7 +17,6 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -88,7 +87,7 @@ public class RepackWikipedia extends Configured implements Tool {
         int n = docnoMapping.getDocno(id);
         if (n >= 0) {
           docno.set(n);
-          
+
           output.collect(docno, doc);
         }
       }
@@ -158,7 +157,8 @@ public class RepackWikipedia extends Configured implements Tool {
 
     JobConf conf = new JobConf(getConf(), RepackWikipedia.class);
     conf.setJobName(String.format("RepackWikipedia[%s: %s, %s: %s, %s: %s, %s: %s]",
-        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, COMPRESSION_TYPE_OPTION, compressionType, LANGUAGE_OPTION, language));
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, COMPRESSION_TYPE_OPTION,
+        compressionType, LANGUAGE_OPTION, language));
 
     conf.set(DOCNO_MAPPING_FIELD, mappingFile);
 
@@ -194,7 +194,7 @@ public class RepackWikipedia extends Configured implements Tool {
       }
     }
 
-    if(language != null){
+    if (language != null) {
       conf.set("wiki.language", language);
     }
 

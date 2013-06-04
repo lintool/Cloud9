@@ -56,7 +56,7 @@ public class CountWikipediaPages extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(CountWikipediaPages.class);
 
   private static enum PageTypes {
-    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, OTHER
   };
 
   private static class MyMapper extends MapReduceBase implements
@@ -80,7 +80,7 @@ public class CountWikipediaPages extends Configured implements Tool {
           reporter.incrCounter(PageTypes.STUB, 1);
         }
       } else {
-        reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
+        reporter.incrCounter(PageTypes.OTHER, 1);
       }
     }
   }
@@ -113,10 +113,10 @@ public class CountWikipediaPages extends Configured implements Tool {
       return -1;
     }
     
-    String language = null;
+    String language = "en"; // Assume 'en' by default.
     if (cmdline.hasOption(LANGUAGE_OPTION)) {
       language = cmdline.getOptionValue(LANGUAGE_OPTION);
-      if(language.length()!=2){
+      if (language.length() != 2) {
         System.err.println("Error: \"" + language + "\" unknown language!");
         return -1;
       }
@@ -129,14 +129,15 @@ public class CountWikipediaPages extends Configured implements Tool {
     LOG.info(" - language: " + language);
     
     JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("CountWikipediaPages[%s: %s, %s: %s]", INPUT_OPTION, inputPath, LANGUAGE_OPTION, language));
+    conf.setJobName(String.format("CountWikipediaPages[%s: %s, %s: %s]", INPUT_OPTION, inputPath,
+        LANGUAGE_OPTION, language));
 
     conf.setNumMapTasks(10);
     conf.setNumReduceTasks(0);
 
     FileInputFormat.setInputPaths(conf, new Path(inputPath));
 
-    if(language != null){
+    if (language != null) {
       conf.set("wiki.language", language);
     }
     

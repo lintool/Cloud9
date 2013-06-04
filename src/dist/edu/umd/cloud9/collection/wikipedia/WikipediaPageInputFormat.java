@@ -60,7 +60,7 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWr
 			conf.set(XMLInputFormatOld.START_TAG_KEY, WikipediaPage.XML_START_TAG);
 			conf.set(XMLInputFormatOld.END_TAG_KEY, WikipediaPage.XML_END_TAG);
 			
-			language = conf.get("wiki.language");
+			language = conf.get("wiki.language", "en"); // Assume 'en' by default.
 			reader = new XMLRecordReader(split, conf);
 		}
 
@@ -68,8 +68,9 @@ public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWr
 		 * Reads the next key-value pair.
 		 */
 		public boolean next(LongWritable key, WikipediaPage value) throws IOException {
-			if (reader.next(offset, text) == false)
-				return false;
+      if (reader.next(offset, text) == false) {
+        return false;
+      }
 			key.set(offset.get());
 			WikipediaPage.readPage(value, text.toString());
 			return true;
