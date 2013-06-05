@@ -1,3 +1,1 @@
-- Upgrade to newer version of fastutil
-- Inverted indexing example: upgrade to new context API
-- PageRank example: upgrade to new context API
+- Wikipedia examples: eliminate the -tmp option
