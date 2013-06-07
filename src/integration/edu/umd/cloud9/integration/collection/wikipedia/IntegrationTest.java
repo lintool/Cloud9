@@ -70,7 +70,7 @@ public class IntegrationTest {
   @Test
   public void testAllWikis() {
     try {
-      testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles.xml", "12", "189362", 123666);
+      testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles", "12", "189362", 123666);
       testWikiDocnoMapping("cs", "/shared/collections/wikipedia/raw/cswiki-20121215-pages-articles.xml", "4", "344433", 7800);
       testWikiDocnoMapping("de", "/shared/collections/wikipedia/raw/dewiki-20121215-pages-articles.xml", "1", "297141", 174678);
       testWikiDocnoMapping("es", "/shared/collections/wikipedia/raw/eswiki-20121130-pages-articles.xml", "7", "358642", 36669);
