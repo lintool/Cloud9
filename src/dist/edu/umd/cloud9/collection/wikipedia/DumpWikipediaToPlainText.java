@@ -30,15 +30,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -57,35 +53,34 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
     TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, OTHER
   };
 
-  private static class MyMapper extends MapReduceBase implements
-      Mapper<LongWritable, WikipediaPage, Text, Text> {
+  private static class MyMapper extends Mapper<LongWritable, WikipediaPage, Text, Text> {
     private static final Text articleName = new Text();
     private static final Text articleContent = new Text();
 
-    public void map(LongWritable key, WikipediaPage p, OutputCollector<Text, Text> output,
-        Reporter reporter) throws IOException {
-      reporter.incrCounter(PageTypes.TOTAL, 1);
+    @Override
+    public void map(LongWritable key, WikipediaPage p, Context context)
+        throws IOException, InterruptedException {
+      context.getCounter(PageTypes.TOTAL).increment(1);
 
       if (p.isRedirect()) {
-        reporter.incrCounter(PageTypes.REDIRECT, 1);
-
+        context.getCounter(PageTypes.REDIRECT).increment(1);
       } else if (p.isDisambiguation()) {
-        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+        context.getCounter(PageTypes.DISAMBIGUATION).increment(1);
       } else if (p.isEmpty()) {
-        reporter.incrCounter(PageTypes.EMPTY, 1);
+        context.getCounter(PageTypes.EMPTY).increment(1);
       } else if (p.isArticle()) {
-        reporter.incrCounter(PageTypes.ARTICLE, 1);
+        context.getCounter(PageTypes.ARTICLE).increment(1);
 
         if (p.isStub()) {
-          reporter.incrCounter(PageTypes.STUB, 1);
+          context.getCounter(PageTypes.STUB).increment(1);
         }
 
         articleName.set(p.getTitle().replaceAll("[\\r\\n]+", " "));
         articleContent.set(p.getContent().replaceAll("[\\r\\n]+", " "));
 
-        output.collect(articleName, articleContent);
+        context.write(articleName, articleContent);
       } else {
-        reporter.incrCounter(PageTypes.OTHER, 1);
+        context.getCounter(PageTypes.OTHER).increment(1);
       }
     }
   }
@@ -138,31 +133,31 @@ public class DumpWikipediaToPlainText extends Configured implements Tool {
     LOG.info(" - output path: " + outputPath);
     LOG.info(" - language: " + language);
 
-    JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s, %s: %s]", INPUT_OPTION,
+    Job job = Job.getInstance(getConf());
+    job.setJarByClass(DumpWikipediaToPlainText.class);
+    job.setJobName(String.format("DumpWikipediaToPlainText[%s: %s, %s: %s, %s: %s]", INPUT_OPTION,
         inputPath, OUTPUT_OPTION, outputPath, LANGUAGE_OPTION, language));
 
-    conf.setNumMapTasks(10);
-    conf.setNumReduceTasks(0);
+    job.setNumReduceTasks(0);
 
-    FileInputFormat.setInputPaths(conf, new Path(inputPath));
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     if (language != null) {
-      conf.set("wiki.language", language);
+      job.getConfiguration().set("wiki.language", language);
     }
 
-    conf.setInputFormat(WikipediaPageInputFormat.class);
-    conf.setOutputFormat(TextOutputFormat.class);
+    job.setInputFormatClass(WikipediaPageInputFormat.class);
+    job.setOutputFormatClass(TextOutputFormat.class);
 
-    conf.setMapperClass(MyMapper.class);
-    conf.setOutputKeyClass(Text.class);
-    conf.setOutputValueClass(Text.class);
+    job.setMapperClass(MyMapper.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(Text.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(conf).delete(new Path(outputPath), true);
+    FileSystem.get(getConf()).delete(new Path(outputPath), true);
 
-    JobClient.runJob(conf);
+    job.waitForCompletion(true);
 
     return 0;
   }

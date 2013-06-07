@@ -75,7 +75,7 @@ public class WikipediaForwardIndexBuilder extends Configured implements Tool {
 
     public void configure(JobConf job) {
       String file = job.get("map.input.file");
-      fileno = Integer.parseInt(file.substring(file.indexOf("part-") + 5));
+      fileno = Integer.parseInt(file.substring(file.indexOf("part-m-") + 7));
       language = job.get("wiki.language");
     }
 
