@@ -48,7 +48,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  */
 public class TrecDocnoMappingBuilder extends Configured implements Tool, DocnoMapping.Builder {
   private static final Logger LOG = Logger.getLogger(TrecDocnoMappingBuilder.class);
-  private static final Random random = new Random();
+  private static final Random RANDOM = new Random();
   private static enum Count { DOCS };
 
   private static class MyMapper extends Mapper<LongWritable, TrecDocument, Text, IntWritable> {
@@ -93,12 +93,12 @@ public class TrecDocnoMappingBuilder extends Configured implements Tool, DocnoMa
    */
   public int run(String[] args) throws IOException {
     DocnoMapping.DefaultBuilderOptions options = DocnoMapping.BuilderUtils.parseDefaultOptions(args);
-    if ( options == null) {
+    if (options == null) {
       return -1;
     }
 
     // Temp directory.
-    String tmpDir = "tmp-" + TrecDocnoMappingBuilder.class.getSimpleName() + "-" + random.nextInt(10000);
+    String tmpDir = "tmp-" + TrecDocnoMappingBuilder.class.getSimpleName() + "-" + RANDOM.nextInt(10000);
 
     LOG.info("Tool name: " + TrecDocnoMappingBuilder.class.getCanonicalName());
     LOG.info(" - input path: " + options.collection);

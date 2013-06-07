@@ -37,12 +37,6 @@ import org.apache.hadoop.util.ToolRunner;
  * etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
  *  enwiki-20130503.findex.dat enwiki-20130503-docno.dat
  * </pre></blockquote>
- *
- * <p>
- * Note, you'll have to build a jar that contains the contents of bliki-core-3.0.15.jar and
- * commons-lang-2.5.jar, since -libjars won't work for this program (since it's not a MapReduce
- * job).
- * </p>
  * 
  * @author Jimmy Lin
  */

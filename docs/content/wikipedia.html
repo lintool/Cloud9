@@ -186,8 +186,8 @@ so we'll illustrate.  The first full article in our XML dump file is:</p>
 docids and docnos by the following command:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -output_path tmp \
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
   -output_file enwiki-20130503-docno.dat -wiki_language en -keep_all 
 </pre>
 
@@ -201,7 +201,7 @@ since we need to maintain the docid to docno mapping in memory (for
 fast lookup), using article titles as docids would be expensive (lots
 of strings to store in memory).</p>
 
-<p>Note that by default, <code>BuildWikipediaDocnoMapping</code>
+<p>Note that by default, <code>WikipediaDocnoMappingBuilder</code>
 discards non-articles (e.g., disambiguation pages, redirects,
 etc.). To retain all pages, use the <code>-keep_all</code> option.</p>
 
@@ -288,9 +288,8 @@ access to Wikipedia articles.  First, we need to build a forward
 index:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
-  -input /user/jimmylin/enwiki-20130503.block \
-  -output tmp -index_file enwiki-20130503.findex.dat
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaForwardIndexBuilder \
+  -input /user/jimmylin/enwiki-20130503.block -index_file enwiki-20130503.findex.dat
 </pre>
 
 <p><b>Note:</b> It mostly doesn't matter elsewhere, but

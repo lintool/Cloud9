@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping;
+import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
@@ -43,12 +43,11 @@ public class IntegrationTest {
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping.class.getCanonicalName(),
+        edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder.class.getCanonicalName(),
         libjars,
-        "-" + BuildWikipediaDocnoMapping.INPUT_OPTION + "=" + input,
-        "-" + BuildWikipediaDocnoMapping.OUTPUT_PATH_OPTION + "=" + mappingFile + ".tmp",
-        "-" + BuildWikipediaDocnoMapping.OUTPUT_FILE_OPTION + "=" + mappingFile,
-        "-" + BuildWikipediaDocnoMapping.LANGUAGE_OPTION + "=" + language
+        "-" + WikipediaDocnoMappingBuilder.INPUT_OPTION + "=" + input,
+        "-" + WikipediaDocnoMappingBuilder.OUTPUT_FILE_OPTION + "=" + mappingFile,
+        "-" + WikipediaDocnoMappingBuilder.LANGUAGE_OPTION + "=" + language
     };
 
     int numDisambiguationPages = IntegrationUtils.execWiki(Joiner.on(" ").join(args));

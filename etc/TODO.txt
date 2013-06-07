@@ -1,1 +1,2 @@
-- Wikipedia examples: eliminate the -tmp option
+- write test cases for Bidimap
+

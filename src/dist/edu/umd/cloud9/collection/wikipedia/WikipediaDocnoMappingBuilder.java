@@ -18,6 +18,8 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -25,6 +27,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -46,6 +49,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.collection.DocnoMapping;
+
 /**
  * Tool for building the mapping between Wikipedia internal ids (docids) and sequentially-numbered
  * ints (docnos).
@@ -53,8 +58,9 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  * @author Peter Exner
  */
-public class BuildWikipediaDocnoMapping extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(BuildWikipediaDocnoMapping.class);
+public class WikipediaDocnoMappingBuilder extends Configured implements Tool, DocnoMapping.Builder {
+  private static final Logger LOG = Logger.getLogger(WikipediaDocnoMappingBuilder.class);
+  private static final Random RANDOM = new Random();
 
   private static enum PageTypes {
     TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE, OTHER
@@ -124,20 +130,25 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     }
   }
 
+  @Override
+  public int build(Path src, Path dest, Configuration conf) throws IOException {
+    super.setConf(conf);
+    return run(new String[] {
+        "-" + INPUT_OPTION + "=" + src.toString(),
+        "-" + OUTPUT_FILE_OPTION + "=" + dest.toString() });
+  }
+
   public static final String INPUT_OPTION = "input";
-  public static final String OUTPUT_PATH_OPTION = "output_path";
   public static final String OUTPUT_FILE_OPTION = "output_file";
   public static final String KEEP_ALL_OPTION = "keep_all";
   public static final String LANGUAGE_OPTION = "wiki_language";
 
   @SuppressWarnings("static-access")
   @Override
-  public int run(String[] args) throws Exception {
+  public int run(String[] args) throws IOException {
     Options options = new Options();
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
-    options.addOption(OptionBuilder.withArgName("path")
-        .hasArg().withDescription("tmp output directory").create(OUTPUT_PATH_OPTION));
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("output file").create(OUTPUT_FILE_OPTION));
     options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
@@ -153,8 +164,7 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
       return -1;
     }
 
-    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_PATH_OPTION)
-        || !cmdline.hasOption(OUTPUT_FILE_OPTION)) {
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_FILE_OPTION)) {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(this.getClass().getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
@@ -171,30 +181,29 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     }
     
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
-    String outputPath = cmdline.getOptionValue(OUTPUT_PATH_OPTION);
     String outputFile = cmdline.getOptionValue(OUTPUT_FILE_OPTION);
     boolean keepAll = cmdline.hasOption(KEEP_ALL_OPTION);
-    
+
+    String tmpPath = "tmp-" + WikipediaDocnoMappingBuilder.class.getSimpleName() + "-" + RANDOM.nextInt(10000);
 
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - input: " + inputPath);
-    LOG.info(" - output path: " + outputPath);
     LOG.info(" - output file: " + outputFile);
     LOG.info(" - keep all pages: " + keepAll);
     LOG.info(" - language: " + language);
 
-    JobConf conf = new JobConf(getConf(), BuildWikipediaDocnoMapping.class);
+    JobConf conf = new JobConf(getConf(), WikipediaDocnoMappingBuilder.class);
     conf.setJobName(String.format("BuildWikipediaDocnoMapping[%s: %s, %s: %s, %s: %s]", INPUT_OPTION,
         inputPath, OUTPUT_FILE_OPTION, outputFile, LANGUAGE_OPTION, language));
 
     conf.setBoolean(KEEP_ALL_OPTION, keepAll);
-    if(language != null){
+    if (language != null) {
       conf.set("wiki.language", language);
     }
     conf.setNumReduceTasks(1);
 
     FileInputFormat.setInputPaths(conf, new Path(inputPath));
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+    FileOutputFormat.setOutputPath(conf, new Path(tmpPath));
     FileOutputFormat.setCompressOutput(conf, false);
 
     conf.setInputFormat(WikipediaPageInputFormat.class);
@@ -206,21 +215,23 @@ public class BuildWikipediaDocnoMapping extends Configured implements Tool {
     conf.setReducerClass(MyReducer.class);
 
     // Delete the output directory if it exists already.
-    FileSystem.get(conf).delete(new Path(outputPath), true);
+    FileSystem.get(conf).delete(new Path(tmpPath), true);
 
     RunningJob job = JobClient.runJob(conf);
     Counters c = job.getCounters();
     long cnt = keepAll ? c.getCounter(PageTypes.TOTAL) : c.getCounter(PageTypes.ARTICLE);
 
     WikipediaDocnoMapping.writeDocnoMappingData(FileSystem.get(conf),
-        outputPath + "/part-00000", (int) cnt, outputFile);
+        tmpPath + "/part-00000", (int) cnt, outputFile);
+
+    FileSystem.get(conf).delete(new Path(tmpPath), true);
 
     return 0;
   }
 
-  public BuildWikipediaDocnoMapping() {}
+  public WikipediaDocnoMappingBuilder() {}
 
   public static void main(String[] args) throws Exception {
-    ToolRunner.run(new BuildWikipediaDocnoMapping(), args);
+    ToolRunner.run(new WikipediaDocnoMappingBuilder(), args);
   }
 }
