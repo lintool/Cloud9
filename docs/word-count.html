@@ -65,7 +65,7 @@
 </div>
 
 <p>Cloud<sup>9</sup> is designed to work with Hadoop YARN and has been
-tested against Cloudera CDH 4.2.0 (on both Mac and Linux). It should
+tested against Cloudera CDH 4.2.1 (on both Mac and Linux). It should
 work with other Hadoop distributions or on other platforms with only
 minor modifications; however, switching to a non-YARN version of
 Hadoop will requiring recompiling the jars. In this tutorial, we'll
@@ -85,7 +85,7 @@ Cluster"</td></tr></table>
 <h3>Download and Install Hadoop</h3>
 
 <p>Download Cloudera CDH
-4.2.0 <a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads">here</a>. The
+4.2.1 <a href="https://ccp.cloudera.com/display/SUPPORT/CDH+Downloads">here</a>. The
 easiest way is to download the tarball and unpack on your local
 machine. Make sure
 <code>PATH_TO_HADOOP/bin</code> is on your path. Verify that Hadoop is running
@@ -156,10 +156,10 @@ $ head wc/part-r-00000
 set up a Hadoop cluster is beyond the scope of this tutorial, but the
 next best thing is to use Cloudera's virtual machine images, which
 come with pre-configured single-node cluster. The images can be
-downloaded <a href="https://ccp.cloudera.com/display/SUPPORT/Cloudera%27s+Hadoop+Demo+VM+for+CDH4">here</a>.
+downloaded <a href="https://ccp.cloudera.com/display/SUPPORT/Cloudera+QuickStart+VM">here</a>.
 </p>
 
-<p>The latest available version is CDH 4.1.1: use the VirtualBox image,
+<p>Use the VirtualBox image,
 since VirtualBox is freely available across all major
 platforms. Download the image and unpack the tarball. VirtualBox
 itself can be
@@ -170,7 +170,7 @@ Cloudera Hadoop image, click "New" on the tool bar. For "Name and
 operating system", put in the following information:</p>
 
 <ul>
-<li>Name: Cloudera CDH 4.1.1</li>
+<li>Name: Cloudera CDH VM</li>
 <li>Type: Linux</li>
 <li>Version: Linux 2.6 (64 bit)</li>
 </ul>

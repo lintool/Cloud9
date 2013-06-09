@@ -18,14 +18,21 @@ package edu.umd.cloud9.collection.wikipedia;
 
 import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import edu.umd.cloud9.collection.Indexable;
 
 /**
@@ -64,7 +71,7 @@ public abstract class WikipediaPage extends Indexable {
    * End delimiter of the namespace, which is &lt;<code>/ns</code>&gt;.
    */
   protected static final String XML_END_TAG_NAMESPACE = "</ns>";
-  
+
   /**
    * Start delimiter of the id, which is &lt;<code>id</code>&gt;.
    */
@@ -84,7 +91,7 @@ public abstract class WikipediaPage extends Indexable {
    * End delimiter of the text, which is &lt;<code>/text</code>&gt;.
    */
   protected static final String XML_END_TAG_TEXT = "</text>";
-  
+
   protected String page;
   protected String title;
   protected String mId;
@@ -145,7 +152,7 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   // Explictly remove <ref>...</ref>, because there are screwy things like this:
-  //   <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
+  // <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
   // where "http://www.interieur.org/<!--" gets interpreted as the URL by
   // Bliki in conversion to text
   private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
@@ -153,9 +160,11 @@ public abstract class WikipediaPage extends Indexable {
   private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
   private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
 
-  private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture possible HTML tag
+  private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture
+                                                                       // possible HTML tag
 
-  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture comments
+  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture
+                                                                          // comments
   private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
 
   /**
@@ -227,9 +236,8 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this page is a disambiguation page. A
-   * <code>WikipediaPage</code> is either an article, a disambiguation page,
-   * a redirect page, or an empty page.
+   * Checks to see if this page is a disambiguation page. A <code>WikipediaPage</code> is either an
+   * article, a disambiguation page, a redirect page, or an empty page.
    * 
    * @return <code>true</code> if this page is a disambiguation page
    */
@@ -238,9 +246,8 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this page is a redirect page. A
-   * <code>WikipediaPage</code> is either an article, a disambiguation page,
-   * a redirect page, or an empty page.
+   * Checks to see if this page is a redirect page. A <code>WikipediaPage</code> is either an
+   * article, a disambiguation page, a redirect page, or an empty page.
    * 
    * @return <code>true</code> if this page is a redirect page
    */
@@ -249,9 +256,8 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this page is an empty page. A <code>WikipediaPage</code>
-   * is either an article, a disambiguation page, a redirect page, or an empty
-   * page.
+   * Checks to see if this page is an empty page. A <code>WikipediaPage</code> is either an article,
+   * a disambiguation page, a redirect page, or an empty page.
    * 
    * @return <code>true</code> if this page is an empty page
    */
@@ -260,9 +266,8 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this article is a stub. Return value is only meaningful
-   * if this page isn't a disambiguation page, a redirect page, or an empty
-   * page.
+   * Checks to see if this article is a stub. Return value is only meaningful if this page isn't a
+   * disambiguation page, a redirect page, or an empty page.
    * 
    * @return <code>true</code> if this article is a stub
    */
@@ -271,23 +276,21 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Checks to see if this page lives in the main/article namespace, and not, for example,
-   * "File:", "Category:", "Wikipedia:", etc.
-   *
+   * Checks to see if this page lives in the main/article namespace, and not, for example, "File:",
+   * "Category:", "Wikipedia:", etc.
+   * 
    * @return <code>true</code> if this page is an actual article
    */
   public boolean isArticle() {
     return isArticle;
   }
 
-
   /**
    * Returns the inter-language link to a specific language (if any).
    * 
-   * @param lang
-   *            language
-   * @return title of the article in the foreign language if link exists,
-   *         <code>null</code> otherwise
+   * @param lang language
+   * @return title of the article in the foreign language if link exists, <code>null</code>
+   *         otherwise
    */
   public String findInterlanguageLink(String lang) {
     int start = page.indexOf("[[" + lang + ":");
@@ -318,22 +321,43 @@ public abstract class WikipediaPage extends Indexable {
     return link;
   }
 
-  public List<String> extractLinkDestinations() {
+  public static class Link {
+    private String anchor;
+    private String target;
+
+    private Link(String anchor, String target) {
+      this.anchor = anchor;
+      this.target = target;
+    }
+
+    public String getAnchorText() {
+      return anchor;
+    }
+
+    public String getTarget() {
+      return target;
+    }
+  }
+
+  public List<Link> extractLinks() {
     int start = 0;
-    List<String> links = new ArrayList<String>();
+    List<Link> links = Lists.newArrayList();
 
     while (true) {
       start = page.indexOf("[[", start);
 
-      if (start < 0)
+      if (start < 0) {
         break;
+      }
 
       int end = page.indexOf("]]", start);
 
-      if (end < 0)
+      if (end < 0) {
         break;
+      }
 
       String text = page.substring(start + 2, end);
+      String anchor = null;
 
       // skip empty links
       if (text.length() == 0) {
@@ -350,6 +374,7 @@ public abstract class WikipediaPage extends Indexable {
       // if there is anchor text, get only article title
       int a;
       if ((a = text.indexOf("|")) != -1) {
+        anchor = text.substring(a + 1, text.length());
         text = text.substring(0, a);
       }
 
@@ -358,12 +383,12 @@ public abstract class WikipediaPage extends Indexable {
       }
 
       // ignore article-internal links, e.g., [[#section|here]]
-      if (text.length() == 0 ) {
+      if (text.length() == 0) {
         start = end + 1;
         continue;
       }
 
-      links.add(text.trim());
+      links.add(new Link(anchor, text));
 
       start = end + 1;
     }
@@ -371,13 +396,20 @@ public abstract class WikipediaPage extends Indexable {
     return links;
   }
 
+  public List<String> extractLinkTargets() {
+    return Lists.transform(extractLinks(), new Function<Link, String>() {
+      @Override @Nullable
+      public String apply(@Nullable Link link) {
+        return link.getTarget();
+      }
+    });
+  }
+
   /**
    * Reads a raw XML string into a <code>WikipediaPage</code> object.
    * 
-   * @param page
-   *            the <code>WikipediaPage</code> object
-   * @param s
-   *            raw XML string
+   * @param page the <code>WikipediaPage</code> object
+   * @param s raw XML string
    */
   public static void readPage(WikipediaPage page, String s) {
     page.page = s;
@@ -385,11 +417,10 @@ public abstract class WikipediaPage extends Indexable {
   }
 
   /**
-   * Reads a raw XML string into a <code>WikipediaPage</code> object.
-   * Added for backwards compability.
+   * Reads a raw XML string into a <code>WikipediaPage</code> object. Added for backwards
+   * compability.
    * 
-   * @param s
-   *            raw XML string
+   * @param s raw XML string
    */
   protected abstract void processPage(String s);
 }

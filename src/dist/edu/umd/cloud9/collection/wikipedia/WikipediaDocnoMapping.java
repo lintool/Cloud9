@@ -77,7 +77,7 @@ public class WikipediaDocnoMapping implements DocnoMapping {
 
   /**
    * Creates a mappings file from the contents of a flat text file containing docid to docno
-   * mappings. This method is used by {@link BuildWikipediaDocnoMapping} internally.
+   * mappings. This method is used by {@link WikipediaDocnoMappingBuilder} internally.
    *
    * @param inputFile flat text file containing docid to docno mappings
    * @param outputFile output mappings file
@@ -133,7 +133,7 @@ public class WikipediaDocnoMapping implements DocnoMapping {
 
   @Override
   public Builder getBuilder() {
-    throw new UnsupportedOperationException();
+    return new WikipediaDocnoMappingBuilder();
   }
 
   /**

@@ -1,62 +1,68 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Cloud9: A MapReduce Library for Hadoop &#187; Working with Wikipedia</title>
-<style type="text/css" media="screen">@import url( ../style.css );</style>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cloud9: A Hadoop toolkit for working with big data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<body>
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../assets/css/docs.css" rel="stylesheet">
+    <link href="../assets/js/google-code-prettify/prettify.css" rel="stylesheet">
 
-<div id="wrap">
-<div id="container" class="one-column" >
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-<!-- header START -->
+  </head>
 
-<div id="header">
-<div id="caption">
-<h1 id="title" style="color: white;">Cloud<sup><small>9</small></sup></h1>
-<div id="tagline">A MapReduce Library for Hadoop</div>
-</div>
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
 
-<div class="fixed"></div>
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="../../index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="../contents.html">Table of Contents</a>
+              </li>
+              <li class="">
+                <a href="../api/index.html">API</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
 
-</div>
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Cloud<sup>9</sup></h1>
+    <p class="lead">A Hadoop toolkit for working with big data</p>
+  </div>
+</header>
 
-<!-- header END -->
+  <div class="container">
 
-<!-- navigation START -->
-
-<div id="navigation">
-
-<script type="text/javascript" src="menu.js">
-</script>
-
-<div class="fixed"></div>
-
-</div>
-
-<!-- navigation END -->
-
-
-
-<!-- content START -->
-
-<div id="content">
-
-
-
-	<!-- main START -->
-
-	<div id="main">
-
-
-<!--- START MAIN CONTENT HERE -->
-
+<div class="page-header">
 <h2>Working with Wikipedia</h2>
-
-<div class="post">
-<div class="content">
+</div>
 
 <p>For several reasons, Wikipedia is among the most popular datasets
 to process with Hadoop: it's big, it contains a lot of text, and it
@@ -68,75 +74,67 @@ access to English Wikipedia dumps can be
 found <a href="http://download.wikimedia.org/enwiki/">here</a>.</p>
 
 <p>In this guide, we'll be working with the XML dump of English
-Wikipedia dated April 5, 2011 (<code>enwiki-20110405-pages-articles.xml</code>).
-Note that Wikipedia is distributed as a single, large XML file
-compressed with bzip2.  We'll want to repack the dataset as
-block-compressed SequenceFiles (see below), so you should uncompress
-the file before putting it into HDFS.</p>
-
-<p>Aside: why do we want to uncompress the XML file?  Although
-bzip2-compressed files are splittable, the decompression algorithm is
-slow and cannot keep up with the streaming disk reads that are common
-in Hadoop jobs.  See
-a <a href="http://www.cloudera.com/blog/2009/11/hadoop-at-twitter-part-1-splittable-lzo-compression/">Cloudera
-blog post about this subject</a> for more details.</p>
+Wikipedia dated May 3, 2013
+(<code>enwiki-20130503-pages-articles.xml.bz2</code>).  Note that
+Wikipedia is distributed as a single, large XML file compressed with
+bzip2. We'll want to repack the dataset as
+block-compressed <code>SequenceFile</code>s (see below), so you should
+uncompress the file before putting it into HDFS.</p>
 
 <p>As a sanity check, the first thing you might want to do is count
 how many pages there are in this particular version of Wikipedia:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DemoCountWikipediaPages \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.CountWikipediaPages \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en
 </pre>
 
 <p>Conveniently enough, Cloud<sup><small>9</small></sup> provides a
-<code>WikipediaPageInputFormat</code> that automatically parses the XML dump file,
-so that your mapper will be presented <code>WikipediaPage</code> objects to
-process.  Note that you have to include dependencies with
-the <code>-libjars</code> option.</p>
+<code>WikipediaPageInputFormat</code> that automatically parses the
+XML dump file, so that your mapper will be
+presented <code>WikipediaPage</code> objects to process.</p>
 
 <p>After running the above program, you'll see the follow statistics
 stored in counters:</p>
 
-<table>
-<tr><td class="myheader"><b>Type</b></td>
-    <td class="myheader"><b>Count</b></td>
+<table class="table" style="width: 500px;">
+<tr><td><b>Type</b></td>
+    <td style="text-align:right;"><b>Count</b></td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Redirect pages</td>
-<td class="mycell" style="text-align:right;">4,871,488</td>
+<td>Redirect pages</td>
+<td style="text-align:right;">5,998,969</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Disambiguation pages</td>
-<td class="mycell" style="text-align:right;">124,961</td>
+<td>Disambiguation pages</td>
+<td style="text-align:right;">126,046</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Empty pages</td>
-<td class="mycell" style="text-align:right;">465</td>
+<td>Empty pages</td>
+<td style="text-align:right;">566</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Stub articles</td>
-<td class="mycell" style="text-align:right;">1,544,446</td>
+<td>Stub articles</td>
+<td style="text-align:right;">1,740,514</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Total articles (including stubs)</td>
-<td class="mycell" style="text-align:right;">3,644,701</td>
+<td>Total articles (including stubs)</td>
+<td style="text-align:right;">4,293,113</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Other non-articles ("File:", "Category:", "Wikipedia:", etc.)</td>
-<td class="mycell" style="text-align:right;">2,479,330</td>
+<td>Other</td>
+<td style="text-align:right;">3,031,844</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left"><b>Total</b></td>
-<td class="mycell" style="text-align:right;">11,120,945</td>
+<td><b>Total</b></td>
+<td style="text-align:right;">13,450,538</td>
 </tr>
 
 </table>
@@ -148,20 +146,17 @@ to working with Wikipedia.  However, for something "quick-and-dirty",
 we can dump all articles into a flat text file with the following
 command:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/txt
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en -output enwiki-20130503.txt
 </pre>
 
 <p>The output consist of text files, one article per line (article
-title and contents, separated by a tab).</p>
+title and contents, separated by a tab). Note
+that <code>DumpWikipediaToPlainText</code> discards all
+non-articles.</p>
 
-</div></div>
-
-<div class="post">
 <h2>Sequentially-Numbered Docnos</h2>
-<div class="content">
 
 <p>Many information retrieval and other text processing tasks require
 that all documents in the collection be sequentially numbered, from 1
@@ -177,10 +172,11 @@ we'll be using Wikipedia internal ids (which happend to be integers,
 but we'll treat as strings) as the docids.  This is a bit confusing,
 so we'll illustrate.  The first full article in our XML dump file is:</p>
 
-<pre>
+<pre class="code">
   ...
   &lt;page&gt;
     &lt;title&gt;Anarchism&lt;/title&gt;
+    &lt;ns&gt;0&lt;/ns&gt;
     &lt;id&gt;12&lt;/id&gt;
   ...
 </pre>
@@ -189,14 +185,13 @@ so we'll illustrate.  The first full article in our XML dump file is:</p>
 1 (the sequentially-numbered id).  We can build the mapping between
 docids and docnos by the following command:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output_path tmp \
-  -output_file Wikipedia/docno-en-20110405.dat
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+  -output_file enwiki-20130503-docno.dat -wiki_language en -keep_all 
 </pre>
 
-<p>The mapping file <code>docno-en-20110405.dat</code> is used by the
+<p>The mapping file <code>enwiki-20130503-docno.dat</code> is used by the
 class <code>WikipediaDocnoMapping</code>, which provides a nice API
 for mapping back and forth between docnos and docids. Note that in
 this process, we're discarding all non-articles.</p>
@@ -206,114 +201,95 @@ since we need to maintain the docid to docno mapping in memory (for
 fast lookup), using article titles as docids would be expensive (lots
 of strings to store in memory).</p>
 
-<p>Note: By default, <code>BuildWikipediaDocnoMapping</code> discards
-non-articles (e.g., disambiguation pages, redirects, etc.). However,
-if you want to retain all pages, use the <code>-keep_all</code> option:</p>
+<p>Note that by default, <code>WikipediaDocnoMappingBuilder</code>
+discards non-articles (e.g., disambiguation pages, redirects,
+etc.). To retain all pages, use the <code>-keep_all</code> option.</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output_path tmp \
-  -output_file Wikipedia/docno-en-all-20110405.dat -keep_all
-</pre>
-
-</div></div>
-
-<div class="post">
 <h2>Repacking the Records</h2>
-<div class="content">
 
 <p>So far, we've been directly processing the raw uncompressed
 Wikipedia data dump in XML.  To gain the benefits of compression
 (within the Hadoop framework), we'll now repack the XML file into
-block-compressed SequenceFiles, where the keys are the docnos, and the
+block-compressed <code>SequenceFile</code>s, where the keys are the docnos, and the
 values are <code>WikipediaPage</code> objects.  This will make subsequent
 processing much easier.</p>
 
 <p>Here's the command-line invocation:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.block/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type block -wiki_language en
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+  -output enwiki-20130503.block -wiki_language en \
+  -mapping_file enwiki-20130503-docno.dat -compression_type block
 </pre>
 
 <p>In addition to block-compression, the program <code>RepackWikipedia</code> also
 supports record-level compression as well as no compression:</p>
 
-<pre>
+<pre class="code">
 # Record-level compression
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/compressed.record/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type record -wiki_language en
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+  -output enwiki-20130503.record -wiki_language en \
+  -mapping_file enwiki-20130503-docno.dat -compression_type record
 
 # No compression
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input Wikipedia/raw/enwiki-20110405-pages-articles.xml -output Wikipedia/uncompressed/en-20110405 \
-  -mapping_file Wikipedia/docno-en-20110405.dat -compression_type none -wiki_language en
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+  -output enwiki-20130503.seq -wiki_language en \
+  -mapping_file enwiki-20130503-docno.dat -compression_type none
 </pre>
 
-<p>Here's how they stack up:</p>
+<p>Here's how the various methods stack up:</p>
 
-<table>
-<tr><td class="myheader"><b>Format</b></td>
-    <td class="myheader"><b>Size (MB)</b></td>
+<table class="table" style="width: 500px;">
+<tr><td><b>Format</b></td>
+    <td style="text-align:right;"><b>Size (MB)</b></td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Original XML dump (bzip2-compressed)</td>
-<td class="mycell" style="text-align:right;">7,198</td>
+<td align="left">Original XML dump (bzip2-compressed)</td>
+<td style="text-align:right;">9,814</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">Original XML dump (uncompressed)</td>
-<td class="mycell" style="text-align:right;">31,719</td>
+<td align="left">Original XML dump (uncompressed)</td>
+<td style="text-align:right;">43,777</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">SequenceFiles (block-compressed)</td>
-<td class="mycell" style="text-align:right;">6,636</td>
+<td align="left"><code>SequenceFile</code> (block-compressed)</td>
+<td style="text-align:right;">12,463</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">SequenceFiles (record-compressed)</td>
-<td class="mycell" style="text-align:right;">8,358</td>
+<td align="left"><code>SequenceFile</code> (record-compressed)</td>
+<td style="text-align:right;">17,523</td>
 </tr>
 
 <tr>
-<td class="mycell" align="left">SequenceFiles (no compression)</td>
-<td class="mycell" style="text-align:right;">20,693</td>
+<td align="left"><code>SequenceFile</code> (no compression)</td>
+<td style="text-align:right;">44,120</td>
 </tr>
 
 </table>
 
-<p>Note that during the repacking process we're throwing away
-non-articles (so comparisons to the original XML dump are for
-reference only). Block-compressed SequenceFiles are very space
-efficient.  Record-compressed SequenceFiles are less space-efficient,
-but retain the ability to directly seek to any
+<p>Block-compressed <code>SequenceFile</code>s are fairly space
+efficient. Record-compressed <code>SequenceFile</code>s are less
+space-efficient, but retain the ability to directly seek to any
 <code>WikipediaPage</code> object (whereas with block compression you
-can only seek to block boundaries).  In most usage scenarios,
-block-compressed SequenceFiles are preferred.</p>
+can only seek to block boundaries). In most usage scenarios,
+block-compressed <code>SequenceFile</code>s are preferred.</p>
 
-</div></div>
-
-<div class="post">
 <h2>Supporting Random Access</h2>
-<div class="content">
 
 <p>Cloud<sup><small>9</small></sup> provides utilities for random
 access to Wikipedia articles.  First, we need to build a forward
 index:</p>
 
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.wikipedia.BuildWikipediaForwardIndex \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  -input /user/jimmylin/Wikipedia/compressed.block/en-20110405 -output tmp \
-  -index_file Wikipedia/compressed.block/findex-en-20110405.dat
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaForwardIndexBuilder \
+  -input /user/jimmylin/enwiki-20130503.block -index_file enwiki-20130503.findex.dat
 </pre>
 
 <p><b>Note:</b> It mostly doesn't matter elsewhere, but
@@ -323,11 +299,10 @@ here <code>-input</code> must take an absolute path.</p>
 Wikipedia articles given docno or docid.  Here's a snippet of code
 that does this:</p>
 
-<pre>
-WikipediaForwardIndex f = new WikipediaForwardIndex();
-
-f.loadIndex("/user/jimmylin/Wikipedia/compressed.block/findex-en-20110405.dat",
-    "/user/jimmylin/Wikipedia/docno-en-20110405.dat");
+<pre class="code">
+Configuration conf = getConf();
+WikipediaForwardIndex f = new WikipediaForwardIndex(conf);
+f.loadIndex(new Path("enwiki-20130503.findex.dat"), new Path("enwiki-20130503-docno.dat"), FileSystem.get(conf));
 
 WikipediaPage page;
 
@@ -344,74 +319,55 @@ System.out.println(page.getDocid() + ": " + page.getTitle());
 you to find out the title of a page given either the docno or the
 docid:</p>
 
-<pre>
-hadoop jar cloud9all.jar edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
-  /user/jimmylin/Wikipedia/compressed.block/findex-en-20110405.dat \
-  /user/jimmylin/Wikipedia/docno-en-20110405.dat
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
+  enwiki-20130503.findex.dat enwiki-20130503-docno.dat
 </pre>
 
-<p>Note that the option <code>-libjars</code> doesn't work for this
-program since it's not a MapReduce job.  As a result, we have to
-package up all dependencies (i.e., Bliki) in the same jar.</p>
+<p>Finally, there's also a web interface for browsing, which can be
+started with the following invocation:</p>
 
-<p>Finally, there's also a web interface for browsing (the same
-as <a href="clue-access.html#webapp">the random access webapp for
-Clue</a>), which can be started with the following invocation:</p>
-
-<pre>
-hadoop jar cloud9.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
-  -libjars bliki-core-3.0.16.jar,commons-lang-2.6.jar \
-  /user/jimmylin/Wikipedia/compressed.block/findex-en-20110405.dat /user/jimmylin/Wikipedia/docno-en-20110405.dat
+<pre class="code">
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
+  -docnoMapping enwiki-20130503-docno.dat -index enwiki-20130503.findex.dat
 </pre>
 
 <p>When the server starts up, it'll report back the host information
 of the node it's running on (along with the port). You can then direct
 your browser at the relevant URL and gain access to the webapp.</p>
 
-</div></div>
-
-<!--- END MAIN CONTENT HERE -->
-
-	</div>
-
-	<!-- main END -->
+  </div>
 
 
 
-		<div class="fixed"></div>
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Designed using <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.</p>
+        <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      </div>
+    </footer>
 
-</div>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery.js"></script>
+    <script src="../assets/js/google-code-prettify/prettify.js"></script>
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+    <script src="../assets/js/bootstrap-affix.js"></script>
 
-<!-- content END -->
-
-<!-- footer START -->
-
-<div id="footer">
-<div id="copyright">
-Last updated:
-<script type="text/javascript">
-<!--//
-document.write(document.lastModified);
-//-->
-</script>
-</div>
-
-<div id="themeinfo">
-Adapted from a WordPress Theme by <a href="http://www.neoease.com/">NeoEase</a>. Valid <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> and <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a>.	</div>
-
-</div>
-
-<!-- footer END -->
-
-
-
-</div>
-
-<!-- container END -->
-
-</div>
-
-<!-- wrap END -->
-
-</body>
+  </body>
 </html>

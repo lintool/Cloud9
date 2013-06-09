@@ -30,14 +30,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.lib.NullOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
@@ -56,31 +52,30 @@ public class CountWikipediaPages extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(CountWikipediaPages.class);
 
   private static enum PageTypes {
-    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, NON_ARTICLE
+    TOTAL, REDIRECT, DISAMBIGUATION, EMPTY, ARTICLE, STUB, OTHER
   };
 
-  private static class MyMapper extends MapReduceBase implements
-      Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
+  private static class MyMapper extends Mapper<LongWritable, WikipediaPage, Text, IntWritable> {
 
-    public void map(LongWritable key, WikipediaPage p, OutputCollector<Text, IntWritable> output,
-        Reporter reporter) throws IOException {
-      reporter.incrCounter(PageTypes.TOTAL, 1);
+    @Override
+    public void map(LongWritable key, WikipediaPage p, Context context)
+        throws IOException, InterruptedException {
+      context.getCounter(PageTypes.TOTAL).increment(1);
 
       if (p.isRedirect()) {
-        reporter.incrCounter(PageTypes.REDIRECT, 1);
-
+        context.getCounter(PageTypes.REDIRECT).increment(1);
       } else if (p.isDisambiguation()) {
-        reporter.incrCounter(PageTypes.DISAMBIGUATION, 1);
+        context.getCounter(PageTypes.DISAMBIGUATION).increment(1);
       } else if (p.isEmpty()) {
-        reporter.incrCounter(PageTypes.EMPTY, 1);
+        context.getCounter(PageTypes.EMPTY).increment(1);
       } else if (p.isArticle()) {
-        reporter.incrCounter(PageTypes.ARTICLE, 1);
+        context.getCounter(PageTypes.ARTICLE).increment(1);
 
         if (p.isStub()) {
-          reporter.incrCounter(PageTypes.STUB, 1);
+          context.getCounter(PageTypes.STUB).increment(1);
         }
       } else {
-        reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
+        context.getCounter(PageTypes.OTHER).increment(1);
       }
     }
   }
@@ -113,10 +108,10 @@ public class CountWikipediaPages extends Configured implements Tool {
       return -1;
     }
     
-    String language = null;
+    String language = "en"; // Assume 'en' by default.
     if (cmdline.hasOption(LANGUAGE_OPTION)) {
       language = cmdline.getOptionValue(LANGUAGE_OPTION);
-      if(language.length()!=2){
+      if (language.length() != 2) {
         System.err.println("Error: \"" + language + "\" unknown language!");
         return -1;
       }
@@ -128,24 +123,25 @@ public class CountWikipediaPages extends Configured implements Tool {
     LOG.info(" - XML dump file: " + inputPath);
     LOG.info(" - language: " + language);
     
-    JobConf conf = new JobConf(getConf(), CountWikipediaPages.class);
-    conf.setJobName(String.format("CountWikipediaPages[%s: %s, %s: %s]", INPUT_OPTION, inputPath, LANGUAGE_OPTION, language));
+    Job job = Job.getInstance(getConf());
+    job.setJarByClass(CountWikipediaPages.class);
+    job.setJobName(String.format("CountWikipediaPages[%s: %s, %s: %s]", INPUT_OPTION, inputPath,
+        LANGUAGE_OPTION, language));
 
-    conf.setNumMapTasks(10);
-    conf.setNumReduceTasks(0);
+    job.setNumReduceTasks(0);
 
-    FileInputFormat.setInputPaths(conf, new Path(inputPath));
+    FileInputFormat.setInputPaths(job, new Path(inputPath));
 
-    if(language != null){
-      conf.set("wiki.language", language);
+    if (language != null) {
+      job.getConfiguration().set("wiki.language", language);
     }
     
-    conf.setInputFormat(WikipediaPageInputFormat.class);
-    conf.setOutputFormat(NullOutputFormat.class);
+    job.setInputFormatClass(WikipediaPageInputFormat.class);
+    job.setOutputFormatClass(NullOutputFormat.class);
 
-    conf.setMapperClass(MyMapper.class);
+    job.setMapperClass(MyMapper.class);
 
-    JobClient.runJob(conf);
+    job.waitForCompletion(true);
 
     return 0;
   }

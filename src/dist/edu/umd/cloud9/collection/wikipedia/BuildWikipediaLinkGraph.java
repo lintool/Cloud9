@@ -104,7 +104,7 @@ public class BuildWikipediaLinkGraph extends Configured implements Tool {
 				reporter.incrCounter(PageTypes.NON_ARTICLE, 1);
 			}
 
-			for (String t : p.extractLinkDestinations()) {
+			for (String t : p.extractLinkTargets()) {
 				pair.set(t, 1);
 				text.set(p.getDocid());
 

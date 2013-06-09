@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping;
+import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
@@ -43,12 +43,11 @@ public class IntegrationTest {
     String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
 
     String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping.class.getCanonicalName(),
+        edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder.class.getCanonicalName(),
         libjars,
-        "-" + BuildWikipediaDocnoMapping.INPUT_OPTION + "=" + input,
-        "-" + BuildWikipediaDocnoMapping.OUTPUT_PATH_OPTION + "=" + mappingFile + ".tmp",
-        "-" + BuildWikipediaDocnoMapping.OUTPUT_FILE_OPTION + "=" + mappingFile,
-        "-" + BuildWikipediaDocnoMapping.LANGUAGE_OPTION + "=" + language
+        "-" + WikipediaDocnoMappingBuilder.INPUT_OPTION + "=" + input,
+        "-" + WikipediaDocnoMappingBuilder.OUTPUT_FILE_OPTION + "=" + mappingFile,
+        "-" + WikipediaDocnoMappingBuilder.LANGUAGE_OPTION + "=" + language
     };
 
     int numDisambiguationPages = IntegrationUtils.execWiki(Joiner.on(" ").join(args));
@@ -71,7 +70,7 @@ public class IntegrationTest {
   @Test
   public void testAllWikis() {
     try {
-      testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles.xml", "12", "189362", 123666);
+      testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles", "12", "189362", 123666);
       testWikiDocnoMapping("cs", "/shared/collections/wikipedia/raw/cswiki-20121215-pages-articles.xml", "4", "344433", 7800);
       testWikiDocnoMapping("de", "/shared/collections/wikipedia/raw/dewiki-20121215-pages-articles.xml", "1", "297141", 174678);
       testWikiDocnoMapping("es", "/shared/collections/wikipedia/raw/eswiki-20121130-pages-articles.xml", "7", "358642", 36669);

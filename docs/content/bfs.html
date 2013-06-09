@@ -114,7 +114,7 @@ etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMap
 <pre class="code">
 etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
   -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles.xml -output enwiki-20121201.block \
-  -mapping_file enwiki-20121201-docno.dat -compression_type block
+  -mapping_file enwiki-20121201-docno.dat -wiki_language en -compression_type block
 </pre>
 
 <p>Once you've done that, extract the link graph:</p>

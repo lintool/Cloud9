@@ -1,3 +1,2 @@
-- Upgrade to newer version of fastutil
-- Inverted indexing example: upgrade to new context API
-- PageRank example: upgrade to new context API
+- write test cases for Bidimap
+

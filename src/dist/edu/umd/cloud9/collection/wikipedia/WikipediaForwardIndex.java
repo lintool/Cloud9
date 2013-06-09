@@ -93,14 +93,13 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
       idx = -idx - 2;
 
     DecimalFormat df = new DecimalFormat("00000");
-    String file = collectionPath + "/part-" + df.format(fileno[idx]);
+    Path file = new Path(collectionPath + "/part-m-" + df.format(fileno[idx]));
 
     LOG.info("fetching docno " + docno + ": seeking to " + offsets[idx] + " at " + file);
 
     try {
-
       SequenceFile.Reader reader = new SequenceFile.Reader(conf,
-          SequenceFile.Reader.file(new Path(file)));
+          SequenceFile.Reader.file(file));
 
       IntWritable key = new IntWritable();
       WikipediaPage value = WikipediaPageFactory.createWikipediaPage(conf.get("wiki.language"));
@@ -155,12 +154,12 @@ public class WikipediaForwardIndex implements DocumentForwardIndex<WikipediaPage
     int idx = docnos.length - 1;
 
     DecimalFormat df = new DecimalFormat("00000");
-    String file = collectionPath + "/part-" + df.format(fileno[idx]);
+    Path file = new Path(collectionPath + "/part-m-" + df.format(fileno[idx]));
 
 
     try {
       SequenceFile.Reader reader = new SequenceFile.Reader(conf,
-          SequenceFile.Reader.file(new Path(file)));
+          SequenceFile.Reader.file(file));
       IntWritable key = new IntWritable();
 
       reader.seek(offsets[idx]);

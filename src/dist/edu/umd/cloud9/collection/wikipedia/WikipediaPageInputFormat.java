@@ -17,16 +17,16 @@
 package edu.umd.cloud9.collection.wikipedia;
 
 import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
-import edu.umd.cloud9.collection.IndexableFileInputFormatOld;
-import edu.umd.cloud9.collection.XMLInputFormatOld;
-import edu.umd.cloud9.collection.XMLInputFormatOld.XMLRecordReader;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import edu.umd.cloud9.collection.IndexableFileInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormat;
+import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
 import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
 
 /**
@@ -35,80 +35,56 @@ import edu.umd.cloud9.collection.wikipedia.language.WikipediaPageFactory;
  * @author Jimmy Lin
  * @author Peter Exner
  */
-public class WikipediaPageInputFormat extends IndexableFileInputFormatOld<LongWritable, WikipediaPage> {
-	/**
-	 * Returns a {@code RecordReader} for this {@code InputFormat}.
-	 */
-	public RecordReader<LongWritable, WikipediaPage> getRecordReader(InputSplit inputSplit,
-			JobConf conf, Reporter reporter) throws IOException {
-		return new WikipediaPageRecordReader((FileSplit) inputSplit, conf);
-	}
+public class WikipediaPageInputFormat extends IndexableFileInputFormat<LongWritable, WikipediaPage> {
+  @Override
+  public RecordReader<LongWritable, WikipediaPage> createRecordReader(
+      InputSplit split, TaskAttemptContext context) throws IOException,
+      InterruptedException {
+    return new WikipediaPageRecordReader();
+  }
 
-	/**
-	 * Hadoop {@code RecordReader} for reading Wikipedia pages from the XML dumps.
-	 */
-	public static class WikipediaPageRecordReader implements RecordReader<LongWritable, WikipediaPage> {
-		private XMLRecordReader reader;
-		private Text text = new Text();
-		private LongWritable offset = new LongWritable();
+	public static class WikipediaPageRecordReader extends RecordReader<LongWritable, WikipediaPage> {
+		private XMLRecordReader reader = new XMLRecordReader();
+		private WikipediaPage page;
 		private String language;
 		
-		/**
-		 * Creates a {@code WikipediaPageRecordReader}.
-		 */
-		public WikipediaPageRecordReader(FileSplit split, JobConf conf) throws IOException {
-			conf.set(XMLInputFormatOld.START_TAG_KEY, WikipediaPage.XML_START_TAG);
-			conf.set(XMLInputFormatOld.END_TAG_KEY, WikipediaPage.XML_END_TAG);
+    @Override
+    public void initialize(InputSplit split, TaskAttemptContext context)
+        throws IOException, InterruptedException {
+      Configuration conf = context.getConfiguration();
+			conf.set(XMLInputFormat.START_TAG_KEY, WikipediaPage.XML_START_TAG);
+			conf.set(XMLInputFormat.END_TAG_KEY, WikipediaPage.XML_END_TAG);
 			
-			language = conf.get("wiki.language");
-			reader = new XMLRecordReader(split, conf);
+			language = conf.get("wiki.language", "en"); // Assume 'en' by default.
+			page = WikipediaPageFactory.createWikipediaPage(language);
+
+      reader.initialize(split, context);
 		}
 
-		/**
-		 * Reads the next key-value pair.
-		 */
-		public boolean next(LongWritable key, WikipediaPage value) throws IOException {
-			if (reader.next(offset, text) == false)
-				return false;
-			key.set(offset.get());
-			WikipediaPage.readPage(value, text.toString());
-			return true;
-		}
+    @Override
+    public LongWritable getCurrentKey() throws IOException, InterruptedException {
+      return reader.getCurrentKey();
+    }
 
-		/**
-		 * Creates an object for the key.
-		 */
-		public LongWritable createKey() {
-			return new LongWritable();
-		}
+    @Override
+    public WikipediaPage getCurrentValue() throws IOException, InterruptedException {
+      WikipediaPage.readPage(page, reader.getCurrentValue().toString());
+      return page;
+    }
 
-		/**
-		 * Creates an object for the value.
-		 */
-		public WikipediaPage createValue() {
-			return WikipediaPageFactory.createWikipediaPage(language);
-		}
+    @Override
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+      return reader.nextKeyValue();
+    }
 
-		/**
-		 * Returns the current position in the input.
-		 */
-		public long getPos() throws IOException {
-			return reader.getPos();
-		}
+    @Override
+    public void close() throws IOException {
+      reader.close();
+    }
 
-		/**
-		 * Closes this InputSplit.
-		 */
-		public void close() throws IOException {
-			reader.close();
-		}
-
-		/**
-		 * Returns progress on how much input has been consumed.
-		 */
-		public float getProgress() throws IOException {
-			return ((float) (reader.getPos() - reader.getStart()))
-					/ ((float) (reader.getEnd() - reader.getStart()));
-		}
+    @Override
+    public float getProgress() throws IOException, InterruptedException {
+      return reader.getProgress();
+    }
 	}
 }

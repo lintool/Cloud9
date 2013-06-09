@@ -26,9 +26,8 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import edu.umd.cloud9.collection.IndexableFileInputFormat;
 import edu.umd.cloud9.collection.WebDocument;
-import edu.umd.cloud9.collection.XMLInputFormatOld;
+import edu.umd.cloud9.collection.XMLInputFormat;
 import edu.umd.cloud9.collection.XMLInputFormat.XMLRecordReader;
-
 
 public class TrecDocumentInputFormat extends
     IndexableFileInputFormat<LongWritable, WebDocument> {
@@ -49,8 +48,8 @@ public class TrecDocumentInputFormat extends
     public void initialize(InputSplit split, TaskAttemptContext context)
         throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
-      conf.set(XMLInputFormatOld.START_TAG_KEY, TrecDocument.XML_START_TAG);
-      conf.set(XMLInputFormatOld.END_TAG_KEY, TrecDocument.XML_END_TAG);
+      conf.set(XMLInputFormat.START_TAG_KEY, TrecDocument.XML_START_TAG);
+      conf.set(XMLInputFormat.END_TAG_KEY, TrecDocument.XML_END_TAG);
 
       reader.initialize(split, context);
     }
