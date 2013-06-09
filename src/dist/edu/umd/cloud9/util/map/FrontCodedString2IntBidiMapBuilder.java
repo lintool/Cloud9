@@ -1,4 +1,4 @@
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.util.map;
 
 import it.unimi.dsi.bits.TransformationStrategies;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -31,8 +31,8 @@ import org.apache.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
-public class String2IntBidiMapBuilder {
-  private static final Logger LOG = Logger.getLogger(String2IntBidiMapBuilder.class);
+public class FrontCodedString2IntBidiMapBuilder {
+  private static final Logger LOG = Logger.getLogger(FrontCodedString2IntBidiMapBuilder.class);
 
   private static final String INPUT = "input";
   private static final String OUTPUT = "output";
@@ -60,7 +60,7 @@ public class String2IntBidiMapBuilder {
       System.out.println("args: " + Arrays.toString(args));
       HelpFormatter formatter = new HelpFormatter();
       formatter.setWidth(120);
-      formatter.printHelp(String2IntBidiMapBuilder.class.getName(), options);
+      formatter.printHelp(FrontCodedString2IntBidiMapBuilder.class.getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
       System.exit(-1);
     }

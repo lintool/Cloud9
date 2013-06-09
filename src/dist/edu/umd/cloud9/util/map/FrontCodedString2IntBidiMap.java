@@ -1,4 +1,4 @@
-package edu.umd.cloud9.util;
+package edu.umd.cloud9.util.map;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -14,15 +14,15 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
-public class String2IntBidiMap {
-  private static final Logger LOG = Logger.getLogger(String2IntBidiMap.class);
+public class FrontCodedString2IntBidiMap {
+  private static final Logger LOG = Logger.getLogger(FrontCodedString2IntBidiMap.class);
 
   private FrontCodedStringList stringList;
   private ShiftAddXorSignedStringMap stringHash;
   private IntArrayList intList = new IntArrayList();
   private Int2IntOpenHashMap int2PosMap = new Int2IntOpenHashMap();
 
-  public String2IntBidiMap(FileSystem fs, Path path) throws IOException {
+  public FrontCodedString2IntBidiMap(FileSystem fs, Path path) throws IOException {
     FSDataInputStream in = fs.open(path);
 
     byte[] bytes;
