@@ -1,3 +1,10 @@
+Version 1.4.15
+==============
+June 9, 2013
+
++ Improved Wikipedia collection handling
++ Updated Wikipedia collection APIs to new Hadoop API (org.apache.hadoop.mapreduce)
+
 Version 1.4.14
 ==============
 April 30, 2013
