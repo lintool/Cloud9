@@ -225,7 +225,7 @@ public abstract class WikipediaPage extends Indexable {
    * Returns the text of this page.
    */
   public String getWikiMarkup() {
-    if (textStart == -1 || textStat + 27 > textEnd)
+    if (textStart == -1 || textStart + 27 > textEnd)
       return null;
 
     return page.substring(textStart + 27, textEnd);
