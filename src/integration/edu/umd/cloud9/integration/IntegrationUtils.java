@@ -8,11 +8,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
-import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
+import com.google.common.collect.ImmutableList;
 
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
@@ -78,7 +79,7 @@ public class IntegrationUtils {
     return exitVal;
   }
 
-  public static int execWiki(String cmd) throws IOException, InterruptedException {
+  public static List<Integer> execWiki(String cmd) throws IOException, InterruptedException {
     System.out.println("Executing command: " + cmd);
 
     Runtime rt = Runtime.getRuntime();
@@ -98,7 +99,7 @@ public class IntegrationUtils {
     int exitVal = proc.waitFor();
     System.out.println("ExitValue: " + exitVal);
 
-    return errorGobbler.disambCount;
+    return ImmutableList.of(errorGobbler.disambCount, errorGobbler.articleCount, errorGobbler.totalCount);
   }
 
   private static class StreamGobbler extends Thread {
@@ -124,7 +125,9 @@ public class IntegrationUtils {
   }
 
   private static class WikiGobbler extends StreamGobbler {
-    int disambCount;
+    int disambCount = 0;
+    int articleCount = 0;
+    int totalCount = 0;
     
     WikiGobbler(InputStream is, String type) {
       super(is, type);
@@ -141,6 +144,12 @@ public class IntegrationUtils {
           if (line.contains("DISAMBIGUATION=")) {
             String[] arr = line.trim().split("DISAMBIGUATION=");
             disambCount = Integer.parseInt(arr[1]);
+          } else if (line.contains("ARTICLE=")) {
+            String[] arr = line.trim().split("ARTICLE=");
+            articleCount = Integer.parseInt(arr[1]);
+          } else if (line.contains("TOTAL=")) {
+            String[] arr = line.trim().split("TOTAL=");
+            totalCount = Integer.parseInt(arr[1]);
           }
         }
       } catch (IOException ioe) {
