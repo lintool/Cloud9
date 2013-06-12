@@ -84,8 +84,9 @@ public abstract class WikipediaPage extends Indexable {
 
   /**
    * Start delimiter of the text, which is &lt;<code>text xml:space=\"preserve\"</code>&gt;.
+   * Note: No close bracket because text element can have multiple attributes.
    */
-  protected static final String XML_START_TAG_TEXT = "<text xml:space=\"preserve\">";
+  protected static final String XML_START_TAG_TEXT = "<text xml:space=\"preserve\"";
 
   /**
    * End delimiter of the text, which is &lt;<code>/text</code>&gt;.
@@ -172,9 +173,11 @@ public abstract class WikipediaPage extends Indexable {
    */
   public String getContent() {
     String s = getWikiMarkup();
-
+    if(s == null) return null;
     // Bliki doesn't seem to properly handle inter-language links, so remove manually.
-    s = LANG_LINKS.matcher(s).replaceAll(" ");
+    if(LANG_LINKS.matcher(s).matches()){
+        s = LANG_LINKS.matcher(s).replaceAll(" ");
+    }
 
     wikiModel.setUp();
     s = getTitle() + "\n" + wikiModel.render(textConverter, s);
@@ -222,7 +225,7 @@ public abstract class WikipediaPage extends Indexable {
    * Returns the text of this page.
    */
   public String getWikiMarkup() {
-    if (textStart == -1)
+    if (textStart == -1 || textStart + 27 > textEnd)
       return null;
 
     return page.substring(textStart + 27, textEnd);

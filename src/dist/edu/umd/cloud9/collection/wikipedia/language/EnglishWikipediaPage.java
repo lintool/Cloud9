@@ -53,18 +53,22 @@ public class EnglishWikipediaPage extends WikipediaPage {
     // parse out title
     int start = s.indexOf(XML_START_TAG_TITLE);
     int end = s.indexOf(XML_END_TAG_TITLE, start);
+    if(start < 0 || end < 0){
+        textStart = -1;
+        return;
+    }
     this.title = StringEscapeUtils.unescapeHtml(s.substring(start + 7, end));
 
     // determine if article belongs to the article namespace
     start = s.indexOf(XML_START_TAG_NAMESPACE);
     end = s.indexOf(XML_END_TAG_NAMESPACE);
-    this.isArticle = start == -1 ? true : s.substring(start + 4, end).trim().equals("0");
+    this.isArticle = (start == -1 || end == -1 || start > end) ? false : s.substring(start + 4, end).trim().equals("0");
     // add check because namespace tag not present in older dumps
     
     // parse out the document id
     start = s.indexOf(XML_START_TAG_ID);
     end = s.indexOf(XML_END_TAG_ID);
-    this.mId = s.substring(start + 4, end);
+    this.mId = (start == -1 || end == -1 || start > end) ? "0" : s.substring(start + 4, end);
 
     // parse out actual text of article
     this.textStart = s.indexOf(XML_START_TAG_TEXT);
