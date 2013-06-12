@@ -53,7 +53,7 @@ public class EnglishWikipediaPage extends WikipediaPage {
     // parse out title
     int start = s.indexOf(XML_START_TAG_TITLE);
     int end = s.indexOf(XML_END_TAG_TITLE, start);
-    if(start < 0 || end < 0){
+    if (start < 0 || end < 0){
         textStart = -1;
         return;
     }
