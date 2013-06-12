@@ -144,7 +144,7 @@ public class IntegrationUtils {
           if (line.contains("DISAMBIGUATION=")) {
             String[] arr = line.trim().split("DISAMBIGUATION=");
             disambCount = Integer.parseInt(arr[1]);
-          } else if (line.contains("ARTICLE=")) {
+          } else if (line.contains("ARTICLE=") && !line.contains("NON_ARTICLE=")) {
             String[] arr = line.trim().split("ARTICLE=");
             articleCount = Integer.parseInt(arr[1]);
           } else if (line.contains("TOTAL=")) {

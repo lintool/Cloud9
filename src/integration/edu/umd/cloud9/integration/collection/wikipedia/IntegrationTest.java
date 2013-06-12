@@ -61,6 +61,10 @@ public class IntegrationTest {
     WikipediaDocnoMapping mapping = new WikipediaDocnoMapping();
     mapping.loadMapping(new Path(mappingFile), fs);
 
+    System.out.println("DISAMBIGUATION = " + numDisamb + "; ARTICLE = " + numArticles + "; TOTAL = " + total);
+    System.out.println("DOCNO 0 = " + mapping.getDocid(1));
+    System.out.println("DOCNO 100000 = " + mapping.getDocid(100000));
+
     // docno to docid
     assertEquals(docid1, mapping.getDocid(1));
     assertEquals(docid2, mapping.getDocid(100000));
