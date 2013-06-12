@@ -61,7 +61,7 @@ public class IntegrationTest {
     WikipediaDocnoMapping mapping = new WikipediaDocnoMapping();
     mapping.loadMapping(new Path(mappingFile), fs);
 
-    System.out.println("DISAMBIGUATION = " + numDisamb + "; ARTICLE = " + numArticles + "; TOTAL = " + total);
+    System.out.println("DISAMBIGUATION = " + counts.get(0) + "; ARTICLE = " + counts.get(1) + "; TOTAL = " + counts.get(2));
     System.out.println("DOCNO 0 = " + mapping.getDocid(1));
     System.out.println("DOCNO 100000 = " + mapping.getDocid(100000));
 
@@ -83,20 +83,20 @@ public class IntegrationTest {
 
   @Test
   public void testAllWikis() throws Exception {
-    testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles", "12", "189362",
-        123666, 4033137, 12961996);
+    testWikiDocnoMapping("en", "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles", "12", "189351",
+        123695, 4033590, 12961996);
     testWikiDocnoMapping("cs", "/shared/collections/wikipedia/raw/cswiki-20121215-pages-articles.xml", "4", "344433",
-        7800, 248999, 497398);
-    testWikiDocnoMapping("de", "/shared/collections/wikipedia/raw/dewiki-20121215-pages-articles.xml", "1", "297141",
-        174678, 1326111, 3001626);
-    testWikiDocnoMapping("es", "/shared/collections/wikipedia/raw/eswiki-20121130-pages-articles.xml", "7", "358642",
-        36669, 1092193, 2611748);
-    testWikiDocnoMapping("ar", "/shared/collections/wikipedia/raw/arwiki-20121218-pages-articles.xml", "7", "572997",
-        3789, 237860, 529641);
-    testWikiDocnoMapping("zh", "/shared/collections/wikipedia/raw/zhwiki-20121210-pages-articles.xml", "13", "456258",
-        17992, 602267, 2067973);
-    testWikiDocnoMapping("tr", "/shared/collections/wikipedia/raw/trwiki-20121217-pages-articles.xml", "5", "432151",
-        5938, 240952, 589118);
+        7801, 248999, 497398);
+    testWikiDocnoMapping("de", "/shared/collections/wikipedia/raw/dewiki-20121215-pages-articles.xml", "1", "292529",
+        174734, 1451326, 3001626);
+    testWikiDocnoMapping("es", "/shared/collections/wikipedia/raw/eswiki-20121130-pages-articles.xml", "7", "358640",
+        36673, 1092277, 2611748);
+    testWikiDocnoMapping("ar", "/shared/collections/wikipedia/raw/arwiki-20121218-pages-articles.xml", "7", "571490",
+        3789, 237895, 529641);
+    testWikiDocnoMapping("zh", "/shared/collections/wikipedia/raw/zhwiki-20121210-pages-articles.xml", "13", "456251",
+        17993, 602275, 2067973);
+    testWikiDocnoMapping("tr", "/shared/collections/wikipedia/raw/trwiki-20121217-pages-articles.xml", "5", "432110",
+        5938, 240994, 589118);
   }
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(IntegrationTest.class);
