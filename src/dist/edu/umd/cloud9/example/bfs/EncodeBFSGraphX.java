@@ -49,22 +49,22 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
  *
  * @author Jimmy Lin
  */
-public class EncodeBFSGraph extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(EncodeBFSGraph.class);
+public class EncodeBFSGraphX extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(EncodeBFSGraphX.class);
 
 	private static enum Graph {
 		Nodes, Edges
 	};
 
-	private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, BFSNode> {
+	private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, BFSNodeX> {
 		private static final IntWritable nid = new IntWritable();
-		private static final BFSNode node = new BFSNode();
+		private static final BFSNodeX node = new BFSNodeX();
 		private static int src;
 
 		@Override
 		public void setup(Context context) {
 			src = context.getConfiguration().getInt(SRC_OPTION, 0);
-			node.setType(BFSNode.Type.Complete);
+			node.setType(BFSNodeX.Type.Complete);
 		}
 
 		@Override
@@ -94,7 +94,7 @@ public class EncodeBFSGraph extends Configured implements Tool {
 		}
 	}
 
-	public EncodeBFSGraph() {}
+	public EncodeBFSGraphX() {}
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
@@ -138,7 +138,7 @@ public class EncodeBFSGraph extends Configured implements Tool {
 
 		Job job = new Job(getConf(), String.format("EncodeBFSGraph[%s: %s, %s: %s, %s: %d]",
 		    INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, SRC_OPTION, src));
-		job.setJarByClass(EncodeBFSGraph.class);
+		job.setJarByClass(EncodeBFSGraphX.class);
 
 		job.setNumReduceTasks(0);
 
@@ -152,9 +152,9 @@ public class EncodeBFSGraph extends Configured implements Tool {
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
 		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(BFSNode.class);
+		job.setMapOutputValueClass(BFSNodeX.class);
 		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(BFSNode.class);
+		job.setOutputValueClass(BFSNodeX.class);
 
 		job.setMapperClass(MyMapper.class);
 
@@ -171,7 +171,7 @@ public class EncodeBFSGraph extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new EncodeBFSGraph(), args);
+		int res = ToolRunner.run(new EncodeBFSGraphX(), args);
 		System.exit(res);
 	}
 }

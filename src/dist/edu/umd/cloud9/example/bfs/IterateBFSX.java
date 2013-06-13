@@ -51,27 +51,27 @@ import edu.umd.cloud9.util.map.MapII;
  *
  * @author Jimmy Lin
  */
-public class IterateBFS extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(IterateBFS.class);
+public class IterateBFSX extends Configured implements Tool {
+	private static final Logger LOG = Logger.getLogger(IterateBFSX.class);
 
 	private static enum ReachableNodes {
 		ReachableInMapper, ReachableInReducer
 	};
 
 	// Mapper with in-mapper combiner optimization.
-	private static class MapClass extends	Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
+	private static class MapClass extends	Mapper<IntWritable, BFSNodeX, IntWritable, BFSNodeX> {
 		// For buffering distances keyed by destination node.
 		private static final HMapII map = new HMapII();
 
 		// For passing along node structure.
-		private static final BFSNode intermediateStructure = new BFSNode();
+		private static final BFSNodeX intermediateStructure = new BFSNodeX();
 
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context)
+		public void map(IntWritable nid, BFSNodeX node, Context context)
 		    throws IOException, InterruptedException {
 			// Pass along node structure.
 			intermediateStructure.setNodeId(node.getNodeId());
-			intermediateStructure.setType(BFSNode.Type.Structure);
+			intermediateStructure.setType(BFSNodeX.Type.Structure);
 			intermediateStructure.setAdjacencyList(node.getAdjacenyList());
 
 			context.write(nid, intermediateStructure);
@@ -100,17 +100,17 @@ public class IterateBFS extends Configured implements Tool {
 		}
 
 		@Override
-		public void cleanup(Mapper<IntWritable, BFSNode, IntWritable, BFSNode>.Context context)
+		public void cleanup(Mapper<IntWritable, BFSNodeX, IntWritable, BFSNodeX>.Context context)
 				throws IOException, InterruptedException {
 			// Now emit the messages all at once.
 			IntWritable k = new IntWritable();
-			BFSNode dist = new BFSNode();
+			BFSNodeX dist = new BFSNodeX();
 
 			for (MapII.Entry e : map.entrySet()) {
 				k.set(e.getKey());
 
 				dist.setNodeId(e.getKey());
-				dist.setType(BFSNode.Type.Distance);
+				dist.setType(BFSNodeX.Type.Distance);
 				dist.setDistance(e.getValue());
 
 				context.write(k, dist);
@@ -119,21 +119,21 @@ public class IterateBFS extends Configured implements Tool {
 	}
 
 	// Reduce: sums incoming PageRank contributions, rewrite graph structure.
-	private static class ReduceClass extends Reducer<IntWritable, BFSNode, IntWritable, BFSNode> {
-		private static final BFSNode node = new BFSNode();
+	private static class ReduceClass extends Reducer<IntWritable, BFSNodeX, IntWritable, BFSNodeX> {
+		private static final BFSNodeX node = new BFSNodeX();
 
 		@Override
-		public void reduce(IntWritable nid, Iterable<BFSNode> iterable, Context context)
+		public void reduce(IntWritable nid, Iterable<BFSNodeX> iterable, Context context)
 				throws IOException, InterruptedException {
 
-			Iterator<BFSNode> values = iterable.iterator();
+			Iterator<BFSNodeX> values = iterable.iterator();
 
 			int structureReceived = 0;
 			int dist = Integer.MAX_VALUE;
 			while (values.hasNext()) {
-				BFSNode n = values.next();
+				BFSNodeX n = values.next();
 
-				if (n.getType() == BFSNode.Type.Structure) {
+				if (n.getType() == BFSNodeX.Type.Structure) {
 					// This is the structure; update accordingly.
 					ArrayListOfIntsWritable list = n.getAdjacenyList();
 					structureReceived++;
@@ -152,7 +152,7 @@ public class IterateBFS extends Configured implements Tool {
 				}
 			}
 
-			node.setType(BFSNode.Type.Complete);
+			node.setType(BFSNodeX.Type.Complete);
 			node.setNodeId(nid.get());
 			node.setDistance(dist); // Update the final distance.
 
@@ -179,7 +179,7 @@ public class IterateBFS extends Configured implements Tool {
 		}
 	}
 
-	public IterateBFS() {}
+	public IterateBFSX() {}
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
@@ -225,7 +225,7 @@ public class IterateBFS extends Configured implements Tool {
 
 		Job job = new Job(getConf(), String.format("IterateBFS[%s: %s, %s: %s, %s: %d]",
         INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, NUM_PARTITIONS_OPTION, n));
-		job.setJarByClass(EncodeBFSGraph.class);
+		job.setJarByClass(EncodeBFSGraphX.class);
 
 		job.setNumReduceTasks(n);
 
@@ -236,9 +236,9 @@ public class IterateBFS extends Configured implements Tool {
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
 		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(BFSNode.class);
+		job.setMapOutputValueClass(BFSNodeX.class);
 		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(BFSNode.class);
+		job.setOutputValueClass(BFSNodeX.class);
 
 		job.setMapperClass(MapClass.class);
 		job.setReducerClass(ReduceClass.class);
@@ -256,7 +256,7 @@ public class IterateBFS extends Configured implements Tool {
 	 * <code>ToolRunner</code>.
 	 */
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new IterateBFS(), args);
+		int res = ToolRunner.run(new IterateBFSX(), args);
 		System.exit(res);
 	}
 }

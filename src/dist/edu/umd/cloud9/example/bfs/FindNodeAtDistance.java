@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
 public class FindNodeAtDistance extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(FindNodeAtDistance.class);
 
-	private static class MyMapper extends Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
+	private static class MyMapper extends Mapper<IntWritable, BFSNodeX, IntWritable, BFSNodeX> {
 		private static int distance;
 
 		@Override
@@ -57,7 +57,7 @@ public class FindNodeAtDistance extends Configured implements Tool {
 		}
 
 		@Override
-		public void map(IntWritable nid, BFSNode node, Context context)
+		public void map(IntWritable nid, BFSNodeX node, Context context)
 		    throws IOException, InterruptedException {
 			if (node.getDistance() == distance) {
 				context.write(nid, node);
@@ -124,9 +124,9 @@ public class FindNodeAtDistance extends Configured implements Tool {
 		job.setOutputFormatClass(TextOutputFormat.class);
 
 		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(BFSNode.class);
+		job.setMapOutputValueClass(BFSNodeX.class);
 		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(BFSNode.class);
+		job.setOutputValueClass(BFSNodeX.class);
 
 		job.setMapperClass(MyMapper.class);
 

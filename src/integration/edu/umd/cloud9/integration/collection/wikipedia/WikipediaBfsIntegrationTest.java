@@ -103,7 +103,7 @@ public class WikipediaBfsIntegrationTest {
     // Build Bfs records.
     String bfsBase = tmpPrefix + "-enwiki.bfs";
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.EncodeBFSGraph.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.EncodeBFSGraphX.class.getCanonicalName(),
         libjars,
         "-input=" + wikiAdj,
         "-output=" + bfsBase + "/iter0000",
@@ -114,7 +114,7 @@ public class WikipediaBfsIntegrationTest {
 
     // Iteration 1.
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.IterateBFS.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.IterateBFSX.class.getCanonicalName(),
         libjars,
         "-input=" + bfsBase + "/iter0000",
         "-output=" + bfsBase + "/iter0001",
@@ -128,7 +128,7 @@ public class WikipediaBfsIntegrationTest {
 
     // Iteration 2.
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.IterateBFS.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.IterateBFSX.class.getCanonicalName(),
         libjars,
         "-input=" + bfsBase + "/iter0001",
         "-output=" + bfsBase + "/iter0002",
@@ -142,7 +142,7 @@ public class WikipediaBfsIntegrationTest {
 
     // Iteration 3.
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.IterateBFS.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.IterateBFSX.class.getCanonicalName(),
         libjars,
         "-input=" + bfsBase + "/iter0002",
         "-output=" + bfsBase + "/iter0003",
@@ -156,7 +156,7 @@ public class WikipediaBfsIntegrationTest {
 
     // Iteration 4.
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.IterateBFS.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.IterateBFSX.class.getCanonicalName(),
         libjars,
         "-input=" + bfsBase + "/iter0003",
         "-output=" + bfsBase + "/iter0004",
@@ -170,7 +170,7 @@ public class WikipediaBfsIntegrationTest {
 
     // Iteration 5.
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
-        edu.umd.cloud9.example.bfs.IterateBFS.class.getCanonicalName(),
+        edu.umd.cloud9.example.bfs.IterateBFSX.class.getCanonicalName(),
         libjars,
         "-input=" + bfsBase + "/iter0004",
         "-output=" + bfsBase + "/iter0005",
