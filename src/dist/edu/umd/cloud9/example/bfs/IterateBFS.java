@@ -55,7 +55,7 @@ public class IterateBFS extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(IterateBFS.class);
 
 	private static enum ReachableNodes {
-		Map, Reduce
+		ReachableInMapper, ReachableInReducer
 	};
 
 	// Mapper with in-mapper combiner optimization.
@@ -80,7 +80,7 @@ public class IterateBFS extends Configured implements Tool {
 				return;
 			}
 
-			context.getCounter(ReachableNodes.Map).increment(1);
+			context.getCounter(ReachableNodes.ReachableInMapper).increment(1);
 			// Retain distance to self.
 			map.put(nid.get(), node.getDistance());
 
@@ -157,7 +157,7 @@ public class IterateBFS extends Configured implements Tool {
 			node.setDistance(dist); // Update the final distance.
 
 			if (dist != Integer.MAX_VALUE) {
-				context.getCounter(ReachableNodes.Reduce).increment(1);
+				context.getCounter(ReachableNodes.ReachableInReducer).increment(1);
 			}
 
 			// Error checking.
