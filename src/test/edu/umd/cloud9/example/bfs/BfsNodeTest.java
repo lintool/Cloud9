@@ -24,21 +24,21 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
-import edu.umd.cloud9.example.bfs.BFSNodeX.Type;
+import edu.umd.cloud9.example.bfs.BfsNode.Type;
 import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
-public class BFSNodeTestX {
+public class BfsNodeTest {
 
   @Test
   public void testSerialize() throws IOException {
-    BFSNodeX node1 = new BFSNodeX();
+    BfsNode node1 = new BfsNode();
     node1.setType(Type.Complete);
     node1.setNodeId(1);
     node1.setDistance(2);
     node1.setAdjacencyList(new ArrayListOfIntsWritable(new int[] {1,2,3,4,5,6}));
 
     byte[] bytes = node1.serialize();
-    BFSNodeX node2 = BFSNodeX.create(bytes);
+    BfsNode node2 = BfsNode.create(bytes);
 
     assertEquals(2, node2.getDistance());
     assertEquals(Type.Complete, node2.getType());
@@ -54,7 +54,7 @@ public class BFSNodeTestX {
 
   @Test
   public void testToString() throws Exception {
-    BFSNodeX node = new BFSNodeX();
+    BfsNode node = new BfsNode();
     node.setType(Type.Complete);
     node.setNodeId(1);
     node.setDistance(1);
@@ -69,6 +69,6 @@ public class BFSNodeTestX {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(BFSNodeTestX.class);
+    return new JUnit4TestAdapter(BfsNodeTest.class);
   }
 }

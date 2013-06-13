@@ -33,7 +33,7 @@ import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
  *
  * @author Jimmy Lin
  */
-public class BFSNodeX implements Writable {
+public class BfsNode implements Writable {
   public static enum Type {
     Complete((byte) 0),  // Complete structure.
     Distance((byte) 1),  // Distance only.
@@ -53,7 +53,7 @@ public class BFSNodeX implements Writable {
 	private int distance;
 	private ArrayListOfIntsWritable adjacenyList;
 
-	public BFSNodeX() {}
+	public BfsNode() {}
 
 	public int getDistance() {
 		return distance;
@@ -160,8 +160,8 @@ public class BFSNodeX implements Writable {
    * @return newly-created object
    * @throws IOException
    */
-  public static BFSNodeX create(DataInput in) throws IOException {
-    BFSNodeX m = new BFSNodeX();
+  public static BfsNode create(DataInput in) throws IOException {
+    BfsNode m = new BfsNode();
     m.readFields(in);
 
     return m;
@@ -174,7 +174,7 @@ public class BFSNodeX implements Writable {
    * @return newly-created object
    * @throws IOException
    */
-  public static BFSNodeX create(byte[] bytes) throws IOException {
+  public static BfsNode create(byte[] bytes) throws IOException {
     return create(new DataInputStream(new ByteArrayInputStream(bytes)));
   }
 }
