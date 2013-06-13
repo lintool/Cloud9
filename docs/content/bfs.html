@@ -140,7 +140,7 @@ representation and pack it into appropriate Hadoop data structures. At
 the same time, we specify the source of the breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBFSGraph \
+etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBfsGraph \
  -input enwiki-20121201.adj -output enwiki-20121201.bfs/iter0000 -src 12
 </pre>
 
@@ -164,7 +164,7 @@ reachable.</p>
 <p>Now let's run one iteration of parallel breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.IterateBFS \
+etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.IterateBfs \
  -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs/iter0001 -num_partitions 10
 </pre>
 

@@ -267,7 +267,7 @@ public class ExtractWikipediaLinkGraph extends Configured implements Tool {
 
     JobConf conf = new JobConf(getConf(), ExtractWikipediaLinkGraph.class);
     conf.setJobName(String.format(
-        "BuildWikipediaLinkGraph:Edges[input: %s, output: %s, num_partitions: %d]", inputPath,
+        "ExtractWikipediaLinkGraph:Edges[input: %s, output: %s, num_partitions: %d]", inputPath,
         outputPath, partitions));
 
     conf.setNumReduceTasks(partitions);
@@ -301,7 +301,7 @@ public class ExtractWikipediaLinkGraph extends Configured implements Tool {
 
     JobConf conf = new JobConf(getConf(), ExtractWikipediaLinkGraph.class);
     conf.setJobName(String.format(
-        "BuildWikipediaLinkGraph:AdjacencyList[input: %s, output: %s, num_partitions: %d]",
+        "ExtractWikipediaLinkGraph:AdjacencyList[input: %s, output: %s, num_partitions: %d]",
         inputPath, outputPath, partitions));
 
     conf.setNumReduceTasks(partitions);
