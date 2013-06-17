@@ -103,8 +103,8 @@ pages with the
 <code>-keep_all</code> option:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMapping \
-  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles.xml -output_path tmp \
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
+  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles \
   -output_file enwiki-20121201-docno.dat -wiki_language en -keep_all 
 </pre>
 
@@ -113,23 +113,34 @@ etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaDocnoMap
 
 <pre class="code">
 etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles.xml -output enwiki-20121201.block \
+  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles -output enwiki-20121201.block \
   -mapping_file enwiki-20121201-docno.dat -wiki_language en -compression_type block
 </pre>
 
 <p>Once you've done that, extract the link graph:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.BuildWikipediaLinkGraph \
+etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.graph.ExtractWikipediaLinkGraph \
   -input enwiki-20121201.block -edges_output enwiki-20121201.edges -adjacency_list_output enwiki-20121201.adj -num_partitions 10
 </pre>
+
+<p>From the counters you'll see:</p>
+
+<pre class="code">
+edu.umd.cloud9.collection.wikipedia.graph.ExtractWikipediaLinkGraph$GraphInfo
+  EDGES=121762273
+  TOTAL_VERTICES=12961996
+  VERTICIES_WITH_OUTLINKS=10813673
+</pre>
+
+<p>Which provides some statistics on the size of the graph.</p>
 
 <p>After extracting the link structure, we take the plain-text
 representation and pack it into appropriate Hadoop data structures. At
 the same time, we specify the source of the breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBFSGraph \
+etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBfsGraph \
  -input enwiki-20121201.adj -output enwiki-20121201.bfs/iter0000 -src 12
 </pre>
 
@@ -137,8 +148,7 @@ etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBFSGraph \
 12, <a href="http://en.wikipedia.org/wiki/Anarchism">Anarchism</a>,
 which is the first full article in the dataset. The number of nodes in
 the link graph is stored in a counter and can be read either from the
-command line or from the jobtracker.  We see that this dump of
-Wikipedia contains 12,961,996 nodes (pages) and 121,844,081 edges.</p>
+command line or from the jobtracker.</p>
 
 <p>This handy program can be used to find all reachable nodes and
 print them in plain text:</p>
@@ -154,7 +164,7 @@ reachable.</p>
 <p>Now let's run one iteration of parallel breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.IterateBFS \
+etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.IterateBfs \
  -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs/iter0001 -num_partitions 10
 </pre>
 
@@ -178,29 +188,29 @@ etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.FindReachableNodes \
 <tr><td style="text-align:right"> 0</td><td style="text-align:right">        1</td></tr>
 <tr><td style="text-align:right"> 1</td><td style="text-align:right">      573</td></tr>
 <tr><td style="text-align:right"> 2</td><td style="text-align:right">   37,733</td></tr>
-<tr><td style="text-align:right"> 3</td><td style="text-align:right">  845,615</td></tr>
-<tr><td style="text-align:right"> 4</td><td style="text-align:right">3,597,317</td></tr>
-<tr><td style="text-align:right"> 5</td><td style="text-align:right">5,238,342</td></tr>
-<tr><td style="text-align:right"> 6</td><td style="text-align:right">5,642,379</td></tr>
-<tr><td style="text-align:right"> 7</td><td style="text-align:right">5,721,170</td></tr>
-<tr><td style="text-align:right"> 8</td><td style="text-align:right">5,739,818</td></tr>
-<tr><td style="text-align:right"> 9</td><td style="text-align:right">5,744,081</td></tr>
-<tr><td style="text-align:right">10</td><td style="text-align:right">5,745,564</td></tr>
-<tr><td style="text-align:right">11</td><td style="text-align:right">5,746,310</td></tr>
-<tr><td style="text-align:right">12</td><td style="text-align:right">5,746,610</td></tr>
-<tr><td style="text-align:right">13</td><td style="text-align:right">5,746,807</td></tr>
-<tr><td style="text-align:right">14</td><td style="text-align:right">5,746,925</td></tr>
-<tr><td style="text-align:right">15</td><td style="text-align:right">5,747,015</td></tr>
-<tr><td style="text-align:right">16</td><td style="text-align:right">5,747,081</td></tr>
-<tr><td style="text-align:right">17</td><td style="text-align:right">5,747,130</td></tr>
-<tr><td style="text-align:right">18</td><td style="text-align:right">5,747,175</td></tr>
-<tr><td style="text-align:right">19</td><td style="text-align:right">5,747,212</td></tr>
-<tr><td style="text-align:right">20</td><td style="text-align:right">5,747,250</td></tr>
-<tr><td style="text-align:right">21</td><td style="text-align:right">5,747,284</td></tr>
-<tr><td style="text-align:right">22</td><td style="text-align:right">5,747,305</td></tr>
-<tr><td style="text-align:right">23</td><td style="text-align:right">5,747,325</td></tr>
-<tr><td style="text-align:right">24</td><td style="text-align:right">5,747,341</td></tr>
-<tr><td style="text-align:right">25</td><td style="text-align:right">5,747,353</td></tr>
+<tr><td style="text-align:right"> 3</td><td style="text-align:right">  845,452</td></tr>
+<tr><td style="text-align:right"> 4</td><td style="text-align:right">3,596,247</td></tr>
+<tr><td style="text-align:right"> 5</td><td style="text-align:right">5,236,564</td></tr>
+<tr><td style="text-align:right"> 6</td><td style="text-align:right">5,640,663</td></tr>
+<tr><td style="text-align:right"> 7</td><td style="text-align:right">5,719,546</td></tr>
+<tr><td style="text-align:right"> 8</td><td style="text-align:right">5,738,196</td></tr>
+<tr><td style="text-align:right"> 9</td><td style="text-align:right">5,742,452</td></tr>
+<tr><td style="text-align:right">10</td><td style="text-align:right">5,743,930</td></tr>
+<tr><td style="text-align:right">11</td><td style="text-align:right">5,744,670</td></tr>
+<tr><td style="text-align:right">12</td><td style="text-align:right">5,744,969</td></tr>
+<tr><td style="text-align:right">13</td><td style="text-align:right">5,745,165</td></tr>
+<tr><td style="text-align:right">14</td><td style="text-align:right">5,745,283</td></tr>
+<tr><td style="text-align:right">15</td><td style="text-align:right">5,745,373</td></tr>
+<tr><td style="text-align:right">16</td><td style="text-align:right">5,745,439</td></tr>
+<tr><td style="text-align:right">17</td><td style="text-align:right">5,745,488</td></tr>
+<tr><td style="text-align:right">18</td><td style="text-align:right">5,745,533</td></tr>
+<tr><td style="text-align:right">19</td><td style="text-align:right">5,745,570</td></tr>
+<tr><td style="text-align:right">20</td><td style="text-align:right">5,745,608</td></tr>
+<tr><td style="text-align:right">21</td><td style="text-align:right">5,745,642</td></tr>
+<tr><td style="text-align:right">22</td><td style="text-align:right">5,745,663</td></tr>
+<tr><td style="text-align:right">23</td><td style="text-align:right">5,745,683</td></tr>
+<tr><td style="text-align:right">24</td><td style="text-align:right">5,745,699</td></tr>
+<tr><td style="text-align:right">25</td><td style="text-align:right">5,745,711</td></tr>
 
 </table>
 </div>

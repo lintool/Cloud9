@@ -29,46 +29,77 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+
 /**
- * Tool for extracting nodes that are a particular distance from the source node.
+ * Tool for taking a plain-text encoding of a directed graph and building corresponding Hadoop
+ * structures for running parallel breadth-first search.
  *
  * @author Jimmy Lin
  */
-public class FindNodeAtDistance extends Configured implements Tool {
-  private static final Logger LOG = Logger.getLogger(FindNodeAtDistance.class);
+public class EncodeBfsGraph extends Configured implements Tool {
+  private static final Logger LOG = Logger.getLogger(EncodeBfsGraph.class);
 
-  private static class MyMapper extends Mapper<IntWritable, BfsNode, IntWritable, BfsNode> {
-    private static int distance;
+  private static enum Graph {
+    Nodes, Edges
+  };
+
+  private static class MyMapper extends Mapper<LongWritable, Text, IntWritable, BfsNode> {
+    private static final IntWritable nid = new IntWritable();
+    private static final BfsNode node = new BfsNode();
+    private static int src;
 
     @Override
     public void setup(Context context) {
-      distance = context.getConfiguration().getInt(DISTANCE_OPTION, 0);
+      src = context.getConfiguration().getInt(SRC_OPTION, 0);
+      node.setType(BfsNode.Type.Complete);
     }
 
     @Override
-    public void map(IntWritable nid, BfsNode node, Context context)
-        throws IOException, InterruptedException {
-      if (node.getDistance() == distance) {
-        context.write(nid, node);
+    public void map(LongWritable key, Text t, Context context) throws IOException,
+        InterruptedException {
+      String[] arr = t.toString().trim().split("\\s+");
+
+      int cur = Integer.parseInt(arr[0]);
+      nid.set(cur);
+      node.setNodeId(cur);
+      node.setDistance(cur == src ? 0 : Integer.MAX_VALUE);
+
+      if (arr.length == 1) {
+        node.setAdjacencyList(new ArrayListOfIntsWritable());
+      } else {
+        int[] neighbors = new int[arr.length - 1];
+        for (int i = 1; i < arr.length; i++) {
+          neighbors[i - 1] = Integer.parseInt(arr[i]);
+        }
+        node.setAdjacencyList(new ArrayListOfIntsWritable(neighbors));
       }
+
+      context.getCounter(Graph.Nodes).increment(1);
+      context.getCounter(Graph.Edges).increment(arr.length - 1);
+
+      context.write(nid, node);
     }
   }
 
-  public FindNodeAtDistance() {}
+  public EncodeBfsGraph() {
+  }
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
-  private static final String DISTANCE_OPTION = "distance";
+  private static final String SRC_OPTION = "src";
 
   @SuppressWarnings("static-access")
   @Override
@@ -78,8 +109,8 @@ public class FindNodeAtDistance extends Configured implements Tool {
         .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("output path").create(OUTPUT_OPTION));
-    options.addOption(OptionBuilder.withArgName("num")
-        .hasArg().withDescription("distance").create(DISTANCE_OPTION));
+    options.addOption(OptionBuilder.withArgName("nodeid")
+        .hasArg().withDescription("source node").create(SRC_OPTION));
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -91,7 +122,7 @@ public class FindNodeAtDistance extends Configured implements Tool {
     }
 
     if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION)
-        || !cmdline.hasOption(DISTANCE_OPTION)) {
+        || !cmdline.hasOption(SRC_OPTION)) {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(this.getClass().getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
@@ -100,28 +131,28 @@ public class FindNodeAtDistance extends Configured implements Tool {
 
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
     String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
-    int distance = Integer.parseInt(cmdline.getOptionValue(DISTANCE_OPTION));
+    int src = Integer.parseInt(cmdline.getOptionValue(SRC_OPTION));
 
     LOG.info("Tool name: " + this.getClass().getName());
     LOG.info(" - inputDir: " + inputPath);
     LOG.info(" - outputDir: " + outputPath);
-    LOG.info(" - distance: " + distance);
+    LOG.info(" - src: " + src);
 
     Job job = Job.getInstance(getConf());
-    job.setJobName(String.format("FindNodeAtDistance[%s: %s, %s: %s, %s: %d]",
-        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, DISTANCE_OPTION, distance));
-    job.setJarByClass(FindNodeAtDistance.class);
+    job.setJobName(String.format("EncodeBfsGraph[%s: %s, %s: %s, %s: %d]",
+        INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath, SRC_OPTION, src));
+    job.setJarByClass(EncodeBfsGraph.class);
 
     job.setNumReduceTasks(0);
 
-    job.getConfiguration().setInt(DISTANCE_OPTION, distance);
+    job.getConfiguration().setInt(SRC_OPTION, src);
     job.getConfiguration().setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-    job.setInputFormatClass(SequenceFileInputFormat.class);
-    job.setOutputFormatClass(TextOutputFormat.class);
+    job.setInputFormatClass(TextInputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
     job.setMapOutputKeyClass(IntWritable.class);
     job.setMapOutputValueClass(BfsNode.class);
@@ -142,7 +173,7 @@ public class FindNodeAtDistance extends Configured implements Tool {
    * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(new FindNodeAtDistance(), args);
+    int res = ToolRunner.run(new EncodeBfsGraph(), args);
     System.exit(res);
   }
 }

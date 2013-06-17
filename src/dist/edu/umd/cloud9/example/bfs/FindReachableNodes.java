@@ -45,30 +45,31 @@ import org.apache.log4j.Logger;
  * @author Jimmy Lin
  */
 public class FindReachableNodes extends Configured implements Tool {
-	private static final Logger LOG = Logger.getLogger(FindReachableNodes.class);
+  private static final Logger LOG = Logger.getLogger(FindReachableNodes.class);
 
-	private static class MyMapper extends Mapper<IntWritable, BFSNode, IntWritable, BFSNode> {
-		@Override
-		public void map(IntWritable nid, BFSNode node, Context context)
-		    throws IOException, InterruptedException {
-			if (node.getDistance() < Integer.MAX_VALUE) {
-				context.write(nid, node);
-			}
-		}
-	}
+  private static class MyMapper extends Mapper<IntWritable, BfsNode, IntWritable, BfsNode> {
+    @Override
+    public void map(IntWritable nid, BfsNode node, Context context)
+        throws IOException, InterruptedException {
+      if (node.getDistance() < Integer.MAX_VALUE) {
+        context.write(nid, node);
+      }
+    }
+  }
 
-	public FindReachableNodes() {}
+  public FindReachableNodes() {}
 
   private static final String INPUT_OPTION = "input";
   private static final String OUTPUT_OPTION = "output";
 
-  @SuppressWarnings("static-access") @Override
+  @SuppressWarnings("static-access")
+  @Override
   public int run(String[] args) throws Exception {
     Options options = new Options();
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("XML dump file").create(INPUT_OPTION));
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("output path").create(OUTPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
+    options.addOption(OptionBuilder.withArgName("path")
+        .hasArg().withDescription("output path").create(OUTPUT_OPTION));
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -79,7 +80,7 @@ public class FindReachableNodes extends Configured implements Tool {
       return -1;
     }
 
-    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION) ) {
+    if (!cmdline.hasOption(INPUT_OPTION) || !cmdline.hasOption(OUTPUT_OPTION)) {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(this.getClass().getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
@@ -89,45 +90,45 @@ public class FindReachableNodes extends Configured implements Tool {
     String inputPath = cmdline.getOptionValue(INPUT_OPTION);
     String outputPath = cmdline.getOptionValue(OUTPUT_OPTION);
 
-		LOG.info("Tool name: " + this.getClass().getName());
-		LOG.info(" - inputDir: " + inputPath);
-		LOG.info(" - outputDir: " + outputPath);
+    LOG.info("Tool name: " + this.getClass().getName());
+    LOG.info(" - inputDir: " + inputPath);
+    LOG.info(" - outputDir: " + outputPath);
 
-		Job job = new Job(getConf(), String.format("FindReachableNodes:[%s: %s, %s: %s]",
-				INPUT_OPTION, inputPath, OUTPUT_OPTION, outputPath));
-		job.setJarByClass(FindReachableNodes.class);
+    Job job = Job.getInstance(getConf());
+    job.setJobName(String.format("FindReachableNodes:[%s: %s, %s: %s]", INPUT_OPTION,
+        inputPath, OUTPUT_OPTION, outputPath));
+    job.setJarByClass(FindReachableNodes.class);
 
-		job.setNumReduceTasks(0);
+    job.setNumReduceTasks(0);
 
-		job.getConfiguration().setInt("mapred.min.split.size", 1024 * 1024 * 1024);
+    job.getConfiguration().setInt("mapred.min.split.size", 1024 * 1024 * 1024);
 
-		FileInputFormat.addInputPath(job, new Path(inputPath));
-		FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-		job.setInputFormatClass(SequenceFileInputFormat.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setOutputFormatClass(TextOutputFormat.class);
 
-		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(BFSNode.class);
-		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(BFSNode.class);
+    job.setMapOutputKeyClass(IntWritable.class);
+    job.setMapOutputValueClass(BfsNode.class);
+    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputValueClass(BfsNode.class);
 
-		job.setMapperClass(MyMapper.class);
+    job.setMapperClass(MyMapper.class);
 
-		// Delete the output directory if it exists already.
-		FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
+    // Delete the output directory if it exists already.
+    FileSystem.get(job.getConfiguration()).delete(new Path(outputPath), true);
 
-		job.waitForCompletion(true);
+    job.waitForCompletion(true);
 
-		return 0;
-	}
+    return 0;
+  }
 
-	/**
-	 * Dispatches command-line arguments to the tool via the
-	 * <code>ToolRunner</code>.
-	 */
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new FindReachableNodes(), args);
-		System.exit(res);
-	}
+  /**
+   * Dispatches command-line arguments to the tool via the <code>ToolRunner</code>.
+   */
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(new FindReachableNodes(), args);
+    System.exit(res);
+  }
 }

@@ -8,11 +8,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
-import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 public class IntegrationUtils {
   public static final String LOCAL_ARGS = 
@@ -78,7 +82,7 @@ public class IntegrationUtils {
     return exitVal;
   }
 
-  public static int execWiki(String cmd) throws IOException, InterruptedException {
+  public static List<Integer> execWiki(String cmd) throws IOException, InterruptedException {
     System.out.println("Executing command: " + cmd);
 
     Runtime rt = Runtime.getRuntime();
@@ -98,7 +102,31 @@ public class IntegrationUtils {
     int exitVal = proc.waitFor();
     System.out.println("ExitValue: " + exitVal);
 
-    return errorGobbler.disambCount;
+    return ImmutableList.of(errorGobbler.disambCount, errorGobbler.articleCount, errorGobbler.totalCount);
+  }
+
+  public static Map<String, Integer> execKeyValueExtractor(String cmd, Set<String> keys)
+      throws IOException, InterruptedException {
+    System.out.println("Executing command: " + cmd);
+
+    Runtime rt = Runtime.getRuntime();
+    Process proc = rt.exec(cmd);
+
+    // any error message?
+    KeyValuePairsGobbler errorGobbler = new KeyValuePairsGobbler(proc.getErrorStream(), "STDERR", keys);
+
+    // any output?
+    StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "STDOUT");
+
+    // kick them off
+    errorGobbler.start();
+    outputGobbler.start();
+
+    // any error???
+    int exitVal = proc.waitFor();
+    System.out.println("ExitValue: " + exitVal);
+
+    return errorGobbler.map;
   }
 
   private static class StreamGobbler extends Thread {
@@ -124,7 +152,9 @@ public class IntegrationUtils {
   }
 
   private static class WikiGobbler extends StreamGobbler {
-    int disambCount;
+    int disambCount = 0;
+    int articleCount = 0;
+    int totalCount = 0;
     
     WikiGobbler(InputStream is, String type) {
       super(is, type);
@@ -141,6 +171,43 @@ public class IntegrationUtils {
           if (line.contains("DISAMBIGUATION=")) {
             String[] arr = line.trim().split("DISAMBIGUATION=");
             disambCount = Integer.parseInt(arr[1]);
+          } else if (line.contains("ARTICLE=") && !line.contains("NON_ARTICLE=")) {
+            String[] arr = line.trim().split("ARTICLE=");
+            articleCount = Integer.parseInt(arr[1]);
+          } else if (line.contains("TOTAL=")) {
+            String[] arr = line.trim().split("TOTAL=");
+            totalCount = Integer.parseInt(arr[1]);
+          }
+        }
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      }
+    }
+  }
+
+  private static class KeyValuePairsGobbler extends StreamGobbler {
+    Map<String, Integer> map = Maps.newHashMap();
+    private Set<String> keys;
+    
+    KeyValuePairsGobbler(InputStream is, String type, Set<String> keys) {
+      super(is, type);
+      this.keys = keys;
+    }
+
+    // depends on PageType names and handling in BuildWikipediaDocnoMapping
+    public void run() {
+      try {
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          System.out.println(type + ">" + line);
+
+          for ( String key : keys) {
+            if (line.contains(key + "=")) {
+              String[] arr = line.trim().split(key + "=");
+              map.put(key, Integer.parseInt(arr[1]));
+            }            
           }
         }
       } catch (IOException ioe) {
