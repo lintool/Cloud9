@@ -6,6 +6,7 @@ edu.umd.cloud9.collection.medline
 edu.umd.cloud9.collection.trec
 edu.umd.cloud9.collection.trecweb
 edu.umd.cloud9.collection.wikipedia
+edu.umd.cloud9.collection.wikipedia.graph
 edu.umd.cloud9.collection.wikipedia.kba
 edu.umd.cloud9.collection.wikipedia.language
 edu.umd.cloud9.debug

@@ -1,3 +1,11 @@
+Version 1.4.16
+==============
+June 17, 2013
+
++ Refactoring of BFS code and added integration tests
++ Created wikipedia.graph package for Wikipedia graph manipulation classes
++ Added class for extracting anchor text from Wikipedia graph
+
 Version 1.4.15
 ==============
 June 9, 2013
