@@ -161,11 +161,12 @@ public abstract class WikipediaPage extends Indexable {
   private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
   private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
 
-  private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture
-                                                                       // possible HTML tag
+  private static final Pattern URL = Pattern.compile("http://[^ <]+");
+  // Note, don't capture possible HTML tag
 
-  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture
-                                                                          // comments
+  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>");
+  // Note, don't capture comments
+
   private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
 
   /**
@@ -173,11 +174,12 @@ public abstract class WikipediaPage extends Indexable {
    */
   public String getContent() {
     String s = getWikiMarkup();
-    if (s.length() == 0) return "";
-    // Bliki doesn't seem to properly handle inter-language links, so remove manually.
-    if(LANG_LINKS.matcher(s).matches()){
-        s = LANG_LINKS.matcher(s).replaceAll(" ");
+    if (s.length() == 0) {
+      return "";
     }
+
+    // Bliki doesn't seem to properly handle inter-language links, so remove manually.
+    s = LANG_LINKS.matcher(s).replaceAll(" ");
 
     wikiModel.setUp();
     s = getTitle() + "\n" + wikiModel.render(textConverter, s);
@@ -196,7 +198,7 @@ public abstract class WikipediaPage extends Indexable {
     s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
     s = HTML_TAG.matcher(s).replaceAll(" ");
 
-    return s;
+    return s.trim();
   }
 
   public String getDisplayContent() {
