@@ -1,0 +1,241 @@
+  <page>
+    <title>A</title>
+    <id>290</id>
+    <revision>
+      <id>468893156</id>
+      <timestamp>2012-01-01T05:57:34Z</timestamp>
+      <contributor>
+        <username>Ryoske</username>
+        <id>403036</id>
+      </contributor>
+      <comment>Reverted 1 edit by [[Special:Contributions/WebTV3|WebTV3]] ([[User talk:WebTV3|talk]]). ([[WP:TW|TW]])</comment>
+      <text xml:space="preserve">{{Hatnote|Due to [[Wikipedia:Naming conventions (technical restrictions)#Forbidden characters|technical restrictions]], 'A#' links here. For other uses, see [[A-sharp (disambiguation)]].}}
+{{pp-move-indef}}{{pp-semi-indef}}
+{{Two other uses|the letter|the indefinite article|A and an}}
+{{Latin alphabet navbox|uc=A|lc=a}}
+'''A''' {{IPAc-en|audio=En-us-A.ogg|'|eɪ}} ([[English_alphabet#Letter_names|named]] ''a'', plural ''aes''&lt;ref name=&quot;OED&quot;/&gt;) is the first [[Letter (alphabet)|letter]] and a [[vowel]] in the [[basic modern Latin alphabet]]. It is similar to the Ancient Greek letter [[Alpha]], from which it derives.
+
+== Origins ==
+The earliest certain ancestor of &quot;A&quot; is [[aleph]] (also called 'aleph), the first letter of the [[Phoenician alphabet]]&lt;ref name=&quot;Britannica&quot;/&gt; (which, by consisting entirely of [[consonant]]s, is an [[abjad]] rather than a true [[alphabet]]). In turn, the origin of aleph may have been a [[pictogram]] of an [[ox]] head in [[Egyptian hieroglyph]]s. 
+{| class=&quot;wikitable&quot;
+|- style=&quot;background-color:#EEEEEE; text-align:center;&quot;
+! Egyptian
+! Phoenician &lt;br&gt;''[[aleph]]''
+! Greek &lt;br&gt;''[[Alpha (letter)|Alpha]]''
+! Etruscan &lt;br&gt;A
+! Roman/Cyrillic &lt;br&gt;A
+|- style=&quot;background-color:white; text-align:center;&quot;
+|[[File:EgyptianA-01.svg|Egyptian hieroglyphic ox head]]
+|[[File:PhoenicianA-01.svg|Phoenician aleph]]
+|[[File:Alpha uc lc.svg|65px|Greek alpha]]
+|[[File:EtruscanA.svg|Etruscan A]]
+|[[File:RomanA-01.svg|Roman A]]
+|}
+
+In 1600 B.C., the [[Phoenician alphabet]]'s letter had a linear form that served as the base for some later forms. Its name must have corresponded closely to the [[Hebrew alphabet|Hebrew]] or [[Arabic alphabet|Arabic]] [[aleph]].
+
+{| cellspacing=&quot;10&quot; cellpadding=&quot;0&quot; style=&quot;background-color: white; float: right;&quot;
+|- align=&quot;center&quot;
+|[[File:BlackletterA-01.png|Blackletter A]]&lt;br /&gt;[[Blackletter]] A
+|[[File:UncialA-01.svg|Uncial A]]&lt;br /&gt;[[Uncial]] A
+|[[File:Acap.svg|Another Capital A]]&lt;br /&gt;Another Blackletter A&amp;nbsp;
+|- align=&quot;center&quot;
+|[[File:ModernRomanA-01.svg|64 px|Modern Roman A]]&lt;br /&gt;Modern Roman A
+|[[File:Modern Italic A.svg|64 px|Modern Italic A]]&lt;br /&gt;Modern Italic A
+|[[File:Modern Script A.svg|64 px|Modern Script A]]&lt;br /&gt;Modern Script A
+|}
+When the [[Ancient Greece|ancient Greeks]] adopted the alphabet, they had no use for the [[glottal stop]]—the first [[phoneme]] of the Phoenician pronunciation of the letter, and the sound that the letter denoted in [[Phoenician languages|Phoenician]] and other [[Semitic languages]]—so they used an adaptation of the sign to represent the vowel {{IPA|/a/}}, and gave it the similar name of [[alpha (letter)|alpha]]. In the earliest Greek inscriptions after the [[Greek Dark Ages]], dating to the 8th century BC, the letter rests upon its side, but in the [[Greek alphabet]] of later times it generally resembles the modern capital letter, although many local varieties can be distinguished by the shortening of one leg, or by the angle at which the cross line is set.
+
+The [[Etruscans]] brought the Greek alphabet to their civilization in the [[Italian Peninsula]] and left the letter unchanged. The Romans later adopted the [[Old Italic alphabet|Etruscan alphabet]] to write the [[Latin language]], and the resulting letter was preserved in the [[Latin script|Latin alphabet]] used to write many languages, including [[English language|English]].
+
+[[File:LowercaseA.svg|right|thumb|200|Typographic variants include a double-story '''a''' and single-story '''ɑ'''.]]
+The letter has two [[lower case|minuscule]] (lower-case) forms. The form used in most current [[handwriting]] consists of a circle and vertical stroke ({{Unicode|&quot;ɑ&quot;}}), called [[Latin alpha]] or &quot;script a&quot;. This slowly developed from the fifth-century form resembling the Greek letter [[tau]] in the hands of dark-age Irish and English writers.&lt;ref name=&quot;Britannica&quot;/&gt; Most printed material uses a form consisting of a small loop with an arc over it ({{Unicode|&quot;a&quot;}}). Both derive from the [[majuscule]] (capital) form. In Greek handwriting, it was common to join the left leg and horizontal stroke into a single loop, as demonstrated by the Uncial version shown. Many fonts then made the right leg vertical. In some of these, the [[serif]] that began the right leg stroke developed into an arc, resulting in the printed form, while in others it was dropped, resulting in the modern handwritten form.
+
+==Usage==
+{{main|a (disambiguation)}}
+The letter A currently represents six different vowel sounds. In English, &quot;a&quot; by itself frequently denotes the [[near-open front unrounded vowel]] ({{IPA|/æ/}}) as in ''pad''; the [[open back unrounded vowel]] ({{IPA|/ɑː/}}) as in ''father'', its original, Latin and Greek, sound; a closer, further fronted sound as in &quot;hare&quot;, which developed as the sound progressed from &quot;father&quot; to &quot;ace&quot;;&lt;ref name=&quot;Britannica&quot;/&gt; in concert with a later orthographic vowel, the diphthong {{IPA|/eɪ/}} as in ''ace'' and ''major'', due to effects of the [[great vowel shift]]; the more rounded form in &quot;water&quot; or its closely related cousin, found in &quot;was&quot;.&lt;ref name=&quot;Britannica&quot;/&gt;
+
+In most other languages that use the Latin alphabet, &quot;a&quot; denotes an [[open front unrounded vowel]] ({{IPA|/a/}}). In the [[help:IPA|International Phonetic Alphabet]], variants of &quot;a&quot; denote various [[vowel]]s. In [[X-SAMPA]], capital &quot;A&quot; denotes the [[open back unrounded vowel]] and lowercase &quot;a&quot; denotes the [[open front unrounded vowel]].
+
+&quot;A&quot; is the third most commonly used letter in English, and the second most common in [[Spanish language|Spanish]] and [[French language|French]]. In one study, on average, about 3.68% of letters used in English tend to be ⟨a⟩, while the number is 6.22% in Spanish and 3.95% in French.&lt;ref name=&quot;Trinity College&quot; /&gt;
+
+&quot;A&quot; is often used to denote something or someone of a better or more prestigious quality or status: A-, A or A+, the best grade that can be assigned by teachers for students' schoolwork; A grade for clean restaurants; [[A-List]] celebrities, etc. Such associations can have a [[motivation|motivating]] effect as exposure to the letter A has been found to improve performance, when compared with other letters.&lt;ref&gt;{{Cite journal |url=http://www.sciencealert.com.au/news/20100903-20689.html |title=Letters affect exam results |date=9 March 2010 |publisher=British Psychological Society |postscript=&lt;!--None--&gt;}}&lt;/ref&gt;
+
+==Related letters and other similar characters==
+[[File:A-small glyphs.svg|thumb|140px|Different [[glyphs]] of the lower case letter A.]]
+*Α α : [[Alpha (letter)|Greek letter Alpha]]
+*А а : [[A (Cyrillic)|Cyrillic letter A]]
+*{{Unicode|Ɑ ɑ}} : [[Ɑ|Latin letter Alpha / Script A]]
+*{{unicode|ɐ}} : a turned lowercase letter A, used by the International Phonetic Alphabet for the [[near-open central vowel]]
+*{{unicode|∀}} : a turned capital letter A, used in predicate logic to specify [[universal quantification]]
+*&lt;big&gt;ª&lt;/big&gt; : an [[ordinal indicator]]
+*Æ æ : [[Æ|Latin letter Æ]]
+
+==Computing codes==
+{| class=wikitable style=text-align:right
+|- align=center
+| align=right | '''character''' || colspan=2 | A || colspan=2 | a
+|- align=center
+| align=right | '''Unicode name''' || colspan=2 | &lt;small&gt;LATIN CAPITAL LETTER A&lt;/small&gt; || colspan=2 | &lt;small&gt;LATIN SMALL LETTER A&lt;/small&gt;
+|-
+| align=left | '''character encoding''' || decimal || hex || decimal || hex
+|-
+| align=left | [[Unicode]] || 65 || 0041 || 97 || 0061
+|-
+| align=left | [[UTF-8]] || 65 || 41 || 97 || 61
+|-
+| align=left | [[Numeric character reference]] || &amp;amp;#65; || &amp;amp;#x0041; || &amp;amp;#97; || &amp;amp;#x0061;
+|-
+| align=left | [[EBCDIC]] family || 193 || C1 || 129 || 81
+|-
+| align=left | [[ASCII]] &lt;sup&gt;1&lt;sup/&gt; || 65 || 41 || 97 || 61
+|}
+
+&lt;sup&gt;1&lt;/sup&gt; and all encodings based on ASCII, including the DOS, Windows, ISO-8859 and Macintosh families of encodings.
+
+==Other representations==
+{{Letter other reps
+|NATO=Alpha&lt;!--don't change to official &quot;alfa&quot; until Commons images are moved to this spelling, or redirects are set up, as otherwise the table does not display the semaphore and flag images--&gt;
+|Morse=·–
+|Character=A1
+|Braille=⠁
+}}
+
+==References==
+
+{{Reflist|refs=
+&lt;ref name=&quot;OED&quot;&gt;&quot;A&quot; (word), ''Oxford English Dictionary,'' 2nd edition, 1989. ''Aes'' is the plural of the name of the letter. The plural of the letter itself is: ''A''s, A's, ''a''s, or a's.&lt;/ref&gt;
+
+&lt;ref name=&quot;Trinity College&quot;&gt;[http://starbase.trincoll.edu/~crypto/resources/LetFreq.html &quot;Percentages of Letter frequencies per Thousand words&quot;], Trinity College, Retrieved 2006-05-01.&lt;/ref&gt;
+
+&lt;ref name=&quot;Britannica&quot;&gt;&quot;A&quot;, &quot;Encyclopaedia Britannica&quot;, Volume 1, 1962. p.1.&lt;/ref&gt; 
+}}
+
+== External links ==
+{{Commons|A}}
+{{Wiktionary|A|a}}
+*[http://members.peak.org/~jeremy/dictionaryclassic/chapters/pix/alphabet.gif History of the Alphabet]
+*{{Wikisource-inline|list=
+**“[[s:A Dictionary of the English Language/A|A]]” in ''[[s:A Dictionary of the English Language|A Dictionary of the English Language]]'' by [[Samuel Johnson]]
+** Chisholm, Hugh, ed. (1911). [[wikisource:1911 Encyclopædia Britannica/A|&quot;A&quot;]] (entry). ''[[Encyclopædia Britannica]]'' (Eleventh ed.). Cambridge University Press.
+** &quot;[[wikisource:The New Student's Reference Work/A|A]]&quot;. ''The New Student's Reference Work''. Chicago: F. E. Compton and Co. 1914.
+** &quot;[[wikisource:Collier's New Encyclopedia (1921)/A|A]]&quot;. ''[[Collier's Encyclopedia|Collier's New Encyclopedia]]''. 1921.
+}}
+
+{{Latin alphabet|A|}}
+
+[[Category:ISO basic Latin letters]]
+[[Category:Vowel letters]]
+
+{{Link GA|th}}
+[[ace:A]]
+[[af:A]]
+[[als:A]]
+[[ar:A]]
+[[an:A]]
+[[arc:A]]
+[[ast:A]]
+[[az:A]]
+[[zh-min-nan:A]]
+[[ba:A (латин хәрефе)]]
+[[be:A, літара]]
+[[be-x-old:A (літара)]]
+[[bar:A]]
+[[bs:A]]
+[[br:A (lizherenn)]]
+[[bg:A]]
+[[ca:A]]
+[[cs:A]]
+[[tum:A]]
+[[co:A]]
+[[cy:A]]
+[[da:A]]
+[[de:A]]
+[[dv:އޭ]]
+[[et:A]]
+[[el:A]]
+[[eml:A]]
+[[es:A]]
+[[eo:A]]
+[[eu:A]]
+[[fa:A]]
+[[fr:A (lettre)]]
+[[fy:A]]
+[[fur:A]]
+[[gv:Aittyn]]
+[[gd:A]]
+[[gl:A]]
+[[gan:A]]
+[[xal:A үзг]]
+[[ko:A]]
+[[hr:A]]
+[[io:A]]
+[[ilo:A]]
+[[id:A]]
+[[ia:A]]
+[[is:A]]
+[[it:A]]
+[[he:A]]
+[[jv:A]]
+[[ka:A]]
+[[kw:A]]
+[[sw:A]]
+[[ht:A]]
+[[ku:A (tîp)]]
+[[la:A]]
+[[lv:A]]
+[[lb:A (Buschtaf)]]
+[[lt:A]]
+[[lmo:A]]
+[[hu:A]]
+[[mk:A (Латиница)]]
+[[mg:A]]
+[[ml:A]]
+[[mr:A]]
+[[mzn:A]]
+[[ms:A]]
+[[my:A]]
+[[nah:A]]
+[[nl:A (letter)]]
+[[ja:A]]
+[[nap:A]]
+[[no:A]]
+[[nn:A]]
+[[nrm:A]]
+[[mhr:A (латин тиште)]]
+[[uz:A (harf)]]
+[[pl:A]]
+[[pt:A]]
+[[crh:A]]
+[[ro:A]]
+[[qu:A]]
+[[ru:A (латиница)]]
+[[se:A]]
+[[stq:A]]
+[[scn:A]]
+[[simple:A]]
+[[sk:A]]
+[[sl:A]]
+[[szl:A]]
+[[srn:A]]
+[[sr:A (слово латинице)]]
+[[sh:A]]
+[[su:A]]
+[[fi:A]]
+[[sv:A]]
+[[tl:A]]
+[[th:A]]
+[[tr:A (harf)]]
+[[tk:A]]
+[[uk:A (латиниця)]]
+[[vi:A]]
+[[vo:A]]
+[[war:A]]
+[[yi:A]]
+[[yo:A]]
+[[zh-yue:A]]
+[[diq:A]]
+[[bat-smg:A]]
+[[zh:A]]</text>
+    </revision>
+  </page>

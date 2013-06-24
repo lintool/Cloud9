@@ -16,7 +16,6 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
-import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;
 
 import java.io.DataInput;
@@ -29,6 +28,14 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeTraversor;
+import org.jsoup.select.NodeVisitor;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -83,8 +90,8 @@ public abstract class WikipediaPage extends Indexable {
   protected static final String XML_END_TAG_ID = "</id>";
 
   /**
-   * Start delimiter of the text, which is &lt;<code>text xml:space=\"preserve\"</code>&gt;.
-   * Note: No close bracket because text element can have multiple attributes.
+   * Start delimiter of the text, which is &lt;<code>text xml:space=\"preserve\"</code>&gt;. Note:
+   * No close bracket because text element can have multiple attributes.
    */
   protected static final String XML_START_TAG_TEXT = "<text xml:space=\"preserve\"";
 
@@ -105,14 +112,12 @@ public abstract class WikipediaPage extends Indexable {
   protected String language;
 
   private WikiModel wikiModel;
-  private PlainTextConverter textConverter;
 
   /**
    * Creates an empty <code>WikipediaPage</code> object.
    */
   public WikipediaPage() {
     wikiModel = new WikiModel("", "");
-    textConverter = new PlainTextConverter();
   }
 
   /**
@@ -152,22 +157,19 @@ public abstract class WikipediaPage extends Indexable {
     return this.language;
   }
 
-  // Explictly remove <ref>...</ref>, because there are screwy things like this:
-  // <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
-  // where "http://www.interieur.org/<!--" gets interpreted as the URL by
-  // Bliki in conversion to text
-  private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
+  private static final Pattern REF1 = Pattern.compile("&lt;ref[^/]+/&gt;", Pattern.DOTALL);
+  private static final Pattern REF2 = Pattern.compile("&lt;ref.*?&lt;/ref&gt;", Pattern.DOTALL);
 
   private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
-  private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
 
-  private static final Pattern URL = Pattern.compile("http://[^ <]+");
-  // Note, don't capture possible HTML tag
+  private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}", Pattern.DOTALL);
 
-  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>");
-  // Note, don't capture comments
+  private static final Pattern HTML_COMMENT = Pattern.compile("(<|&#60;)!--.*?--(>|&#62;)",
+      Pattern.DOTALL);
 
-  private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
+  private static final Pattern EMPTY_PARENS = Pattern.compile(" \\( \\)");
+
+  private static final Pattern FILE = Pattern.compile("\\[\\[(File|Image):.*?\\]\\]");
 
   /**
    * Returns the contents of this page (title + text).
@@ -180,25 +182,33 @@ public abstract class WikipediaPage extends Indexable {
 
     // Bliki doesn't seem to properly handle inter-language links, so remove manually.
     s = LANG_LINKS.matcher(s).replaceAll(" ");
+    // Bliki inlines refs, which we don't want.
+    s = REF1.matcher(s).replaceAll("");
+    s = REF2.matcher(s).replaceAll("");
+
+    // Known issue: doesn't correctly handle captions that have links inside.
+    s = FILE.matcher(s).replaceAll(" ");
+
+    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
 
     wikiModel.setUp();
-    s = getTitle() + "\n" + wikiModel.render(textConverter, s);
+    s = wikiModel.render(s);
     wikiModel.tearDown();
 
-    // The way the some entities are encoded, we have to unescape twice.
-    s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
-
-    s = REF.matcher(s).replaceAll(" ");
     s = HTML_COMMENT.matcher(s).replaceAll(" ");
 
-    // Sometimes, URL bumps up against comments e.g., <!-- http://foo.com/-->
-    // Therefore, we want to remove the comment first; otherwise the URL pattern might eat up
-    // the comment terminator.
-    s = URL.matcher(s).replaceAll(" ");
-    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
-    s = HTML_TAG.matcher(s).replaceAll(" ");
+    Document doc = Jsoup.parse(s);
 
-    return s.trim();
+    HtmlToPlainText formatter = new HtmlToPlainText();
+    String plainText = formatter.getPlainText(doc);
+
+    plainText = StringEscapeUtils.unescapeHtml(plainText);
+
+    // Take care of things like: id 36
+    // '''Albedo''' ({{IPAc-en|icon|æ|l|ˈ|b|iː|d|oʊ}}), or ''reflection coefficient'' ...
+    plainText = EMPTY_PARENS.matcher(plainText).replaceAll("");
+
+    return getTitle() + "\n\n" + plainText;
   }
 
   public String getDisplayContent() {
@@ -412,7 +422,8 @@ public abstract class WikipediaPage extends Indexable {
 
   public List<String> extractLinkTargets() {
     return Lists.transform(extractLinks(), new Function<Link, String>() {
-      @Override @Nullable
+      @Override
+      @Nullable
       public String apply(@Nullable Link link) {
         return link.getTarget();
       }
@@ -437,4 +448,51 @@ public abstract class WikipediaPage extends Indexable {
    * @param s raw XML string
    */
   protected abstract void processPage(String s);
+
+  // From org.jsoup.examples.HtmlToPlainText
+  public static class HtmlToPlainText {
+    public String getPlainText(Element element) {
+      FormattingVisitor formatter = new FormattingVisitor();
+      NodeTraversor traversor = new NodeTraversor(formatter);
+      traversor.traverse(element); // walk the DOM, and call .head() and .tail() for each node
+
+      return formatter.toString();
+    }
+
+    // the formatting rules, implemented in a breadth-first DOM traverse
+    private class FormattingVisitor implements NodeVisitor {
+      private StringBuilder accum = new StringBuilder(); // holds the accumulated text
+
+      // hit when the node is first seen
+      public void head(Node node, int depth) {
+        String name = node.nodeName();
+        if (node instanceof TextNode)
+          append(((TextNode) node).text()); // TextNodes carry all user-readable text in the DOM.
+        else if (name.equals("li"))
+          append("\n * ");
+      }
+
+      // hit when all of the node's children (if any) have been visited
+      public void tail(Node node, int depth) {
+        String name = node.nodeName();
+        if (name.equals("br"))
+          append("\n");
+        else if (StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "table"))
+          append("\n\n");
+      }
+
+      // appends text to the string builder with a simple word wrap method
+      private void append(String text) {
+        if (text.equals(" ")
+            && (accum.length() == 0 || StringUtil.in(accum.substring(accum.length() - 1), " ", "\n")))
+          return; // don't accumulate long runs of empty spaces
+
+        accum.append(text);
+      }
+
+      public String toString() {
+        return accum.toString();
+      }
+    }
+  }
 }
