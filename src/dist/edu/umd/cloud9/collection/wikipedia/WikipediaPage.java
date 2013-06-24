@@ -342,6 +342,10 @@ public abstract class WikipediaPage extends Indexable {
     public String getTarget() {
       return target;
     }
+
+    public String toString() {
+      return String.format("[target: %s, anchor: %s]", target, anchor);
+    }
   }
 
   public List<Link> extractLinks() {
@@ -393,6 +397,9 @@ public abstract class WikipediaPage extends Indexable {
         continue;
       }
 
+      if (anchor == null) {
+        anchor = text;
+      }
       links.add(new Link(anchor, text));
 
       start = end + 1;
