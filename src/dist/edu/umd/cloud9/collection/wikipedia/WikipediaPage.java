@@ -189,6 +189,7 @@ public abstract class WikipediaPage extends Indexable {
     // Known issue: doesn't correctly handle captions that have links inside.
     s = FILE.matcher(s).replaceAll(" ");
 
+    // Known issue: doesn't handle nested {{ .. }} (for example, in infoboxes).
     s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
 
     wikiModel.setUp();
