@@ -62,7 +62,7 @@ public class TurkishWikipediaPage extends WikipediaPage {
     // parse out the document id
     start = s.indexOf(XML_START_TAG_ID);
     end = s.indexOf(XML_END_TAG_ID);
-    this.mId = s.substring(start + 4, end);
+    this.id = s.substring(start + 4, end);
 
     // parse out actual text of article
     this.textStart = s.indexOf(XML_START_TAG_TEXT);

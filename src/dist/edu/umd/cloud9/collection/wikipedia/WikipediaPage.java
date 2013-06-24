@@ -95,7 +95,7 @@ public abstract class WikipediaPage extends Indexable {
 
   protected String page;
   protected String title;
-  protected String mId;
+  protected String id;
   protected int textStart;
   protected int textEnd;
   protected boolean isRedirect;
@@ -140,7 +140,7 @@ public abstract class WikipediaPage extends Indexable {
    * Returns the article title (i.e., the docid).
    */
   public String getDocid() {
-    return mId;
+    return id;
   }
 
   @Deprecated
