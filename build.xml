@@ -25,7 +25,7 @@
     <fileset dir="${dist.dir}/" includes="cloud9*.jar"/>
     <fileset dir="${lib.dir}/" includes="guava*.jar"/>
     <fileset dir="${lib.dir}/" includes="fastutil*.jar"/>
-    <fileset dir="${lib.dir}/" includes="bliki*.jar"/>
+    <fileset dir="${lib.dir}/" includes="wikiclean*.jar"/>
   </path>
 
   <property name="maven.ant.task.version" value="2.1.2"/>
