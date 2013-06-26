@@ -19,6 +19,8 @@
     <dependency org="org.apache.pig" name="pig" rev="0.10.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" conf="*->*,!sources,!javadoc"/>
 
+    <dependency org="org.wikiclean" name="wikiclean" rev="0.1" conf="*->*,!sources,!javadoc"/>
+
     <dependency org="com.google.guava" name="guava" rev="13.0.1" conf="*->*,!sources,!javadoc"/>
     <dependency org="com.google.code.gson" name="gson" rev="2.2.2" conf="*->*,!sources,!javadoc"/>
 
@@ -29,12 +31,6 @@
     <dependency org="it.unimi.dsi" name="dsiutils" rev="2.0.15" conf="*->*,!sources,!javadoc"/>
     <dependency org="it.unimi.dsi" name="sux4j" rev="3.0.8" conf="*->*,!sources,!javadoc"/>
     <dependency org="it.unimi.dsi" name="fastutil" rev="6.5.4" conf="*->*,!sources,!javadoc"/>
-
-    <dependency org="info.bliki.wiki" name="bliki-core" rev="3.0.19" conf="*->*,!sources,!javadoc">
-      <exclude org="commons-httpclient" module="commons-httpclient"/>
-    </dependency>
-
-    <dependency org="org.jsoup" name="jsoup" rev="1.7.2" conf="*->*,!sources,!javadoc"/>
 
     <dependency org="junit" name="junit" rev="4.8.2" conf="*->*,!sources,!javadoc"/>
     <dependency org="log4j" name="log4j" rev="1.2.16" conf="*->*,!sources,!javadoc"/>

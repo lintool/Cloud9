@@ -16,26 +16,15 @@
 
 package edu.umd.cloud9.collection.wikipedia;
 
-import info.bliki.wiki.model.WikiModel;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.WritableUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.helper.StringUtil;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.NodeTraversor;
-import org.jsoup.select.NodeVisitor;
+import org.wikiclean.WikiCleaner;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -111,14 +100,10 @@ public abstract class WikipediaPage extends Indexable {
   protected boolean isArticle;
   protected String language;
 
-  private WikiModel wikiModel;
-
   /**
    * Creates an empty <code>WikipediaPage</code> object.
    */
-  public WikipediaPage() {
-    wikiModel = new WikiModel("", "");
-  }
+  public WikipediaPage() {}
 
   /**
    * Deserializes this object.
@@ -148,83 +133,24 @@ public abstract class WikipediaPage extends Indexable {
     return id;
   }
 
-  @Deprecated
-  public void setLanguage(String language) {
-    this.language = language;
-  }
-
   public String getLanguage() {
     return this.language;
   }
-
-  private static final Pattern REF1 = Pattern.compile("&lt;ref[^/]+/&gt;", Pattern.DOTALL);
-  private static final Pattern REF2 = Pattern.compile("&lt;ref.*?&lt;/ref&gt;", Pattern.DOTALL);
-
-  private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
-
-  private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}", Pattern.DOTALL);
-
-  private static final Pattern HTML_COMMENT = Pattern.compile("(<|&#60;)!--.*?--(>|&#62;)",
-      Pattern.DOTALL);
-
-  private static final Pattern EMPTY_PARENS = Pattern.compile(" \\( \\)");
-
-  private static final Pattern FILE = Pattern.compile("\\[\\[(File|Image):.*?\\]\\]");
 
   /**
    * Returns the contents of this page (title + text).
    */
   public String getContent() {
-    String s = getWikiMarkup();
-    if (s.length() == 0) {
-      return "";
-    }
-
-    // Bliki doesn't seem to properly handle inter-language links, so remove manually.
-    s = LANG_LINKS.matcher(s).replaceAll(" ");
-    // Bliki inlines refs, which we don't want.
-    s = REF1.matcher(s).replaceAll("");
-    s = REF2.matcher(s).replaceAll("");
-
-    // Known issue: doesn't correctly handle captions that have links inside.
-    s = FILE.matcher(s).replaceAll(" ");
-
-    // Known issue: doesn't handle nested {{ .. }} (for example, in infoboxes).
-    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
-
-    wikiModel.setUp();
-    s = wikiModel.render(s);
-    wikiModel.tearDown();
-
-    s = HTML_COMMENT.matcher(s).replaceAll(" ");
-
-    Document doc = Jsoup.parse(s);
-
-    HtmlToPlainText formatter = new HtmlToPlainText();
-    String plainText = formatter.getPlainText(doc);
-
-    plainText = StringEscapeUtils.unescapeHtml(plainText);
-
-    // Take care of things like: id 36
-    // '''Albedo''' ({{IPAc-en|icon|æ|l|ˈ|b|iː|d|oʊ}}), or ''reflection coefficient'' ...
-    plainText = EMPTY_PARENS.matcher(plainText).replaceAll("");
-
-    return getTitle() + "\n\n" + plainText;
+    return getTitle() + "\n\n" + WikiCleaner.clean(getRawXML());
   }
 
   public String getDisplayContent() {
-    wikiModel.setUp();
-    String s = "<h1>" + getTitle() + "</h1>\n" + wikiModel.render(getWikiMarkup());
-    wikiModel.tearDown();
-
-    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
-
-    return s;
+    return getTitle() + "\n\n" + WikiCleaner.clean(getRawXML());
   }
 
   @Override
   public String getDisplayContentType() {
-    return "text/html";
+    return "text/plain";
   }
 
   /**
@@ -449,51 +375,4 @@ public abstract class WikipediaPage extends Indexable {
    * @param s raw XML string
    */
   protected abstract void processPage(String s);
-
-  // From org.jsoup.examples.HtmlToPlainText
-  public static class HtmlToPlainText {
-    public String getPlainText(Element element) {
-      FormattingVisitor formatter = new FormattingVisitor();
-      NodeTraversor traversor = new NodeTraversor(formatter);
-      traversor.traverse(element); // walk the DOM, and call .head() and .tail() for each node
-
-      return formatter.toString();
-    }
-
-    // the formatting rules, implemented in a breadth-first DOM traverse
-    private class FormattingVisitor implements NodeVisitor {
-      private StringBuilder accum = new StringBuilder(); // holds the accumulated text
-
-      // hit when the node is first seen
-      public void head(Node node, int depth) {
-        String name = node.nodeName();
-        if (node instanceof TextNode)
-          append(((TextNode) node).text()); // TextNodes carry all user-readable text in the DOM.
-        else if (name.equals("li"))
-          append("\n * ");
-      }
-
-      // hit when all of the node's children (if any) have been visited
-      public void tail(Node node, int depth) {
-        String name = node.nodeName();
-        if (name.equals("br"))
-          append("\n");
-        else if (StringUtil.in(name, "p", "h1", "h2", "h3", "h4", "h5", "table"))
-          append("\n\n");
-      }
-
-      // appends text to the string builder with a simple word wrap method
-      private void append(String text) {
-        if (text.equals(" ")
-            && (accum.length() == 0 || StringUtil.in(accum.substring(accum.length() - 1), " ", "\n")))
-          return; // don't accumulate long runs of empty spaces
-
-        accum.append(text);
-      }
-
-      public String toString() {
-        return accum.toString();
-      }
-    }
-  }
 }

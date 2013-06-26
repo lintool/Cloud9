@@ -7,8 +7,6 @@
       <ibiblio name="cloudera" m2compatible="true" root="https://repository.cloudera.com/content/groups/cdh-releases-rcs/"/>
       <!-- for memcached -->
       <ibiblio name="spy" m2compatible="true" root="http://files.couchbase.com/maven2/"/>
-      <!-- for bliki -->
-      <ibiblio name="bliki" m2compatible="true" root="http://gwtwiki.googlecode.com/svn/maven-repository/"/>
       <!-- for opennlp -->
       <ibiblio name="opennlp" m2compatible="true" root="http://opennlp.sourceforge.net/maven2/"/>
 
