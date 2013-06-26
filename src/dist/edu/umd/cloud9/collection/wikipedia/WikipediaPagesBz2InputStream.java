@@ -56,7 +56,7 @@ public class WikipediaPagesBz2InputStream {
     fis = new FileInputStream(file);
     byte[] ignoreBytes = new byte[2];
     fis.read(ignoreBytes); // "B", "Z" bytes from commandline tools
-    br = new BufferedReader(new InputStreamReader(new CBZip2InputStream(fis)));
+    br = new BufferedReader(new InputStreamReader(new CBZip2InputStream(fis), "UTF8"));
 
   }
 
