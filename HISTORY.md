@@ -1,3 +1,9 @@
+Version 1.4.17
+==============
+July 6, 2013
+
++ Upgraded to CDH 4.3.0
+
 Version 1.4.16
 ==============
 June 17, 2013
