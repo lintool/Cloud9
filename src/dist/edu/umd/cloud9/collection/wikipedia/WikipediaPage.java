@@ -24,7 +24,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.hadoop.io.WritableUtils;
-import org.wikiclean.WikiCleaner;
+import org.wikiclean.WikiClean;
+import org.wikiclean.WikiCleanBuilder;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -100,10 +101,14 @@ public abstract class WikipediaPage extends Indexable {
   protected boolean isArticle;
   protected String language;
 
+  protected WikiClean wikiClean;
+
   /**
    * Creates an empty <code>WikipediaPage</code> object.
    */
-  public WikipediaPage() {}
+  public WikipediaPage() {
+    this.wikiClean = new WikiCleanBuilder().build(); 
+  }
 
   /**
    * Deserializes this object.
@@ -141,11 +146,11 @@ public abstract class WikipediaPage extends Indexable {
    * Returns the contents of this page (title + text).
    */
   public String getContent() {
-    return getTitle() + "\n\n" + WikiCleaner.clean(getRawXML());
+    return getTitle() + "\n\n" + wikiClean.clean(getRawXML());
   }
 
   public String getDisplayContent() {
-    return getTitle() + "\n\n" + WikiCleaner.clean(getRawXML());
+    return getTitle() + "\n\n" + wikiClean.clean(getRawXML());
   }
 
   @Override

@@ -19,7 +19,7 @@
     <dependency org="org.apache.pig" name="pig" rev="0.10.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.mrunit" name="mrunit" rev="0.8.0-incubating" conf="*->*,!sources,!javadoc"/>
 
-    <dependency org="org.wikiclean" name="wikiclean" rev="0.1" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.wikiclean" name="wikiclean" rev="0.2" conf="*->*,!sources,!javadoc"/>
 
     <dependency org="com.google.guava" name="guava" rev="13.0.1" conf="*->*,!sources,!javadoc"/>
     <dependency org="com.google.code.gson" name="gson" rev="2.2.2" conf="*->*,!sources,!javadoc"/>
