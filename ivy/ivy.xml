@@ -7,7 +7,7 @@
 
   <dependencies>
     <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
-    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
+    <dependency org="org.apache.hadoop" name="hadoop-auth" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.hadoop" name="hadoop-yarn-api" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.hadoop" name="hadoop-yarn-common" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
     <dependency org="org.apache.hadoop" name="hadoop-yarn-server-common" rev="2.0.0-cdh4.3.0" conf="*->*,!sources,!javadoc"/>
