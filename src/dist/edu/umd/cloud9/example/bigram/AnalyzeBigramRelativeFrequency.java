@@ -33,12 +33,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.ToolRunner;
 
+import tl.lin.data.pair.PairOfStrings;
+import tl.lin.data.pair.PairOfWritables;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
-import edu.umd.cloud9.io.pair.PairOfStrings;
-import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramRelativeFrequency {
   private static final String INPUT = "input";

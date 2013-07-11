@@ -34,10 +34,11 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 
+import tl.lin.data.pair.PairOfWritables;
+
 import com.google.common.collect.Iterators;
 
 import edu.umd.cloud9.io.SequenceFileUtils;
-import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class AnalyzeBigramCount {
   private static final String INPUT = "input";

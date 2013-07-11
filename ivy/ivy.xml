@@ -46,5 +46,12 @@
     <dependency org="pcj" name="pcj" rev="1.2" conf="*->*,!sources,!javadoc"/>
     <dependency org="spy" name="spymemcached" rev="2.8.1" conf="*->*,!sources,!javadoc"/>
 
+    <dependency org="tl.lin" name="lintools-datatypes" rev="0.9.1" conf="*->*,!sources,!javadoc">
+      <exclude org="org.apache.hadoop" module="*"/>
+    </dependency>
+    <dependency org="tl.lin" name="lintools-datatypes-fastutil" rev="0.9.1" conf="*->*,!sources,!javadoc">
+      <exclude org="org.apache.hadoop" module="*"/>
+    </dependency>
+
   </dependencies>
 </ivy-module>

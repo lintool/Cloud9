@@ -34,8 +34,6 @@
 	<classpathentry kind="lib" path="lib/dsiutils-2.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/fastutil-6.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jms_1.1_spec-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/guava-14.0-rc3.jar"/>
 	<classpathentry kind="lib" path="lib/guice-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/guice-servlet-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb-1.8.0.10.jar"/>
@@ -121,5 +119,9 @@
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-resourcemanager-2.0.0-cdh4.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-server-web-proxy-2.0.0-cdh4.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/xz-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="lib/guava-14.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/lintools-datatypes-0.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/lintools-datatypes-fastutil-0.9.1.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

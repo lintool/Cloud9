@@ -16,13 +16,14 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.junit.Test;
 
+import tl.lin.data.array.ArrayListWritable;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.integration.IntegrationUtils;
-import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;

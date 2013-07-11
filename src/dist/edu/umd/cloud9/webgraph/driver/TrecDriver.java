@@ -25,8 +25,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 import edu.umd.cloud9.webgraph.BuildReverseWebGraph;
 import edu.umd.cloud9.webgraph.BuildWebGraph;
-import edu.umd.cloud9.webgraph.CollectionConfigurationManager;
 import edu.umd.cloud9.webgraph.CollectHostnames;
+import edu.umd.cloud9.webgraph.CollectionConfigurationManager;
 import edu.umd.cloud9.webgraph.ComputeWeight;
 import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.TrecExtractLinks;

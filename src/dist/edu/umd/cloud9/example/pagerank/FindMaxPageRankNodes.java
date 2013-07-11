@@ -44,20 +44,20 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.util.TopNScoredObjects;
-import edu.umd.cloud9.util.pair.PairOfObjectFloat;
+import tl.lin.data.pair.PairOfObjectFloat;
+import tl.lin.data.queue.TopScoredObjects;
 
 public class FindMaxPageRankNodes extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(FindMaxPageRankNodes.class);
 
   private static class MyMapper extends
       Mapper<IntWritable, PageRankNode, IntWritable, FloatWritable> {
-    private TopNScoredObjects<Integer> queue;
+    private TopScoredObjects<Integer> queue;
 
     @Override
     public void setup(Context context) throws IOException {
       int k = context.getConfiguration().getInt("n", 100);
-      queue = new TopNScoredObjects<Integer>(k);
+      queue = new TopScoredObjects<Integer>(k);
     }
 
     @Override
@@ -81,12 +81,12 @@ public class FindMaxPageRankNodes extends Configured implements Tool {
 
   private static class MyReducer extends
       Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
-    private static TopNScoredObjects<Integer> queue;
+    private static TopScoredObjects<Integer> queue;
 
     @Override
     public void setup(Context context) throws IOException {
       int k = context.getConfiguration().getInt("n", 100);
-      queue = new TopNScoredObjects<Integer>(k);
+      queue = new TopScoredObjects<Integer>(k);
     }
 
     @Override

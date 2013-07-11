@@ -16,11 +16,12 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.junit.Test;
 
+import tl.lin.data.pair.PairOfStrings;
+
 import com.google.common.base.Joiner;
 
 import edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson;
 import edu.umd.cloud9.integration.IntegrationUtils;
-import edu.umd.cloud9.io.pair.PairOfStrings;
 
 public class BigramRelativeFrequencyTest {
   private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();

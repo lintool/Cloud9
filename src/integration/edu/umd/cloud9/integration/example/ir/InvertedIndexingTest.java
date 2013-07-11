@@ -15,12 +15,13 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
+import tl.lin.data.array.ArrayListWritable;
+import tl.lin.data.pair.PairOfInts;
+import tl.lin.data.pair.PairOfWritables;
+
 import com.google.common.base.Joiner;
 
 import edu.umd.cloud9.integration.IntegrationUtils;
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
-import edu.umd.cloud9.io.pair.PairOfWritables;
 
 public class InvertedIndexingTest {
   private static final Random random = new Random();

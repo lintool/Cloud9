@@ -28,14 +28,13 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
-import edu.umd.cloud9.util.map.HMapIV;
-import edu.umd.cloud9.util.map.MapIV;
+import tl.lin.data.array.ArrayListOfIntsWritable;
+import tl.lin.data.map.HMapIV;
+import tl.lin.data.map.MapIV;
 
 /**
  * <p>

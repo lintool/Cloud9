@@ -27,9 +27,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 
+import tl.lin.data.array.ArrayListWritable;
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.DocumentForwardIndex;
-import edu.umd.cloud9.io.array.ArrayListWritable;
 
 public class IndexableAnchorTextForwardIndex implements DocumentForwardIndex<IndexableAnchorText> {
 	

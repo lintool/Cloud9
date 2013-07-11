@@ -24,10 +24,11 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import tl.lin.data.array.ArrayListWritable;
+
 import com.google.common.base.Preconditions;
 
 import edu.umd.cloud9.collection.Indexable;
-import edu.umd.cloud9.io.array.ArrayListWritable;
 
 /**
  *
