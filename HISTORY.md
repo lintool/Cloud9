@@ -1,3 +1,11 @@
+Version 1.5.0
+=============
+November 24, 2013
+
++ Upgraded to JDK7
++ Upgraded to CDH 4.4.0
++ Fixed minor integration/regression issues as a result of upgrade to JDK7
+
 Version 1.4.17
 ==============
 July 6, 2013
