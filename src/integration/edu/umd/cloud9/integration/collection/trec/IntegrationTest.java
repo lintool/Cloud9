@@ -31,7 +31,13 @@ public class IntegrationTest {
   private static final String mappingFile = tmpPrefix + "-mapping.dat";
 
   @Test
-  public void testDocnoMapping() throws Exception {
+  public void runTests() throws Exception {
+    testDocnoMapping();
+    testDemoCountDocs();
+    testForwardIndex();
+  }
+
+  private void testDocnoMapping() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
@@ -55,8 +61,7 @@ public class IntegrationTest {
     assertEquals(400000, mapping.getDocno("LA061490-0139"));
   }
 
-  @Test
-  public void testDemoCountDocs() throws Exception {
+  private void testDemoCountDocs() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
@@ -83,8 +88,7 @@ public class IntegrationTest {
     assertEquals(472525, Integer.parseInt(str.toString()));
   }
 
-  @Test
-  public void testForwardIndex() throws Exception {
+  private void testForwardIndex() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
