@@ -68,7 +68,12 @@ public class VerifyGov2Webgraph {
     ImmutableSet.of(51706));
 
   @Test
-  public void runTrecDriver() throws Exception {
+  public void runTests() throws Exception {
+    runTrecDriver();
+    verifyAnchors();
+  }
+
+  private void runTrecDriver() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
@@ -101,8 +106,7 @@ public class VerifyGov2Webgraph {
     IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
 
-  @Test
-  public void verifyAnchors() throws Exception {
+  private void verifyAnchors() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 

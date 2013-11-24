@@ -64,7 +64,12 @@ public class VerifyClueWeb09EN01Webgraph {
     ImmutableSet.of(31937044));
 
   @Test
-  public void runClueDriver() throws Exception {
+  public void runTests() throws Exception {
+    runClueDriver();
+    verifyWebGraph();
+  }
+
+  private void runClueDriver() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
@@ -98,8 +103,7 @@ public class VerifyClueWeb09EN01Webgraph {
     IntegrationUtils.exec(Joiner.on(" ").join(args));
   }
 
-  @Test
-  public void verifyWebGraph() throws Exception {
+  private void verifyWebGraph() throws Exception {
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
 
