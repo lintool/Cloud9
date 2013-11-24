@@ -238,7 +238,7 @@ public class ArrayListOfShortsTest {
 
 		ArrayListOfShorts list = new ArrayListOfShorts();
 		for (int i = 0; i < size; i++) {
-			list.add((short) r.nextInt(30000));
+		    list.add((short) r.nextInt(Short.MAX_VALUE + 1));
 		}
 
 		String out = list.toString();
@@ -250,7 +250,7 @@ public class ArrayListOfShortsTest {
 		}
 
 		for (int i = 0; i < size; i++) {
-			list.add((short) r.nextInt(30000));
+		    list.add((short) r.nextInt(Short.MAX_VALUE + 1));
 		}
 
 		out = list.toString();

@@ -53,6 +53,7 @@ public class HMapIFWTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
+		HMapIFW.setLazyDecodeFlag(false);
 		HMapIFW m1 = new HMapIFW();
 
 		m1.put(3, 5.0f);
