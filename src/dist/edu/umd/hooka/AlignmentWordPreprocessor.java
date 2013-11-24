@@ -217,7 +217,7 @@ class GermanTruncator extends AlignmentWordPreprocessor {
 				l+=2;
 			else if (cur.startsWith("be"))
 				l+=1;
-			else if (cur.startsWith("Ÿber"))
+			else if (cur.startsWith("\u00FCber"))
 				l+=4;
 			else if (cur.startsWith("unter"))
 				l+=5;

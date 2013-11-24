@@ -81,6 +81,7 @@ public class Int2IntOpenHashMapWritableTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
+		Int2IntOpenHashMapWritable.setLazyDecodeFlag(false);
 		Int2IntOpenHashMapWritable m1 = new Int2IntOpenHashMapWritable();
 
 		m1.put(3, 5);

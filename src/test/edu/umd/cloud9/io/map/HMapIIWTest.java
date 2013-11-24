@@ -54,6 +54,7 @@ public class HMapIIWTest {
 
 	@Test
 	public void testSerialize1() throws IOException {
+		HMapIIW.setLazyDecodeFlag(false);
 		HMapIIW m1 = new HMapIIW();
 
 		m1.put(3, 5);
