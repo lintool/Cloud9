@@ -207,7 +207,13 @@ public class BigramRelativeFrequency extends Configured implements Tool {
 
     // Delete the output directory if it exists already.
     Path outputDir = new Path(outputPath);
-    FileSystem.get(getConf()).delete(outputDir, true);
+    
+    //Correct way to feed Output Path is to use FileSystem.get(uri,conf) format
+		JobConf conf = new JobConf(BigramRelativeFrequency.class);
+		FileSystem.get(outputDir.toUri(), conf).delete(outputDir, true);
+    
+    //Gives AWS Error 
+    //FileSystem.get(getConf()).delete(outputDir, true);
 
     long startTime = System.currentTimeMillis();
     job.waitForCompletion(true);
