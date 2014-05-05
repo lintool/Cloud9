@@ -116,10 +116,11 @@ public class XMLInputFormat extends TextInputFormat {
 
       FileSplit split = (FileSplit) input;
       start = split.getStart();
+      end = start + split.getLength();
       Path file = split.getPath();
 
       CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(conf);
-      CompressionCodec codec = compressionCodecs.getCodec(file);
+      codec = compressionCodecs.getCodec(file);
 
       FileSystem fs = file.getFileSystem(conf);
 
