@@ -27,9 +27,9 @@ import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 
-public class VerifyClueWeb09EN01Webgraph {
+public class ClueWeb09EN01WebgraphIT {
   private static final Random rand = new Random();
-  private static final String tmp = "/tmp/tmp-" + VerifyClueWeb09EN01Webgraph.class.getSimpleName() +
+  private static final String tmp = "/tmp/tmp-" + ClueWeb09EN01WebgraphIT.class.getSimpleName() +
     rand.nextInt(10000);
 
   private static final String collectionPath =
@@ -164,6 +164,6 @@ public class VerifyClueWeb09EN01Webgraph {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(VerifyClueWeb09EN01Webgraph.class);
+    return new JUnit4TestAdapter(ClueWeb09EN01WebgraphIT.class);
   }
 }

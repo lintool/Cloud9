@@ -21,14 +21,14 @@ import edu.umd.cloud9.collection.clue.ClueWarcDocnoMapping;
 import edu.umd.cloud9.collection.clue.ClueWarcForwardIndex;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
-public class IntegrationTest {
+public class IT {
   private static final Random random = new Random();
 
   private static final Path collectionPathRepacked =
       new Path("/shared/collections/ClueWeb09/collection.compressed.block/en.01");
   private static final Path collectionPathRaw =
       new Path("/shared/collections/ClueWeb09/collection.raw/");
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() + "-"
+  private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() + "-"
       + random.nextInt(10000);
 
   private static final String mappingFile = tmpPrefix + "-mapping.dat";
@@ -146,6 +146,6 @@ public class IntegrationTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(IntegrationTest.class);
+    return new JUnit4TestAdapter(IT.class);
   }
 }

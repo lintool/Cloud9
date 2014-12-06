@@ -21,10 +21,10 @@ import com.google.common.collect.Lists;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
-public class WikipediaBfsIntegrationTest {
+public class WikipediaBfsIT {
   private static final Random random = new Random();
   private static final String tmpPrefix = 
-      "tmp-" + WikipediaBfsIntegrationTest.class.getCanonicalName() + "-" + random.nextInt(10000);
+      "tmp-" + WikipediaBfsIT.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   @Test
   public void tesBfs() throws Exception {
@@ -185,6 +185,6 @@ public class WikipediaBfsIntegrationTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(WikipediaBfsIntegrationTest.class);
+    return new JUnit4TestAdapter(WikipediaBfsIT.class);
   }
 }

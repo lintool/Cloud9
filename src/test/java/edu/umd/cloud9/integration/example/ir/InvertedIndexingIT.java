@@ -22,12 +22,12 @@ import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.io.pair.PairOfInts;
 import edu.umd.cloud9.io.pair.PairOfWritables;
 
-public class InvertedIndexingTest {
+public class InvertedIndexingIT {
   private static final Random random = new Random();
 
   private static final Path collectionPath = new Path("data/bible+shakes.nopunc.gz");
   private static final String tmpPrefix = "tmp-"
-      + InvertedIndexingTest.class.getCanonicalName() + "-" + random.nextInt(10000);
+      + InvertedIndexingIT.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   @Test
   public void testInvertedIndexing() throws Exception {
@@ -68,6 +68,6 @@ public class InvertedIndexingTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(InvertedIndexingTest.class);
+    return new JUnit4TestAdapter(InvertedIndexingIT.class);
   }
 }

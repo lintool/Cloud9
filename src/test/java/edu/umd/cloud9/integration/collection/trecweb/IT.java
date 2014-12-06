@@ -20,13 +20,13 @@ import edu.umd.cloud9.collection.trecweb.TrecWebDocumentInputFormat;
 import edu.umd.cloud9.collection.trecweb.Wt10gDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
-public class IntegrationTest {
+public class IT {
   private static final Random random = new Random();
 
   private static final Path wt10gPath = new Path("/shared/collections/wt10g/collection.raw");
   private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw/gov2-corpus");
 
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() + "-" + random.nextInt(10000);
+  private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   // wt10g, repacked.
   @Test
@@ -161,6 +161,6 @@ public class IntegrationTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(IntegrationTest.class);
+    return new JUnit4TestAdapter(IT.class);
   }
 }

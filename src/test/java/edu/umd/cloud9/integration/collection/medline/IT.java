@@ -18,11 +18,11 @@ import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.medline.MedlineDocnoMapping;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
-public class IntegrationTest {
+public class IT {
   private static final Random random = new Random();
 
   private static final Path collectionPath = new Path("/shared/collections/medline04");
-  private static final String tmpPrefix = "tmp-" + IntegrationTest.class.getCanonicalName() +
+  private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() +
       "-" + random.nextInt(10000);
 
   private static final String mappingFile = tmpPrefix + "-mapping.dat";
@@ -76,6 +76,6 @@ public class IntegrationTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(IntegrationTest.class);
+    return new JUnit4TestAdapter(IT.class);
   }
 }

@@ -27,9 +27,9 @@ import edu.umd.cloud9.webgraph.DriverUtil;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 
 
-public class VerifyGov2Webgraph {
+public class Gov2WebgraphIT {
   private static final Random rand = new Random();
-  private static final String tmp = "/tmp/tmp-" + VerifyGov2Webgraph.class.getSimpleName() + rand.nextInt(10000);
+  private static final String tmp = "/tmp/tmp-" + Gov2WebgraphIT.class.getSimpleName() + rand.nextInt(10000);
 
   private static final String collectionPath =
     "/shared/collections/gov2/collection.raw/gov2-corpus/GX000";
@@ -152,6 +152,6 @@ public class VerifyGov2Webgraph {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(VerifyGov2Webgraph.class);
+    return new JUnit4TestAdapter(Gov2WebgraphIT.class);
   }
 }

@@ -22,14 +22,14 @@ import edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson;
 import edu.umd.cloud9.integration.IntegrationUtils;
 import edu.umd.cloud9.io.pair.PairOfStrings;
 
-public class BigramRelativeFrequencyTest {
+public class BigramRelativeFrequencyIT {
   private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
 
   private static final Random random = new Random();
 
   private static final Path collectionPath = new Path("data/bible+shakes.nopunc.gz");
   private static final String tmpPrefix = "tmp-"
-      + BigramRelativeFrequencyTest.class.getCanonicalName() + "-" + random.nextInt(10000);
+      + BigramRelativeFrequencyIT.class.getCanonicalName() + "-" + random.nextInt(10000);
 
   @Test
   public void testBigramRelativeFrequencyBase() throws Exception {
@@ -161,6 +161,6 @@ public class BigramRelativeFrequencyTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(BigramRelativeFrequencyTest.class);
+    return new JUnit4TestAdapter(BigramRelativeFrequencyIT.class);
   }
 }

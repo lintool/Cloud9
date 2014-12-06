@@ -20,9 +20,9 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMapping;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;
 import edu.umd.cloud9.integration.IntegrationUtils;
 
-public class WikipediaBasicIntegrationTest {
+public class WikipediaBasicIT {
   private static final Random random = new Random();
-  private static final String tmpPrefix = "tmp-" + WikipediaBasicIntegrationTest.class.getCanonicalName() + "-" +
+  private static final String tmpPrefix = "tmp-" + WikipediaBasicIT.class.getCanonicalName() + "-" +
       random.nextInt(10000);
 
   public void testWikiDocnoMapping(String language, String input, String docid1, String docid2,
@@ -99,6 +99,6 @@ public class WikipediaBasicIntegrationTest {
         5938, 240952, 589118);
   }
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(WikipediaBasicIntegrationTest.class);
+    return new JUnit4TestAdapter(WikipediaBasicIT.class);
   }
 }
