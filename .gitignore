@@ -1,12 +1,5 @@
-/build/
-/dist/
-/lib/
-ivy/ivy.jar
-etc/*.sh
+.classpath
+.project
+target/
 data/bible+shakes.nopunc
-data/bible+shakes.nopunc.json.packed
-data/bible+shakes.nopunc.tuple1.packed
-data/bible+shakes.nopunc.tuple2.packed
-test/*
-pom.xml.asc
 *~
