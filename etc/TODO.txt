@@ -1,2 +1,0 @@
-- write test cases for Bidimap
-

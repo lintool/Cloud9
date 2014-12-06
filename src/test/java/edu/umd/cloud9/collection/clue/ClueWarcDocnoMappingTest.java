@@ -14,7 +14,7 @@ public class ClueWarcDocnoMappingTest {
   public void testDocidToDocno() throws Exception {
     ClueWarcDocnoMapping mapping = new ClueWarcDocnoMapping();
 
-    mapping.loadMapping(new Path("etc/Clue-English-docno.mapping"),
+    mapping.loadMapping(new Path("src/test/resources/Clue-English-docno.mapping"),
         FileSystem.get(new Configuration()));
 
     assertEquals(1, mapping.getDocno("clueweb09-en0000-00-00000"));
@@ -31,7 +31,7 @@ public class ClueWarcDocnoMappingTest {
   public void testDocnoToDocid() throws Exception {
     ClueWarcDocnoMapping mapping = new ClueWarcDocnoMapping();
 
-    mapping.loadMapping(new Path("etc/Clue-English-docno.mapping"),
+    mapping.loadMapping(new Path("src/test/resources/Clue-English-docno.mapping"),
         FileSystem.get(new Configuration()));
 
     assertEquals("clueweb09-en0000-00-00000", mapping.getDocid(1));

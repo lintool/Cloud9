@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -30,8 +29,6 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-
-import edu.umd.cloud9.io.map.HMapSFW;
 
 public class HMapSFWTest {
 
@@ -93,7 +90,7 @@ public class HMapSFWTest {
   public void testJp() throws IOException {
     HMapSFW map1 = new HMapSFW();
     BufferedReader in = new BufferedReader(new InputStreamReader(
-        new FileInputStream("etc/jp-sample.txt"), "UTF8"));
+        this.getClass().getClassLoader().getResourceAsStream("jp-sample.txt"), "UTF8"));
 
     List<String> list = Lists.newArrayList();
     int cnt = 0;
