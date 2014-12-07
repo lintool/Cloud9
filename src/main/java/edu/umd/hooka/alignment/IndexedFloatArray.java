@@ -13,8 +13,8 @@ import java.util.PriorityQueue;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.io.pair.PairOfFloatInt;
-import edu.umd.cloud9.util.array.ArrayListOfInts;
+import tl.lin.data.array.ArrayListOfInts;
+import tl.lin.data.pair.PairOfFloatInt;
 
 
 /*

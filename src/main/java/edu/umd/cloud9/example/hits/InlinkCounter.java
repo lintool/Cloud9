@@ -27,9 +27,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
-import edu.umd.cloud9.util.map.HMapIV;
-import edu.umd.cloud9.util.map.MapIV;
+import tl.lin.data.array.ArrayListOfIntsWritable;
+import tl.lin.data.map.HMapIV;
+import tl.lin.data.map.MapIV;
 
 /**
  * @author michaelmcgrath

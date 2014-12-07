@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import tl.lin.data.array.ArrayListOfIntsWritable;
 
 /**
  * 

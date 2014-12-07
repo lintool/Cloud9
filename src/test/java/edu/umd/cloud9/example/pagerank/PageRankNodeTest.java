@@ -24,8 +24,8 @@ import junit.framework.JUnit4TestAdapter;
 
 import org.junit.Test;
 
+import tl.lin.data.array.ArrayListOfIntsWritable;
 import edu.umd.cloud9.example.pagerank.PageRankNode.Type;
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
 
 public class PageRankNodeTest {
 

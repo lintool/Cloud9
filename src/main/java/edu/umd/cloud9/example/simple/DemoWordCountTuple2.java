@@ -37,7 +37,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 import org.apache.pig.data.Tuple;
 
-import edu.umd.cloud9.io.pair.PairOfStringInt;
+import tl.lin.data.pair.PairOfStringInt;
 
 /**
  * Modified word count demo designed to work with {@link DemoPackTuples2}. Counts words on

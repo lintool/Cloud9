@@ -41,7 +41,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListOfIntsWritable;
+import tl.lin.data.array.ArrayListOfIntsWritable;
 
 /**
  * Tool for taking a plain-text encoding of a directed graph and building corresponding Hadoop

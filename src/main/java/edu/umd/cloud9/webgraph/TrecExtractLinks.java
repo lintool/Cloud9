@@ -44,9 +44,9 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
+import tl.lin.data.array.ArrayListWritable;
 import edu.umd.cloud9.collection.DocnoMapping;
 import edu.umd.cloud9.collection.WebDocument;
-import edu.umd.cloud9.io.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;

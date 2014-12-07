@@ -38,8 +38,8 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
+import tl.lin.data.array.ArrayListWritable;
+import tl.lin.data.pair.PairOfInts;
 import edu.umd.cloud9.util.PowerTool;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 

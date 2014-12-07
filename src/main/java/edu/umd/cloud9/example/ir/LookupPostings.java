@@ -39,11 +39,11 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
-import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.fd.Int2IntFrequencyDistribution;
-import edu.umd.cloud9.util.fd.Int2IntFrequencyDistributionEntry;
+import tl.lin.data.array.ArrayListWritable;
+import tl.lin.data.fd.Int2IntFrequencyDistribution;
+import tl.lin.data.fd.Int2IntFrequencyDistributionEntry;
+import tl.lin.data.pair.PairOfInts;
+import tl.lin.data.pair.PairOfWritables;
 
 public class LookupPostings extends Configured implements Tool {
   private static final String INDEX = "index";

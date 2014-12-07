@@ -24,8 +24,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -38,9 +38,9 @@ import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
+import tl.lin.data.array.ArrayListOfInts;
+import tl.lin.data.array.ArrayListWritable;
 import edu.umd.cloud9.util.PowerTool;
-import edu.umd.cloud9.util.array.ArrayListOfInts;
 import edu.umd.cloud9.webgraph.data.AnchorText;
 import edu.umd.cloud9.webgraph.data.AnchorTextConstants;
 

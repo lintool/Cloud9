@@ -44,12 +44,12 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
-import edu.umd.cloud9.io.pair.PairOfWritables;
-import edu.umd.cloud9.util.fd.Object2IntFrequencyDistribution;
-import edu.umd.cloud9.util.fd.Object2IntFrequencyDistributionEntry;
-import edu.umd.cloud9.util.pair.PairOfObjectInt;
+import tl.lin.data.array.ArrayListWritable;
+import tl.lin.data.fd.Object2IntFrequencyDistribution;
+import tl.lin.data.fd.Object2IntFrequencyDistributionEntry;
+import tl.lin.data.pair.PairOfInts;
+import tl.lin.data.pair.PairOfObjectInt;
+import tl.lin.data.pair.PairOfWritables;
 
 public class BuildInvertedIndex extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BuildInvertedIndex.class);

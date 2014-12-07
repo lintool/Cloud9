@@ -37,9 +37,9 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.webgraph.data.AnchorText;
+import tl.lin.data.array.ArrayListWritable;
 import edu.umd.cloud9.webgraph.DriverUtil;
+import edu.umd.cloud9.webgraph.data.AnchorText;
 
 
 /**

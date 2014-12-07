@@ -45,7 +45,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.pair.PairOfStrings;
+import tl.lin.data.pair.PairOfStrings;
 
 public class BigramRelativeFrequency extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(BigramRelativeFrequency.class);

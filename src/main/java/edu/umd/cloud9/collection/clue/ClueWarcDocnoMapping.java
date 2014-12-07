@@ -26,9 +26,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.LineReader;
 
+import tl.lin.data.map.HMapKI;
+import tl.lin.data.map.MapKI;
 import edu.umd.cloud9.collection.DocnoMapping;
-import edu.umd.cloud9.util.map.HMapKI;
-import edu.umd.cloud9.util.map.MapKI;
 
 /**
  * <p>

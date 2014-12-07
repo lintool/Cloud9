@@ -41,7 +41,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.map.HMapSIW;
+import tl.lin.data.map.HMapSIW;
 
 /**
  * <p>

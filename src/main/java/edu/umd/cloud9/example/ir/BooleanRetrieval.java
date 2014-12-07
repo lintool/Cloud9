@@ -42,9 +42,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.umd.cloud9.io.array.ArrayListWritable;
-import edu.umd.cloud9.io.pair.PairOfInts;
-import edu.umd.cloud9.io.pair.PairOfWritables;
+import tl.lin.data.array.ArrayListWritable;
+import tl.lin.data.pair.PairOfInts;
+import tl.lin.data.pair.PairOfWritables;
 
 public class BooleanRetrieval extends Configured implements Tool {
   private MapFile.Reader index;
