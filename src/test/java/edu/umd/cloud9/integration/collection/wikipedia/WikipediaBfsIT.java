@@ -36,25 +36,11 @@ public class WikipediaBfsIT {
 
     String mappingFile = tmpPrefix + "-enwiki-mapping.dat";
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("lib", "bliki-core"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
-    jars.add(IntegrationUtils.getJar("lib", "dsiutils"));
-    jars.add(IntegrationUtils.getJar("lib", "fastutil"));
-    jars.add(IntegrationUtils.getJar("lib", "sux4j"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-collections"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-lang"));
-    jars.add(IntegrationUtils.getJar("lib", "tools"));
-    jars.add(IntegrationUtils.getJar("lib", "maxent"));
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
     Map<String, Integer> values;
 
     // Build the mapping.
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder.class.getCanonicalName(),
-        libjars,
         "-" + WikipediaDocnoMappingBuilder.INPUT_OPTION + "=" + input,
         "-" + WikipediaDocnoMappingBuilder.OUTPUT_FILE_OPTION + "=" + mappingFile,
         "-keep_all"
@@ -67,9 +53,8 @@ public class WikipediaBfsIT {
 
     // Repack the wiki.
     String repackedWiki = tmpPrefix + "-enwiki.block";
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.wikipedia.RepackWikipedia.class.getCanonicalName(),
-        libjars,
         "-input=" + input,
         "-mapping_file=" + mappingFile,
         "-output=" + repackedWiki,
@@ -84,9 +69,8 @@ public class WikipediaBfsIT {
     // Extract the link graph.
     String wikiEdges = tmpPrefix + "-enwiki.edges";
     String wikiAdj = tmpPrefix + "-enwiki.adj";
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.wikipedia.graph.ExtractWikipediaLinkGraph.class.getCanonicalName(),
-        libjars,
         "-input=" + repackedWiki,
         "-edges_output=" + wikiEdges,
         "-adjacency_list_output=" + wikiAdj,
@@ -102,9 +86,8 @@ public class WikipediaBfsIT {
 
     // Build Bfs records.
     String bfsBase = tmpPrefix + "-enwiki.bfs";
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.EncodeBfsGraph.class.getCanonicalName(),
-        libjars,
         "-input=" + wikiAdj,
         "-output=" + bfsBase + "/iter0000",
         "-src=12"
@@ -113,9 +96,8 @@ public class WikipediaBfsIT {
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
     // Iteration 1.
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.IterateBfs.class.getCanonicalName(),
-        libjars,
         "-input=" + bfsBase + "/iter0000",
         "-output=" + bfsBase + "/iter0001",
         "-num_partitions=10"
@@ -127,9 +109,8 @@ public class WikipediaBfsIT {
     assertEquals(573, (int) values.get("ReachableInReducer"));
 
     // Iteration 2.
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.IterateBfs.class.getCanonicalName(),
-        libjars,
         "-input=" + bfsBase + "/iter0001",
         "-output=" + bfsBase + "/iter0002",
         "-num_partitions=10"
@@ -141,9 +122,8 @@ public class WikipediaBfsIT {
     assertEquals(37733, (int) values.get("ReachableInReducer"));
 
     // Iteration 3.
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.IterateBfs.class.getCanonicalName(),
-        libjars,
         "-input=" + bfsBase + "/iter0002",
         "-output=" + bfsBase + "/iter0003",
         "-num_partitions=10"
@@ -155,9 +135,8 @@ public class WikipediaBfsIT {
     assertEquals(845452, (int) values.get("ReachableInReducer"));
 
     // Iteration 4.
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.IterateBfs.class.getCanonicalName(),
-        libjars,
         "-input=" + bfsBase + "/iter0003",
         "-output=" + bfsBase + "/iter0004",
         "-num_partitions=10"
@@ -169,9 +148,8 @@ public class WikipediaBfsIT {
     assertEquals(3596247, (int) values.get("ReachableInReducer"));
 
     // Iteration 5.
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bfs.IterateBfs.class.getCanonicalName(),
-        libjars,
         "-input=" + bfsBase + "/iter0004",
         "-output=" + bfsBase + "/iter0005",
         "-num_partitions=10"

@@ -39,18 +39,16 @@ public class IT {
     String repackedCollection = tmpPrefix + "-wt10g-repacked";
     String wt10gMappingFile = tmpPrefix + "-wt10g-mapping-repacked.dat";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + wt10gPath,
         "-output=" + repackedCollection,
         "-compressionType=block" };
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
 
@@ -77,16 +75,14 @@ public class IT {
     String repackedCollection = tmpPrefix + "-gov2-repacked";
     String gov2MappingFile = tmpPrefix + "-gov2-mapping-repacked.dat";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.RepackTrecWebCollection.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + gov2Path, "-output=" + repackedCollection, "-compressionType=block" };
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
-    args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + repackedCollection,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };
 
@@ -112,9 +108,8 @@ public class IT {
 
     String wt10gMappingFile = tmpPrefix + "-wt10g-mapping.dat";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + wt10gPath,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + wt10gMappingFile };
@@ -141,9 +136,8 @@ public class IT {
 
     String gov2MappingFile = tmpPrefix + "-gov2-mapping.dat";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trecweb.TrecWebDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + gov2Path,
         "-" + DocnoMapping.BuilderUtils.FORMAT_OPTION + "=" + TrecWebDocumentInputFormat.class.getCanonicalName(),
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + gov2MappingFile };

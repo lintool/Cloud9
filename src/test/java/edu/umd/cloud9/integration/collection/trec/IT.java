@@ -43,9 +43,8 @@ public class IT {
 
     assertTrue(fs.exists(collectionPath));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trec.TrecDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPath,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
 
@@ -70,9 +69,8 @@ public class IT {
     String output = tmpPrefix + "-cnt";
     String records = tmpPrefix + "-records.txt";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trec.CountTrecDocuments.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPath,
         "-output=" + output,
         "-docnoMapping=" + mappingFile,
@@ -95,9 +93,8 @@ public class IT {
     assertTrue(fs.exists(collectionPath));
 
     String index = tmpPrefix + "-findex.dat";
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.trec.TrecForwardIndexBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPath,
         "-index=" + index,
         "-docnoMapping=" + mappingFile };

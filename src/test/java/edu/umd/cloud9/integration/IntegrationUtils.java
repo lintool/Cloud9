@@ -38,7 +38,7 @@ public class IntegrationUtils {
     File[] arr = new File(path).listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {
-        return name.startsWith(prefix) && !name.contains("javadoc") && !name.contains("sources");
+        return name.startsWith(prefix) && !name.contains("javadoc") && !name.contains("sources") && name.contains("fatjar");
       }
     });
 
