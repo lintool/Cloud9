@@ -47,9 +47,8 @@ public class IT {
 
     assertTrue(fs.exists(collectionPathRepacked));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.clue.ClueWarcDocnoMappingBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-" + DocnoMapping.BuilderUtils.COLLECTION_OPTION + "=" + collectionPathRepacked,
         "-" + DocnoMapping.BuilderUtils.MAPPING_OPTION + "=" + mappingFile };
 
@@ -73,9 +72,8 @@ public class IT {
 
     String records = tmpPrefix + "-records.txt";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"), 
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"), 
         edu.umd.cloud9.collection.clue.CountClueWarcRecords.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-repacked",
         "-path=" + collectionPathRepacked,
         "-docnoMapping=" + mappingFile,
@@ -99,9 +97,8 @@ public class IT {
 
     String records = tmpPrefix + "-records.txt";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"), 
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"), 
         edu.umd.cloud9.collection.clue.CountClueWarcRecords.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-original",
         "-segment=1",
         "-path=" + collectionPathRaw,
@@ -126,9 +123,8 @@ public class IT {
 
     String index = tmpPrefix + "-findex.dat";
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"), 
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"), 
         edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder.class.getCanonicalName(),
-        "-libjars=" + IntegrationUtils.getJar("lib", "guava"),
         "-collection=" + collectionPathRepacked,
         "-index=" + index };
 

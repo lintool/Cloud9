@@ -81,21 +81,8 @@ public class Gov2WebgraphIT {
 
     fs.delete(new Path(collectionOutput), true);
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
-    jars.add(IntegrationUtils.getJar("lib", "dsiutils"));
-    jars.add(IntegrationUtils.getJar("lib", "fastutil"));
-    jars.add(IntegrationUtils.getJar("lib", "sux4j"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-collections"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-lang"));
-    jars.add(IntegrationUtils.getJar("lib", "tools"));
-    jars.add(IntegrationUtils.getJar("lib", "htmlparser"));
-    jars.add(IntegrationUtils.getJar("lib", "pcj"));
-
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.webgraph.driver.TrecDriver.class.getCanonicalName(),
-        String.format("-libjars=%s", Joiner.on(",").join(jars)),
         "-input", collectionPath,
         "-output", collectionOutput,
         "-collection", "gov2",

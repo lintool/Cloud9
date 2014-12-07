@@ -34,23 +34,8 @@ public class WikipediaBasicIT {
 
     String mappingFile = tmpPrefix + "-" + language + "wiki-mapping.dat";
 
-    List<String> jars = Lists.newArrayList();
-    jars.add(IntegrationUtils.getJar("lib", "bliki-core"));
-    jars.add(IntegrationUtils.getJar("lib", "guava"));
-    jars.add(IntegrationUtils.getJar("lib", "dsiutils"));
-    jars.add(IntegrationUtils.getJar("lib", "fastutil"));
-    jars.add(IntegrationUtils.getJar("lib", "sux4j"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-collections"));
-    jars.add(IntegrationUtils.getJar("lib", "commons-lang"));
-    jars.add(IntegrationUtils.getJar("lib", "tools"));
-    jars.add(IntegrationUtils.getJar("lib", "maxent"));
-    jars.add(IntegrationUtils.getJar("dist", "cloud9"));
-
-    String libjars = String.format("-libjars=%s", Joiner.on(",").join(jars));
-
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("dist", "cloud9"),
+    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder.class.getCanonicalName(),
-        libjars,
         "-" + WikipediaDocnoMappingBuilder.INPUT_OPTION + "=" + input,
         "-" + WikipediaDocnoMappingBuilder.OUTPUT_FILE_OPTION + "=" + mappingFile,
         "-" + WikipediaDocnoMappingBuilder.LANGUAGE_OPTION + "=" + language
