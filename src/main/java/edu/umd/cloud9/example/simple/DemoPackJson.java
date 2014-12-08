@@ -27,7 +27,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.JsonWritable;
+import tl.lin.data.JsonWritable;
 
 /**
  * Demo that packs the sample collection into a {@code SequenceFile} of {@link JsonWritable}s.

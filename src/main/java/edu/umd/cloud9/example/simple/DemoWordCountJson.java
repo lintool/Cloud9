@@ -38,7 +38,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import edu.umd.cloud9.io.JsonWritable;
+import tl.lin.data.JsonWritable;
 
 /**
  * Modified word count demo designed to work with {@link DemoPackJson}. Counts words on even-length
