@@ -16,15 +16,15 @@
 
 package edu.umd.cloud9.webgraph.data;
 
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.WritableComparable;
-
-import bak.pcj.IntIterator;
-import bak.pcj.set.IntOpenHashSet;
 
 
 /**
@@ -230,7 +230,7 @@ public class AnchorText implements WritableComparable<AnchorText>,
    *         sources/targets of the current object
    */
   public int[] getDocuments() {
-    return documentList.toArray();
+    return documentList.toIntArray();
   }
 
   /**

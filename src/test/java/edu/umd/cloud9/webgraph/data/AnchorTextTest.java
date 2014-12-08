@@ -122,10 +122,14 @@ public class AnchorTextTest {
 		anchor.addDocument(3);
 		
 		int[] sources = anchor.getDocuments();
-		
-		assertEquals(sources[0], 1);
-		assertEquals(sources[1], 2);
-		assertEquals(sources[2], 3);
+
+		assertTrue(
+		    (sources[0] == 1 && sources[1] == 2 && sources[2] == 3) ||
+		    (sources[0] == 1 && sources[1] == 3 && sources[2] == 2) ||
+		    (sources[0] == 2 && sources[1] == 1 && sources[2] == 3) ||
+		    (sources[0] == 2 && sources[1] == 3 && sources[2] == 1) ||
+		    (sources[0] == 3 && sources[1] == 1 && sources[2] == 2) ||
+		    (sources[0] == 3 && sources[1] == 2 && sources[2] == 1));
 		
 		anchor.resetToType(AnchorTextConstants.Type.URL_FIELD.val);
 		assertEquals(anchor.getSize(), 0);

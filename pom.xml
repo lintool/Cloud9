@@ -265,7 +265,7 @@
       <artifactId>htmlparser</artifactId>
       <version>1.6</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>pcj</groupId>
       <artifactId>pcj</artifactId>
       <version>1.2</version>
@@ -274,7 +274,7 @@
       <groupId>net.spy</groupId>
       <artifactId>spymemcached</artifactId>
       <version>2.11.5</version>
-    </dependency>
+    </dependency-->
 
     <dependency>
       <groupId>tl.lin</groupId>
