@@ -39,12 +39,12 @@ public class TTableTest extends TestCase {
     TTable_monolithic_IFAs ttable_de2en = null;
     TTable_monolithic_IFAs ttable_en2de = null;
     try {
-      vocabEn_e2f = HadoopAlign.loadVocab(new Path("data/vocab.en-de.en"), conf);
-      vocabDe_e2f = HadoopAlign.loadVocab(new Path("data/vocab.en-de.de"), conf);
-      vocabEn_f2e = HadoopAlign.loadVocab(new Path("data/vocab.de-en.en"), conf);
-      vocabDe_f2e = HadoopAlign.loadVocab(new Path("data/vocab.de-en.de"), conf);
-      ttable_de2en = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.de-en"), true);
-      ttable_en2de = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("data/ttable.en-de"), true);
+      vocabEn_e2f = HadoopAlign.loadVocab(new Path("src/test/resources/vocab.en-de.en"), conf);
+      vocabDe_e2f = HadoopAlign.loadVocab(new Path("src/test/resources/vocab.en-de.de"), conf);
+      vocabEn_f2e = HadoopAlign.loadVocab(new Path("src/test/resources/vocab.de-en.en"), conf);
+      vocabDe_f2e = HadoopAlign.loadVocab(new Path("src/test/resources/vocab.de-en.de"), conf);
+      ttable_de2en = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("src/test/resources/ttable.de-en"), true);
+      ttable_en2de = new TTable_monolithic_IFAs(FileSystem.get(conf), new Path("src/test/resources/ttable.en-de"), true);
     } catch (IOException e) {
       e.printStackTrace();
     }
