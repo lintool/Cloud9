@@ -14,7 +14,6 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMapping;
 import edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder;

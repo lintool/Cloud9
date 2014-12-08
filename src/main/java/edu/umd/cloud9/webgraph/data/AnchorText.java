@@ -26,7 +26,6 @@ import java.util.Iterator;
 
 import org.apache.hadoop.io.WritableComparable;
 
-
 /**
  * <p>
  * This data structure represents a line of anchor text. A line of anchor text has
@@ -43,8 +42,6 @@ import org.apache.hadoop.io.WritableComparable;
  * @author Nima Asadi
  *
  */
-
-
 public class AnchorText implements WritableComparable<AnchorText>,
                                    AnchorTextConstants, Iterable<Integer> {
   //AnchorText objects can be incoming or outgoing,

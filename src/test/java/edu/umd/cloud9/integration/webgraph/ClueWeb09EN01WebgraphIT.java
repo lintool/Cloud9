@@ -3,7 +3,6 @@ package edu.umd.cloud9.integration.webgraph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -21,7 +20,6 @@ import tl.lin.data.array.ArrayListWritable;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 import edu.umd.cloud9.integration.IntegrationUtils;
 import edu.umd.cloud9.webgraph.DriverUtil;

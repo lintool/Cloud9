@@ -111,7 +111,6 @@ public class AnchorTextTest {
 		assertEquals(anchor3.getWeight(), 0, 1e-100);
 		assertFalse(anchor3.containsDocument(3));
 		assertFalse(anchor3.intersects(anchor2));
-		
 	}
 	
 	@Test
