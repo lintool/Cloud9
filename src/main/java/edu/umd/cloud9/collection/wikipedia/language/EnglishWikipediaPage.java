@@ -27,6 +27,7 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
  * 
  * @author Peter Exner
  * @author Ferhan Ture
+ * @author Gaurav Ragtah (gaurav.ragtah@lithium.com)
  */
 public class EnglishWikipediaPage extends WikipediaPage {
   /**
@@ -36,7 +37,7 @@ public class EnglishWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_REDIRECTION_LOWERCASE = "#redirect";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
-  private static final Pattern disambPattern = Pattern.compile("\\{\\{disambig\\w*\\}\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern DISAMB_PATTERN = Pattern.compile("\\{\\{disambig\\s*\\|?\\s*.*?\\}\\}", Pattern.CASE_INSENSITIVE);
   private static final String LANGUAGE_CODE = "en";
 
   /**
@@ -48,6 +49,7 @@ public class EnglishWikipediaPage extends WikipediaPage {
 
   @Override
   protected void processPage(String s) {
+    
     this.language = LANGUAGE_CODE;
     
     // parse out title
@@ -69,6 +71,8 @@ public class EnglishWikipediaPage extends WikipediaPage {
     // parse out actual text of article
     this.textStart = s.indexOf(XML_START_TAG_TEXT);
     this.textEnd = s.indexOf(XML_END_TAG_TEXT, this.textStart);
+
+    this.disambPattern = DISAMB_PATTERN;
 
     // determine if article is a disambiguation, redirection, and/or stub page.
     Matcher matcher = disambPattern.matcher(page);
