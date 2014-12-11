@@ -49,7 +49,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import tl.lin.data.map.HMapSIW;
+import tl.lin.data.map.HMapStIW;
 import tl.lin.data.pair.PairOfIntString;
 import tl.lin.data.pair.PairOfStringInt;
 import tl.lin.data.pair.PairOfStrings;
@@ -177,11 +177,11 @@ public class ExtractWikipediaAnchorText extends Configured implements Tool {
   }
 
   private static class MyReducer2 extends MapReduceBase implements
-      Reducer<IntWritable, Text, IntWritable, HMapSIW> {
-    private static final HMapSIW map = new HMapSIW();
+      Reducer<IntWritable, Text, IntWritable, HMapStIW> {
+    private static final HMapStIW map = new HMapStIW();
 
     public void reduce(IntWritable key, Iterator<Text> values,
-        OutputCollector<IntWritable, HMapSIW> output, Reporter reporter) throws IOException {
+        OutputCollector<IntWritable, HMapStIW> output, Reporter reporter) throws IOException {
       map.clear();
 
       Text cur;
@@ -288,7 +288,7 @@ public class ExtractWikipediaAnchorText extends Configured implements Tool {
     conf.setMapOutputValueClass(Text.class);
 
     conf.setOutputKeyClass(IntWritable.class);
-    conf.setOutputValueClass(HMapSIW.class);
+    conf.setOutputValueClass(HMapStIW.class);
 
     conf.setMapperClass(MyMapper2.class);
     conf.setReducerClass(MyReducer2.class);

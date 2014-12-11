@@ -69,7 +69,7 @@ public class AnchorText implements WritableComparable<AnchorText>,
    * Creates a new AnchorText object
    *
    * @param type Internal or external, incoming or outgoing, etc.
-   *        (see {@link: AnchorTextConstants})
+   *        (see {@link AnchorTextConstants})
    * @param text Text associated with a line of anchor text
    */
   public AnchorText(byte type, String text) {

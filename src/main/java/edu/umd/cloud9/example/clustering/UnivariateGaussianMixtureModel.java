@@ -10,11 +10,7 @@ public class UnivariateGaussianMixtureModel {
 
   /**
    * Class constructor.
-   *
-   * @param n number of components in the mixture model
    */
-  
-
   public UnivariateGaussianMixtureModel() {
     this.size = 0;
   }

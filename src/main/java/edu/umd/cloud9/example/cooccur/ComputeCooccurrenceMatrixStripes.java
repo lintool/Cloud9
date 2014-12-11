@@ -41,7 +41,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import tl.lin.data.map.HMapSIW;
+import tl.lin.data.map.HMapStIW;
 
 /**
  * <p>
@@ -59,8 +59,8 @@ import tl.lin.data.map.HMapSIW;
 public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(ComputeCooccurrenceMatrixStripes.class);
 
-  private static class MyMapper extends Mapper<LongWritable, Text, Text, HMapSIW> {
-    private static final HMapSIW MAP = new HMapSIW();
+  private static class MyMapper extends Mapper<LongWritable, Text, Text, HMapStIW> {
+    private static final HMapStIW MAP = new HMapStIW();
     private static final Text KEY = new Text();
 
     private int window = 2;
@@ -106,12 +106,12 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
     }
   }
 
-  private static class MyReducer extends Reducer<Text, HMapSIW, Text, HMapSIW> {
+  private static class MyReducer extends Reducer<Text, HMapStIW, Text, HMapStIW> {
     @Override
-    public void reduce(Text key, Iterable<HMapSIW> values, Context context)
+    public void reduce(Text key, Iterable<HMapStIW> values, Context context)
         throws IOException, InterruptedException {
-      Iterator<HMapSIW> iter = values.iterator();
-      HMapSIW map = new HMapSIW();
+      Iterator<HMapStIW> iter = values.iterator();
+      HMapStIW map = new HMapStIW();
 
       while (iter.hasNext()) {
         map.plus(iter.next());
@@ -194,9 +194,9 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     job.setMapOutputKeyClass(Text.class);
-    job.setOutputValueClass(HMapSIW.class);
+    job.setOutputValueClass(HMapStIW.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(HMapSIW.class);
+    job.setOutputValueClass(HMapStIW.class);
 
     job.setMapperClass(MyMapper.class);
     job.setCombinerClass(MyReducer.class);

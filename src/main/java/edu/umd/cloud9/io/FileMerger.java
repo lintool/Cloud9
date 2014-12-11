@@ -115,7 +115,6 @@ public class FileMerger extends Configured implements Tool {
    * @param inputFiles a glob expression of the files to be merged
    * @param outputFile a destination file path
    * @param deleteSource delete source files after merging
-   * @return
    * @throws IOException
    */
   private static Path mergeTextFiles(Configuration configuration, String inputFiles,
