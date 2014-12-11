@@ -1,3 +1,11 @@
+Version 2.0.0
+=============
+December 11, 2014
+
++ Upgraded to CDH 5.2.1
++ Converted project into Maven artifact
++ Removed data structures code: added dependency to lintools-datatypes and lintools-datatypes-fastutil 1.0.0
+
 Version 1.5.0
 =============
 November 24, 2013
