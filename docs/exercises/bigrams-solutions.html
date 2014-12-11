@@ -81,17 +81,19 @@ mapper are <code>(a, b)</code> pairs representing the observed
 bigrams, while the values are their counts.  The reducer simply sums
 these counts.</p>
 
-<p>Here's the command-line invocation:</p>
+<p>Here's the command-line invocation (should run in local mode or on
+a cluster, just make sure paths are correct):</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramCount -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bigram.BigramCount \
+   -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
 </pre>
 
 <p><b>Answers to the questions:</b> For analyzing the results, run
 <code>edu.umd.cloud9.example.bigram.AnalyzeBigramCounts</code>.  Sample invocation:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramCount -input bigram
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.bigram.AnalyzeBigramCount -Dexec.args="-input bigram"
 </pre>
 
 <p>Note we specify the entire output directory.  You'll see the
@@ -138,7 +140,8 @@ left element to the same reducer.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bigram.BigramRelativeFrequency \
+   -input data/bible+shakes.nopunc.gz -output bigram -numReducers 1
 </pre>
 
 <p>For analyzing the results, run
@@ -146,7 +149,7 @@ etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequency -input
 Sample invocation:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency -input bigram
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequency -Dexec.args="-input bigram"
 </pre>
 
 <p><b>Question 1:</b> What are the five most frequent words following the word "light"?
@@ -199,25 +202,27 @@ What fraction of these values are non-zero?</p>
 types. Here is an implementation uses <code>JsonWritable</code>:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson -input data/bible+shakes.nopunc.gz -output bigram-json -numReducers 1
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson \
+   -input data/bible+shakes.nopunc.gz -output bigram-json -numReducers 1
 </pre>
 
 <p>And how to look at the results:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyJson -input bigram-json
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyJson -Dexec.args="-input bigram-json"
 </pre>
 
 <p>Here is an implementation uses Pig tuples:</p>
 
 <pre class="code">
-etc/hadoop-local.sh edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple -input data/bible+shakes.nopunc.gz -output bigram-tuple -numReducers 1
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple \
+   -input data/bible+shakes.nopunc.gz -output bigram-tuple -numReducers 1
 </pre>
 
 <p>And how to look at the results:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyTuple -input bigram-tuple
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.bigram.AnalyzeBigramRelativeFrequencyTuple -Dexec.args="-input bigram-tuple"
 </pre>
 
   </div>

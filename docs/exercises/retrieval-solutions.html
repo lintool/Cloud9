@@ -72,15 +72,16 @@ inverted index has already been constructed and resides on HDFS, the
 command-line invocation is as follows:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.BooleanRetrieval -index index -collection bible+shakes.nopunc
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.ir.BooleanRetrieval \
+   -index index -collection bible+shakes.nopunc
 </pre>
 
 <p>In this case, we're reading indexes directly from
-HDFS. Alternative, you can copy the indexes local and use
-the <code>etc/run.sh</code> launch script:</p>
+HDFS. Alternative, you can copy the indexes local and use Maven to
+launch the program:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.ir.BooleanRetrieval -index index -collection bible+shakes.nopunc
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.ir.BooleanRetrieval -Dexec.args="-index index -collection data/bible+shakes.nopunc"
 </pre>
 
 <p>Here are the results for the test queries:</p>

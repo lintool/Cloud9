@@ -70,7 +70,7 @@ the <a href="indexing.html">inverted indexing exercise</a>.</p>
 <p>Let's start by putting the collection into HDFS:</p>
 
 <pre class="code">
-hadoop fs -put data/bible+shakes.nopunc
+$ hadoop fs -put data/bible+shakes.nopunc
 </pre>
 
 <p>Note that we've uncompressed the collection first. The reason for
@@ -86,14 +86,16 @@ class for building the inverted index is
 command-line invocation is as follows:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.BuildInvertedIndex -input bible+shakes.nopunc -output index -numReducers 1
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.ir.BuildInvertedIndex \
+   -input bible+shakes.nopunc -output index -numReducers 1
 </pre>
 
 <p>Command-line invocation for a simple program that performs the
 analysis asked in the questions:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection bible+shakes.nopunc
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.ir.LookupPostings \
+   -index index -collection bible+shakes.nopunc
 </pre>
 
 <p>Although <code>LookupPostings</code> is not a MapReduce program, we
@@ -105,7 +107,7 @@ data <i>directly</i> from HDFS.</p>
 drive, and use the <code>etc/run.sh</code> launch script:</p>
 
 <pre class="code">
-etc/run.sh edu.umd.cloud9.example.ir.LookupPostings -index index -collection bible+shakes.nopunc
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.ir.LookupPostings -Dexec.args="-index index -collection data/bible+shakes.nopunc"
 </pre>
 
 <p>Now, onto the answers. Posting corresponding to the term "starcross'd":</p>

@@ -77,9 +77,7 @@ MapReduce. Here are three separate graphs to work with:</p>
 <ul>
 
   <li><a href="./sample-small.txt">a "small" one</a> (93 nodes, 195 edges)</li>
-
   <li><a href="./sample-medium.txt">a "medium" one</a> (316 nodes, 430 edges)</li>
-
   <li><a href="./sample-large.txt">a "large" one</a> (1458 nodes, 3545 edges)</li>
 
 </ul>
@@ -109,7 +107,10 @@ should then be able to run the following command (which uses an
 automatically-generated launch script that properly constructs the
 correct classpath):</p>
 
-<pre class="code">etc/run.sh edu.umd.cloud9.example.pagerank.SequentialPageRank -input docs/exercises/sample-small.txt -jump 0.15</pre>
+<pre class="code">
+$ mvn exec:java -Dexec.mainClass=edu.umd.cloud9.example.pagerank.SequentialPageRank \
+   -Dexec.args="-input docs/exercises/sample-small.txt -jump 0.15"
+</pre>
 
 <p>And here's the sample output:</p>
 
