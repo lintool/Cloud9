@@ -37,12 +37,6 @@
               <li class="">
                 <a href="../../index.html">Home</a>
               </li>
-              <li class="">
-                <a href="../contents.html">Table of Contents</a>
-              </li>
-              <li class="">
-                <a href="../api/index.html">API</a>
-              </li>
             </ul>
           </div>
         </div>
@@ -106,13 +100,10 @@ want to clone the repo and uncompress the text file.</p>
 
 <ul>
 
-  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/BuildPageRankRecords.html">edu.umd.cloud9.example.pagerank.BuildPageRankRecords</a></code></li>
-
-  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/PartitionGraph.html">edu.umd.cloud9.example.pagerank.PartitionGraph</a></code></li>
-
-  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/RunPageRankBasic.html">edu.umd.cloud9.example.pagerank.RunPageRankBasic</a></code></li>
-
-  <li><code><a href="../api/edu/umd/cloud9/example/pagerank/RunPageRankSchimmy.html">edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</a></code></li>
+  <li><code>edu.umd.cloud9.example.pagerank.BuildPageRankRecords</code></li>
+  <li><code>edu.umd.cloud9.example.pagerank.PartitionGraph</code></li>
+  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankBasic</code></li>
+  <li><code>edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</code></li>
 
 </ul>
 
@@ -122,8 +113,8 @@ create PageRank records from the text-based representation
 using <code>edu.umd.cloud9.example.pagerank.BuildPageRankRecords</code>:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
-  -input clueweb09en01-webgraph-adjacency.txt -output clueweb09en01-PageRankRecords -numNodes 50220423
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+   -input clueweb09en01-webgraph-adjacency.txt -output clueweb09en01-PageRankRecords -numNodes 50220423
 </pre>
 
 <p>Each PageRank record represents a graph vertex: each data structure
@@ -136,19 +127,19 @@ with hash partitioning,
 using <code>edu.umd.cloud9.example.pagerank.PartitionGraph</code>:</p>
 
 <pre class="code">
-hadoop fs -mkdir clueweb09en01-PageRank.hash
+$ hadoop fs -mkdir clueweb09en01-PageRank.hash.basic
 
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
-  -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.hash/iter0000 \
-  -numPartitions 64 -numNodes 50220423
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.hash.basic/iter0000 \
+   -numPartitions 200 -numNodes 50220423
 </pre>
 
 <p>We can now run the basic version of PageRank,
 using <code>edu.umd.cloud9.example.pagerank.RunPageRankBasic</code>:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-  -base clueweb09en01-PageRank.hash -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+   -base clueweb09en01-PageRank.hash.basic -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
 </pre>
 
 <p>The <code>-start</code> and <code>-end</code> options specify the
@@ -156,15 +147,40 @@ start and end iterations. The <code>-useCombiner</code> option enables
 combiners, and the <code>-useInMapperCombiner</code> option enables
 the in-mapper combiners (as above).</p>
 
+<p>Once the run completes, you can extract the top 10 nodes with the
+highest PageRank values:</p>
+
+<pre class="code">
+$ hadoop jar target/cloud9-2.0.1-SNAPSHOT-fatjar.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+   -input clueweb09en01-PageRank.hash.basic/iter0010 -output clueweb09en01-PageRank.hash.basic-top10 -top 10
+
+$ hadoop fs -cat clueweb09en01-PageRank.hash.basic-top10/part-r-00000
+</pre>
+
 <p>To run the Schimmy implementation,
 use <code>edu.umd.cloud9.example.pagerank.RunPageRankSchimmy</code>:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
-  -base clueweb09en01-PageRank.hash -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
+$ hadoop fs -mkdir clueweb09en01-PageRank.hash.schimmy
+
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.hash.schimmy/iter0000 \
+   -numPartitions 200 -numNodes 50220423
+
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
+   -base clueweb09en01-PageRank.hash.schimmy -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner
 </pre>
 
 <p>The options are exactly the same.</p>
+
+<p>Similarly, to extract the top 10 nodes with the highest PageRank values:</p>
+
+<pre class="code">
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+   -input clueweb09en01-PageRank.hash.schimmy/iter0010 -output clueweb09en01-PageRank.hash.schimmy-top10 -top 10
+
+$ hadoop fs -cat clueweb09en01-PageRank.hash.schimmy-top10/part-r-00000
+</pre>
 
 <h3>Range Partitioning</h3>
 
@@ -173,30 +189,45 @@ etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
 the <code>-range</code> option:</p>
 
 <pre class="code">
-hadoop fs -mkdir clueweb09en01-PageRank.range
+$ hadoop fs -mkdir clueweb09en01-PageRank.range.basic
 
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
-  -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.range/iter0000 \
-  -numPartitions 192 -numNodes 50220423 -range
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.range.basic/iter0000 \
+   -numPartitions 200 -numNodes 50220423 -range
+
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+   -base clueweb09en01-PageRank.range.basic -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
 </pre>
 
-<p>Note that to mitigate the effects of stragglers, we create more
-partitions.</p>
-
-<p>Run basic PageRank using the same class:</p>
+<p>And to extract the top 10 nodes with the highest PageRank values:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-  -base clueweb09en01-PageRank.range -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+   -input clueweb09en01-PageRank.range.basic/iter0010 -output clueweb09en01-PageRank.range.basic-top10 -top 10
+
+$ hadoop fs -cat clueweb09en01-PageRank.range.basic-top10/part-r-00000
 </pre>
 
-<p>The only difference here is that we use the <code>-range</code>
-option. And the Schimmy implementation, also using
-the <code>-range</code> option:</p>
+<p>To run the Schimmy implementation, also use the <code>-range</code> option:</p>
 
 <pre class="code">
-nohup etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
-  -base clueweb09en01-PageRank.range -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
+$ hadoop fs -mkdir clueweb09en01-PageRank.range.schimmy
+
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   -input clueweb09en01-PageRankRecords -output clueweb09en01-PageRank.range.schimmy/iter0000 \
+   -numPartitions 200 -numNodes 50220423 -range
+
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.RunPageRankSchimmy \
+   -base clueweb09en01-PageRank.range.schimmy -numNodes 50220423 -start 0 -end 10 -useInMapperCombiner -range
+</pre>
+
+<p>Similarly, to extract the top 10 nodes with the highest PageRank values:</p>
+
+<pre class="code">
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+   -input clueweb09en01-PageRank.range.schimmy/iter0010 -output clueweb09en01-PageRank.range.schimmy-top10 -top 10
+
+$ hadoop fs -cat clueweb09en01-PageRank.range.schimmy-top10/part-r-00000
 </pre>
 
 <p>That's it!</p>

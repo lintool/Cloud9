@@ -37,12 +37,6 @@
               <li class="">
                 <a href="../../index.html">Home</a>
               </li>
-              <li class="">
-                <a href="../contents.html">Table of Contents</a>
-              </li>
-              <li class="">
-                <a href="../api/index.html">API</a>
-              </li>
             </ul>
           </div>
         </div>
@@ -78,32 +72,32 @@ is to take the plain-text graph structure and pack it into the
 appropriate Hadoop data structures:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
-  -input sample-large.txt -output sample-large-PageRankRecords -numNodes 1458
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.BuildPageRankRecords \
+   -input sample-large.txt -output sample-large-PageRankRecords -numNodes 1458
 </pre>
 
 <p>Next, let's partition the graph:</p>
 
 <pre class="code">
-hadoop fs -mkdir sample-large-PageRank
+$ hadoop fs -mkdir sample-large-PageRank
 
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.PartitionGraph \
-  -input sample-large-PageRankRecords -output sample-large-PageRank/iter0000 -numPartitions 5 -numNodes 1458
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.PartitionGraph \
+   -input sample-large-PageRankRecords -output sample-large-PageRank/iter0000 -numPartitions 5 -numNodes 1458
 </pre>
 
 <p>Now we're ready to run PageRank.  Let's run 10 iterations:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.RunPageRankBasic \
-  -base sample-large-PageRank -numNodes 1458 -start 0 -end 10 -useCombiner
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.RunPageRankBasic \
+   -base sample-large-PageRank -numNodes 1458 -start 0 -end 10 -useCombiner
 </pre>
 
 <p>We're basically done!  Let's use this utility program to fetch the
 top 10 nodes by PageRank:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
-  -input sample-large-PageRank/iter0010 -output sample-large-PageRank-top10 -top 10
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes \
+   -input sample-large-PageRank/iter0010 -output sample-large-PageRank-top10 -top 10
 </pre>
 
 <p>The results:</p>

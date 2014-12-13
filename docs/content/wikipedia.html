@@ -37,12 +37,6 @@
               <li class="">
                 <a href="../../index.html">Home</a>
               </li>
-              <li class="">
-                <a href="../contents.html">Table of Contents</a>
-              </li>
-              <li class="">
-                <a href="../api/index.html">API</a>
-              </li>
             </ul>
           </div>
         </div>
@@ -85,8 +79,8 @@ uncompress the file before putting it into HDFS.</p>
 how many pages there are in this particular version of Wikipedia:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.CountWikipediaPages \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.CountWikipediaPages \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en
 </pre>
 
 <p>Conveniently enough, Cloud<sup><small>9</small></sup> provides a
@@ -147,8 +141,8 @@ we can dump all articles into a flat text file with the following
 command:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en -output enwiki-20130503.txt
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.DumpWikipediaToPlainText \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml -wiki_language en -output enwiki-20130503.txt
 </pre>
 
 <p>The output consist of text files, one article per line (article
@@ -186,9 +180,9 @@ so we'll illustrate.  The first full article in our XML dump file is:</p>
 docids and docnos by the following command:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
-  -output_file enwiki-20130503-docno.dat -wiki_language en -keep_all 
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+   -output_file enwiki-20130503-docno.dat -wiki_language en -keep_all
 </pre>
 
 <p>The mapping file <code>enwiki-20130503-docno.dat</code> is used by the
@@ -217,10 +211,10 @@ processing much easier.</p>
 <p>Here's the command-line invocation:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
-  -output enwiki-20130503.block -wiki_language en \
-  -mapping_file enwiki-20130503-docno.dat -compression_type block
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+   -output enwiki-20130503.block -wiki_language en \
+   -mapping_file enwiki-20130503-docno.dat -compression_type block
 </pre>
 
 <p>In addition to block-compression, the program <code>RepackWikipedia</code> also
@@ -228,16 +222,16 @@ supports record-level compression as well as no compression:</p>
 
 <pre class="code">
 # Record-level compression
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
-  -output enwiki-20130503.record -wiki_language en \
-  -mapping_file enwiki-20130503-docno.dat -compression_type record
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+   -output enwiki-20130503.record -wiki_language en \
+   -mapping_file enwiki-20130503-docno.dat -compression_type record
 
 # No compression
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
-  -output enwiki-20130503.seq -wiki_language en \
-  -mapping_file enwiki-20130503-docno.dat -compression_type none
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+   -input /shared/collections/wikipedia/raw/enwiki-20130503-pages-articles.xml \
+   -output enwiki-20130503.seq -wiki_language en \
+   -mapping_file enwiki-20130503-docno.dat -compression_type none
 </pre>
 
 <p>Here's how the various methods stack up:</p>
@@ -288,8 +282,8 @@ access to Wikipedia articles.  First, we need to build a forward
 index:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaForwardIndexBuilder \
-  -input /user/jimmylin/enwiki-20130503.block -index_file enwiki-20130503.findex.dat
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.WikipediaForwardIndexBuilder \
+   -input /user/jimmylin/enwiki-20130503.block -index_file enwiki-20130503.findex.dat
 </pre>
 
 <p><b>Note:</b> It mostly doesn't matter elsewhere, but
@@ -320,16 +314,16 @@ you to find out the title of a page given either the docno or the
 docid:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
-  enwiki-20130503.findex.dat enwiki-20130503-docno.dat
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.LookupWikipediaArticle \
+   enwiki-20130503.findex.dat enwiki-20130503-docno.dat
 </pre>
 
 <p>Finally, there's also a web interface for browsing, which can be
 started with the following invocation:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
-  -docnoMapping enwiki-20130503-docno.dat -index enwiki-20130503.findex.dat
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.DocumentForwardIndexHttpServer \
+   -docnoMapping enwiki-20130503-docno.dat -index enwiki-20130503.findex.dat
 </pre>
 
 <p>When the server starts up, it'll report back the host information
