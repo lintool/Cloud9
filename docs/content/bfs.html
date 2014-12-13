@@ -37,12 +37,6 @@
               <li class="">
                 <a href="../../index.html">Home</a>
               </li>
-              <li class="">
-                <a href="../contents.html">Table of Contents</a>
-              </li>
-              <li class="">
-                <a href="../api/index.html">API</a>
-              </li>
             </ul>
           </div>
         </div>
@@ -103,25 +97,25 @@ pages with the
 <code>-keep_all</code> option:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
-  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles \
-  -output_file enwiki-20121201-docno.dat -wiki_language en -keep_all 
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.WikipediaDocnoMappingBuilder \
+   -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles \
+   -output_file enwiki-20121201-docno.dat -wiki_language en -keep_all
 </pre>
 
 <p>Next, repack the collection into block-compressed
 <code>SequenceFile</code>s:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
-  -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles -output enwiki-20121201.block \
-  -mapping_file enwiki-20121201-docno.dat -wiki_language en -compression_type block
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.RepackWikipedia \
+   -input /shared/collections/wikipedia/raw/enwiki-20121201-pages-articles -output enwiki-20121201.block \
+   -mapping_file enwiki-20121201-docno.dat -wiki_language en -compression_type block
 </pre>
 
 <p>Once you've done that, extract the link graph:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.collection.wikipedia.graph.ExtractWikipediaLinkGraph \
-  -input enwiki-20121201.block -edges_output enwiki-20121201.edges -adjacency_list_output enwiki-20121201.adj -num_partitions 10
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.collection.wikipedia.graph.ExtractWikipediaLinkGraph \
+   -input enwiki-20121201.block -edges_output enwiki-20121201.edges -adjacency_list_output enwiki-20121201.adj -num_partitions 10
 </pre>
 
 <p>From the counters you'll see:</p>
@@ -140,8 +134,8 @@ representation and pack it into appropriate Hadoop data structures. At
 the same time, we specify the source of the breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.EncodeBfsGraph \
- -input enwiki-20121201.adj -output enwiki-20121201.bfs/iter0000 -src 12
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bfs.EncodeBfsGraph \
+   -input enwiki-20121201.adj -output enwiki-20121201.bfs/iter0000 -src 12
 </pre>
 
 <p>We'll start from nodeid
@@ -154,8 +148,8 @@ command line or from the jobtracker.</p>
 print them in plain text:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.FindReachableNodes \
- -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs-reachable/iter0000
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
+   -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs-reachable/iter0000
 </pre>
 
 <p>As a sanity check, we see that only the source node is
@@ -164,16 +158,16 @@ reachable.</p>
 <p>Now let's run one iteration of parallel breadth-first search:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.IterateBfs \
- -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs/iter0001 -num_partitions 10
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bfs.IterateBfs \
+   -input enwiki-20121201.bfs/iter0000 -output enwiki-20121201.bfs/iter0001 -num_partitions 10
 </pre>
 
 <p>The final argument is the number of partitions (ten in our case).
 We can pull out and examine the reachable nodes:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.FindReachableNodes \
- -input enwiki-20121201.bfs/iter0001 -output enwiki-20121201.bfs-reachable/iter0001
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bfs.FindReachableNodes \
+   -input enwiki-20121201.bfs/iter0001 -output enwiki-20121201.bfs-reachable/iter0001
 </pre>
 
 <p>Running more iterations, we'll get the following results:</p>
@@ -223,8 +217,8 @@ investigate, we can use a handy tool to extract pages that are at a
 specific distance (e.g., 25 hops away):</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.bfs.FindNodeAtDistance \
- -input enwiki-20121201.bfs/iter0025 -output enwiki-20121201.bfs-d/iter0025 -distance 25
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.bfs.FindNodeAtDistance \
+   -input enwiki-20121201.bfs/iter0025 -output enwiki-20121201.bfs-d/iter0025 -distance 25
 </pre>
 
 <p>As it turns out, there are really long chains of articles in

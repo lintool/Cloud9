@@ -37,12 +37,6 @@
               <li class="">
                 <a href="../../index.html">Home</a>
               </li>
-              <li class="">
-                <a href="../contents.html">Table of Contents</a>
-              </li>
-              <li class="">
-                <a href="../api/index.html">API</a>
-              </li>
             </ul>
           </div>
         </div>
@@ -75,8 +69,8 @@ Cloud<sup><small>9</small></sup> classes:</p>
 
 <ul>
 
-  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixPairs.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs</a></code></li>
-  <li><code><a href="../api/edu/umd/cloud9/example/cooccur/ComputeCooccurrenceMatrixStripes.html">edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes</a></code></li>
+  <li><code>edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs</code></li>
+  <li><code>edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes</code></li>
 
 </ul>
 
@@ -84,8 +78,8 @@ Cloud<sup><small>9</small></sup> classes:</p>
 dataset:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs \
-  -input bible+shakes.nopunc.gz -output cooccur -numReducers 5
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixPairs \
+   -input bible+shakes.nopunc.gz -output cooccur -numReducers 5
 </pre>
 
 <p>Let's find what words co-occur with the word "ant":</p>
@@ -114,14 +108,14 @@ fool we'll set thee to school to an ant to teach thee
 the same dataset:</p>
 
 <pre class="code">
-etc/hadoop-cluster.sh edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes \
-  -input bible+shakes.nopunc.gz -output cooccur -numReducers 5
+$ hadoop jar target/cloud9-X.Y.Z-fatjar.jar edu.umd.cloud9.example.cooccur.ComputeCooccurrenceMatrixStripes \
+   -input bible+shakes.nopunc.gz -output cooccur -numReducers 5
 </pre>
 
 <p>And indeed, we get the same results:</p>
 
 <pre class="code">
-$ hadoop fs -cat 'cooccur/part-*' | grep -P "^ant\t"
+$ hadoop fs -cat 'cooccur/part-*' | egrep "^ant\t"
 ant     {thou=1, and=1, an=1, to=3, sluggard=1, the=2, teach=1}
 </pre>
 
