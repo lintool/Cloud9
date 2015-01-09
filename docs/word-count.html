@@ -59,7 +59,7 @@
 </div>
 
 <p>Cloud<sup>9</sup> is designed to work with Hadoop YARN and has been
-tested against Cloudera CDH 5.2.1 (on both Mac and Linux). It should
+tested against Cloudera CDH 5.3.0 (on both Mac and Linux). It should
 work with other Hadoop distributions or on other platforms with only
 minor modifications. In this tutorial, we'll take you through running
 word count on a toy collection. First, we'll use Hadoop local mode
@@ -78,14 +78,14 @@ Cluster"</td></tr></table>
 <h3>Download and Install Hadoop</h3>
 
 <p>Download the Cloudera CDH
-5.2.1 tarball <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.5.0-cdh5.2.1.tar.gz">here</a> (caution, it's 252 MB).
+5.3.0 tarball <a href="http://archive.cloudera.com/cdh5/cdh/5/hadoop-2.5.0-cdh5.3.0.tar.gz">here</a> (caution, it's 278 MB).
 Unpack the tarball onto your machine and make sure
 <code>PATH_TO_HADOOP/bin</code> is on your path. Verify that Hadoop is
 running with the pi example. In a shell, run the following
 command:</p>
 
 <pre class="code">
-$ hadoop jar PATH_TO_HADOOP/share/hadoop/mapreduce2/hadoop-mapreduce-examples-2.5.0-cdh5.2.1.jar pi 100 100000
+$ hadoop jar PATH_TO_HADOOP/jars/hadoop-mapreduce-examples-2.5.0-cdh5.3.0.jar pi 100 100000
 </pre>
 
 <p>After the above Hadoop local job finishes, you should see the
@@ -157,7 +157,7 @@ $ head wc/part-r-00000
 set up a Hadoop cluster is beyond the scope of this tutorial, but the
 next best thing is to use Cloudera's virtual machine images, which
 come with a pre-configured single-node cluster. The images can be
-downloaded <a href="http://www.cloudera.com/content/cloudera/en/downloads/quickstart_vms/cdh-5-2-x.html">here</a>.
+downloaded <a href="http://www.cloudera.com/content/cloudera/en/documentation/DemoVMs/Cloudera-QuickStart-VM/cloudera_quickstart_vm.html">here</a>.
 </p>
 
 <p>Use the VirtualBox image,
