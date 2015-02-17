@@ -86,7 +86,7 @@ public class IntegrationUtils {
     System.out.println("ExitValue: " + exitVal);
     Joiner joiner = Joiner.on("\n");
 
-    return Pair.of(joiner.join(errorGobbler.getLines()), joiner.join(errorGobbler.getLines()));
+    return Pair.of(joiner.join(outputGobbler.getLines()), joiner.join(errorGobbler.getLines()));
   }
 
   public static List<Integer> execWiki(String cmd) throws IOException, InterruptedException {
