@@ -33,6 +33,7 @@ public class ClueWebPageRankIT {
     assertTrue(fs.exists(collectionPath));
 
     String[] args;
+    PairOfStrings pair;
 
     args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.pagerank.BuildPageRankRecords.class.getCanonicalName(),
@@ -72,7 +73,7 @@ public class ClueWebPageRankIT {
 
     IntegrationUtils.exec(Joiner.on(" ").join(args));
 
-    PairOfStrings pair = IntegrationUtils.exec("hadoop fs -cat " + tmpPrefix +
+    pair = IntegrationUtils.exec("hadoop fs -cat " + tmpPrefix +
         "-clueweb09en01-PageRank.hash.basic-top10/part-r-00000");
 
     assertTrue(pair.getLeftElement().contains("16073008\t-6.381"));
@@ -80,6 +81,127 @@ public class ClueWebPageRankIT {
     assertTrue(pair.getLeftElement().contains("16073696\t-6.552"));
     assertTrue(pair.getLeftElement().contains("16073003\t-6.604"));
     assertTrue(pair.getLeftElement().contains("47345600\t-6.610"));
+
+    // Hash partitioning, Schimmy
+    IntegrationUtils.exec("hadoop fs -mkdir " + tmpPrefix + "-clueweb09en01-PageRank.hash.schimmy");
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.PartitionGraph.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRankRecords",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.hash.schimmy/iter0000",
+        "-numPartitions", "200",
+        "-numNodes", "50220423"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.RunPageRankSchimmy.class.getCanonicalName(),
+        "-base", tmpPrefix + "-clueweb09en01-PageRank.hash.schimmy",
+        "-numNodes", "50220423",
+        "-start", "0",
+        "-end", "10",
+        "-useInMapperCombiner"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRank.hash.schimmy/iter0010",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.hash.schimmy-top10",
+        "-top", "10"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    pair = IntegrationUtils.exec("hadoop fs -cat " + tmpPrefix +
+        "-clueweb09en01-PageRank.hash.schimmy-top10/part-r-00000");
+
+    assertTrue(pair.getLeftElement().contains("16073008\t-6.371"));
+    assertTrue(pair.getLeftElement().contains("42722712\t-6.421"));
+    assertTrue(pair.getLeftElement().contains("16073696\t-6.540"));
+    assertTrue(pair.getLeftElement().contains("16073003\t-6.592"));
+    assertTrue(pair.getLeftElement().contains("47345600\t-6.597"));
+
+    // Range partitioning, basic
+    IntegrationUtils.exec("hadoop fs -mkdir " + tmpPrefix + "-clueweb09en01-PageRank.range.basic");
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.PartitionGraph.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRankRecords",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.range.basic/iter0000",
+        "-numPartitions", "200",
+        "-numNodes", "50220423",
+        "-range"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.RunPageRankBasic.class.getCanonicalName(),
+        "-base", tmpPrefix + "-clueweb09en01-PageRank.range.basic",
+        "-numNodes", "50220423",
+        "-start", "0",
+        "-end", "10",
+        "-useInMapperCombiner",
+        "-range"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRank.range.basic/iter0010",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.range.basic-top10",
+        "-top", "10"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    pair = IntegrationUtils.exec("hadoop fs -cat " + tmpPrefix +
+        "-clueweb09en01-PageRank.range.basic-top10/part-r-00000");
+
+    assertTrue(pair.getLeftElement().contains("16073008\t-6.381"));
+    assertTrue(pair.getLeftElement().contains("42722712\t-6.425"));
+    assertTrue(pair.getLeftElement().contains("16073696\t-6.552"));
+    assertTrue(pair.getLeftElement().contains("16073003\t-6.604"));
+    assertTrue(pair.getLeftElement().contains("47345600\t-6.610"));
+
+    // Range partitioning, Schimmy
+    IntegrationUtils.exec("hadoop fs -mkdir " + tmpPrefix + "-clueweb09en01-PageRank.range.schimmy");
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.PartitionGraph.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRankRecords",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.range.schimmy/iter0000",
+        "-numPartitions", "200",
+        "-numNodes", "50220423",
+        "-range"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.RunPageRankSchimmy.class.getCanonicalName(),
+        "-base", tmpPrefix + "-clueweb09en01-PageRank.range.schimmy",
+        "-numNodes", "50220423",
+        "-start", "0",
+        "-end", "10",
+        "-useInMapperCombiner",
+        "-range"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+        edu.umd.cloud9.example.pagerank.FindMaxPageRankNodes.class.getCanonicalName(),
+        "-input", tmpPrefix + "-clueweb09en01-PageRank.range.schimmy/iter0010",
+        "-output", tmpPrefix + "-clueweb09en01-PageRank.range.schimmy-top10",
+        "-top", "10"};
+
+    IntegrationUtils.exec(Joiner.on(" ").join(args));
+
+    pair = IntegrationUtils.exec("hadoop fs -cat " + tmpPrefix +
+        "-clueweb09en01-PageRank.range.schimmy-top10/part-r-00000");
+
+    assertTrue(pair.getLeftElement().contains("16073008\t-6.372"));
+    assertTrue(pair.getLeftElement().contains("42722712\t-6.420"));
+    assertTrue(pair.getLeftElement().contains("16073696\t-6.541"));
+    assertTrue(pair.getLeftElement().contains("16073003\t-6.593"));
+    assertTrue(pair.getLeftElement().contains("47345600\t-6.599"));
   }
 
   public static junit.framework.Test suite() {
