@@ -194,7 +194,7 @@ public class ComputeCooccurrenceMatrixStripes extends Configured implements Tool
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     job.setMapOutputKeyClass(Text.class);
-    job.setOutputValueClass(HMapStIW.class);
+    job.setMapOutputValueClass(HMapStIW.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(HMapStIW.class);
 
