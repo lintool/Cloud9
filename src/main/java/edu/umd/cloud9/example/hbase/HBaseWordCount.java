@@ -53,12 +53,16 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Simple word count demo.
+ * Simple word count demo using HBase for storage.
  *
  * @author Jimmy Lin
  */
 public class HBaseWordCount extends Configured implements Tool {
   private static final Logger LOG = Logger.getLogger(HBaseWordCount.class);
+
+  public static final String[] FAMILIES = { "c" };
+  public static final byte[] CF = FAMILIES[0].getBytes();
+  public static final byte[] COUNT = "count".getBytes();
 
   // Mapper: emits (token, 1) for every word occurrence.
   private static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
@@ -100,9 +104,6 @@ public class HBaseWordCount extends Configured implements Tool {
   }
 
   public static class MyTableReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
-    public static final byte[] CF = FAMILIES[0].getBytes();
-    public static final byte[] COUNT = "count".getBytes();
-
     public void reduce(Text key, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
       int sum = 0;
@@ -121,8 +122,6 @@ public class HBaseWordCount extends Configured implements Tool {
    */
   public HBaseWordCount() {}
 
-  private static final String[] FAMILIES = { "c" };
-
   private static final String INPUT = "input";
   private static final String OUTPUT = "output";
   private static final String NUM_REDUCERS = "numReducers";
@@ -136,8 +135,8 @@ public class HBaseWordCount extends Configured implements Tool {
 
     options.addOption(OptionBuilder.withArgName("path").hasArg()
         .withDescription("input path").create(INPUT));
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("output path").create(OUTPUT));
+    options.addOption(OptionBuilder.withArgName("table").hasArg()
+        .withDescription("HBase table name").create(OUTPUT));
     options.addOption(OptionBuilder.withArgName("num").hasArg()
         .withDescription("number of reducers").create(NUM_REDUCERS));
 

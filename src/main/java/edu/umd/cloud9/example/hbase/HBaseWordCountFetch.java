@@ -40,7 +40,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 /**
- * Simple word count demo.
+ * Simple demo of HBase; fetching word counts.
  *
  * @author Jimmy Lin
  */
@@ -52,10 +52,6 @@ public class HBaseWordCountFetch extends Configured implements Tool {
    */
   public HBaseWordCountFetch() {}
 
-  private static final String[] FAMILIES = { "c" };
-  private static final byte[] CF = FAMILIES[0].getBytes();
-  private static final byte[] COUNT = "count".getBytes();
-
   private static final String TABLE = "table";
   private static final String WORD = "word";
 
@@ -66,10 +62,10 @@ public class HBaseWordCountFetch extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     Options options = new Options();
 
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("input path").create(TABLE));
-    options.addOption(OptionBuilder.withArgName("path").hasArg()
-        .withDescription("output path").create(WORD));
+    options.addOption(OptionBuilder.withArgName("table").hasArg()
+        .withDescription("HBase table name").create(TABLE));
+    options.addOption(OptionBuilder.withArgName("word").hasArg()
+        .withDescription("word to look up").create(WORD));
 
     CommandLine cmdline;
     CommandLineParser parser = new GnuParser();
@@ -90,7 +86,7 @@ public class HBaseWordCountFetch extends Configured implements Tool {
       return -1;
     }
 
-    String table = cmdline.getOptionValue(TABLE);
+    String tableName = cmdline.getOptionValue(TABLE);
     String word = cmdline.getOptionValue(WORD);
 
     Configuration conf = getConf();
@@ -98,12 +94,12 @@ public class HBaseWordCountFetch extends Configured implements Tool {
 
     Configuration hbaseConfig = HBaseConfiguration.create(conf);
     HConnection hbaseConnection = HConnectionManager.createConnection(hbaseConfig);
-    HTableInterface t = hbaseConnection.getTable(table);
+    HTableInterface table = hbaseConnection.getTable(tableName);
 
     Get get = new Get(Bytes.toBytes(word));
-    Result result = t.get(get);
+    Result result = table.get(get);
 
-    int count = Bytes.toInt(result.getValue(CF, COUNT));
+    int count = Bytes.toInt(result.getValue(HBaseWordCount.CF, HBaseWordCount.COUNT));
 
     LOG.info("word: " + word + ", count: " + count);
 
