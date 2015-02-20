@@ -15,7 +15,12 @@ import java.util.Set;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
+import tl.lin.data.pair.Pair;
+import tl.lin.data.pair.PairOfStrings;
+
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class IntegrationUtils {
@@ -60,7 +65,7 @@ public class IntegrationUtils {
   }
 
   // How to properly shell out: http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html
-  public static int exec(String cmd) throws IOException, InterruptedException {
+  public static PairOfStrings exec(String cmd) throws IOException, InterruptedException {
     System.out.println("Executing command: " + cmd);
 
     Runtime rt = Runtime.getRuntime();
@@ -79,7 +84,9 @@ public class IntegrationUtils {
     // any error???
     int exitVal = proc.waitFor();
     System.out.println("ExitValue: " + exitVal);
-    return exitVal;
+    Joiner joiner = Joiner.on("\n");
+
+    return Pair.of(joiner.join(outputGobbler.getLines()), joiner.join(errorGobbler.getLines()));
   }
 
   public static List<Integer> execWiki(String cmd) throws IOException, InterruptedException {
@@ -132,6 +139,7 @@ public class IntegrationUtils {
   private static class StreamGobbler extends Thread {
     InputStream is;
     String type;
+    List<String> lines = Lists.newArrayList();
 
     StreamGobbler(InputStream is, String type) {
       this.is = is;
@@ -143,11 +151,17 @@ public class IntegrationUtils {
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         String line = null;
-        while ((line = br.readLine()) != null)
+        while ((line = br.readLine()) != null) {
           System.out.println(type + ">" + line);
+          lines.add(line);
+        }
       } catch (IOException ioe) {
         ioe.printStackTrace();
       }
+    }
+
+    public List<String> getLines() {
+      return lines;
     }
   }
 
