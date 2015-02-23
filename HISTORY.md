@@ -1,3 +1,11 @@
+Version 2.0.1
+=============
+February 22, 2015
+
++ Upgraded to CDH 5.3.0
++ Added HBase word count demo
++ Added graph (BFS and PageRank) integration tests
+
 Version 2.0.0
 =============
 December 11, 2014
