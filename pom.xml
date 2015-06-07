@@ -76,6 +76,15 @@
     </testResources>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.2</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
         <version>1.6.3</version>
@@ -187,36 +196,36 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <!-- find the versions in http://www.cloudera.com/content/cloudera/en/documentation/core/latest/topics/cdh_vd_cdh5_maven_repo.html -->
   <dependencies>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
-      <version>2.5.0-cdh5.3.0</version>
+      <version>2.6.0-cdh5.4.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-streaming</artifactId>
-      <version>2.5.0-cdh5.3.0</version>
+      <version>2.6.0-cdh5.4.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.pig</groupId>
       <artifactId>pig</artifactId>
-      <version>0.12.0-cdh5.3.0</version>
+      <version>0.12.0-cdh5.4.1</version>
       <optional>true</optional>
     </dependency>
-
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-client</artifactId>
-      <version>0.98.6-cdh5.3.0</version>
+      <version>1.0.0-cdh5.4.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-server</artifactId>
-      <version>0.98.6-cdh5.3.0</version>
+      <version>1.0.0-cdh5.4.1</version>
       <optional>true</optional>
     </dependency>
 
