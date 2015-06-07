@@ -55,7 +55,7 @@ import edu.umd.cloud9.webgraph.DriverUtil;
  *
  * <p>
  * The default weight used in this program was originally proposed by Metzler
- * et. al in the following paper: <br />
+ * et. al in the following paper: <br>
  *
  * D. Metzler, J. Novak, H. Cui, and S. Reddy. Building enriched document
  * representations using aggregated anchor text. <i>In Proc. 32nd Annual

@@ -56,8 +56,6 @@ public class XMLInputFormat extends TextInputFormat {
    * @param split the split to be read
    * @param context the information about the task
    * @return a new record reader
-   * @throws IOException
-   * @throws InterruptedException
    */
   @Override
   public RecordReader<LongWritable, Text> createRecordReader(InputSplit split,
@@ -215,7 +213,6 @@ public class XMLInputFormat extends TextInputFormat {
      *
      * @return a number between 0.0 and 1.0 that is the fraction of the data read
      * @throws IOException
-     * @throws InterruptedException
      */
     @Override
     public float getProgress() throws IOException {

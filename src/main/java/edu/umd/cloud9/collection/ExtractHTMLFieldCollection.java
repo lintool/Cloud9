@@ -50,7 +50,7 @@ import edu.umd.cloud9.webgraph.TrecExtractLinks.Map.LinkCounter;
 /**
  * <p>
  * Tool for generating 'per-field' collections from HTML documents. The output of this
- * tool is a new collection, in TREC format (in the form of a SequenceFile<LongWritable, TextDocument>)
+ * tool is a new collection, in TREC format (in the form of a SequenceFile&lt;LongWritable, TextDocument&gt;)
  * that only consists of the text contained within the target tag. This is useful for various
  * document structure and/or field-based retrieval tasks.
  * </p>

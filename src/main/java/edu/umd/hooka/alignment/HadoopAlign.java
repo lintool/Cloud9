@@ -366,7 +366,7 @@ public class HadoopAlign {
   /**
    * Basic implementation: assume keys are IntWritable, values are Phrase
    * Better implementation: use Java Generics to templatize, ie.
-   *  <Key extends WritableComparable, Value extends Writeable>
+   *  &lt;Key extends WritableComparable, Value extends Writeable&gt;
    * @author redpony
    *
    */
