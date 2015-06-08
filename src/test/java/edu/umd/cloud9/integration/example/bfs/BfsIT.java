@@ -21,7 +21,7 @@ public class BfsIT {
   private static final Random random = new Random();
 
   private static final Path collectionPath =
-      new Path("/collections/wikipedia/raw/enwiki-20121201-pages-articles");
+      new Path("/collections/wikipedia/enwiki-20121201-pages-articles");
   private static final String tmpPrefix = "tmp-"
       + BfsIT.class.getCanonicalName() + "-" + random.nextInt(10000);
 

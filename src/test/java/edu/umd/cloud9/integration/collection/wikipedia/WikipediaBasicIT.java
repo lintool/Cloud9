@@ -67,19 +67,19 @@ public class WikipediaBasicIT {
 
   @Test
   public void testAllWikis() throws Exception {
-    testWikiDocnoMapping("en", "/collections/wikipedia/raw/enwiki-20121201-pages-articles", "12", "189362",
+    testWikiDocnoMapping("en", "/collections/wikipedia/enwiki-20121201-pages-articles", "12", "189362",
         123666, 4033137, 12961996);
-    testWikiDocnoMapping("cs", "/collections/wikipedia/raw/cswiki-20121215-pages-articles.xml", "4", "344433",
+    testWikiDocnoMapping("cs", "/collections/wikipedia/cswiki-20121215-pages-articles.xml", "4", "344433",
         7800, 248999, 497398);
-    testWikiDocnoMapping("de", "/collections/wikipedia/raw/dewiki-20121215-pages-articles.xml", "1", "297141",
+    testWikiDocnoMapping("de", "/collections/wikipedia/dewiki-20121215-pages-articles.xml", "1", "297141",
         174678, 1326111, 3001626);
-    testWikiDocnoMapping("es", "/collections/wikipedia/raw/eswiki-20121130-pages-articles.xml", "7", "358642",
+    testWikiDocnoMapping("es", "/collections/wikipedia/eswiki-20121130-pages-articles.xml", "7", "358642",
         36669, 1092193, 2611748);
-    testWikiDocnoMapping("ar", "/collections/wikipedia/raw/arwiki-20121218-pages-articles.xml", "7", "572997",
+    testWikiDocnoMapping("ar", "/collections/wikipedia/arwiki-20121218-pages-articles.xml", "7", "572997",
         3789, 237860, 529641);
-    testWikiDocnoMapping("zh", "/collections/wikipedia/raw/zhwiki-20121210-pages-articles.xml", "13", "456258",
+    testWikiDocnoMapping("zh", "/collections/wikipedia/zhwiki-20121210-pages-articles.xml", "13", "456258",
         17992, 602267, 2067973);
-    testWikiDocnoMapping("tr", "/collections/wikipedia/raw/trwiki-20121217-pages-articles.xml", "5", "432151",
+    testWikiDocnoMapping("tr", "/collections/wikipedia/trwiki-20121217-pages-articles.xml", "5", "432151",
         5938, 240952, 589118);
   }
   public static junit.framework.Test suite() {
