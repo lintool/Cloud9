@@ -55,14 +55,8 @@ import edu.umd.cloud9.mapred.NoSplitSequenceFileInputFormat;
 
 /**
  * <p>
- * Tool for building a document forward index for the ClueWeb09 collection. Sample invocation:
+ * Tool for building a document forward index for the ClueWeb09 collection.
  * </p>
- *
- * <pre>
- * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.ClueWarcForwardIndexBuilder \
- *  -collection /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
- *  -index findex.en.01.dat
- * </pre>
  *
  * @author Jimmy Lin
  */

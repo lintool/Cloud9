@@ -32,9 +32,9 @@ public class ClueWeb09EN01WebgraphIT {
     rand.nextInt(10000);
 
   private static final String collectionPath =
-    "/shared/collections/ClueWeb09/collection.compressed.block/";
+    "/collections/ClueWeb09/data.block/";
   private static final String docnoMapping =
-    "/shared/collections/ClueWeb09/docno-mapping.dat";
+    "/collections/ClueWeb09/docno-mapping.dat";
   private static final String collectionOutput = tmp + "/webgraph-clueweb09";
 
   // Galago: part 00000, part 00010

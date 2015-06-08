@@ -23,8 +23,8 @@ import edu.umd.cloud9.integration.IntegrationUtils;
 public class IT {
   private static final Random random = new Random();
 
-  private static final Path wt10gPath = new Path("/shared/collections/wt10g/collection.raw");
-  private static final Path gov2Path = new Path("/shared/collections/gov2/collection.raw/gov2-corpus");
+  private static final Path wt10gPath = new Path("/collections/wt10g/data");
+  private static final Path gov2Path = new Path("/collections/gov2/data");
 
   private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() + "-" + random.nextInt(10000);
 

@@ -54,20 +54,8 @@ import org.apache.log4j.Logger;
 /**
  * <p>
  * Simple demo program to count the number of records in the ClueWeb09 collection, from either the
- * original source WARC files or repacked SequenceFiles. Sample invocations:
+ * original source WARC files or repacked SequenceFiles.
  * </p>
- *
- * <pre>
- * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
- *  -libjars lib/guava-X.X.X.jar \
- *  -original -path /shared/collections/ClueWeb09/collection.raw/ -segment 1 \
- *  -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat -countOutput records.txt
- *
- * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.CountClueWarcRecords \
- *  -libjars lib/guava-X.X.X.jar \
- *  -repacked -path /shared/collections/ClueWeb09/collection.compressed.block/en.01 \
- *  -docnoMapping /shared/collections/ClueWeb09/docno-mapping.dat -countOutput records.txt
- * </pre>
  *
  * @author Jimmy Lin
  */
