@@ -34,7 +34,7 @@ import edu.umd.cloud9.example.hits.RangePartitioner;
 
 /**
  * <p>
- * Driver program for partitioning the graph. This version reads & writes HITSNode writables. Command-line arguments are as
+ * Driver program for partitioning the graph. This version reads &amp; writes HITSNode writables. Command-line arguments are as
  * follows:
  * </p>
  * 

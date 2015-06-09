@@ -52,13 +52,13 @@ import edu.umd.cloud9.webgraph.normalizer.AnchorTextNormalizer;
  * anchor text, remove for not</li>
  * <li>[-normalizer normalizer] A normalizer class used to normalize the lines of anchor
  * text, must extend *.anchor.normalize.AnchorTextNormalizer.</li>
- * <li>[<key:value> ..]: key-value pairs to put in configuration files. It shall
+ * <li>[&lt;ey:value&gt; ..]: key-value pairs to put in configuration files. It shall
  * also be used as input method for user specified classes</li>
  * </ul>
  *
  * <p>
  * The default weight used in this program was originally proposed by Metzler
- * et. al in the following paper: <br />
+ * et. al in the following paper: <br>
  *
  * D. Metzler, J. Novak, H. Cui, and S. Reddy. Building enriched document
  * representations using aggregated anchor text. <i>In Proc. 32nd Annual

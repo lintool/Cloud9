@@ -21,7 +21,7 @@ import edu.umd.cloud9.integration.IntegrationUtils;
 public class IT {
   private static final Random random = new Random();
 
-  private static final Path collectionPath = new Path("/shared/collections/medline04");
+  private static final Path collectionPath = new Path("/collections/medline04");
   private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() +
       "-" + random.nextInt(10000);
 

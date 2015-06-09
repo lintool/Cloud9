@@ -37,9 +37,9 @@ public class InvertedIndexingIT {
 
     assertTrue(fs.exists(collectionPath));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+    String[] args = new String[] { "hadoop --config src/test/resources/hadoop-local-conf/ jar",
+        IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.ir.BuildInvertedIndex.class.getCanonicalName(),
-        IntegrationUtils.LOCAL_ARGS,
         "-input", collectionPath.toString(),
         "-output", tmpPrefix,
         "-numReducers", "1"};

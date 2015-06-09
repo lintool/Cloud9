@@ -87,9 +87,6 @@ public class TextOutput extends Configured implements Tool {
 		return 0;
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new TextOutput(), args);
 		System.exit(res);

@@ -30,9 +30,9 @@ public class Gov2WebgraphIT {
   private static final String tmp = "/tmp/tmp-" + Gov2WebgraphIT.class.getSimpleName() + rand.nextInt(10000);
 
   private static final String collectionPath =
-    "/shared/collections/gov2/collection.raw/gov2-corpus/GX000";
+    "/collections/gov2/data/GX000";
   private static final String docnoMapping =
-    "/shared/indexes/gov2/docno-mapping.dat";
+    "/collections/gov2/docno-mapping.dat";
   private static final String collectionOutput = tmp + "/webgraph-gov2";
 
   // Galago: part 00000, key = 400

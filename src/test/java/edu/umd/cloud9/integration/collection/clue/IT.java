@@ -25,9 +25,9 @@ public class IT {
   private static final Random random = new Random();
 
   private static final Path collectionPathRepacked =
-      new Path("/shared/collections/ClueWeb09/collection.compressed.block/en.01");
+      new Path("/collections/ClueWeb09/data.block/en.01");
   private static final Path collectionPathRaw =
-      new Path("/shared/collections/ClueWeb09/collection.raw/");
+      new Path("/collections/ClueWeb09/data/");
   private static final String tmpPrefix = "tmp-" + IT.class.getCanonicalName() + "-"
       + random.nextInt(10000);
 

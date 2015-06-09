@@ -21,7 +21,7 @@ public class ClueWebPageRankIT {
   private static final Random random = new Random();
 
   private static final Path collectionPath =
-      new Path("/shared/collections/ClueWeb09/clueweb09en01-webgraph-adjacency.txt");
+      new Path("/collections/ClueWeb09/clueweb09en01-webgraph-adjacency.txt");
   private static final String tmpPrefix = "tmp-"
       + SimplePageRankIT.class.getCanonicalName() + "-" + random.nextInt(10000);
 

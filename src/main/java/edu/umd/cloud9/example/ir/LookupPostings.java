@@ -17,6 +17,7 @@
 package edu.umd.cloud9.example.ir;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
@@ -28,7 +29,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -36,7 +36,6 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import tl.lin.data.array.ArrayListWritable;
@@ -45,17 +44,12 @@ import tl.lin.data.fd.Int2IntFrequencyDistributionEntry;
 import tl.lin.data.pair.PairOfInts;
 import tl.lin.data.pair.PairOfWritables;
 
-public class LookupPostings extends Configured implements Tool {
+public class LookupPostings {
   private static final String INDEX = "index";
   private static final String COLLECTION = "collection";
 
-  private LookupPostings() {}
-
-  /**
-   * Runs this tool.
-   */
   @SuppressWarnings({ "static-access" })
-  public int run(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException {
     Options options = new Options();
 
     options.addOption(OptionBuilder.withArgName("path").hasArg()
@@ -94,72 +88,52 @@ public class LookupPostings extends Configured implements Tool {
     FileSystem fs = FileSystem.get(config);
     MapFile.Reader reader = new MapFile.Reader(new Path(indexPath + "/part-r-00000"), config);
 
+    lookupTerm("starcross'd", reader, collectionPath, fs);
+    lookupTerm("gold", reader, collectionPath, fs);
+    lookupTerm("silver", reader, collectionPath, fs);
+    lookupTerm("bronze", reader, collectionPath, fs);
+
+    reader.close();
+  }
+
+  public static void lookupTerm(String term, MapFile.Reader reader, String collectionPath,
+      FileSystem fs) throws IOException {
     FSDataInputStream collection = fs.open(new Path(collectionPath));
-    BufferedReader d = new BufferedReader(new InputStreamReader(collection));
 
     Text key = new Text();
     PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>> value =
         new PairOfWritables<IntWritable, ArrayListWritable<PairOfInts>>();
 
-    System.out.println("Looking up postings for the term \"starcross'd\"");
-    key.set("starcross'd");
-
-    reader.get(key, value);
-
-    ArrayListWritable<PairOfInts> postings = value.getRightElement();
-    for (PairOfInts pair : postings) {
-      System.out.println(pair);
-      collection.seek(pair.getLeftElement());
-      System.out.println(d.readLine());
-    }
-
-    key.set("gold");
-    reader.get(key, value);
-    System.out.println("Complete postings list for 'gold': " + value);
-
-    Int2IntFrequencyDistribution goldHist = new Int2IntFrequencyDistributionEntry();
-    postings = value.getRightElement();
-    for (PairOfInts pair : postings) {
-      goldHist.increment(pair.getRightElement());
-    }
-
-    System.out.println("histogram of tf values for gold");
-    for (PairOfInts pair : goldHist) {
-      System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
-    }
-
-    key.set("silver");
-    reader.get(key, value);
-    System.out.println("Complete postings list for 'silver': " + value);
-
-    Int2IntFrequencyDistribution silverHist = new Int2IntFrequencyDistributionEntry();
-    postings = value.getRightElement();
-    for (PairOfInts pair : postings) {
-      silverHist.increment(pair.getRightElement());
-    }
-
-    System.out.println("histogram of tf values for silver");
-    for (PairOfInts pair : silverHist) {
-      System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
-    }
-
-    key.set("bronze");
+    key.set(term);
     Writable w = reader.get(key, value);
 
     if (w == null) {
-      System.out.println("the term bronze does not appear in the collection");
+      System.out.println("\nThe term '" + term + "' does not appear in the collection");
+      return;
+    }
+
+    ArrayListWritable<PairOfInts> postings = value.getRightElement();
+    System.out.println("\nComplete postings list for '" + term + "':");
+    System.out.println("df = " + value.getLeftElement());
+
+    Int2IntFrequencyDistribution hist = new Int2IntFrequencyDistributionEntry();
+    for (PairOfInts pair : postings) {
+      hist.increment(pair.getRightElement());
+      System.out.print(pair);
+      collection.seek(pair.getLeftElement());
+      BufferedReader r = new BufferedReader(new InputStreamReader(collection));
+
+      String d = r.readLine();
+      d = d.length() > 80 ? d.substring(0, 80) + "..." : d;
+
+      System.out.println(": " + d);
+    }
+
+    System.out.println("\nHistogram of tf values for '" + term + "'");
+    for (PairOfInts pair : hist) {
+      System.out.println(pair.getLeftElement() + "\t" + pair.getRightElement());
     }
 
     collection.close();
-    reader.close();
-
-    return 0;
-  }
-
-  /**
-   * Dispatches command-line arguments to the tool via the {@code ToolRunner}.
-   */
-  public static void main(String[] args) throws Exception {
-    ToolRunner.run(new LookupPostings(), args);
   }
 }

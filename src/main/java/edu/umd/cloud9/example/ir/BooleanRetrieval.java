@@ -173,7 +173,7 @@ public class BooleanRetrieval extends Configured implements Tool {
       System.out.println("args: " + Arrays.toString(args));
       HelpFormatter formatter = new HelpFormatter();
       formatter.setWidth(120);
-      formatter.printHelp(LookupPostings.class.getName(), options);
+      formatter.printHelp(BooleanRetrieval.class.getName(), options);
       ToolRunner.printGenericCommandUsage(System.out);
       System.exit(-1);
     }

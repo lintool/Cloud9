@@ -84,7 +84,7 @@ public class FileMerger extends Configured implements Tool {
 
   /**
    * This method merges all files specified by the glob expression
-   * <code>inputFiles<code>
+   * <code>inputFiles</code>
    */
   public static Path mergeTextFiles(Configuration configuration, String inputFiles,
       String outputFile, int numberOfMappers, boolean deleteSource) throws IOException {

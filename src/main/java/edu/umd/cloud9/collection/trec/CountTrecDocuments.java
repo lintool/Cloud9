@@ -49,14 +49,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
 
 /**
  * Simple demo program that counts all the documents in the TREC collection. Run without any
- * arguments for help. Sample invocation:
- *
- * <pre>
- * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.trec.CountTrecDocuments \
- *  -libjars lib/guava-X.X.X.jar \
- *  -collection /shared/collections/trec/trec4-5_noCRFR.xml -output tmp \
- *  -docnoMapping trec-docno-mapping.dat -countOutput records.txt
- * </pre>
+ * arguments for help.
  *
  * @author Jimmy Lin
  */

@@ -26,7 +26,7 @@ public class WikipediaBfsIT {
 
   @Test
   public void tesBfs() throws Exception {
-    String input = "/shared/collections/wikipedia/raw/enwiki-20121201-pages-articles";
+    String input = "/collections/wikipedia/enwiki-20121201-pages-articles";
     Configuration conf = IntegrationUtils.getBespinConfiguration();
     FileSystem fs = FileSystem.get(conf);
     

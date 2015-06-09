@@ -59,10 +59,9 @@ import org.apache.log4j.Logger;
  * </p>
  *
  * <pre>
- * hadoop jar dist/cloud9-X.X.X.jar edu.umd.cloud9.collection.clue.RepackClueWarcRecords \
- *  /shared/collections/ClueWeb09/collection.raw \
- *  /shared/collections/ClueWeb09/collection.compressed.block/en.01 1 \
- *  /shared/collections/ClueWeb09/docno-mapping.dat block
+ * hadoop jar dist/cloud9-X.X.X-fatjar.jar edu.umd.cloud9.collection.clue.RepackClueWarcRecords \
+ *  /collections/ClueWeb09/data /collections/ClueWeb09/data.block/en.01 1 \
+ *  /collections/ClueWeb09/docno-mapping.dat block
  * </pre>
  *
  * @author Jimmy Lin
