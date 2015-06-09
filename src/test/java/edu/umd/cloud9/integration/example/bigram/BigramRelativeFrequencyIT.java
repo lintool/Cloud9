@@ -39,9 +39,9 @@ public class BigramRelativeFrequencyIT {
 
     assertTrue(fs.exists(collectionPath));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+    String[] args = new String[] { "hadoop --config src/test/resources/hadoop-local-conf/ jar",
+        IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequency.class.getCanonicalName(),
-        IntegrationUtils.LOCAL_ARGS,
         "-input", collectionPath.toString(),
         "-output", tmpPrefix + "-base",
         "-numReducers", "1"};
@@ -82,9 +82,9 @@ public class BigramRelativeFrequencyIT {
 
     assertTrue(fs.exists(collectionPath));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+    String[] args = new String[] { "hadoop --config src/test/resources/hadoop-local-conf/ jar",
+        IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyJson.class.getCanonicalName(),
-        IntegrationUtils.LOCAL_ARGS,
         "-input", collectionPath.toString(),
         "-output", tmpPrefix + "-json",
         "-numReducers", "1"};
@@ -125,9 +125,9 @@ public class BigramRelativeFrequencyIT {
 
     assertTrue(fs.exists(collectionPath));
 
-    String[] args = new String[] { "hadoop jar", IntegrationUtils.getJar("target", "cloud9"),
+    String[] args = new String[] { "hadoop --config src/test/resources/hadoop-local-conf/ jar",
+        IntegrationUtils.getJar("target", "cloud9"),
         edu.umd.cloud9.example.bigram.BigramRelativeFrequencyTuple.class.getCanonicalName(),
-        IntegrationUtils.LOCAL_ARGS,
         "-input", collectionPath.toString(),
         "-output", tmpPrefix + "-tuple",
         "-numReducers", "1"};
