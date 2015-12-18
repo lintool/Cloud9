@@ -50,6 +50,7 @@ import edu.umd.cloud9.collection.DocnoMapping;
  *
  * @author Jimmy Lin
  * @author Peter Exner
+ * @author Gaurav Ragtah (gaurav.ragtah@lithium.com)
  */
 public class WikipediaDocnoMappingBuilder extends Configured implements Tool, DocnoMapping.Builder {
   private static final Logger LOG = Logger.getLogger(WikipediaDocnoMappingBuilder.class);
@@ -147,8 +148,8 @@ public class WikipediaDocnoMappingBuilder extends Configured implements Tool, Do
         .hasArg().withDescription("XML dump file").create(INPUT_OPTION));
     options.addOption(OptionBuilder.withArgName("path")
         .hasArg().withDescription("output file").create(OUTPUT_FILE_OPTION));
-    options.addOption(OptionBuilder.withArgName("en|sv|de|cs|es|zh|ar|tr").hasArg()
-        .withDescription("two-letter language code").create(LANGUAGE_OPTION));
+    options.addOption(OptionBuilder.withArgName("en|sv|nl|de|fr|ru|it|es|vi|pl|ja|pt|zh|uk|ca|fa|no|fi|id|ar|sr|ko|hi|zh_yue|cs|tr").hasArg()
+        .withDescription("two-letter or six-letter language code").create(LANGUAGE_OPTION));
     options.addOption(KEEP_ALL_OPTION, false, "keep all pages");
 
     CommandLine cmdline;
@@ -170,7 +171,8 @@ public class WikipediaDocnoMappingBuilder extends Configured implements Tool, Do
     String language = null;
     if (cmdline.hasOption(LANGUAGE_OPTION)) {
       language = cmdline.getOptionValue(LANGUAGE_OPTION);
-      if(language.length()!=2){
+      if(!(language.length()==2 || language.length()==6)){
+        // Added length check for 6 to include languages like zh_yue
         System.err.println("Error: \"" + language + "\" unknown language!");
         return -1;
       }

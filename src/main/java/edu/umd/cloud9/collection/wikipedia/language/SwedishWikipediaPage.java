@@ -16,6 +16,9 @@
 
 package edu.umd.cloud9.collection.wikipedia.language;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 
@@ -23,6 +26,7 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
  * A Swedish page from Wikipedia.
  * 
  * @author Peter Exner
+ * @author Gaurav Ragtah (gaurav.ragtah@lithium.com)
  */
 public class SwedishWikipediaPage extends WikipediaPage {
   /**
@@ -37,10 +41,11 @@ public class SwedishWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_REDIRECTION_CAPITALIZED_SV = "#Omdirigering";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
+  protected static final Pattern DISAMB_PATTERN = Pattern.compile("\\{\\{f\u00F6rgrening\\}\\}", Pattern.CASE_INSENSITIVE);
   private static final String LANGUAGE_CODE = "sv";
 
   /**
-   * Creates an empty <code>EnglishWikipediaPage</code> object.
+   * Creates an empty <code>SwedishWikipediaPage</code> object.
    */
   public SwedishWikipediaPage() {
     super();
@@ -69,9 +74,11 @@ public class SwedishWikipediaPage extends WikipediaPage {
     this.textStart = s.indexOf(XML_START_TAG_TEXT);
     this.textEnd = s.indexOf(XML_END_TAG_TEXT, this.textStart);
 
+    this.disambPattern = DISAMB_PATTERN;
+
     // determine if article is a disambiguation, redirection, and/or stub page.
-    this.isDisambig = s.indexOf(IDENTIFIER_DISAMBIGUATION_LOWERCASE_SV, this.textStart) != -1 || 
-                      s.indexOf(IDENTIFIER_DISAMBIGUATION_UPPERCASE_SV, this.textStart) != -1;
+    Matcher matcher = disambPattern.matcher(page);
+    this.isDisambig = matcher.find();
     this.isRedirect = s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE) == 0 ||
                       s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE) == 0 ||
                       s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE_SV.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE_SV) == 0 ||

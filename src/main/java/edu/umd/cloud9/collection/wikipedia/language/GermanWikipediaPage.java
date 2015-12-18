@@ -27,6 +27,7 @@ import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
  * 
  * @author Peter Exner
  * @author Ferhan Ture
+ * @author Gaurav Ragtah (gaurav.ragtah@lithium.com)
  */
 public class GermanWikipediaPage extends WikipediaPage {
   /**
@@ -39,7 +40,7 @@ public class GermanWikipediaPage extends WikipediaPage {
   private static final String IDENTIFIER_REDIRECTION_CAPITALIZED_DE = "#Weiterleitung";
   private static final String IDENTIFIER_STUB_TEMPLATE = "stub}}";
   private static final String IDENTIFIER_STUB_WIKIPEDIA_NAMESPACE = "Wikipedia:Stub";
-  private static final Pattern disambPattern = Pattern.compile("\\{\\{begriffskl\u00E4rung\\}\\}", Pattern.CASE_INSENSITIVE);
+  protected static final Pattern DISAMB_PATTERN = Pattern.compile("\\{\\{begriffskl\u00E4rung\\}\\}", Pattern.CASE_INSENSITIVE);
   private static final String LANGUAGE_CODE = "de";
 
   /**
@@ -72,9 +73,12 @@ public class GermanWikipediaPage extends WikipediaPage {
     this.textStart = s.indexOf(XML_START_TAG_TEXT);
     this.textEnd = s.indexOf(XML_END_TAG_TEXT, this.textStart);
 
+    this.disambPattern = DISAMB_PATTERN;
+
     // determine if article is a disambiguation, redirection, and/or stub page.
     Matcher matcher = disambPattern.matcher(page);
     this.isDisambig = matcher.find();
+    this.disambPattern = disambPattern;
     this.isRedirect = s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE) == 0 ||
                       s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_LOWERCASE.length()).compareTo(IDENTIFIER_REDIRECTION_LOWERCASE) == 0 ||
                       s.substring(this.textStart + XML_START_TAG_TEXT.length(), this.textStart + XML_START_TAG_TEXT.length() + IDENTIFIER_REDIRECTION_UPPERCASE_DE.length()).compareTo(IDENTIFIER_REDIRECTION_UPPERCASE_DE) == 0 ||

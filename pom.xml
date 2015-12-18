@@ -100,13 +100,13 @@
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.5</version>
         <executions>
-          <execution>
+       <!--    <execution>
             <id>sign-artifacts</id>
             <phase>verify</phase>
             <goals>
               <goal>sign</goal>
             </goals>
-          </execution>
+          </execution> -->
         </executions>
       </plugin>
       <plugin>
